@@ -1,0 +1,1626 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Student Class Directory & Schedule Insight — Aperture</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2338bdf8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cline x1='14.31' y1='8' x2='20.05' y2='17.94'/%3E%3Cline x1='9.69' y1='8' x2='21.17' y2='8'/%3E%3Cline x1='7.38' y1='12' x2='13.12' y2='2.06'/%3E%3Cline x1='9.69' y1='16' x2='3.95' y2='6.06'/%3E%3Cline x1='14.31' y1='16' x2='2.83' y2='16'/%3E%3Cline x1='16.62' y1='12' x2='10.88' y2='21.94'/%3E%3C/svg%3E">
+
+    <link rel="preconnect" href="https://script.google.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>*,:after,:before{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgba(59,130,246,.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgba(59,130,246,.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/*! tailwindcss v3.4.19 | MIT License | https://tailwindcss.com*/*,:after,:before{box-sizing:border-box;border:0 solid #e5e7eb}:after,:before{--tw-content:""}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;-o-tab-size:4;tab-size:4;font-family:Inter,sans-serif;font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:JetBrains Mono,Fira Code,monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0}fieldset,legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::-moz-placeholder,textarea::-moz-placeholder{opacity:1;color:#9ca3af}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.container{width:100%}@media (min-width:640px){.container{max-width:640px}}@media (min-width:768px){.container{max-width:768px}}@media (min-width:1024px){.container{max-width:1024px}}@media (min-width:1280px){.container{max-width:1280px}}@media (min-width:1536px){.container{max-width:1536px}}.pointer-events-none{pointer-events:none}.pointer-events-auto{pointer-events:auto}.visible{visibility:visible}.fixed{position:fixed}.absolute{position:absolute}.relative{position:relative}.sticky{position:sticky}.inset-0{inset:0}.bottom-6{bottom:1.5rem}.left-1\/2{left:50%}.left-2\.5{left:.625rem}.left-3\.5{left:.875rem}.right-4{right:1rem}.top-0{top:0}.top-2{top:.5rem}.top-3{top:.75rem}.top-4{top:1rem}.z-40{z-index:40}.z-50{z-index:50}.z-\[100\]{z-index:100}.col-span-1{grid-column:span 1/span 1}.col-span-2{grid-column:span 2/span 2}.mx-auto{margin-left:auto;margin-right:auto}.mb-1{margin-bottom:.25rem}.mb-2{margin-bottom:.5rem}.mb-3{margin-bottom:.75rem}.ml-2{margin-left:.5rem}.ml-3{margin-left:.75rem}.mr-1{margin-right:.25rem}.mr-1\.5{margin-right:.375rem}.mt-0\.5{margin-top:.125rem}.mt-1{margin-top:.25rem}.mt-16{margin-top:4rem}.mt-2{margin-top:.5rem}.mt-3{margin-top:.75rem}.mt-4{margin-top:1rem}.mt-5{margin-top:1.25rem}.mt-auto{margin-top:auto}.block{display:block}.inline-block{display:inline-block}.flex{display:flex}.inline-flex{display:inline-flex}.table{display:table}.grid{display:grid}.hidden{display:none}.h-10{height:2.5rem}.h-12{height:3rem}.h-16{height:4rem}.h-6{height:1.5rem}.h-7{height:1.75rem}.h-8{height:2rem}.h-9{height:2.25rem}.max-h-\[90vh\]{max-height:90vh}.max-h-\[95vh\]{max-height:95vh}.w-10{width:2.5rem}.w-12{width:3rem}.w-6{width:1.5rem}.w-7{width:1.75rem}.w-9{width:2.25rem}.w-full{width:100%}.min-w-0{min-width:0}.max-w-3xl{max-width:48rem}.max-w-5xl{max-width:64rem}.max-w-6xl{max-width:72rem}.max-w-7xl{max-width:80rem}.max-w-\[200px\]{max-width:200px}.max-w-xl{max-width:36rem}.flex-1{flex:1 1 0%}.shrink-0{flex-shrink:0}.border-collapse{border-collapse:collapse}.-translate-x-1\/2{--tw-translate-x:-50%}.-translate-x-1\/2,.scale-100{transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.scale-100{--tw-scale-x:1;--tw-scale-y:1}.scale-95{--tw-scale-x:.95;--tw-scale-y:.95}.scale-95,.transform{transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.cursor-pointer{cursor:pointer}.list-decimal{list-style-type:decimal}.grid-cols-1{grid-template-columns:repeat(1,minmax(0,1fr))}.grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.flex-col{flex-direction:column}.flex-col-reverse{flex-direction:column-reverse}.flex-wrap{flex-wrap:wrap}.content-start{align-content:flex-start}.items-start{align-items:flex-start}.items-end{align-items:flex-end}.items-center{align-items:center}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-1\.5{gap:.375rem}.gap-2{gap:.5rem}.gap-2\.5{gap:.625rem}.gap-3{gap:.75rem}.gap-4{gap:1rem}.gap-5{gap:1.25rem}.gap-x-4{-moz-column-gap:1rem;column-gap:1rem}.gap-y-1{row-gap:.25rem}.space-y-1>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.25rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.25rem*var(--tw-space-y-reverse))}.space-y-2>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.5rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.5rem*var(--tw-space-y-reverse))}.space-y-4>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1rem*var(--tw-space-y-reverse))}.space-y-6>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1.5rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1.5rem*var(--tw-space-y-reverse))}.divide-y>:not([hidden])~:not([hidden]){--tw-divide-y-reverse:0;border-top-width:calc(1px*(1 - var(--tw-divide-y-reverse)));border-bottom-width:calc(1px*var(--tw-divide-y-reverse))}.divide-brand-border\/60>:not([hidden])~:not([hidden]){border-color:rgba(27,37,43,.6)}.self-end{align-self:flex-end}.overflow-hidden{overflow:hidden}.overflow-x-auto{overflow-x:auto}.overflow-y-auto{overflow-y:auto}.truncate{overflow:hidden;text-overflow:ellipsis}.truncate,.whitespace-nowrap{white-space:nowrap}.rounded{border-radius:5px}.rounded-full{border-radius:9999px}.border{border-width:1px}.border-b{border-bottom-width:1px}.border-b-2{border-bottom-width:2px}.border-l{border-left-width:1px}.border-r{border-right-width:1px}.border-t{border-top-width:1px}.border-\[\#1b252b\]{--tw-border-opacity:1;border-color:rgb(27 37 43/var(--tw-border-opacity,1))}.border-amber-500\/30{border-color:rgba(245,158,11,.3)}.border-brand-accent{--tw-border-opacity:1;border-color:rgb(56 189 248/var(--tw-border-opacity,1))}.border-brand-accent\/30{border-color:rgba(56,189,248,.3)}.border-brand-border{--tw-border-opacity:1;border-color:rgb(27 37 43/var(--tw-border-opacity,1))}.border-brand-border\/50{border-color:rgba(27,37,43,.5)}.border-brand-border\/60{border-color:rgba(27,37,43,.6)}.border-emerald-500{--tw-border-opacity:1;border-color:rgb(16 185 129/var(--tw-border-opacity,1))}.border-emerald-500\/20{border-color:rgba(16,185,129,.2)}.border-emerald-500\/30{border-color:rgba(16,185,129,.3)}.border-emerald-500\/50{border-color:rgba(16,185,129,.5)}.border-red-500{--tw-border-opacity:1;border-color:rgb(239 68 68/var(--tw-border-opacity,1))}.border-sky-500\/30{border-color:rgba(14,165,233,.3)}.bg-\[\#05070e\]\/85{background-color:rgba(5,7,14,.85)}.bg-amber-500\/10{background-color:rgba(245,158,11,.1)}.bg-amber-500\/15{background-color:rgba(245,158,11,.15)}.bg-brand-accent{--tw-bg-opacity:1;background-color:rgb(56 189 248/var(--tw-bg-opacity,1))}.bg-brand-accent\/10{background-color:rgba(56,189,248,.1)}.bg-brand-bg{--tw-bg-opacity:1;background-color:rgb(69 87 98/var(--tw-bg-opacity,1))}.bg-brand-card,.bg-brand-surface{--tw-bg-opacity:1;background-color:rgb(59 75 85/var(--tw-bg-opacity,1))}.bg-brand-surface\/60{background-color:rgba(59,75,85,.6)}.bg-brand-surface\/95{background-color:rgba(59,75,85,.95)}.bg-brand-surface2{--tw-bg-opacity:1;background-color:rgb(52 67 76/var(--tw-bg-opacity,1))}.bg-emerald-500{--tw-bg-opacity:1;background-color:rgb(16 185 129/var(--tw-bg-opacity,1))}.bg-emerald-500\/10{background-color:rgba(16,185,129,.1)}.bg-emerald-500\/20{background-color:rgba(16,185,129,.2)}.bg-sky-500\/10{background-color:rgba(14,165,233,.1)}.p-1\.5{padding:.375rem}.p-2{padding:.5rem}.p-3{padding:.75rem}.p-3\.5{padding:.875rem}.p-4{padding:1rem}.p-6{padding:1.5rem}.px-1{padding-left:.25rem;padding-right:.25rem}.px-1\.5{padding-left:.375rem;padding-right:.375rem}.px-2{padding-left:.5rem;padding-right:.5rem}.px-2\.5{padding-left:.625rem;padding-right:.625rem}.px-3{padding-left:.75rem;padding-right:.75rem}.px-4{padding-left:1rem;padding-right:1rem}.px-5{padding-left:1.25rem;padding-right:1.25rem}.py-0\.5{padding-top:.125rem;padding-bottom:.125rem}.py-1{padding-top:.25rem;padding-bottom:.25rem}.py-1\.5{padding-top:.375rem;padding-bottom:.375rem}.py-16{padding-top:4rem;padding-bottom:4rem}.py-2{padding-top:.5rem;padding-bottom:.5rem}.py-2\.5{padding-top:.625rem;padding-bottom:.625rem}.py-20{padding-top:5rem;padding-bottom:5rem}.py-3\.5{padding-top:.875rem;padding-bottom:.875rem}.py-4{padding-top:1rem;padding-bottom:1rem}.py-6{padding-top:1.5rem;padding-bottom:1.5rem}.py-8{padding-top:2rem;padding-bottom:2rem}.pl-1\.5{padding-left:.375rem}.pl-2{padding-left:.5rem}.pl-5{padding-left:1.25rem}.pl-7{padding-left:1.75rem}.pl-9{padding-left:2.25rem}.pr-10{padding-right:2.5rem}.pr-2{padding-right:.5rem}.pr-4{padding-right:1rem}.pt-2\.5{padding-top:.625rem}.pt-3{padding-top:.75rem}.pt-5{padding-top:1.25rem}.text-left{text-align:left}.text-center{text-align:center}.text-right{text-align:right}.font-mono{font-family:JetBrains Mono,Fira Code,monospace}.font-sans{font-family:Inter,sans-serif}.text-\[10px\]{font-size:10px}.text-\[11px\]{font-size:11px}.text-\[12px\]{font-size:12px}.text-\[13px\]{font-size:13px}.text-\[15px\]{font-size:15px}.text-\[8px\]{font-size:8px}.text-\[9px\]{font-size:9px}.text-base{font-size:1rem;line-height:1.5rem}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:.875rem;line-height:1.25rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-xs{font-size:.75rem;line-height:1rem}.font-bold{font-weight:700}.font-medium{font-weight:500}.font-semibold{font-weight:600}.uppercase{text-transform:uppercase}.leading-relaxed{line-height:1.625}.leading-tight{line-height:1.25}.tracking-tight{letter-spacing:-.025em}.tracking-wider{letter-spacing:.05em}.text-amber-300{--tw-text-opacity:1;color:rgb(252 211 77/var(--tw-text-opacity,1))}.text-amber-400{--tw-text-opacity:1;color:rgb(251 191 36/var(--tw-text-opacity,1))}.text-brand-accent{--tw-text-opacity:1;color:rgb(56 189 248/var(--tw-text-opacity,1))}.text-brand-accent\/70{color:rgba(56,189,248,.7)}.text-brand-bg{--tw-text-opacity:1;color:rgb(69 87 98/var(--tw-text-opacity,1))}.text-brand-text{--tw-text-opacity:1;color:rgb(248 250 252/var(--tw-text-opacity,1))}.text-emerald-300{--tw-text-opacity:1;color:rgb(110 231 183/var(--tw-text-opacity,1))}.text-emerald-400{--tw-text-opacity:1;color:rgb(52 211 153/var(--tw-text-opacity,1))}.text-emerald-500{--tw-text-opacity:1;color:rgb(16 185 129/var(--tw-text-opacity,1))}.text-emerald-500\/70{color:rgba(16,185,129,.7)}.text-emerald-500\/80{color:rgba(16,185,129,.8)}.text-orange-400{--tw-text-opacity:1;color:rgb(251 146 60/var(--tw-text-opacity,1))}.text-orange-500{--tw-text-opacity:1;color:rgb(249 115 22/var(--tw-text-opacity,1))}.text-red-400{--tw-text-opacity:1;color:rgb(248 113 113/var(--tw-text-opacity,1))}.text-sky-400{--tw-text-opacity:1;color:rgb(56 189 248/var(--tw-text-opacity,1))}.text-slate-100{--tw-text-opacity:1;color:rgb(241 245 249/var(--tw-text-opacity,1))}.text-slate-100\/70{color:rgba(241,245,249,.7)}.text-slate-200{--tw-text-opacity:1;color:rgb(226 232 240/var(--tw-text-opacity,1))}.text-slate-300{--tw-text-opacity:1;color:rgb(203 213 225/var(--tw-text-opacity,1))}.text-slate-400{--tw-text-opacity:1;color:rgb(148 163 184/var(--tw-text-opacity,1))}.text-slate-500{--tw-text-opacity:1;color:rgb(100 116 139/var(--tw-text-opacity,1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255/var(--tw-text-opacity,1))}.underline{text-decoration-line:underline}.antialiased{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}.opacity-0{opacity:0}.opacity-70{opacity:.7}.opacity-80{opacity:.8}.shadow-2xl{--tw-shadow:0 25px 50px -12px rgba(0,0,0,.25);--tw-shadow-colored:0 25px 50px -12px var(--tw-shadow-color)}.shadow-2xl,.shadow-inner{box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.shadow-inner{--tw-shadow:inset 0 2px 4px 0 rgba(0,0,0,.05);--tw-shadow-colored:inset 0 2px 4px 0 var(--tw-shadow-color)}.shadow-lg{--tw-shadow:0 10px 15px -3px rgba(0,0,0,.1),0 4px 6px -4px rgba(0,0,0,.1);--tw-shadow-colored:0 10px 15px -3px var(--tw-shadow-color),0 4px 6px -4px var(--tw-shadow-color)}.shadow-lg,.shadow-md{box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.shadow-md{--tw-shadow:0 4px 6px -1px rgba(0,0,0,.1),0 2px 4px -2px rgba(0,0,0,.1);--tw-shadow-colored:0 4px 6px -1px var(--tw-shadow-color),0 2px 4px -2px var(--tw-shadow-color)}.shadow-sm{--tw-shadow:0 1px 2px 0 rgba(0,0,0,.05);--tw-shadow-colored:0 1px 2px 0 var(--tw-shadow-color)}.shadow-sm,.shadow-xl{box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.shadow-xl{--tw-shadow:0 20px 25px -5px rgba(0,0,0,.1),0 8px 10px -6px rgba(0,0,0,.1);--tw-shadow-colored:0 20px 25px -5px var(--tw-shadow-color),0 8px 10px -6px var(--tw-shadow-color)}.outline-none{outline:2px solid transparent;outline-offset:2px}.outline{outline-style:solid}.blur{--tw-blur:blur(8px)}.blur,.filter{filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.backdrop-blur-md{--tw-backdrop-blur:blur(12px)}.backdrop-blur-md,.backdrop-blur-sm{-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.backdrop-blur-sm{--tw-backdrop-blur:blur(4px)}.backdrop-filter{-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.transition{transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,-webkit-backdrop-filter;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,-webkit-backdrop-filter;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.transition-all{transition-property:all;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.transition-colors{transition-property:color,background-color,border-color,text-decoration-color,fill,stroke;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.transition-opacity{transition-property:opacity;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.transition-transform{transition-property:transform;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.duration-300{transition-duration:.3s}.ease-out{transition-timing-function:cubic-bezier(0,0,.2,1)}.hover\:border-brand-accent:hover{--tw-border-opacity:1;border-color:rgb(56 189 248/var(--tw-border-opacity,1))}.hover\:border-brand-accent\/50:hover{border-color:rgba(56,189,248,.5)}.hover\:bg-brand-bg:hover{--tw-bg-opacity:1;background-color:rgb(69 87 98/var(--tw-bg-opacity,1))}.hover\:bg-brand-card:hover,.hover\:bg-brand-surface:hover{--tw-bg-opacity:1;background-color:rgb(59 75 85/var(--tw-bg-opacity,1))}.hover\:bg-sky-400:hover{--tw-bg-opacity:1;background-color:rgb(56 189 248/var(--tw-bg-opacity,1))}.hover\:text-brand-accent:hover{--tw-text-opacity:1;color:rgb(56 189 248/var(--tw-text-opacity,1))}.hover\:text-white:hover{--tw-text-opacity:1;color:rgb(255 255 255/var(--tw-text-opacity,1))}.group:hover .group-hover\:translate-x-0\.5{--tw-translate-x:0.125rem;transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.group:hover .group-hover\:text-white{--tw-text-opacity:1;color:rgb(255 255 255/var(--tw-text-opacity,1))}@media (min-width:640px){.sm\:relative{position:relative}.sm\:right-0{right:0}.sm\:top-0{top:0}.sm\:col-span-2{grid-column:span 2/span 2}.sm\:mt-0{margin-top:0}.sm\:inline{display:inline}.sm\:inline-flex{display:inline-flex}.sm\:w-auto{width:auto}.sm\:max-w-\[260px\]{max-width:260px}.sm\:grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.sm\:flex-row{flex-direction:row}.sm\:items-center{align-items:center}.sm\:gap-2\.5{gap:.625rem}.sm\:gap-3{gap:.75rem}.sm\:self-auto{align-self:auto}.sm\:whitespace-normal{white-space:normal}.sm\:border-l{border-left-width:1px}.sm\:border-t-0{border-top-width:0}.sm\:border-brand-border{--tw-border-opacity:1;border-color:rgb(27 37 43/var(--tw-border-opacity,1))}.sm\:p-4{padding:1rem}.sm\:p-5{padding:1.25rem}.sm\:p-6{padding:1.5rem}.sm\:px-6{padding-left:1.5rem;padding-right:1.5rem}.sm\:pl-4{padding-left:1rem}.sm\:pr-0{padding-right:0}.sm\:pt-0{padding-top:0}}@media (min-width:768px){.md\:inline{display:inline}.md\:grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.md\:p-8{padding:2rem}.md\:text-sm{font-size:.875rem;line-height:1.25rem}.md\:text-xl{font-size:1.25rem;line-height:1.75rem}}@media (min-width:1024px){.lg\:col-span-1{grid-column:span 1/span 1}.lg\:col-span-4{grid-column:span 4/span 4}.lg\:grid-cols-4{grid-template-columns:repeat(4,minmax(0,1fr))}.lg\:grid-cols-5{grid-template-columns:repeat(5,minmax(0,1fr))}}</style>
+    <style>i.fa-solid,i.fa-brands{display:inline-block;width:1em;height:1em;vertical-align:-.125em;font-style:normal;background-color:currentColor;-webkit-mask:var(--ic) center/contain no-repeat;mask:var(--ic) center/contain no-repeat;flex-shrink:0}
+@keyframes ic-spin{to{transform:rotate(360deg)}}
+i.fa-spin{animation:ic-spin 1s linear infinite}
+.fa-circle-notch{--ic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 12a9 9 0 1 1-6.219-8.56'/%3E%3C/svg%3E")}
+.fa-clock{--ic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M12 6v6l4 2'/%3E%3C/svg%3E")}
+.fa-rotate{--ic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8'/%3E%3Cpath d='M21 3v5h-5'/%3E%3C/svg%3E")}
+.fa-circle-question{--ic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3'/%3E%3Cpath d='M12 17h.01'/%3E%3C/svg%3E")}
+.fa-magnifying-glass{--ic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E")}
+.fa-angles-down{--ic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 6 5 5 5-5'/%3E%3Cpath d='m7 13 5 5 5-5'/%3E%3C/svg%3E")}
+.fa-id-card{--ic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='2' y='4' width='20' height='16' rx='2'/%3E%3Ccircle cx='9' cy='11' r='2'/%3E%3Cpath d='M15 9h3M15 13h3M6 17c.5-1.5 1.7-2 3-2s2.5.5 3 2'/%3E%3C/svg%3E")}
+.fa-envelope{--ic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='2' y='4' width='20' height='16' rx='2'/%3E%3Cpath d='m22 7-10 6L2 7'/%3E%3C/svg%3E")}
+.fa-copy{--ic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='9' y='9' width='13' height='13' rx='2'/%3E%3Cpath d='M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1'/%3E%3C/svg%3E")}
+.fa-code-compare{--ic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='18' cy='18' r='3'/%3E%3Ccircle cx='6' cy='6' r='3'/%3E%3Cpath d='M13 6h3a2 2 0 0 1 2 2v7'/%3E%3Cpath d='M11 18H8a2 2 0 0 1-2-2V9'/%3E%3C/svg%3E")}
+.fa-xmark{--ic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 6 6 18M6 6l12 12'/%3E%3C/svg%3E")}
+.fa-book-open{--ic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 7v14'/%3E%3Cpath d='M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z'/%3E%3C/svg%3E")}
+.fa-check{--ic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E")}
+.fa-house{--ic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8'/%3E%3Cpath d='M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'/%3E%3C/svg%3E")}
+.fa-door-open{--ic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M13 4h3a2 2 0 0 1 2 2v14'/%3E%3Cpath d='M2 20h3'/%3E%3Cpath d='M13 20h9'/%3E%3Cpath d='M10 12v.01'/%3E%3Cpath d='M13 4.562v16.157a1 1 0 0 1-1.242.97L5 20V5.562a2 2 0 0 1 1.515-1.94l4-1A2 2 0 0 1 13 4.561Z'/%3E%3C/svg%3E")}
+.fa-phone{--ic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z'/%3E%3C/svg%3E")}
+.fa-arrow-right{--ic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14M12 5l7 7-7 7'/%3E%3C/svg%3E")}
+.fa-user-slash{--ic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='9' cy='7' r='4'/%3E%3Cpath d='m17 8 5 5M22 8l-5 5'/%3E%3C/svg%3E")}
+.fa-shield-halved{--ic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z'/%3E%3C/svg%3E")}
+.fa-file-import{--ic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z'/%3E%3Cpath d='M14 2v4a2 2 0 0 0 2 2h4'/%3E%3Cpath d='M12 18v-6'/%3E%3Cpath d='m9 15 3 3 3-3'/%3E%3C/svg%3E")}
+.fa-circle-check{--ic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='m9 12 2 2 4-4'/%3E%3C/svg%3E")}
+.fa-check-circle{--ic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='m9 12 2 2 4-4'/%3E%3C/svg%3E")}
+.fa-circle-exclamation{--ic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M12 8v4M12 16h.01'/%3E%3C/svg%3E")}
+.fa-circle-info{--ic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M12 16v-4M12 8h.01'/%3E%3C/svg%3E")}
+.fa-triangle-exclamation{--ic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3'/%3E%3Cpath d='M12 9v4M12 17h.01'/%3E%3C/svg%3E")}
+.fa-globe{--ic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M2 12h20'/%3E%3Cpath d='M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z'/%3E%3C/svg%3E")}
+</style>
+
+    <style>
+        :root {
+            --radius: 5px;
+            --border-default: #1b252b;
+            --text-primary: #f8fafc;
+            --ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
+            --duration-fast: 120ms;
+        }
+
+        html { scroll-behavior: smooth; box-sizing: border-box; }
+        *, *::before, *::after { box-sizing: inherit; }
+
+        body {
+            background-color: #3d4d57;
+            color: #f8fafc;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-image:
+                radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.07) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(99, 102, 241, 0.05) 0px, transparent 50%),
+                radial-gradient(rgba(56, 189, 248, 0.08) 1px, transparent 1px);
+            background-size: auto, auto, 24px 24px;
+            background-attachment: fixed;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            margin: 0;
+        }
+
+        .font-mono, .mono { font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace; }
+
+        *:focus-visible { outline: 2px solid #1b252b; outline-offset: 2px; }
+        select option { background-color: #526b7a; color: #f8fafc; }
+
+        @media screen and (max-width: 768px) {
+            input, select, textarea { font-size: 16px !important; }
+        }
+
+        html, body, * { scrollbar-width: none !important; -ms-overflow-style: none !important; }
+        *::-webkit-scrollbar, html::-webkit-scrollbar, body::-webkit-scrollbar { display: none !important; width: 0 !important; height: 0 !important; }
+
+        .rounded, .rounded-sm, .rounded-md, .rounded-lg, .rounded-xl, button, input, select, textarea { border-radius: var(--radius) !important; }
+        .rounded-full { border-radius: 9999px !important; }
+
+        @keyframes fadeUp { 0% { opacity: 0; transform: translateY(8px); } 100% { opacity: 1; transform: translateY(0); } }
+        .animate-fade-up { opacity: 0; animation: fadeUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes fadeSlideIn { from { opacity: 0; transform: translateX(-15px); } to { opacity: 1; transform: translateX(0); } }
+        .animate-fade-slide { animation: fadeSlideIn 0.35s ease-out forwards; }
+
+        /* Brand utility overrides */
+        .text-brand-accent { color: #ffffff !important; font-weight: 700; }
+        .text-slate-100 { color: #f1f5f9 !important; }
+        .bg-brand-bg { background-color: #526b7a !important; }
+        .bg-brand-surface { background-color: #5a7382 !important; }
+        .bg-brand-surface2 { background-color: #526b7a !important; }
+        .bg-brand-card { background-color: #5a7382 !important; }
+        .border-brand-border { border-color: #1b252b !important; }
+        .border-brand-border\/50 { border-color: rgba(98, 123, 139, 0.5) !important; }
+        .border-brand-border\/60 { border-color: rgba(98, 123, 139, 0.6) !important; }
+        .border-brand-accent { border-color: #ffffff !important; }
+        .border-brand-accent\/30 { border-color: rgba(56, 189, 248, 0.3) !important; }
+        .border-brand-accent\/40 { border-color: rgba(56, 189, 248, 0.4) !important; }
+        .border-brand-accent\/50 { border-color: rgba(56, 189, 248, 0.5) !important; }
+        .bg-brand-accent { background-color: #ffffff !important; color: #2a373f !important; }
+        .bg-brand-accent\/10 { background-color: rgba(56, 189, 248, 0.1) !important; }
+
+        /* Typography */
+        p { color: #f1f5f9 !important; }
+        h1, h2, h3, h4, h5, h6 { color: #ffffff !important; font-weight: 700 !important; }
+        code, kbd {
+            background: rgba(255, 255, 255, 0.14) !important;
+            color: #ffffff !important;
+            border: 1px solid rgba(255, 255, 255, 0.24) !important;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+        }
+
+        /* Inputs */
+        input.dir-input, select.dir-input {
+            background: rgba(65, 87, 100, 0.75) !important;
+            border: 1.5px solid #1b252b !important;
+            color: #ffffff !important;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 4px 14px rgba(0, 0, 0, 0.22) !important;
+        }
+        input.dir-input::placeholder { color: #cbd5e1 !important; opacity: 0.85; }
+        input.dir-input:focus, select.dir-input:focus {
+            border-color: #1b252b !important;
+            background: rgba(78, 102, 116, 0.9) !important;
+            box-shadow: 0 0 0 2px #1b252b, 0 0 22px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.32) !important;
+        }
+
+        /* Header */
+        header.sticky {
+            background: rgba(69, 87, 98, 0.92) !important;
+            backdrop-filter: blur(16px) saturate(170%);
+            -webkit-backdrop-filter: blur(16px) saturate(170%);
+            border-bottom: 2px solid #1b252b !important;
+            box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+        }
+        header button, #help-close-btn {
+            background: rgba(90, 115, 130, 0.75) !important;
+            border: 1px solid #1b252b !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.24) !important;
+            transition: all var(--duration-fast) var(--ease-smooth) !important;
+        }
+        header button:hover, #help-close-btn:hover {
+            background: rgba(105, 130, 145, 0.92) !important;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.38) !important;
+        }
+
+        /* Help modal glass */
+        #help-modal > div {
+            background: rgba(58, 78, 91, 0.97) !important;
+            border: 1.5px solid #1b252b !important;
+            box-shadow: 0 35px 80px -15px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.1), inset 0 1px 1px 0 rgba(255, 255, 255, 0.3) !important;
+        }
+        #help-modal section > p, #help-modal .grid > div {
+            background: rgba(76, 99, 113, 0.65) !important;
+            border: 1px solid #1b252b !important;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 4px 14px rgba(0, 0, 0, 0.22) !important;
+        }
+        #help-modal .grid > div span.text-slate-100 { color: #e2e8f0 !important; font-weight: 500 !important; }
+    </style>
+</head>
+<body class="antialiased flex flex-col justify-between">
+
+    <datalist id="compare-student-list"></datalist>
+
+    <!-- ══════════════ NAVIGATION BAR ══════════════ -->
+    <header class="sticky top-0 z-40 border-b-2 border-[#1b252b]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between w-full">
+
+            <div class="flex items-center gap-2">
+                <div id="live-period-badge" class="inline-flex items-center gap-1.5 bg-brand-bg border border-brand-border text-brand-accent font-mono text-xs px-2.5 py-1.5 rounded">
+                    <i class="fa-solid fa-clock"></i>
+                    <span id="live-period-text">Checking Bell...</span>
+                </div>
+                <div id="status-banner" class="hidden sm:inline-flex items-center gap-1.5 bg-brand-bg border border-brand-border text-brand-accent font-mono text-xs px-2.5 py-1.5 rounded uppercase tracking-wider">
+                    <i class="fa-solid fa-circle-notch fa-spin text-xs" id="status-banner-icon"></i>
+                    <span id="banner-count-text">Connecting...</span>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2 sm:gap-2.5">
+                <button id="help-menu-btn" aria-label="Help & Operators" class="inline-flex items-center gap-2 px-3 py-1.5 rounded text-xs font-mono outline-none cursor-pointer">
+                    <i class="fa-solid fa-circle-question"></i>
+                    <span class="hidden md:inline">Guide</span>
+                </button>
+                <button id="refresh-btn" aria-label="Refresh Sheet Data" class="inline-flex items-center gap-2 px-3 py-1.5 rounded text-xs font-mono outline-none cursor-pointer">
+                    <i class="fa-solid fa-rotate" id="refresh-icon"></i>
+                    <span class="hidden md:inline">Re-Sync</span>
+                </button>
+            </div>
+
+        </div>
+    </header>
+
+    <main class="animate-fade-slide max-w-7xl mx-auto px-4 sm:px-6 py-6 flex-1 w-full flex flex-col gap-5">
+
+        <!-- Filters -->
+        <div class="bg-brand-surface border border-brand-border rounded p-3.5 sm:p-4 shadow-md">
+            <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-2 sm:gap-3 font-mono text-xs">
+                <div class="relative col-span-2 sm:col-span-2 lg:col-span-1">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-xs text-slate-100"></i>
+                    <input type="text" id="search-input" aria-label="Advanced Directory Search" placeholder="Search, or try 'teach: smith'" autocomplete="off"
+                           class="dir-input w-full rounded pl-9 pr-4 py-2 outline-none transition-colors">
+                </div>
+
+                <div>
+                    <select id="sort-select" aria-label="Sort Results" class="dir-input w-full rounded px-3 py-2 outline-none transition-colors cursor-pointer">
+                        <option value="relevance">Sort: Relevance</option>
+                        <option value="first-asc">First Name (A-Z)</option>
+                        <option value="first-desc">First Name (Z-A)</option>
+                        <option value="last-asc">Last Name (A-Z)</option>
+                        <option value="last-desc">Last Name (Z-A)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <select id="grade-select" aria-label="Filter by Grade" class="dir-input w-full rounded px-3 py-2 outline-none transition-colors cursor-pointer">
+                        <option value="">All Grades</option>
+                        <option value="9th Grade">9th Grade</option>
+                        <option value="10th Grade">10th Grade</option>
+                        <option value="11th Grade">11th Grade</option>
+                        <option value="12th Grade">12th Grade</option>
+                    </select>
+                </div>
+
+                <div>
+                    <select id="period-filter-select" aria-label="Filter by Period Match" class="dir-input w-full rounded px-3 py-2 outline-none transition-colors cursor-pointer">
+                        <option value="">Any Period Match</option>
+                        <option value="1">Period 1</option>
+                        <option value="2">Period 2</option>
+                        <option value="3">Period 3</option>
+                        <option value="4">Period 4</option>
+                        <option value="5">Period 5</option>
+                        <option value="6">Period 6</option>
+                        <option value="7">Period 7</option>
+                        <option value="homeroom">Homeroom</option>
+                    </select>
+                </div>
+
+                <div>
+                    <select id="teacher-select" aria-label="Filter by Teacher" class="dir-input w-full rounded px-3 py-2 outline-none transition-colors cursor-pointer">
+                        <option value="">All Teachers</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex items-center justify-between text-xs font-mono text-slate-100 px-1">
+            <span id="results-count">Showing 0 records</span>
+            <span id="sync-time"></span>
+        </div>
+
+        <!-- Table -->
+        <div class="border border-brand-border rounded bg-brand-surface overflow-hidden flex flex-col shadow-xl">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-xs whitespace-nowrap sm:whitespace-normal">
+                    <thead class="bg-brand-surface2 border-b border-brand-border text-[11px] font-mono uppercase text-slate-100 tracking-wider">
+                        <tr>
+                            <th class="py-3.5 px-5 font-semibold">Student Name</th>
+                            <th class="py-3.5 px-5 font-semibold">Grade</th>
+                            <th class="py-3.5 px-5 font-semibold">Current Location</th>
+                            <th class="py-3.5 px-5 font-semibold">Next Period</th>
+                            <th class="py-3.5 px-5 font-semibold text-right">Insight</th>
+                        </tr>
+                    </thead>
+                    <tbody id="student-table-body" class="divide-y divide-brand-border/60 bg-brand-surface">
+                        <tr>
+                            <td colspan="5" class="text-center py-20 text-slate-100">
+                                <i class="fa-solid fa-circle-notch fa-spin text-brand-accent text-xl mb-3"></i>
+                                <div>Loading directory data...</div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="load-more-wrapper" class="hidden p-4 border-t border-brand-border bg-brand-surface flex justify-center">
+                <button id="load-more-btn" class="w-full py-2.5 bg-brand-surface2 border border-brand-border text-brand-accent rounded text-xs font-mono hover:bg-brand-card hover:border-brand-accent/50 transition-all outline-none flex items-center justify-center gap-2 shadow-sm cursor-pointer">
+                    <i class="fa-solid fa-angles-down"></i> Load More Results
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="platform-footer border-t border-brand-border/60 bg-brand-surface/60 backdrop-blur-md mt-16 py-8 text-center text-xs text-slate-300 font-mono">
+        <div class="max-w-6xl mx-auto px-4 space-y-2">
+            <div class="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-slate-200 font-medium">
+                <span>&copy; 2026 Aperture. All rights reserved.</span>
+                <span class="hidden sm:inline text-slate-500">•</span>
+                <span>Aperture is owned and operated by Farren Solutions which is owned by TheFarwaydev.</span>
+            </div>
+            <p class="text-[11px] text-slate-400">Next-generation platform runtime, utility ecosystem & command portal.</p>
+        </div>
+    </footer>
+
+    <!-- Student Details & Compare Modal -->
+    <div id="student-modal" class="fixed inset-0 z-50 bg-[#05070e]/85 backdrop-blur-sm hidden items-center justify-center p-4 transition-opacity duration-300 opacity-0" aria-modal="true" role="dialog">
+        <div class="bg-brand-surface border border-brand-border rounded max-w-5xl w-full shadow-2xl flex flex-col max-h-[95vh] transform transition-transform duration-300 scale-95 overflow-hidden" id="modal-content">
+
+            <div class="p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shrink-0 relative border-b border-brand-border">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full pr-10 sm:pr-0">
+                    <div class="flex items-center gap-3 min-w-0">
+                        <div class="w-10 h-10 rounded bg-sky-500/10 border border-sky-500/30 flex items-center justify-center text-brand-accent shrink-0">
+                            <i class="fa-solid fa-id-card text-lg"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <h2 id="modal-student-name" class="text-base font-bold text-white tracking-tight leading-tight truncate">Student Name</h2>
+                            <div class="flex items-center gap-2 mt-1 flex-wrap">
+                                <span id="modal-student-grade" class="text-[10px] font-mono text-brand-accent bg-brand-surface2 px-2 py-0.5 rounded border border-brand-border shrink-0">Grade</span>
+                                <a href="#" id="modal-student-email-btn" class="inline-flex items-center justify-center px-2 h-6 rounded bg-brand-surface2 border border-brand-border text-slate-100 hover:text-brand-accent hover:border-brand-accent transition-colors gap-1.5 font-mono text-[10px] truncate max-w-[200px]">
+                                    <i class="fa-solid fa-envelope shrink-0"></i> <span id="modal-student-email-text" class="truncate">email@domain</span>
+                                </a>
+                                <button id="modal-copy-schedule-btn" class="inline-flex items-center justify-center px-2 h-6 rounded bg-brand-surface2 border border-brand-border text-slate-100 hover:text-brand-accent hover:border-brand-accent transition-colors gap-1.5 font-mono text-[10px] cursor-pointer shrink-0" title="Copy Schedule to Clipboard">
+                                    <i class="fa-solid fa-copy"></i> <span>Copy Schedule</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="w-full sm:w-auto mt-2 sm:mt-0 pt-3 sm:pt-0 border-t border-brand-border sm:border-t-0 sm:border-l sm:pl-4 flex-1">
+                        <label for="modal-compare-input" class="text-[10px] font-mono text-slate-100 block mb-1">Compare Schedule with Classmate:</label>
+                        <div class="relative w-full sm:max-w-[260px]">
+                            <i class="fa-solid fa-code-compare absolute left-2.5 top-2 text-[11px] text-slate-100"></i>
+                            <input type="text" id="modal-compare-input" list="compare-student-list" placeholder="Search student name..." class="dir-input w-full h-8 pl-7 pr-2 rounded text-xs outline-none transition-colors">
+                        </div>
+                    </div>
+                </div>
+
+                <button id="modal-close-btn" class="absolute top-4 right-4 sm:relative sm:top-0 sm:right-0 text-slate-100 hover:text-white transition-colors outline-none rounded bg-brand-surface2 border border-brand-border hover:border-brand-accent w-7 h-7 flex items-center justify-center shrink-0 cursor-pointer" aria-label="Close Modal">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+
+            <div class="p-4 sm:p-5 bg-brand-surface2 border-t border-brand-border overflow-y-auto">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 content-start" id="modal-schedule-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Help & Operators Modal -->
+    <div id="help-modal" class="fixed inset-0 z-50 bg-[#05070e]/85 backdrop-blur-sm hidden items-center justify-center p-4 transition-opacity duration-300 opacity-0" aria-modal="true" role="dialog">
+        <div class="bg-brand-surface border border-brand-border rounded max-w-5xl w-full shadow-2xl flex flex-col max-h-[95vh] transform transition-transform duration-300 scale-95 overflow-hidden" id="help-modal-content">
+
+            <div class="p-4 sm:p-5 flex items-center justify-between shrink-0 border-b border-brand-border">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded bg-sky-500/10 border border-sky-500/30 flex items-center justify-center text-brand-accent shrink-0">
+                        <i class="fa-solid fa-book-open text-lg"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-base font-bold text-white tracking-tight leading-tight">System Operations &amp; Search Guide</h2>
+                        <div class="text-[10px] font-mono text-slate-100 mt-0.5">Directory Syntax &amp; Hotkeys</div>
+                    </div>
+                </div>
+                <button id="help-close-btn" class="text-slate-100 hover:text-white transition-colors outline-none rounded bg-brand-surface2 border border-brand-border hover:border-brand-accent w-7 h-7 flex items-center justify-center shrink-0 cursor-pointer" aria-label="Close Modal">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+
+            <div class="p-4 sm:p-6 bg-brand-surface2 border-t border-brand-border overflow-y-auto space-y-6 text-sm text-slate-100">
+                <section>
+                    <h3 class="text-brand-accent font-mono text-[11px] uppercase tracking-wider mb-2 font-bold">Standard Navigation</h3>
+                    <p class="leading-relaxed text-slate-100 bg-brand-surface border border-brand-border p-3.5 rounded text-xs">The directory uses intelligent fuzzy-matching. You can type partial names, rooms, or teacher names directly into the search bar. Use the dropdown menus to broadly filter by grade, teacher, or specific periods without needing syntax.</p>
+                </section>
+
+                <section>
+                    <h3 class="text-brand-accent font-mono text-[11px] uppercase tracking-wider mb-2 font-bold">Advanced Search Operators</h3>
+                    <p class="mb-3 text-slate-100 text-xs">Combine precise filters using comma-separated clauses and colon operators <code class="bg-brand-surface border border-brand-border px-1.5 py-0.5 rounded text-xs text-brand-accent font-mono">key: value</code>.</p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 font-mono text-xs">
+                        <div class="bg-brand-surface border border-brand-border p-3.5 rounded flex flex-col justify-between">
+                            <span class="text-brand-accent block mb-1 font-semibold">teach: [name]</span>
+                            <span class="text-slate-100 text-[11px]">Finds students with a specific teacher at any point.</span>
+                        </div>
+                        <div class="bg-brand-surface border border-brand-border p-3.5 rounded flex flex-col justify-between">
+                            <span class="text-brand-accent block mb-1 font-semibold">activeper: [1-7]</span>
+                            <span class="text-slate-100 text-[11px]">Scopes room/teacher searches strictly to a specific period.</span>
+                        </div>
+                        <div class="bg-brand-surface border border-brand-border p-3.5 rounded flex flex-col justify-between">
+                            <span class="text-brand-accent block mb-1 font-semibold">room: [number]</span>
+                            <span class="text-slate-100 text-[11px]">Finds students located in a specific room number.</span>
+                        </div>
+                        <div class="bg-brand-surface border border-brand-border p-3.5 rounded flex flex-col justify-between">
+                            <span class="text-brand-accent block mb-1 font-semibold">lunch: [A/B/C]</span>
+                            <span class="text-slate-100 text-[11px]">Finds students assigned to a specific lunch block.</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-3 p-3.5 bg-brand-surface border border-brand-border rounded flex flex-col sm:flex-row sm:items-center gap-3">
+                        <div class="shrink-0">
+                            <span class="block text-brand-accent font-semibold mb-1 text-xs">Example Query:</span>
+                            <code class="font-mono text-white text-xs bg-brand-bg px-2 py-1 rounded border border-brand-border">marshall, activeper: 5, teach: phiri</code>
+                        </div>
+                        <p class="text-xs text-slate-100 sm:border-l sm:border-brand-border sm:pl-4 mt-1 sm:mt-0">Locates "Marshall" specifically when in "Phiri's" class during "Period 5".</p>
+                    </div>
+                </section>
+
+                <section>
+                    <h3 class="text-brand-accent font-mono text-[11px] uppercase tracking-wider mb-2 font-bold">Keyboard Shortcuts</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div class="bg-brand-surface border border-brand-border p-3.5 rounded flex items-center gap-4">
+                            <kbd class="bg-brand-bg border border-brand-border px-2.5 py-1 rounded font-mono text-xs text-brand-accent shadow-sm">/</kbd>
+                            <span class="text-slate-100 text-xs">Focus global search bar</span>
+                        </div>
+                        <div class="bg-brand-surface border border-brand-border p-3.5 rounded flex items-center gap-4">
+                            <kbd class="bg-brand-bg border border-brand-border px-2.5 py-1 rounded font-mono text-xs text-brand-accent shadow-sm">Esc</kbd>
+                            <span class="text-slate-100 text-xs">Close active modal or clear focus</span>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-container" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex flex-col-reverse items-center gap-2 pointer-events-none"></div>
+
+    <script>
+        const BASE_SCRIPT_ID = "AKfycbzkp2YFmT6QT-mRMu2dfCUCriQKOgDE7jrkMTzHKA_DIEmBsIFcGLe_X6sZmpZxUYg";
+        const CACHE_KEY = "charger_directory_data_v6";
+        let renderLimit = 50;
+
+        let studentsList = [];
+        let lastKnownPeriod = null;
+        let lastSerialized = '';
+        let syncInFlight = false;
+        let hasToastedSync = false;
+        window.currentViewedStudent = null;
+
+        /* Hardcoded Teacher Room & Extension Directory */
+        const TEACHER_ROOMS_DB = [
+            { name: "Arnold, Matt", room: "401", ext: "1-3401" }, { name: "Baron, Jennifer", room: "201", ext: "1-3201" },
+            { name: "Barranda, Lisa", room: "209", ext: "1-3209" }, { name: "Bauer, Jamie", room: "220", ext: "1-3220" },
+            { name: "Becker, Alyssa", room: "A22", ext: "1-3925" }, { name: "Beckley, Nol", room: "254", ext: "1-3254" },
+            { name: "Beers, Betsy", room: "A20", ext: "1-3926" }, { name: "Bird, Michael", room: "502", ext: "1-3502" },
+            { name: "Booker, Brian", room: "156", ext: "1-3156" }, { name: "Brenner, Michelle", room: "B16", ext: "1-3936" },
+            { name: "Briggs, Dan", room: "D14", ext: "1-3939" }, { name: "Brisco, Chris", room: "252", ext: "1-3252" },
+            { name: "Brooks, David", room: "C16", ext: "1-3946" }, { name: "Brubaker, Helen", room: "251", ext: "1-3251" },
+            { name: "Buranj, Jena", room: "215", ext: "1-3215" }, { name: "Buzzard, Taylor", room: "165", ext: "1-3165" },
+            { name: "Chapman, Scott", room: "106", ext: "1-3106" }, { name: "Colbert, Beldina", room: "210", ext: "1-3210" },
+            { name: "Cordobes, Alec", room: "237", ext: "1-3237" }, { name: "Cripe, Madeline", room: "250", ext: "1-3250" },
+            { name: "Croft, Tod", room: "202", ext: "1-3202" }, { name: "Croy, Nicole", room: "320", ext: "1-3328" },
+            { name: "Culbertson, Maria", room: "B17", ext: "1-3950" }, { name: "Cureton, Seth", room: "270", ext: "1-3270" },
+            { name: "Davis, Branden", room: "105", ext: "1-3105" }, { name: "Dinan, Doug", room: "207", ext: "1-3207" },
+            { name: "Driver, Steve", room: "B19", ext: "1-3938" }, { name: "Epperson, Angela", room: "262", ext: "1-3262" },
+            { name: "Ewing, Kristy", room: "100", ext: "1-3100" }, { name: "Fiedler, Jacob", room: "C12", ext: "1-3942" },
+            { name: "Force, Schyler", room: "158", ext: "1-3158" }, { name: "Forrest, Erin", room: "B12", ext: "1-3932" },
+            { name: "Forth, Elliot", room: "500", ext: "1-3500" }, { name: "Francies, Christine", room: "504", ext: "1-3504" },
+            { name: "Frazier, Phil", room: "302", ext: "1-3302" }, { name: "Freitas, Renee", room: "153", ext: "1-3153" },
+            { name: "Galligher, Bailey", room: "263", ext: "1-3263" }, { name: "Gentis, Donovan", room: "265", ext: "1-3265" },
+            { name: "Gettys, Jessica", room: "259", ext: "1-3259" }, { name: "Ginder, Dave", room: "218", ext: "1-3218" },
+            { name: "Givens, Jack", room: "E17", ext: "1-3917" }, { name: "Gonzalez, Gloria", room: "256", ext: "1-3256" },
+            { name: "Gordy, Julie", room: "259", ext: "1-3259" }, { name: "Gray, Adam", room: "259", ext: "1-3259" },
+            { name: "Hanes, Marie", room: "203", ext: "1-3203" }, { name: "Harris, Cassie", room: "166", ext: "1-3166" },
+            { name: "Harrison, Ivy", room: "262", ext: "1-3262" }, { name: "Harshey, Makenzie", room: "318", ext: "1-3318" },
+            { name: "Hartman, Joel", room: "141", ext: "1-3141" }, { name: "Hartman, Nathan", room: "161", ext: "1-3161" },
+            { name: "Hassell, Doug", room: "300", ext: "1-3300" }, { name: "Heidenreich, Kelly", room: "D12", ext: "1-3934" },
+            { name: "Hensinger, Tad", room: "C10", ext: "1-3940" }, { name: "Herald, Valerie", room: "231", ext: "1-3231" },
+            { name: "Hobbs, Ashley", room: "E17", ext: "1-3917" }, { name: "Hochstetler, Alisha", room: "216", ext: "1-3216" },
+            { name: "Hopkins, Melinda", room: "268", ext: "1-3268" }, { name: "Huhn, Mary", room: "162", ext: "1-3162" },
+            { name: "Jeran, Jill", room: "310", ext: "1-3310" }, { name: "Jones, Dan", room: "500", ext: "1-3500" },
+            { name: "Julian, Braden", room: "412", ext: "1-3412" }, { name: "Karst, Cheyenne", room: "408", ext: "1-3408" },
+            { name: "Keith, Leanna", room: "243", ext: "1-3243" }, { name: "Kelley, Corbin", room: "239", ext: "1-3239" },
+            { name: "Kelly, Katie", room: "269", ext: "1-3269" }, { name: "Kieffer, Dan", room: "416", ext: "1-3416" },
+            { name: "Kieffer, Jen", room: "101", ext: "1-3101" }, { name: "Klein, Mike", room: "266", ext: "1-3266" },
+            { name: "Knight, Olivia", room: "212", ext: "1-3212" }, { name: "Knorr, Dave", room: "157", ext: "1-3157" },
+            { name: "Kruger, Christine", room: "C20", ext: "1-3941" }, { name: "Kuhn, Maranda", room: "110", ext: "1-3110" },
+            { name: "Lalonde, Monica", room: "C22", ext: "1-3943" }, { name: "Lee, Logan", room: "D11", ext: "1-3951" },
+            { name: "Leming, Brandi", room: "133", ext: "1-3133" }, { name: "Leon, Jackie", room: "109", ext: "1-3109" },
+            { name: "Lomont, Kennedy", room: "240", ext: "1-3240" }, { name: "Lopez Lorou, Dunia", room: "155", ext: "1-3155" },
+            { name: "Lung, Amy", room: "244", ext: "1-3244" }, { name: "Martin, Brandon", room: "500", ext: "1-3500" },
+            { name: "McCool, Rebekah", room: "206", ext: "1-3206" }, { name: "McKerr, Robbie", room: "E13", ext: "1-3920" },
+            { name: "Miller, Luke", room: "102", ext: "1-3102" }, { name: "Mohr, Denise", room: "A13", ext: "1-3976" },
+            { name: "Ndlovu, Jennifer", room: "163", ext: "1-3163" }, { name: "Nguyen, Scott", room: "B13", ext: "1-3933" },
+            { name: "Nodine, Nick", room: "200", ext: "1-3200" }, { name: "Olinske, Tyler", room: "411", ext: "1-3411" },
+            { name: "Phiri, Jessica", room: "272", ext: "1-3272" }, { name: "Potter, Dawn", room: "503", ext: "1-3503" },
+            { name: "Ratliff, Angela", room: "246", ext: "1-3246" }, { name: "Raypole, Scott", room: "108", ext: "1-3108" },
+            { name: "Repp, Jennifer", room: "245", ext: "1-3245" }, { name: "Rickert, Elissa", room: "171", ext: "1-3171" },
+            { name: "Riley, Trina", room: "159", ext: "1-3159" }, { name: "Ringle, Carter", room: "C14", ext: "1-3944" },
+            { name: "Rohrbacher, Reid", room: "139", ext: "1-3139" }, { name: "Ruselink, Cheryl", room: "273", ext: "1-3273" },
+            { name: "Sarrazine, Haley", room: "253", ext: "1-3253" }, { name: "Scare, Liz", room: "A24", ext: "1-3927" },
+            { name: "Schaffner, Mike", room: "271", ext: "1-3271" }, { name: "Schoeph, Maggie", room: "142", ext: "1-3142" },
+            { name: "Scholz, Nancy", room: "172", ext: "1-3172" }, { name: "Semba, Laura", room: "164", ext: "1-3164" },
+            { name: "Shamblin, Erin", room: "261", ext: "1-3261" }, { name: "Sholl, Meaghan", room: "151", ext: "1-3151" },
+            { name: "Sirois, Michelle", room: "140", ext: "1-3140" }, { name: "Smith, Haleigh", room: "217", ext: "1-3217" },
+            { name: "Sneed, Kasey", room: "170", ext: "1-3170" }, { name: "Souliske, Jonathan", room: "D10", ext: "1-3979" },
+            { name: "Stegenga, Sarah", room: "264", ext: "1-3264" }, { name: "Stetter, Meghan", room: "A17", ext: "1-3928" },
+            { name: "Straley, Garrett", room: "262", ext: "1-3262" }, { name: "Taylor, Ryan", room: "138", ext: "1-3138" },
+            { name: "Turner, Jordan", room: "232", ext: "1-3232" }, { name: "Turner, Tara", room: "321", ext: "1-3319" },
+            { name: "Vanderkolk, Michael", room: "400", ext: "1-3400" }, { name: "Walker, Jim", room: "107", ext: "1-3107" },
+            { name: "Wallace, Summer", room: "256", ext: "1-3256" }, { name: "Weibel, Steven", room: "261", ext: "1-3261" },
+            { name: "Williams, Kim", room: "256", ext: "1-3256" }, { name: "Wilson, Drew", room: "414", ext: "1-3414" },
+            { name: "Wohfeil, Marissa", room: "134", ext: "1-3134" }, { name: "Wood, Rick", room: "160", ext: "1-3160" },
+            { name: "Zhao, Lionel", room: "103", ext: "1-3103" }
+        ];
+
+        const TEACHER_LUNCH_DB = [
+            { name: "Anon, CH", lunch: "A" }, { name: "Beers, Elizabeth", lunch: "A" }, { name: "Brenner, Michelle", lunch: "A" },
+            { name: "Briggs, Dan", lunch: "A" }, { name: "Brooks, David", lunch: "A" }, { name: "Cordobes, Alec", lunch: "A" },
+            { name: "Croy, Nicole", lunch: "A" }, { name: "Culbertson, Maria", lunch: "A" }, { name: "Cureton, Seth", lunch: "A" },
+            { name: "Driver, Steve", lunch: "A" }, { name: "Fiedler, Jacob", lunch: "A" }, { name: "Force, Schyler", lunch: "A" },
+            { name: "Forrest, Erin", lunch: "A" }, { name: "Galligher, Bailey", lunch: "A" }, { name: "Ginder, Dave", lunch: "A" },
+            { name: "Givens, Jack", lunch: "A" }, { name: "Harris, Cassie", lunch: "A" }, { name: "Hensinger, Tad", lunch: "A" },
+            { name: "Karst, Cheyenne", lunch: "A" }, { name: "Keith, Leanna", lunch: "A" }, { name: "Kieffer, Daniel", lunch: "A" },
+            { name: "Knight, Olivia", lunch: "A" }, { name: "Lalonde, Monica", lunch: "A" }, { name: "Lapin, Stacy", lunch: "A" },
+            { name: "Lee, Logan", lunch: "A" }, { name: "Leming, Brandi", lunch: "A" }, { name: "Lung, Amy", lunch: "A" },
+            { name: "Menge, Patricia", lunch: "A" }, { name: "Mohr, Denise", lunch: "A" }, { name: "Nguyen, Scott", lunch: "A" },
+            { name: "Nodine, Nick", lunch: "A" }, { name: "Ratliff, Angela", lunch: "A" }, { name: "Sarrazine, Haley", lunch: "A" },
+            { name: "Scare, Liz", lunch: "A" }, { name: "Schaffner, Michael", lunch: "A" }, { name: "Schoeph, Maggie", lunch: "A" },
+            { name: "Souliske, Jonathan", lunch: "A" }, { name: "Stetter, Meghan", lunch: "A" }, { name: "Turner, Tara", lunch: "A" },
+
+            { name: "English, Arnold", lunch: "B" }, { name: "Beckley, Nol", lunch: "B" }, { name: "Bilos, Meikka", lunch: "B" },
+            { name: "Bird, Michael", lunch: "B" }, { name: "Buzzard, Taylor", lunch: "B" }, { name: "Colbert, Beldina", lunch: "B" },
+            { name: "Croft, Tod", lunch: "B" }, { name: "Dhariwal, Maria", lunch: "B" }, { name: "Dinan, Douglas", lunch: "B" },
+            { name: "Gardner, Camilla", lunch: "B" }, { name: "Geeslin, Katy", lunch: "B" }, { name: "Gentis, Donovan", lunch: "B" },
+            { name: "Gordy, Julie", lunch: "B" }, { name: "Harshey, Makenzie", lunch: "B" }, { name: "Hartman, Joel", lunch: "B" },
+            { name: "Herald, Valerie", lunch: "B" }, { name: "Hisner, Gavin", lunch: "B" }, { name: "Hopkins, Melinda", lunch: "B" },
+            { name: "Julian, Braden", lunch: "B" }, { name: "Klein, Michael", lunch: "B" }, { name: "Lopez Lorou, Dunia", lunch: "B" },
+            { name: "McCool, Rebekah", lunch: "B" }, { name: "Ndlovu, Jenn", lunch: "B" }, { name: "Nesser, Caryn", lunch: "B" },
+            { name: "Phiri, Jessica", lunch: "B" }, { name: "Potter, Dawn", lunch: "B" }, { name: "Rickert, Elissa", lunch: "B" },
+            { name: "Riley, Trina", lunch: "B" }, { name: "Rohrbacher, Reid", lunch: "B" }, { name: "Scholz, Nancy", lunch: "B" },
+            { name: "Shamblin, Erin", lunch: "B" }, { name: "Sholl, Meaghan", lunch: "B" }, { name: "Sirois, Michelle", lunch: "B" },
+            { name: "Sneed, Kasey", lunch: "B" }, { name: "Taylor, Ryan", lunch: "B" }, { name: "Vanderkolk, Michael", lunch: "B" },
+            { name: "Wallace, Somer", lunch: "B" }, { name: "Wilson, Drew", lunch: "B" },
+
+            { name: "Barranda, Lisa", lunch: "C" }, { name: "Baron, Jennifer", lunch: "C" }, { name: "Bauer, Jamie", lunch: "C" },
+            { name: "Booker, Brian", lunch: "C" }, { name: "Brisco, Steven", lunch: "C" }, { name: "Brubaker, Helen", lunch: "C" },
+            { name: "Buranj, Jena", lunch: "C" }, { name: "Ewing, Kristy", lunch: "C" }, { name: "Francies, Christine", lunch: "C" },
+            { name: "Freitas, Renee", lunch: "C" }, { name: "Hanes, Marie", lunch: "C" }, { name: "Hartman, Nathan", lunch: "C" },
+            { name: "Hassell, Doug", lunch: "C" }, { name: "Jones, Daniel", lunch: "C" }, { name: "Kelley, Corbin", lunch: "C" },
+            { name: "Kelly, Katie", lunch: "C" }, { name: "Kieffer, Jennifer", lunch: "C" }, { name: "Knorr, David", lunch: "C" },
+            { name: "Kuhn, Maranda", lunch: "C" }, { name: "Leon, Jacquelyn", lunch: "C" }, { name: "Lomont, Kennedy", lunch: "C" },
+            { name: "Miller, Luke", lunch: "C" }, { name: "Raypole, Scott", lunch: "C" }, { name: "Reith, Kari", lunch: "C" },
+            { name: "Repp, Jennifer", lunch: "C" }, { name: "Ringle, Carter", lunch: "C" }, { name: "Ruselink, Cheryl", lunch: "C" },
+            { name: "Smith, Haleigh", lunch: "C" }, { name: "Stegenga, Sarah", lunch: "C" }, { name: "Turner, Jordan", lunch: "C" },
+            { name: "Wood, Richard", lunch: "C" }, { name: "Zhao, Lionel", lunch: "C" }
+        ];
+
+        const SCH_REGULAR = [
+            { name:'1st Period', id:'1', start:'08:35', end:'09:21' }, { name:'2nd Period', id:'2', start:'09:29', end:'10:14' },
+            { name:'3rd Period', id:'3', start:'10:22', end:'11:07' }, { name:'4th Period / Lunch Block', id:'4', start:'11:15', end:'12:51' },
+            { name:'5th Period', id:'5', start:'12:59', end:'13:44' }, { name:'6th Period', id:'6', start:'13:52', end:'14:37' },
+            { name:'7th Period', id:'7', start:'14:45', end:'15:30' }
+        ];
+
+        const teacherCache = {};
+
+        // Keyboard Shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === '/' && document.activeElement.tagName !== 'INPUT') {
+                e.preventDefault();
+                document.getElementById('search-input').focus();
+            }
+            if (e.key === 'Escape') {
+                closeModal();
+                closeHelpModal();
+                document.getElementById('search-input').blur();
+            }
+        });
+
+        // Helpers
+        function cleanStr(str) {
+            if (!str) return '';
+            return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
+        }
+
+        function levenshteinDistance(a, b) {
+            if (a === b) return 0;
+            if (a.length === 0) return b.length;
+            if (b.length === 0) return a.length;
+            const matrix = [];
+            for (let i = 0; i <= b.length; i++) matrix[i] = [i];
+            for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
+            for (let i = 1; i <= b.length; i++) {
+                for (let j = 1; j <= a.length; j++) {
+                    if (b.charAt(i - 1) === a.charAt(j - 1)) {
+                        matrix[i][j] = matrix[i - 1][j - 1];
+                    } else {
+                        matrix[i][j] = Math.min(
+                            matrix[i - 1][j - 1] + 1,
+                            matrix[i][j - 1] + 1,
+                            matrix[i - 1][j] + 1
+                        );
+                    }
+                }
+            }
+            return matrix[b.length][a.length];
+        }
+
+        function matchTokenScore(searchTok, word) {
+            if (!word || !searchTok) return 0;
+            if (word === searchTok) return 10;
+            if (word.startsWith(searchTok)) return 7;
+            if (word.includes(searchTok)) return 5;
+
+            if (searchTok.length >= 4) {
+                const maxDist = searchTok.length >= 7 ? 2 : 1;
+                const dist = levenshteinDistance(searchTok, word);
+                if (dist <= maxDist) return 4 - dist;
+            }
+            return 0;
+        }
+
+        function getStudentEmail(name, grade) {
+            if (!name) return '';
+            let first, last;
+            if (name.includes(',')) {
+                const parts = name.split(',');
+                last = cleanStr(parts[0]);
+                const firstMiddle = cleanStr(parts[1]).split(/\s+/).filter(Boolean);
+                first = firstMiddle[0];
+            } else {
+                const nameParts = cleanStr(name).split(/\s+/).filter(Boolean);
+                if (nameParts.length < 2) return '';
+                first = nameParts[0];
+                last = nameParts[nameParts.length - 1];
+            }
+
+            let gradYear = "00";
+            if (grade === "12th Grade") gradYear = "27";
+            else if (grade === "11th Grade") gradYear = "28";
+            else if (grade === "10th Grade") gradYear = "29";
+            else if (grade === "9th Grade") gradYear = "30";
+
+            return `${first}.${last}${gradYear}@students.nacs.k12.in.us`;
+        }
+
+        function getTeacherEmail(teacherName) {
+            if (!teacherName || teacherName === "—") return "";
+            if (teacherName.includes(",")) {
+                const parts = teacherName.split(",");
+                const last = parts[0].trim().toLowerCase().replace(/[^a-z]/g, "");
+                const first = parts[1].trim().toLowerCase().replace(/[^a-z]/g, "");
+                return `${first}.${last}@nacs.k12.in.us`;
+            } else {
+                const parts = teacherName.split(" ");
+                const first = parts[0].trim().toLowerCase().replace(/[^a-z]/g, "");
+                const last = parts[parts.length - 1].trim().toLowerCase().replace(/[^a-z]/g, "");
+                return `${first}.${last}@nacs.k12.in.us`;
+            }
+        }
+
+        function getCachedTeacherMetadata(teacherName) {
+            if (!teacherName || teacherName === "—") return { room: '—', ext: null, lunch: null, email: null };
+            if (teacherCache[teacherName]) return teacherCache[teacherName];
+
+            const cleanedInput = teacherName.toLowerCase().replace(/[^a-z0-9]/g, '');
+            const roomMatch = TEACHER_ROOMS_DB.find(t => {
+                const dbCleaned = t.name.toLowerCase().replace(/[^a-z0-9]/g, '');
+                return dbCleaned.includes(cleanedInput) || cleanedInput.includes(dbCleaned);
+            });
+            const lunchMatch = TEACHER_LUNCH_DB.find(t => {
+                const dbCleaned = t.name.toLowerCase().replace(/[^a-z0-9]/g, '');
+                return dbCleaned.includes(cleanedInput) || cleanedInput.includes(dbCleaned);
+            });
+
+            const metadata = {
+                room: roomMatch ? roomMatch.room : 'CAFE',
+                ext: roomMatch ? roomMatch.ext : null,
+                lunch: lunchMatch ? lunchMatch.lunch : null,
+                email: getTeacherEmail(teacherName)
+            };
+
+            teacherCache[teacherName] = metadata;
+            return metadata;
+        }
+
+        function normalizeScheduleData(rawData) {
+            if (!rawData || !Array.isArray(rawData)) {
+                console.warn("Invalid data received. Expected Array, got:", typeof rawData);
+                return [];
+            }
+            return rawData.map(student => {
+                if (!student) return null;
+                if (student.name) student.name = student.name.replace(/_/g, ' ').trim();
+                if (student.schedule) {
+                    const normalized = {};
+                    for (const [period, teacher] of Object.entries(student.schedule)) {
+                        normalized[period] = typeof teacher === 'string' ? teacher.replace(/_/g, ', ') : teacher;
+                    }
+                    student.schedule = normalized;
+                } else {
+                    student.schedule = {};
+                }
+                return student;
+            }).filter(Boolean);
+        }
+
+        function precomputeSearchIndex() {
+            studentsList.forEach(s => {
+                const studentNameClean = cleanStr(s.name);
+                const nameWords = studentNameClean.split(/\s+/).filter(Boolean);
+                const joinedNameNoSpaces = studentNameClean.replace(/\s+/g, '');
+
+                const sEmail = getStudentEmail(s.name, s.grade);
+                const sEmailClean = cleanStr(sEmail);
+
+                let gradeAliases = [];
+                if (s.grade) {
+                    gradeAliases.push(cleanStr(s.grade));
+                    if (s.grade.includes("9")) gradeAliases.push("9", "9th", "freshman");
+                    if (s.grade.includes("10")) gradeAliases.push("10", "10th", "sophomore");
+                    if (s.grade.includes("11")) gradeAliases.push("11", "11th", "junior");
+                    if (s.grade.includes("12")) gradeAliases.push("12", "12th", "senior");
+                }
+
+                const scheduleWords = [];
+                Object.values(s.schedule || {}).forEach(tName => {
+                    if (tName && tName !== "—") {
+                        const meta = getCachedTeacherMetadata(tName);
+                        cleanStr(tName).split(/\s+/).forEach(w => scheduleWords.push(w));
+                        if (meta.room) scheduleWords.push(cleanStr(meta.room));
+                        if (meta.lunch) scheduleWords.push(`lunch ${meta.lunch.toLowerCase()}`, meta.lunch.toLowerCase());
+                        if (meta.email) scheduleWords.push(cleanStr(meta.email));
+                    }
+                });
+
+                s._searchTokens = [...nameWords, ...gradeAliases, ...scheduleWords, ...sEmailClean.split(/\s+/), sEmailClean];
+                s._joinedName = joinedNameNoSpaces;
+                s._studentNameClean = studentNameClean;
+            });
+            compareListBuilt = false;
+        }
+
+        // The classmate-compare datalist can be huge, so build it only when it's first needed
+        let compareListBuilt = false;
+        function buildCompareList() {
+            if (compareListBuilt) return;
+            compareListBuilt = true;
+            document.getElementById('compare-student-list').innerHTML =
+                studentsList.map(s => `<option value="${String(s.name).replace(/"/g, '&quot;')}"></option>`).join('');
+        }
+
+        function getCurrentScheduleStatus() {
+            const now = new Date();
+            const cur = now.toTimeString().substring(0, 5);
+            const day = now.getDay();
+
+            if (day === 0 || day === 6) return { isSchoolTime: false, label: "Weekend", currentPeriodId: null, nextPeriodId: null, isLunchBlock: false };
+            if (cur < "08:35") return { isSchoolTime: false, label: "Before School", currentPeriodId: null, nextPeriodId: "1", isLunchBlock: false };
+            if (cur >= "15:30") return { isSchoolTime: false, label: "School's Out", currentPeriodId: null, nextPeriodId: null, isLunchBlock: false };
+
+            for (let i = 0; i < SCH_REGULAR.length; i++) {
+                const p = SCH_REGULAR[i];
+                if (cur >= p.start && cur < p.end) {
+                    return { isSchoolTime: true, label: p.name, currentPeriodId: p.id, nextPeriodId: SCH_REGULAR[i + 1] ? SCH_REGULAR[i + 1].id : null, isLunchBlock: p.id === "4" };
+                }
+                if (SCH_REGULAR[i + 1] && cur >= p.end && cur < SCH_REGULAR[i + 1].start) {
+                    return { isSchoolTime: true, label: "Passing Period", currentPeriodId: null, nextPeriodId: SCH_REGULAR[i + 1].id, isLunchBlock: false };
+                }
+            }
+            return { isSchoolTime: false, label: "Passing", currentPeriodId: null, nextPeriodId: null, isLunchBlock: false };
+        }
+
+        function showToast(msg, type = 'info') {
+            const c = document.getElementById('toast-container');
+            const t = document.createElement('div');
+            const borderCol = type === 'success' ? 'border-emerald-500 text-emerald-400' : type === 'error' ? 'border-red-500 text-red-400' : 'border-brand-accent text-brand-accent';
+            t.className = `bg-brand-surface/95 backdrop-blur-sm border ${borderCol} px-4 py-2.5 rounded font-mono text-xs shadow-lg flex items-center gap-2 pointer-events-auto transition-all duration-300 animate-fade-up`;
+            const icon = type === 'success' ? 'fa-circle-check' : type === 'error' ? 'fa-circle-exclamation' : 'fa-circle-info';
+            t.innerHTML = `<i class="fa-solid ${icon}"></i><span>${msg}</span>`;
+            c.appendChild(t);
+            setTimeout(() => { t.classList.add('opacity-0'); setTimeout(() => t.remove(), 300); }, 3000);
+        }
+
+        function applyDirectoryData(list) {
+            studentsList = list;
+            precomputeSearchIndex();
+            populateFilterDropdowns();
+            updateLiveHeader();
+            renderTable();
+        }
+
+        async function fetchDirectoryData(manual = false) {
+            if (syncInFlight) return;
+            syncInFlight = true;
+
+            const refreshIcon = document.getElementById('refresh-icon');
+            const bannerText = document.getElementById('banner-count-text');
+            const bannerIcon = document.getElementById('status-banner-icon');
+
+            // 1. Instant paint from cache (no artificial loading delay)
+            if (!studentsList.length) {
+                try {
+                    const cachedData = localStorage.getItem(CACHE_KEY);
+                    if (cachedData && cachedData !== "null" && cachedData !== "undefined") {
+                        const parsed = JSON.parse(cachedData);
+                        if (Array.isArray(parsed) && parsed.length > 0) {
+                            lastSerialized = cachedData;
+                            applyDirectoryData(parsed);
+                        }
+                    }
+                } catch (e) {
+                    try { localStorage.removeItem(CACHE_KEY); } catch (_) {}
+                }
+            }
+
+            if (refreshIcon) refreshIcon.classList.add('fa-spin');
+            if (bannerText) bannerText.textContent = 'Syncing Live...';
+            if (bannerIcon) bannerIcon.classList.add('fa-spin');
+
+            // 2. Live fetch via Google Apps Script (JSONP), probing both account endpoints
+            const callbackName = 'handleSheetData_' + Date.now();
+            const candidateUrls = [
+                `https://script.google.com/macros/s/${BASE_SCRIPT_ID}/exec?callback=${callbackName}`,
+                `https://script.google.com/a/macros/students.nacs.k12.in.us/s/${BASE_SCRIPT_ID}/exec?callback=${callbackName}`
+            ];
+
+            let qIdx = 0;
+            let currentProbeTimer = null;
+
+            function finishSync() { syncInFlight = false; }
+
+            window[callbackName] = function(rawData) {
+                if (currentProbeTimer) clearTimeout(currentProbeTimer);
+                delete window[callbackName];
+                const s = document.getElementById('jsonp-script');
+                if (s) s.remove();
+
+                const normalized = normalizeScheduleData(rawData);
+                if (normalized.length > 0) {
+                    const serialized = JSON.stringify(normalized);
+                    const changed = serialized !== lastSerialized || !studentsList.length;
+
+                    if (changed) {
+                        lastSerialized = serialized;
+                        try { localStorage.setItem(CACHE_KEY, serialized); } catch(e) {}
+                        applyDirectoryData(normalized);
+                    }
+
+                    if (refreshIcon) refreshIcon.classList.remove('fa-spin');
+                    if (bannerText) bannerText.textContent = `${studentsList.length} Connected`;
+                    if (bannerIcon) {
+                        bannerIcon.classList.remove('fa-spin', 'fa-circle-notch');
+                        bannerIcon.classList.add('fa-check-circle');
+                    }
+                    document.getElementById('sync-time').textContent = `Live Synced: ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+
+                    if (manual || !hasToastedSync) showToast(`Live database connection established`, 'success');
+                    hasToastedSync = true;
+                    finishSync();
+                } else {
+                    tryNextCandidate();
+                }
+            };
+
+            function tryNextCandidate() {
+                if (currentProbeTimer) clearTimeout(currentProbeTimer);
+
+                if (qIdx < candidateUrls.length) {
+                    const nextUrl = candidateUrls[qIdx];
+                    qIdx++;
+
+                    const oldScript = document.getElementById('jsonp-script');
+                    if (oldScript) oldScript.remove();
+
+                    const script = document.createElement('script');
+                    script.id = 'jsonp-script';
+                    script.async = true;
+                    script.src = nextUrl;
+
+                    currentProbeTimer = setTimeout(() => {
+                        console.warn('Probe candidate timed out:', nextUrl);
+                        if (script) script.remove();
+                        tryNextCandidate();
+                    }, 12000);
+
+                    script.onerror = (evt) => {
+                        if (evt && typeof evt.stopPropagation === 'function') evt.stopPropagation();
+                        if (currentProbeTimer) clearTimeout(currentProbeTimer);
+                        script.remove();
+                        tryNextCandidate();
+                    };
+                    document.body.appendChild(script);
+                } else {
+                    handleAllAttemptsExhausted();
+                }
+            }
+
+            tryNextCandidate();
+
+            function handleAllAttemptsExhausted() {
+                finishSync();
+                if (refreshIcon) refreshIcon.classList.remove('fa-spin');
+                if (bannerText) bannerText.textContent = studentsList.length ? 'Offline (cached)' : 'Live Sync Standby';
+                if (bannerIcon) {
+                    bannerIcon.classList.remove('fa-spin', 'fa-circle-notch');
+                    bannerIcon.classList.add('fa-triangle-exclamation');
+                }
+
+                if (studentsList.length === 0) {
+                    const tbody = document.getElementById('student-table-body');
+                    if (tbody) tbody.innerHTML = `<tr><td colspan="5" class="text-center py-16 text-slate-100 font-mono"><i class="fa-solid fa-triangle-exclamation text-base mb-2"></i><div>Couldn't reach the live directory.</div></td></tr>`;
+
+                    const existingModal = document.getElementById('settings-guide-modal');
+                    if (existingModal) existingModal.remove();
+
+                    const modalHTML = `
+                    <div id="settings-guide-modal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-[#05070e]/85 backdrop-blur-md transition-opacity">
+                        <div class="bg-brand-surface border border-brand-border rounded max-w-3xl max-h-[90vh] overflow-y-auto shadow-2xl flex flex-col relative">
+
+                            <button onclick="document.getElementById('settings-guide-modal').remove()" class="absolute top-4 right-4 text-slate-100 hover:text-white transition-colors cursor-pointer w-7 h-7 rounded bg-brand-surface2 border border-brand-border flex items-center justify-center">
+                                <i class="fa-solid fa-xmark text-sm"></i>
+                            </button>
+
+                            <div class="p-6 md:p-8 text-center space-y-4">
+                                <div class="w-12 h-12 rounded bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 mx-auto text-xl shadow-inner mb-3">
+                                    <i class="fa-solid fa-shield-halved"></i>
+                                </div>
+                                <div>
+                                    <h2 class="font-bold text-lg md:text-xl text-white">Google Directory Sync Standby</h2>
+                                    <p class="text-xs md:text-sm text-slate-100 font-sans leading-relaxed mt-1 max-w-xl mx-auto">
+                                        Your browser blocked the background Google Apps Script session required to sync the directory live.
+                                        To allow live syncing, cross-site cookies or third-party access may need to be enabled.
+                                    </p>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-left font-sans mt-5">
+
+                                    <div class="bg-brand-surface2 border border-brand-border rounded p-4 flex flex-col gap-2">
+                                        <div class="font-bold text-white text-sm flex items-center gap-2"><i class="fa-solid fa-globe text-sky-400"></i> iOS Safari (iPhone/iPad)</div>
+                                        <ol class="list-decimal pl-5 space-y-1 text-xs text-slate-100">
+                                            <li>Open the <strong class="text-slate-100">Settings</strong> app</li>
+                                            <li>Scroll down and tap <strong class="text-slate-100">Safari</strong></li>
+                                            <li>Under "Privacy &amp; Security", turn <strong class="text-amber-400">OFF</strong> "Prevent Cross-Site Tracking"</li>
+                                        </ol>
+                                    </div>
+
+                                    <div class="bg-brand-surface2 border border-brand-border rounded p-4 flex flex-col gap-2">
+                                        <div class="font-bold text-white text-sm flex items-center gap-2"><i class="fa-solid fa-globe text-emerald-400"></i> Chrome (Mobile/Tablet)</div>
+                                        <ol class="list-decimal pl-5 space-y-1 text-xs text-slate-100">
+                                            <li>Open Chrome <strong class="text-slate-100">Settings</strong> (3 dots)</li>
+                                            <li>Tap <strong class="text-slate-100">Site Settings</strong></li>
+                                            <li>Tap <strong class="text-slate-100">Third-party cookies</strong></li>
+                                            <li>Select <strong class="text-emerald-400">Allow third-party cookies</strong></li>
+                                        </ol>
+                                    </div>
+
+                                    <div class="bg-brand-surface2 border border-brand-border rounded p-4 flex flex-col gap-2">
+                                        <div class="font-bold text-white text-sm flex items-center gap-2"><i class="fa-solid fa-globe text-sky-400"></i> Safari (Mac)</div>
+                                        <ol class="list-decimal pl-5 space-y-1 text-xs text-slate-100">
+                                            <li>Open Safari and click <strong class="text-slate-100">Settings/Preferences</strong></li>
+                                            <li>Go to the <strong class="text-slate-100">Privacy</strong> tab</li>
+                                            <li>Uncheck <strong class="text-amber-400">Prevent cross-site tracking</strong></li>
+                                        </ol>
+                                    </div>
+
+                                    <div class="bg-brand-surface2 border border-brand-border rounded p-4 flex flex-col gap-2">
+                                        <div class="font-bold text-white text-sm flex items-center gap-2"><i class="fa-solid fa-globe text-orange-500"></i> Firefox (Mobile/Mac/PC)</div>
+                                        <ol class="list-decimal pl-5 space-y-1 text-xs text-slate-100">
+                                            <li>Go to Firefox <strong class="text-slate-100">Settings</strong></li>
+                                            <li>Select <strong class="text-slate-100">Privacy &amp; Security</strong></li>
+                                            <li>Under Enhanced Tracking Protection, select <strong class="text-orange-400">Standard</strong></li>
+                                        </ol>
+                                    </div>
+
+                                </div>
+
+                                <div class="pt-5 mt-4 border-t border-brand-border flex flex-col sm:flex-row items-center justify-between gap-3">
+                                    <button onclick="promptManualJsonImport()" class="hover:text-white text-slate-100 transition-colors underline flex items-center gap-1.5 text-xs cursor-pointer font-mono">
+                                        <i class="fa-solid fa-file-import text-white"></i>
+                                        <span>Import JSON Backup</span>
+                                    </button>
+                                    <button onclick="document.getElementById('settings-guide-modal').remove(); fetchDirectoryData(true);" class="w-full sm:w-auto px-5 py-2 rounded bg-brand-accent hover:bg-sky-400 text-brand-bg font-bold transition-all flex items-center justify-center gap-2 shadow-md cursor-pointer text-xs font-mono">
+                                        <i class="fa-solid fa-rotate"></i>
+                                        <span>Retry Live Sync</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    `;
+
+                    document.body.insertAdjacentHTML('beforeend', modalHTML);
+                }
+            }
+        }
+        window.fetchDirectoryData = fetchDirectoryData;
+
+        // BroadcastChannel sync across open tabs
+        try {
+            const bc = new BroadcastChannel('ct_yearbook_sync');
+            bc.onmessage = (e) => {
+                if (e.data && Array.isArray(e.data)) {
+                    try { lastSerialized = JSON.stringify(e.data); localStorage.setItem(CACHE_KEY, lastSerialized); } catch(err) {}
+                    applyDirectoryData(e.data);
+                }
+            };
+        } catch(e) {}
+
+        // Manual JSON Backup Import
+        window.promptManualJsonImport = function() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json,application/json';
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (re) => {
+                    try {
+                        const parsed = JSON.parse(re.target.result);
+                        const raw = parsed.students || (Array.isArray(parsed) ? parsed : []);
+                        const normalized = normalizeScheduleData(raw);
+                        if (normalized.length > 0) {
+                            lastSerialized = JSON.stringify(normalized);
+                            try { localStorage.setItem(CACHE_KEY, lastSerialized); } catch(err) {}
+                            applyDirectoryData(normalized);
+                            const m = document.getElementById('settings-guide-modal');
+                            if (m) m.remove();
+                            showToast(`Imported ${studentsList.length} student schedules`, 'success');
+                        } else {
+                            showToast('Invalid schedule data format', 'error');
+                        }
+                    } catch(err) {
+                        showToast('Failed to parse JSON file', 'error');
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        };
+
+        function populateFilterDropdowns() {
+            let teachersSet = new Set();
+            studentsList.forEach(s => {
+                if (s.schedule) {
+                    Object.values(s.schedule).forEach(t => {
+                        if (t && t !== "—") teachersSet.add(t);
+                    });
+                }
+            });
+
+            const teachers = [...teachersSet].sort();
+            const tSelect = document.getElementById('teacher-select');
+            const currentSelection = tSelect.value;
+
+            const frag = document.createDocumentFragment();
+            const first = document.createElement('option');
+            first.value = ''; first.textContent = 'All Teachers';
+            frag.appendChild(first);
+            teachers.forEach(t => {
+                const opt = document.createElement('option');
+                opt.value = t;
+                opt.textContent = t;
+                if (t === currentSelection) opt.selected = true;
+                frag.appendChild(opt);
+            });
+            tSelect.innerHTML = '';
+            tSelect.appendChild(frag);
+        }
+
+        function updateLiveHeader() {
+            const status = getCurrentScheduleStatus();
+            document.getElementById('live-period-text').textContent = status.label;
+            return status;
+        }
+
+        function openStudentModal(student) {
+            window.currentViewedStudent = student;
+
+            document.getElementById('modal-student-name').textContent = student.name;
+            document.getElementById('modal-student-grade').textContent = student.grade || "Grade Unspecified";
+
+            const compareInput = document.getElementById('modal-compare-input');
+            compareInput.value = '';
+
+            const studentEmailAddress = getStudentEmail(student.name, student.grade);
+            const emailBtn = document.getElementById('modal-student-email-btn');
+            const emailText = document.getElementById('modal-student-email-text');
+            if (studentEmailAddress) {
+                emailBtn.href = `mailto:${studentEmailAddress}`;
+                emailText.textContent = studentEmailAddress;
+                emailBtn.classList.remove('hidden');
+            } else {
+                emailBtn.classList.add('hidden');
+            }
+
+            const copyBtn = document.getElementById('modal-copy-schedule-btn');
+            copyBtn.onclick = (e) => {
+                e.preventDefault();
+                let txt = `${student.name} (${student.grade || 'N/A'})\n`;
+                txt += `HR: ${student.schedule.homeroom || 'N/A'}\n`;
+                for(let i=1; i<=7; i++) {
+                    txt += `P${i}: ${student.schedule[String(i)] || 'N/A'}\n`;
+                }
+                try { navigator.clipboard.writeText(txt); } catch (_) {}
+
+                const ogHtml = copyBtn.innerHTML;
+                copyBtn.innerHTML = `<i class="fa-solid fa-check text-emerald-400"></i> <span class="text-emerald-400">Copied Schedule</span>`;
+                copyBtn.classList.add('border-emerald-500', 'bg-emerald-500/10');
+                setTimeout(() => {
+                    copyBtn.innerHTML = ogHtml;
+                    copyBtn.classList.remove('border-emerald-500', 'bg-emerald-500/10');
+                }, 2000);
+            };
+
+            renderModalSchedule(student, null);
+
+            const modal = document.getElementById('student-modal');
+            const modalContent = document.getElementById('modal-content');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modalContent.classList.remove('scale-95');
+                modalContent.classList.add('scale-100');
+            }, 10);
+        }
+
+        document.getElementById('modal-compare-input').addEventListener('focus', buildCompareList);
+        document.getElementById('modal-compare-input').addEventListener('input', (e) => {
+            buildCompareList();
+            const val = e.target.value;
+            const studentB = studentsList.find(s => s.name === val);
+            if (studentB && window.currentViewedStudent) {
+                renderModalSchedule(window.currentViewedStudent, studentB);
+            } else if (val === '' && window.currentViewedStudent) {
+                renderModalSchedule(window.currentViewedStudent, null);
+            }
+        });
+
+        function renderModalSchedule(studentA, studentB) {
+            const container = document.getElementById('modal-schedule-container');
+            container.innerHTML = '';
+            const status = getCurrentScheduleStatus();
+
+            const hrTeacherA = studentA.schedule.homeroom || "—";
+            const hrInfoA = getCachedTeacherMetadata(hrTeacherA);
+            const hrCard = document.createElement('div');
+
+            if (!studentB) {
+                hrCard.className = `col-span-1 sm:col-span-2 lg:col-span-4 p-3 rounded bg-brand-surface border border-brand-border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-fade-up`;
+                hrCard.style.animationDelay = "50ms";
+                hrCard.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded bg-brand-bg border border-brand-border font-mono text-[13px] font-semibold flex items-center justify-center text-white">HR</div>
+                        <div>
+                            <div class="font-semibold text-white text-[15px]">${hrTeacherA}</div>
+                            <div class="text-[10px] font-mono text-slate-100 mt-0.5"><i class="fa-solid fa-house mr-1"></i>Homeroom</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2.5 self-end sm:self-auto">
+                        <span class="text-[11px] font-mono text-slate-100 flex items-center bg-brand-bg border border-brand-border px-2.5 py-1.5 rounded">
+                            <i class="fa-solid fa-door-open mr-1.5 opacity-80"></i>${hrInfoA.room}
+                            ${hrInfoA.ext ? `<span class="ml-2 pl-2 border-l border-brand-border opacity-70"><i class="fa-solid fa-phone mr-1.5"></i>${hrInfoA.ext}</span>` : ''}
+                        </span>
+                        ${hrInfoA.email ? `<a href="mailto:${hrInfoA.email}" class="inline-flex items-center justify-center w-7 h-7 rounded bg-brand-bg border border-brand-border text-slate-100 hover:text-brand-accent hover:border-brand-accent transition-colors" title="Email Teacher"><i class="fa-solid fa-envelope text-[11px]"></i></a>` : ''}
+                    </div>
+                `;
+            } else {
+                const hrTeacherB = studentB.schedule.homeroom || "—";
+                const hrInfoB = getCachedTeacherMetadata(hrTeacherB);
+                const isMatch = (hrTeacherA !== "—" && hrTeacherA === hrTeacherB);
+
+                if (isMatch) {
+                    hrCard.className = `col-span-1 sm:col-span-2 lg:col-span-4 p-3 rounded border bg-emerald-500/10 border-emerald-500/50 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-fade-up`;
+                    hrCard.style.animationDelay = "50ms";
+                    hrCard.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded bg-emerald-500 font-mono text-[13px] font-semibold flex items-center justify-center text-brand-bg">HR</div>
+                            <div>
+                                <div class="font-semibold text-emerald-400 text-[15px] flex items-center gap-2">${hrTeacherA} <span class="bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider">Shared</span></div>
+                                <div class="text-[10px] font-mono text-emerald-500/70 mt-0.5"><i class="fa-solid fa-house mr-1"></i>Shared Homeroom</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2.5 self-end sm:self-auto">
+                            <span class="text-[11px] font-mono text-emerald-500 flex items-center bg-brand-bg border border-emerald-500/30 px-2.5 py-1.5 rounded">
+                                <i class="fa-solid fa-door-open mr-1.5"></i>${hrInfoA.room}
+                            </span>
+                        </div>
+                    `;
+                } else {
+                    hrCard.className = `col-span-1 sm:col-span-2 lg:col-span-4 p-3 rounded bg-brand-surface border border-brand-border transition-all flex flex-col gap-2 animate-fade-up`;
+                    hrCard.style.animationDelay = "50ms";
+                    hrCard.innerHTML = `
+                        <div class="flex items-center gap-2 mb-1">
+                            <div class="w-6 h-6 rounded bg-brand-bg border border-brand-border font-mono text-[10px] font-semibold flex items-center justify-center text-slate-100 shrink-0">HR</div>
+                            <span class="text-[10px] font-mono text-slate-100 uppercase tracking-wider">Homeroom Split</span>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div class="flex justify-between items-center p-2 rounded border border-brand-border bg-brand-bg">
+                                <div class="flex flex-col overflow-hidden">
+                                    <span class="text-[9px] text-slate-100">${studentA.name.split(',')[0]}</span>
+                                    <span class="font-medium text-[12px] text-white truncate">${hrTeacherA}</span>
+                                </div>
+                                <span class="text-[10px] font-mono text-slate-100 shrink-0 pl-2"><i class="fa-solid fa-door-open mr-1"></i>${hrInfoA.room}</span>
+                            </div>
+                            <div class="flex justify-between items-center p-2 rounded border border-brand-accent/30 bg-brand-accent/10">
+                                <div class="flex flex-col overflow-hidden">
+                                    <span class="text-[9px] text-white">${studentB.name.split(',')[0]}</span>
+                                    <span class="font-medium text-[12px] text-brand-text truncate">${hrTeacherB}</span>
+                                </div>
+                                <span class="text-[10px] font-mono text-brand-accent/70 shrink-0 pl-2"><i class="fa-solid fa-door-open mr-1"></i>${hrInfoB.room}</span>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+            container.appendChild(hrCard);
+
+            for (let i = 1; i <= 7; i++) {
+                const periodId = String(i);
+                const teacherA = studentA.schedule[periodId] || "—";
+                const isCurrent = status.currentPeriodId === periodId;
+                const isP4 = periodId === "4";
+                const metaInfoA = getCachedTeacherMetadata(teacherA);
+                const teacherLunchA = isP4 ? metaInfoA.lunch : null;
+
+                const card = document.createElement('div');
+                card.style.animationDelay = `${(i * 30) + 50}ms`;
+
+                if (!studentB) {
+                    card.className = `p-3 rounded border flex flex-col justify-between gap-2.5 transition-all animate-fade-up ${
+                        isCurrent ? 'bg-emerald-500/10 border-emerald-500/50' : 'bg-brand-surface border-brand-border hover:bg-brand-bg'
+                    }`;
+
+                    let lunchBadge = '';
+                    if (isP4 && teacherLunchA) {
+                        lunchBadge = `<span class="px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/30 text-amber-300 font-mono text-[9px] font-bold">Lunch ${teacherLunchA}</span>`;
+                    }
+
+                    card.innerHTML = `
+                        <div class="flex items-start justify-between gap-1.5">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-7 h-7 rounded font-mono text-[11px] font-semibold flex items-center justify-center shrink-0 ${ isCurrent ? 'bg-emerald-500 text-brand-bg' : 'bg-brand-bg border border-brand-border text-brand-accent' }">P${i}</div>
+                                <div class="overflow-hidden">
+                                    <div class="font-medium text-[13px] truncate ${isCurrent ? 'text-emerald-300 font-bold' : 'text-white'}">${teacherA}</div>
+                                    <div class="text-[10px] font-mono text-slate-100 mt-0.5 flex items-center gap-1.5">
+                                        <span>${SCH_REGULAR[i - 1].start} – ${SCH_REGULAR[i - 1].end}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex flex-col items-end gap-1.5 shrink-0">
+                                ${lunchBadge}
+                                ${isCurrent ? '<span class="text-[9px] font-mono uppercase text-emerald-400 font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 border border-emerald-500/50">Active</span>' : ''}
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between pt-2.5 mt-auto border-t border-brand-border">
+                            <div class="flex items-center gap-2.5">
+                                <span class="text-[11px] font-mono text-slate-100 flex items-center"><i class="fa-solid fa-door-open mr-1"></i>${metaInfoA.room}</span>
+                                ${metaInfoA.ext ? `<span class="text-[11px] font-mono text-slate-100/70 flex items-center"><i class="fa-solid fa-phone mr-1"></i>${metaInfoA.ext}</span>` : ''}
+                            </div>
+                            ${metaInfoA.email ? `<a href="mailto:${metaInfoA.email}" class="inline-flex items-center justify-center w-6 h-6 rounded border border-brand-border text-slate-100 hover:text-brand-accent hover:border-brand-accent transition-colors" title="Email Teacher"><i class="fa-solid fa-envelope text-[10px]"></i></a>` : ''}
+                        </div>
+                    `;
+                } else {
+                    const teacherB = studentB.schedule[periodId] || "—";
+                    const metaInfoB = getCachedTeacherMetadata(teacherB);
+                    const isMatch = (teacherA !== "—" && teacherA === teacherB);
+
+                    if (isMatch) {
+                        card.className = `p-3 rounded border flex flex-col justify-between gap-2.5 transition-all animate-fade-up bg-emerald-500/10 border-emerald-500/50`;
+                        card.innerHTML = `
+                            <div class="flex items-start justify-between gap-1.5">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="w-7 h-7 rounded font-mono text-[11px] font-semibold flex items-center justify-center shrink-0 bg-emerald-500 text-brand-bg">P${i}</div>
+                                    <div class="overflow-hidden">
+                                        <div class="font-medium text-[13px] text-emerald-400 font-bold truncate">${teacherA}</div>
+                                        <div class="text-[10px] font-mono text-emerald-500/70 mt-0.5 flex items-center gap-1.5">
+                                            <span>${SCH_REGULAR[i - 1].start} – ${SCH_REGULAR[i - 1].end}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col items-end gap-1.5 shrink-0">
+                                    <span class="text-[9px] font-mono uppercase text-emerald-400 font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 border border-emerald-500/50">Shared</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between pt-2.5 mt-auto border-t border-emerald-500/20">
+                                <div class="flex items-center gap-2.5">
+                                    <span class="text-[11px] font-mono text-emerald-500/80 flex items-center"><i class="fa-solid fa-door-open mr-1"></i>${metaInfoA.room}</span>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        card.className = `p-3 rounded border flex flex-col gap-2.5 transition-all animate-fade-up bg-brand-surface border-brand-border flex-1 justify-between`;
+                        card.innerHTML = `
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-6 h-6 rounded bg-brand-bg border border-brand-border font-mono text-[10px] font-semibold flex items-center justify-center text-slate-100 shrink-0">P${i}</div>
+                                    <span class="text-[10px] font-mono text-slate-100 uppercase tracking-wider">Split</span>
+                                </div>
+                            </div>
+                            <div class="flex flex-col gap-1.5 w-full">
+                                <div class="flex justify-between items-center p-1.5 rounded border border-brand-border bg-brand-bg w-full">
+                                    <div class="flex flex-col overflow-hidden">
+                                        <span class="text-[8px] text-slate-100 leading-tight">${studentA.name.split(',')[0]}</span>
+                                        <span class="font-medium text-[11px] text-white truncate leading-tight">${teacherA}</span>
+                                    </div>
+                                    <span class="text-[9px] font-mono text-slate-100 shrink-0 pl-1.5">${metaInfoA.room}</span>
+                                </div>
+                                <div class="flex justify-between items-center p-1.5 rounded border border-brand-accent/30 bg-brand-accent/10 w-full">
+                                    <div class="flex flex-col overflow-hidden">
+                                        <span class="text-[8px] text-brand-accent leading-tight">${studentB.name.split(',')[0]}</span>
+                                        <span class="font-medium text-[11px] text-brand-text truncate leading-tight">${teacherB}</span>
+                                    </div>
+                                    <span class="text-[9px] font-mono text-brand-accent/70 shrink-0 pl-1.5">${metaInfoB.room}</span>
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
+                container.appendChild(card);
+            }
+        }
+
+        // --- Advanced Search & Display Engine ---
+        function renderTable() {
+            const rawSearch = document.getElementById('search-input').value.trim();
+            const clauses = rawSearch.split(',').map(c => c.trim()).filter(Boolean);
+
+            const adv = { activeper: null, teach: null, grade: null, room: null, lunch: null };
+            const generalTokens = [];
+            let isAdv = false;
+
+            clauses.forEach(clause => {
+                if (clause.includes(':')) {
+                    isAdv = true;
+                    const parts = clause.split(':');
+                    const k = cleanStr(parts[0]);
+                    const v = parts.slice(1).join(':').trim().toLowerCase();
+
+                    if (k === 'activeper' || k === 'per' || k === 'period') {
+                        const perVal = v.replace(/[^0-9hr]/g, '');
+                        adv.activeper = (perVal === 'hr' || perVal === 'homeroom') ? 'homeroom' : perVal;
+                    }
+                    else if (k === 'teach' || k === 'teacher') adv.teach = v;
+                    else if (k === 'grade') adv.grade = v;
+                    else if (k === 'room') adv.room = v;
+                    else if (k === 'lunch') adv.lunch = v;
+                } else {
+                    generalTokens.push(...cleanStr(clause).split(/\s+/).filter(Boolean));
+                }
+            });
+
+            const cleanQuery = generalTokens.join(' ');
+            const gradeFilter = document.getElementById('grade-select').value;
+            const periodFilter = document.getElementById('period-filter-select').value;
+            const teacherFilter = document.getElementById('teacher-select').value;
+            const status = getCurrentScheduleStatus();
+
+            const candidates = [];
+
+            studentsList.forEach(s => {
+                if (gradeFilter && s.grade !== gradeFilter) return;
+                if (teacherFilter) {
+                    if (periodFilter) {
+                        if (s.schedule[periodFilter] !== teacherFilter) return;
+                    } else {
+                        if (!Object.values(s.schedule || {}).includes(teacherFilter)) return;
+                    }
+                }
+
+                if (isAdv) {
+                    if (adv.grade && !cleanStr(s.grade).includes(cleanStr(adv.grade))) return;
+
+                    let periodsToCheck = adv.activeper ? [adv.activeper] : Object.keys(s.schedule || {});
+
+                    if (adv.activeper && !adv.teach && !adv.room && !adv.lunch) {
+                        if (!s.schedule[adv.activeper] || s.schedule[adv.activeper] === "—") return;
+                    }
+
+                    if (adv.teach) {
+                        const hasTeach = periodsToCheck.some(p => cleanStr(s.schedule[p] || '').includes(cleanStr(adv.teach)));
+                        if (!hasTeach) return;
+                    }
+
+                    if (adv.room || adv.lunch) {
+                        const hasRoomLunch = periodsToCheck.some(p => {
+                            const tName = s.schedule[p];
+                            if (!tName || tName === "—") return false;
+                            const meta = getCachedTeacherMetadata(tName);
+                            const matchRoom = adv.room ? cleanStr(meta.room).includes(cleanStr(adv.room)) : true;
+                            const matchLunch = adv.lunch ? cleanStr(meta.lunch || '').includes(cleanStr(adv.lunch)) : true;
+                            return matchRoom && matchLunch;
+                        });
+                        if (!hasRoomLunch) return;
+                    }
+                }
+
+                if (generalTokens.length === 0) {
+                    candidates.push({ student: s, score: 1 });
+                    return;
+                }
+
+                let totalScore = 0;
+                let allTokensMatch = true;
+
+                for (const tok of generalTokens) {
+                    let bestTokScore = 0;
+                    if (s._joinedName && s._joinedName.includes(tok)) bestTokScore = Math.max(bestTokScore, 8);
+
+                    for (const word of s._searchTokens || []) {
+                        const score = matchTokenScore(tok, word);
+                        if (score > bestTokScore) bestTokScore = score;
+                        if (bestTokScore >= 10) break;
+                    }
+
+                    if (bestTokScore === 0) {
+                        allTokensMatch = false;
+                        break;
+                    }
+                    totalScore += bestTokScore;
+                }
+
+                if (allTokensMatch) {
+                    if (s._studentNameClean && (s._studentNameClean.includes(cleanQuery) || s._joinedName.includes(cleanQuery.replace(/\s+/g, '')))) {
+                        totalScore += 50;
+                    }
+                    candidates.push({ student: s, score: totalScore });
+                }
+            });
+
+            const sortValue = document.getElementById('sort-select').value;
+
+            const parseName = (nameStr) => {
+                if (!nameStr) return { first: '', last: '' };
+                if (nameStr.includes(',')) {
+                    const parts = nameStr.split(',');
+                    return { last: parts[0].trim().toLowerCase(), first: parts[1].trim().toLowerCase() };
+                }
+                const parts = nameStr.trim().split(/\s+/);
+                return { first: parts[0]?.toLowerCase() || '', last: parts[parts.length - 1]?.toLowerCase() || '' };
+            };
+
+            candidates.sort((a, b) => {
+                if (sortValue === 'relevance' && generalTokens.length > 0) {
+                    return b.score - a.score;
+                }
+                const nameA = parseName(a.student.name);
+                const nameB = parseName(b.student.name);
+
+                if (sortValue === 'first-asc') return nameA.first.localeCompare(nameB.first);
+                if (sortValue === 'first-desc') return nameB.first.localeCompare(nameA.first);
+                if (sortValue === 'last-asc') return nameA.last.localeCompare(nameB.last);
+                if (sortValue === 'last-desc') return nameB.last.localeCompare(nameA.last);
+
+                return a.student.name.localeCompare(b.student.name);
+            });
+
+            const filtered = candidates.map(c => c.student);
+            const resultsToRender = filtered.slice(0, renderLimit);
+
+            const resultsLabel = filtered.length > renderLimit
+                ? `Showing top ${renderLimit} of ${filtered.length} matches`
+                : `Showing ${filtered.length} of ${studentsList.length} records`;
+
+            document.getElementById('results-count').textContent = resultsLabel;
+
+            const loadMoreWrapper = document.getElementById('load-more-wrapper');
+            if (filtered.length > renderLimit) {
+                loadMoreWrapper.classList.remove('hidden');
+            } else {
+                loadMoreWrapper.classList.add('hidden');
+            }
+
+            const tbody = document.getElementById('student-table-body');
+            if (!filtered.length) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="text-center py-16 text-slate-100 font-mono">
+                            <i class="fa-solid fa-user-slash text-base mb-2"></i>
+                            <div>No matching records found.</div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = resultsToRender.map((s, idx) => {
+                let currentLocationHtml = '<span class="text-slate-100 font-mono">—</span>';
+                let nextLocationHtml = '<span class="text-slate-100 font-mono">—</span>';
+
+                if (status.currentPeriodId && s.schedule[status.currentPeriodId]) {
+                    const teacher = s.schedule[status.currentPeriodId];
+                    const teacherMeta = getCachedTeacherMetadata(teacher);
+                    const roomBadge = teacherMeta.room !== '—' ? `<span class="ml-2 px-1.5 py-0.5 rounded bg-brand-bg border border-brand-border text-slate-100 font-mono text-[10px]"><i class="fa-solid fa-door-open"></i> ${teacherMeta.room}</span>` : '';
+
+                    if (status.isLunchBlock) {
+                        currentLocationHtml = `
+                            <div class="flex items-center">
+                                <span class="text-white font-medium">${teacher}</span>
+                                ${teacherMeta.lunch ? `<span class="ml-2 px-1.5 py-0.5 rounded bg-amber-500/15 border border-amber-500/30 text-amber-300 font-mono text-[10px]">Lunch ${teacherMeta.lunch}</span>` : ''}
+                                ${roomBadge}
+                            </div>
+                        `;
+                    } else {
+                        currentLocationHtml = `
+                            <div class="flex items-center">
+                                <span class="text-emerald-400 font-medium">P${status.currentPeriodId}: ${teacher}</span>
+                                ${roomBadge}
+                            </div>
+                        `;
+                    }
+                } else if (!status.isSchoolTime) {
+                    currentLocationHtml = `<span class="text-slate-100 font-mono">${status.label}</span>`;
+                }
+
+                if (status.nextPeriodId && s.schedule[status.nextPeriodId]) {
+                    const nextMeta = getCachedTeacherMetadata(s.schedule[status.nextPeriodId]);
+                    const nextRoomInfo = nextMeta.room !== '—' ? ` (${nextMeta.room})` : '';
+                    nextLocationHtml = `<span class="text-slate-100 font-mono">P${status.nextPeriodId}: ${s.schedule[status.nextPeriodId]}${nextRoomInfo}</span>`;
+                }
+
+                const sEmail = getStudentEmail(s.name, s.grade);
+                const emailHtml = sEmail ? `<a href="mailto:${sEmail}" onclick="event.stopPropagation()" class="ml-3 inline-flex items-center justify-center w-7 h-7 rounded bg-brand-surface border border-brand-border text-slate-100 hover:text-brand-accent hover:border-brand-accent transition-colors" title="Quick Email"><i class="fa-solid fa-envelope text-[11px]"></i></a>` : '';
+
+                const delay = Math.min(idx * 15, 300);
+
+                return `
+                    <tr class="hover:bg-brand-surface transition-colors cursor-pointer group animate-fade-up opacity-0" style="animation-delay: ${delay}ms" onclick="window.viewStudentInsight('${idx}')">
+                        <td class="py-4 px-5 font-semibold text-white tracking-tight flex items-center text-sm border-r border-brand-border/50">
+                            ${s.name} ${emailHtml}
+                        </td>
+                        <td class="py-4 px-5 font-mono">
+                            <span class="inline-block px-2.5 py-0.5 rounded bg-brand-bg border border-brand-border text-brand-accent text-[11px]">
+                                ${s.grade || '—'}
+                            </span>
+                        </td>
+                        <td class="py-4 px-5">${currentLocationHtml}</td>
+                        <td class="py-4 px-5">${nextLocationHtml}</td>
+                        <td class="py-4 px-5 text-right font-mono">
+                            <span class="text-brand-accent group-hover:text-white transition-colors text-xs inline-flex items-center gap-1.5">
+                                Inspect <i class="fa-solid fa-arrow-right text-[10px] group-hover:translate-x-0.5 transition-transform"></i>
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            }).join("");
+
+            window.viewStudentInsight = function(index) {
+                if (resultsToRender[index]) openStudentModal(resultsToRender[index]);
+            };
+        }
+
+        document.getElementById('load-more-btn').addEventListener('click', () => {
+            renderLimit += 50;
+            renderTable();
+        });
+
+        let searchTimeout;
+        document.getElementById('search-input').addEventListener('input', () => {
+            renderLimit = 50;
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(renderTable, 80);
+        });
+
+        ['sort-select', 'grade-select', 'period-filter-select', 'teacher-select'].forEach(id => {
+            document.getElementById(id).addEventListener('change', () => { renderLimit = 50; renderTable(); });
+        });
+
+        document.getElementById('refresh-btn').addEventListener('click', () => fetchDirectoryData(true));
+
+        function closeModal() {
+            const modal = document.getElementById('student-modal');
+            const modalContent = document.getElementById('modal-content');
+            modal.classList.add('opacity-0');
+            modalContent.classList.remove('scale-100');
+            modalContent.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                document.getElementById('modal-compare-input').value = '';
+                window.currentViewedStudent = null;
+            }, 300);
+        }
+
+        document.getElementById('modal-close-btn').addEventListener('click', closeModal);
+        document.getElementById('student-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'student-modal') closeModal();
+        });
+
+        function openHelpModal() {
+            const modal = document.getElementById('help-modal');
+            const content = document.getElementById('help-modal-content');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                content.classList.remove('scale-95');
+                content.classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeHelpModal() {
+            const modal = document.getElementById('help-modal');
+            const content = document.getElementById('help-modal-content');
+            modal.classList.add('opacity-0');
+            content.classList.remove('scale-100');
+            content.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+        }
+
+        document.getElementById('help-menu-btn').addEventListener('click', openHelpModal);
+        document.getElementById('help-close-btn').addEventListener('click', closeHelpModal);
+        document.getElementById('help-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'help-modal') closeHelpModal();
+        });
+
+        setInterval(() => {
+            const currentStatus = updateLiveHeader();
+            if (currentStatus.currentPeriodId !== lastKnownPeriod) {
+                lastKnownPeriod = currentStatus.currentPeriodId;
+                renderTable();
+            }
+        }, 15000);
+
+        // Only poll while the tab is visible
+        setInterval(() => { if (!document.hidden) fetchDirectoryData(); }, 180000);
+
+        // System Start
+        updateLiveHeader();
+        fetchDirectoryData();
+    </script>
+</body>
+</html>
