@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Yearbook Photo Board — Aperture</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2338bdf8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cline x1='14.31' y1='8' x2='20.05' y2='17.94'/%3E%3Cline x1='9.69' y1='8' x2='21.17' y2='8'/%3E%3Cline x1='7.38' y1='12' x2='13.12' y2='2.06'/%3E%3Cline x1='9.69' y1='16' x2='3.95' y2='6.06'/%3E%3Cline x1='14.31' y1='16' x2='2.83' y2='16'/%3E%3Cline x1='16.62' y1='12' x2='10.88' y2='21.94'/%3E%3C/svg%3E">
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<style>
+:root{
+  --bg:#455762; --surface:#5a7382; --surface2:#526b7a; --input:#415764; --border:#1b252b;
+  --text:#f8fafc; --muted:#e2e8f0; --accent:#38bdf8; --radius:5px;
+  --req:#f59e0b; --cov:#38bdf8; --ok:#10b981; --claim:#a78bfa;
+}
+*,*::before,*::after{box-sizing:border-box;border-color:var(--border)}
+html{scroll-behavior:smooth}
+body{
+  background-color:#3d4d57;color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;
+  background-image:radial-gradient(at 0% 0%,rgba(56,189,248,.07) 0,transparent 50%),radial-gradient(at 100% 100%,rgba(99,102,241,.05) 0,transparent 50%),radial-gradient(rgba(56,189,248,.08) 1px,transparent 1px);
+  background-size:auto,auto,24px 24px;background-attachment:fixed;
+}
+button,input,select,textarea,.r{border-radius:var(--radius)}
+.mono{font-family:'JetBrains Mono',monospace}
+.card{
+  background:rgba(90,115,130,.65);backdrop-filter:blur(16px) saturate(170%);-webkit-backdrop-filter:blur(16px) saturate(170%);
+  border:1.5px solid var(--border);border-radius:var(--radius);
+  box-shadow:0 16px 36px -8px rgba(0,0,0,.45),0 4px 12px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.24);
+}
+.inp{
+  width:100%;background:rgba(65,87,100,.75);border:1.5px solid var(--border);color:#fff;padding:.55rem .75rem;
+  font-family:'JetBrains Mono',monospace;font-size:.8125rem;outline:none;
+  box-shadow:inset 0 1px 2px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.2);
+}
+.inp:focus{border-color:#fff;box-shadow:0 0 0 1px #fff}
+.inp::placeholder{color:#cbd5e1;opacity:.8}
+select.inp option{background:#526b7a;color:#fff}
+.lbl{display:block;font-family:'JetBrains Mono',monospace;font-size:.6875rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:.3rem}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:.5rem;font-family:'JetBrains Mono',monospace;font-size:.75rem;font-weight:600;
+  padding:.5rem .85rem;background:rgba(90,115,130,.8);border:1px solid var(--border);color:#fff;cursor:pointer;
+  box-shadow:0 4px 10px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.24);transition:all .12s;user-select:none;white-space:nowrap
+}
+.btn:hover{background:rgba(105,130,145,.95);transform:translateY(-1px)}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn-primary{background:#fff;color:#2a373f;border-color:#fff}
+.btn-primary:hover{background:#e2e8f0}
+.btn-danger:hover{background:#b91c1c;border-color:#7f1d1d}
+.chip{display:inline-flex;align-items:center;gap:.35rem;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;padding:.15rem .5rem;border:1px solid var(--border);background:rgba(27,37,43,.45);text-transform:uppercase;letter-spacing:.04em}
+.tab{padding:.5rem 1rem;font-family:'JetBrains Mono',monospace;font-size:.75rem;font-weight:600;color:var(--muted);cursor:pointer;border:1px solid transparent;background:transparent}
+.tab.active{background:#fff;color:#2a373f;border-color:var(--border)}
+.tab:not(.active):hover{background:rgba(255,255,255,.1)}
+.seg button{opacity:.75}.seg button.on{opacity:1;background:#fff;color:#2a373f}
+.modal-bg{position:fixed;inset:0;z-index:60;background:rgba(5,7,14,.8);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:1rem}
+.modal-bg.show{display:flex}
+.modal{background:rgba(58,78,91,.97);border:1.5px solid var(--border);border-radius:var(--radius);width:100%;max-height:94vh;overflow-y:auto;box-shadow:0 35px 80px -15px rgba(0,0,0,.75),inset 0 1px 1px rgba(255,255,255,.3)}
+@keyframes up{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.up{animation:up .25s cubic-bezier(.16,1,.3,1) both}
+html,body,*{scrollbar-width:none;-ms-overflow-style:none}
+*::-webkit-scrollbar{display:none}
+@media (max-width:768px){input,select,textarea{font-size:16px!important}}
+.tl-hour{position:absolute;left:0;right:0;border-top:1px dashed rgba(255,255,255,.14)}
+.tl-ev{position:absolute;overflow:hidden;padding:.25rem .4rem;border:1.5px solid var(--border);cursor:pointer;font-size:11px;line-height:1.25;box-shadow:0 4px 10px rgba(0,0,0,.3)}
+.tl-ev:hover{z-index:5;filter:brightness(1.12)}
+.now-line{position:absolute;left:0;right:0;border-top:2px solid #ef4444;z-index:6}
+.now-line::before{content:'NOW';position:absolute;left:0;top:-9px;background:#ef4444;color:#fff;font:700 9px 'JetBrains Mono',monospace;padding:0 4px;border-radius:3px}
+select,input[type=date],input[type=time]{color-scheme:dark}
+</style>
+</head>
+<body class="flex flex-col">
+
+<!-- Header -->
+<header class="sticky top-0 z-40" style="background:rgba(69,87,98,.9);backdrop-filter:blur(16px);border-bottom:2px solid var(--border)">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+    <div class="flex items-center gap-3 min-w-0">
+      <div class="w-9 h-9 r flex items-center justify-center shrink-0" style="background:rgba(27,37,43,.5);border:1px solid var(--border)"><i class="fa-solid fa-camera"></i></div>
+      <div class="min-w-0">
+        <div class="font-bold text-sm leading-tight truncate">Yearbook Photo Board</div>
+        <div class="mono text-[10px] text-slate-200 leading-tight"><span id="conn-dot" class="inline-block w-2 h-2 rounded-full bg-amber-400 mr-1"></span><span id="conn-text">Connecting…</span></div>
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <div id="user-box" class="hidden items-center gap-2">
+        <span class="chip hidden sm:inline-flex"><i class="fa-solid fa-user"></i><span id="user-name"></span></span>
+        <button id="logout-btn" class="btn"><i class="fa-solid fa-right-from-bracket"></i><span class="hidden md:inline">Log Out</span></button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Auth screen -->
+<main id="auth-view" class="flex-1 flex items-center justify-center px-4 py-10">
+  <div class="card w-full max-w-sm p-6 up">
+    <div class="text-center mb-5">
+      <div class="w-12 h-12 mx-auto r flex items-center justify-center text-xl mb-3" style="background:rgba(27,37,43,.5);border:1px solid var(--border)"><i class="fa-solid fa-camera-retro"></i></div>
+      <h1 class="text-lg font-bold">Yearbook Photo Board</h1>
+      <p class="text-xs text-slate-200 mt-1">Request photos, post what you're covering, and see the whole schedule.</p>
+    </div>
+    <div class="seg flex gap-1 p-1 mb-4 r" style="background:rgba(27,37,43,.45);border:1px solid var(--border)">
+      <button id="mode-login" class="tab flex-1 active">Log In</button>
+      <button id="mode-signup" class="tab flex-1">Sign Up</button>
+    </div>
+    <form id="auth-form" class="space-y-3" autocomplete="on">
+      <div><label class="lbl" for="a-user">Username</label><input id="a-user" class="inp" autocomplete="username" maxlength="20" placeholder="e.g. jsmith" required></div>
+      <div><label class="lbl" for="a-pass">Password</label><input id="a-pass" type="password" class="inp" autocomplete="current-password" placeholder="••••••" required></div>
+      <div id="confirm-wrap" class="hidden"><label class="lbl" for="a-pass2">Confirm Password</label><input id="a-pass2" type="password" class="inp" autocomplete="new-password" placeholder="••••••"></div>
+      <div id="auth-err" class="hidden mono text-[11px] text-red-300 bg-red-500/10 border border-red-500/40 r px-3 py-2"></div>
+      <button id="auth-submit" class="btn btn-primary w-full py-2.5">Log In</button>
+    </form>
+    <p class="mono text-[10px] text-slate-200 text-center mt-4">No email needed. Just pick a username and password.</p>
+  </div>
+</main>
+
+<!-- App -->
+<main id="app-view" class="hidden flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 py-5 flex-col gap-4">
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <div class="seg flex gap-1 p-1 r" style="background:rgba(27,37,43,.45);border:1px solid var(--border)">
+      <button class="tab active" data-tab="board"><i class="fa-solid fa-list-check mr-1.5"></i>Board</button>
+      <button class="tab" data-tab="dash"><i class="fa-solid fa-calendar-day mr-1.5"></i>Schedule Dash</button>
+      <button class="tab" data-tab="mine"><i class="fa-solid fa-user-pen mr-1.5"></i>My Posts</button>
+    </div>
+    <div class="flex gap-2">
+      <button class="btn btn-primary" data-new="request"><i class="fa-solid fa-hand"></i>Need a Photo</button>
+      <button class="btn" data-new="covering"><i class="fa-solid fa-camera"></i>I'm Covering</button>
+    </div>
+  </div>
+
+  <!-- Board -->
+  <section id="tab-board" class="flex flex-col gap-4">
+    <div class="card p-3.5 grid grid-cols-2 lg:grid-cols-4 gap-2 mono text-xs">
+      <div class="relative col-span-2 lg:col-span-1"><i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-xs"></i><input id="f-search" class="inp" style="padding-left:2rem" placeholder="Search posts…"></div>
+      <select id="f-type" class="inp"><option value="">All Types</option><option value="request">Photo Requests</option><option value="covering">Self-Covered</option></select>
+      <select id="f-status" class="inp"><option value="">All Statuses</option><option value="open">Open / Planned</option><option value="claimed">Claimed</option><option value="done">Done</option></select>
+      <select id="f-when" class="inp"><option value="upcoming">Today &amp; Upcoming</option><option value="today">Today Only</option><option value="past">Past</option><option value="all">All Dates</option></select>
+    </div>
+    <div class="mono text-xs text-slate-100 px-1" id="board-count"></div>
+    <div id="board-list" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3"></div>
+  </section>
+
+  <!-- Dash -->
+  <section id="tab-dash" class="hidden flex-col gap-4">
+    <div class="card p-3.5 flex flex-wrap items-center gap-2">
+      <button id="d-prev" class="btn"><i class="fa-solid fa-chevron-left"></i></button>
+      <input id="d-date" type="date" class="inp" style="width:auto">
+      <button id="d-next" class="btn"><i class="fa-solid fa-chevron-right"></i></button>
+      <button id="d-today" class="btn">Today</button>
+      <div id="d-label" class="mono text-xs ml-auto text-slate-100"></div>
+    </div>
+    <div id="d-stats" class="grid grid-cols-2 lg:grid-cols-4 gap-3"></div>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div class="card p-4 lg:col-span-2">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="font-bold text-sm">Day Timeline</h2>
+          <div class="flex gap-3 mono text-[10px]">
+            <span><i class="fa-solid fa-square" style="color:var(--req)"></i> Request</span>
+            <span><i class="fa-solid fa-square" style="color:var(--claim)"></i> Claimed</span>
+            <span><i class="fa-solid fa-square" style="color:var(--cov)"></i> Covering</span>
+            <span><i class="fa-solid fa-square" style="color:var(--ok)"></i> Done</span>
+          </div>
+        </div>
+        <div id="d-timeline" class="relative"></div>
+      </div>
+      <div class="flex flex-col gap-4">
+        <div class="card p-4"><h2 class="font-bold text-sm mb-3"><i class="fa-solid fa-triangle-exclamation text-amber-300 mr-1.5"></i>Needs a Photographer</h2><div id="d-unclaimed" class="flex flex-col gap-2"></div></div>
+        <div class="card p-4"><h2 class="font-bold text-sm mb-3"><i class="fa-solid fa-forward text-sky-300 mr-1.5"></i>Next 7 Days</h2><div id="d-week" class="flex flex-col gap-1.5"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Mine -->
+  <section id="tab-mine" class="hidden flex-col gap-4">
+    <div class="mono text-xs text-slate-100 px-1" id="mine-count"></div>
+    <div id="mine-list" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3"></div>
+  </section>
+</main>
+
+<footer class="mt-8 py-6 text-center text-xs mono text-slate-300" style="border-top:1px solid var(--border);background:rgba(69,87,98,.6)">
+  &copy; 2026 Aperture. All rights reserved.
+</footer>
+
+<!-- Post modal -->
+<div id="post-modal" class="modal-bg"><div class="modal max-w-lg">
+  <div class="p-4 flex items-center justify-between" style="border-bottom:1px solid var(--border)">
+    <h2 id="pm-title" class="font-bold text-sm">New Post</h2>
+    <button class="btn" data-close="post-modal" style="padding:.3rem .55rem"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+  <form id="post-form" class="p-4 space-y-3">
+    <div class="seg flex gap-1 p-1 r" style="background:rgba(27,37,43,.45);border:1px solid var(--border)">
+      <button type="button" id="pt-request" class="tab flex-1 on"><i class="fa-solid fa-hand mr-1"></i>I Need a Photo</button>
+      <button type="button" id="pt-covering" class="tab flex-1"><i class="fa-solid fa-camera mr-1"></i>I'm Covering It</button>
+    </div>
+    <div><label class="lbl" for="p-title" id="p-title-lbl">What do you need photographed?</label><input id="p-title" class="inp" maxlength="80" required></div>
+    <div><label class="lbl" for="p-loc">Where</label><input id="p-loc" class="inp" maxlength="80" placeholder="Room, field, gym, etc." required></div>
+    <div class="grid grid-cols-3 gap-2">
+      <div class="col-span-3 sm:col-span-1"><label class="lbl" for="p-date">Date</label><input id="p-date" type="date" class="inp" required></div>
+      <div><label class="lbl" for="p-start">From</label><input id="p-start" type="time" class="inp" required></div>
+      <div><label class="lbl" for="p-end">To</label><input id="p-end" type="time" class="inp" required></div>
+    </div>
+    <div><label class="lbl" for="p-reason" id="p-reason-lbl">Reason</label><textarea id="p-reason" rows="3" class="inp" maxlength="300" placeholder=""></textarea></div>
+    <div id="p-err" class="hidden mono text-[11px] text-red-300 bg-red-500/10 border border-red-500/40 r px-3 py-2"></div>
+    <div class="flex justify-end gap-2 pt-1">
+      <button type="button" class="btn" data-close="post-modal">Cancel</button>
+      <button id="p-submit" class="btn btn-primary">Post</button>
+    </div>
+  </form>
+</div></div>
+
+<!-- Detail modal -->
+<div id="detail-modal" class="modal-bg"><div class="modal max-w-md">
+  <div class="p-4 flex items-center justify-between" style="border-bottom:1px solid var(--border)">
+    <h2 class="font-bold text-sm">Post Details</h2>
+    <button class="btn" data-close="detail-modal" style="padding:.3rem .55rem"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+  <div id="detail-body" class="p-4"></div>
+</div></div>
+
+<div id="toasts" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[80] flex flex-col-reverse items-center gap-2 pointer-events-none"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+import { getDatabase, ref, onValue, get, set, push, update, remove } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-database.js";
+
+const app = initializeApp({
+  apiKey: "AIzaSyCAQ5MjP2OjDjUcldIwPE0dLrY0ESZ2pps",
+  authDomain: "charger-tools.firebaseapp.com",
+  databaseURL: "https://charger-tools-default-rtdb.firebaseio.com",
+  projectId: "charger-tools",
+  storageBucket: "charger-tools.firebasestorage.app",
+  messagingSenderId: "1083614493674",
+  appId: "1:1083614493674:web:7df62a8041d1a74a679093"
+});
+const db = getDatabase(app);
+const ROOT = "yearbook/staffdirect";
+const SESSION_KEY = "yb_photo_session_v1";
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+let me = null;            // { username }
+let posts = {};           // id -> post
+let activeTab = "board";
+let postType = "request";
+let editingId = null;
+let dashDate = todayStr();
+
+/* ───────── helpers ───────── */
+function pad(n){return String(n).padStart(2,"0")}
+function todayStr(){const d=new Date();return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`}
+function addDays(s,n){const [y,m,d]=s.split("-").map(Number);const dt=new Date(y,m-1,d+n);return `${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())}`}
+function fmtDate(s){const [y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d).toLocaleDateString([],{weekday:"short",month:"short",day:"numeric"})}
+function fmtTime(t){const [h,m]=t.split(":").map(Number);return `${h%12||12}:${pad(m)} ${h<12?"AM":"PM"}`}
+function toMin(t){const [h,m]=t.split(":").map(Number);return h*60+m}
+function nowMin(){const d=new Date();return d.getHours()*60+d.getMinutes()}
+
+function toast(msg,type="info"){
+  const t=document.createElement("div");
+  const col=type==="success"?"border-color:#10b981;color:#6ee7b7":type==="error"?"border-color:#ef4444;color:#fca5a5":"color:#fff";
+  t.className="card mono text-xs px-4 py-2.5 up pointer-events-auto";t.style.cssText+=col;
+  t.textContent=msg;$("toasts").appendChild(t);
+  setTimeout(()=>{t.style.opacity=0;t.style.transition="opacity .3s";setTimeout(()=>t.remove(),300)},3000);
+}
+
+async function sha256(str){
+  const buf=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(str));
+  return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,"0")).join("");
+}
+function randSalt(){return [...crypto.getRandomValues(new Uint8Array(16))].map(b=>b.toString(16).padStart(2,"0")).join("")}
+
+/* ───────── auth (username + password, stored in Realtime DB) ───────── */
+let authMode="login";
+function setAuthMode(m){
+  authMode=m;
+  $("mode-login").classList.toggle("active",m==="login");
+  $("mode-signup").classList.toggle("active",m==="signup");
+  $("confirm-wrap").classList.toggle("hidden",m==="login");
+  $("auth-submit").textContent=m==="login"?"Log In":"Create Account";
+  $("a-pass").autocomplete=m==="login"?"current-password":"new-password";
+  $("auth-err").classList.add("hidden");
+}
+$("mode-login").onclick=()=>setAuthMode("login");
+$("mode-signup").onclick=()=>setAuthMode("signup");
+
+function authError(msg){const e=$("auth-err");e.textContent=msg;e.classList.remove("hidden")}
+
+$("auth-form").addEventListener("submit",async e=>{
+  e.preventDefault();
+  $("auth-err").classList.add("hidden");
+  const username=$("a-user").value.trim().toLowerCase();
+  const pass=$("a-pass").value;
+  if(!/^[a-z0-9_-]{3,20}$/.test(username)) return authError("Username must be 3–20 characters: letters, numbers, _ or -");
+  if(pass.length<6) return authError("Password must be at least 6 characters.");
+  const btn=$("auth-submit");btn.disabled=true;
+  try{
+    const uref=ref(db,`${ROOT}/users/${username}`);
+    const snap=await get(uref);
+    if(authMode==="signup"){
+      if(pass!==$("a-pass2").value) throw new Error("Passwords don't match.");
+      if(snap.exists()) throw new Error("That username is taken.");
+      const salt=randSalt();
+      const hash=await sha256(salt+pass);
+      await set(uref,{salt,hash,createdAt:Date.now()});
+      startSession(username,hash);
+      toast("Account created","success");
+    }else{
+      if(!snap.exists()) throw new Error("Incorrect username or password.");
+      const u=snap.val();
+      const hash=await sha256(u.salt+pass);
+      if(hash!==u.hash) throw new Error("Incorrect username or password.");
+      startSession(username,hash);
+    }
+  }catch(err){
+    authError(err.message||"Something went wrong.");
+  }finally{btn.disabled=false}
+});
+
+function startSession(username,hash){
+  try{localStorage.setItem(SESSION_KEY,JSON.stringify({username,hash}))}catch{}
+  me={username};
+  showApp();
+}
+async function restoreSession(){
+  try{
+    const s=JSON.parse(localStorage.getItem(SESSION_KEY)||"null");
+    if(!s) return;
+    const snap=await get(ref(db,`${ROOT}/users/${s.username}`));
+    if(snap.exists() && snap.val().hash===s.hash){me={username:s.username};showApp()}
+    else localStorage.removeItem(SESSION_KEY);
+  }catch{}
+}
+$("logout-btn").onclick=()=>{
+  try{localStorage.removeItem(SESSION_KEY)}catch{}
+  me=null;
+  $("app-view").classList.add("hidden");$("app-view").classList.remove("flex");
+  $("user-box").classList.add("hidden");$("user-box").classList.remove("flex");
+  $("auth-view").classList.remove("hidden");
+  $("a-pass").value="";$("a-pass2").value="";
+};
+
+function showApp(){
+  $("auth-view").classList.add("hidden");
+  $("app-view").classList.remove("hidden");$("app-view").classList.add("flex");
+  $("user-box").classList.remove("hidden");$("user-box").classList.add("flex");
+  $("user-name").textContent=me.username;
+  renderAll();
+}
+
+/* ───────── realtime data ───────── */
+onValue(ref(db,`${ROOT}/posts`),snap=>{
+  posts=snap.val()||{};
+  $("conn-dot").className="inline-block w-2 h-2 rounded-full bg-emerald-400 mr-1";
+  $("conn-text").textContent="Live";
+  if(me) renderAll();
+},err=>{
+  $("conn-dot").className="inline-block w-2 h-2 rounded-full bg-red-400 mr-1";
+  $("conn-text").textContent="Connection error";
+  toast("Can't read database — check your Realtime DB rules","error");
+  console.error(err);
+});
+
+/* ───────── post model ───────── */
+function postList(){
+  return Object.entries(posts).map(([id,p])=>({id,...p}))
+    .sort((a,b)=>(a.date+a.start).localeCompare(b.date+b.start));
+}
+function statusOf(p){return p.status||"open"}
+function statusLabel(p){
+  const s=statusOf(p);
+  if(p.type==="covering") return s==="done"?"Captured":"Planned";
+  return s==="open"?"Open":s==="claimed"?"Claimed":"Done";
+}
+function colorOf(p){
+  const s=statusOf(p);
+  if(s==="done") return "var(--ok)";
+  if(p.type==="covering") return "var(--cov)";
+  return s==="claimed"?"var(--claim)":"var(--req)";
+}
+
+/* ───────── card ───────── */
+function cardHTML(p){
+  const col=colorOf(p), s=statusOf(p);
+  const isReq=p.type==="request";
+  return `<div class="card p-4 up cursor-pointer flex flex-col gap-2" style="border-left:5px solid ${col}" data-open="${p.id}">
+    <div class="flex items-start justify-between gap-2">
+      <div class="font-semibold text-sm leading-snug break-words min-w-0">${esc(p.title)}</div>
+      <span class="chip shrink-0" style="color:${col}">${statusLabel(p)}</span>
+    </div>
+    <div class="flex flex-wrap gap-1.5">
+      <span class="chip"><i class="fa-solid ${isReq?"fa-hand":"fa-camera"}"></i>${isReq?"Photo Request":"Self-Covered"}</span>
+      <span class="chip"><i class="fa-regular fa-calendar"></i>${fmtDate(p.date)}</span>
+      <span class="chip"><i class="fa-regular fa-clock"></i>${fmtTime(p.start)} – ${fmtTime(p.end)}</span>
+    </div>
+    <div class="mono text-[11px] text-slate-100"><i class="fa-solid fa-location-dot mr-1.5"></i>${esc(p.location)}</div>
+    ${p.reason?`<div class="text-xs text-slate-100 line-clamp-2">${esc(p.reason)}</div>`:""}
+    <div class="mono text-[10px] text-slate-200 flex items-center justify-between mt-auto pt-2" style="border-top:1px solid rgba(27,37,43,.6)">
+      <span>by ${esc(p.author)}</span>
+      ${p.claimedBy?`<span><i class="fa-solid fa-camera mr-1"></i>${esc(p.claimedBy)}</span>`:""}
+    </div>
+  </div>`;
+}
+function bindCards(root){root.querySelectorAll("[data-open]").forEach(el=>el.onclick=()=>openDetail(el.dataset.open))}
+
+/* ───────── board ───────── */
+function renderBoard(){
+  const q=$("f-search").value.trim().toLowerCase();
+  const type=$("f-type").value, st=$("f-status").value, when=$("f-when").value;
+  const today=todayStr();
+  let list=postList().filter(p=>{
+    if(type&&p.type!==type) return false;
+    if(st&&statusOf(p)!==st) return false;
+    if(when==="upcoming"&&p.date<today) return false;
+    if(when==="today"&&p.date!==today) return false;
+    if(when==="past"&&p.date>=today) return false;
+    if(q&&![p.title,p.location,p.reason,p.author,p.claimedBy].join(" ").toLowerCase().includes(q)) return false;
+    return true;
+  });
+  if(when==="past") list.reverse();
+  $("board-count").textContent=`Showing ${list.length} post${list.length===1?"":"s"}`;
+  const el=$("board-list");
+  el.innerHTML=list.length?list.map(cardHTML).join(""):`<div class="card p-10 text-center mono text-xs col-span-full text-slate-100"><i class="fa-solid fa-camera-retro text-xl mb-2 block"></i>Nothing here yet. Post a photo request or what you're covering!</div>`;
+  bindCards(el);
+}
+
+/* ───────── mine ───────── */
+function renderMine(){
+  const list=postList().filter(p=>p.author===me.username||p.claimedBy===me.username).reverse();
+  $("mine-count").textContent=`${list.length} post${list.length===1?"":"s"} (yours or ones you claimed)`;
+  const el=$("mine-list");
+  el.innerHTML=list.length?list.map(cardHTML).join(""):`<div class="card p-10 text-center mono text-xs col-span-full text-slate-100">You haven't posted anything yet.</div>`;
+  bindCards(el);
+}
+
+/* ───────── schedule dash ───────── */
+function renderDash(){
+  $("d-date").value=dashDate;
+  const isToday=dashDate===todayStr();
+  $("d-label").textContent=fmtDate(dashDate)+(isToday?" · Today":"");
+  const day=postList().filter(p=>p.date===dashDate);
+  const reqs=day.filter(p=>p.type==="request");
+  const stat=(label,val,icon,col)=>`<div class="card p-4 flex items-center gap-3"><div class="w-10 h-10 r flex items-center justify-center" style="background:rgba(27,37,43,.5);border:1px solid var(--border);color:${col}"><i class="fa-solid ${icon}"></i></div><div><div class="text-2xl font-bold leading-none">${val}</div><div class="mono text-[10px] uppercase tracking-wider text-slate-200 mt-1">${label}</div></div></div>`;
+  $("d-stats").innerHTML=
+    stat("Open Requests",reqs.filter(p=>statusOf(p)==="open").length,"fa-hand","var(--req)")+
+    stat("Claimed",reqs.filter(p=>statusOf(p)==="claimed").length,"fa-user-check","var(--claim)")+
+    stat("Self-Covered",day.filter(p=>p.type==="covering").length,"fa-camera","var(--cov)")+
+    stat("Done",day.filter(p=>statusOf(p)==="done").length,"fa-circle-check","var(--ok)");
+
+  // timeline
+  const PX=54;
+  let minH=7,maxH=17;
+  day.forEach(p=>{minH=Math.min(minH,Math.floor(toMin(p.start)/60));maxH=Math.max(maxH,Math.ceil(toMin(p.end)/60))});
+  const H=(maxH-minH)*PX;
+  const tl=$("d-timeline");
+  let html=`<div class="relative" style="height:${H}px;margin-left:52px">`;
+  for(let h=minH;h<=maxH;h++){
+    html+=`<div class="tl-hour" style="top:${(h-minH)*PX}px"><span class="mono text-[10px] text-slate-200 absolute" style="left:-52px;top:-7px">${h%12||12} ${h<12?"AM":"PM"}</span></div>`;
+  }
+  // lane assignment
+  const evs=day.map(p=>({p,s:toMin(p.start),e:Math.max(toMin(p.end),toMin(p.start)+20)})).sort((a,b)=>a.s-b.s||a.e-b.e);
+  const groups=[];let cur=null;
+  evs.forEach(ev=>{
+    if(!cur||ev.s>=cur.end){cur={end:ev.e,items:[]};groups.push(cur)}
+    cur.end=Math.max(cur.end,ev.e);cur.items.push(ev);
+  });
+  groups.forEach(g=>{
+    const lanes=[];
+    g.items.forEach(ev=>{
+      let i=lanes.findIndex(end=>end<=ev.s);
+      if(i===-1){i=lanes.length;lanes.push(0)}
+      lanes[i]=ev.e;ev.lane=i;
+    });
+    g.items.forEach(ev=>{
+      const w=100/lanes.length;
+      const top=(ev.s/60-minH)*PX, h=Math.max((ev.e-ev.s)/60*PX,22);
+      const col=colorOf(ev.p);
+      html+=`<div class="tl-ev r" data-open="${ev.p.id}" style="top:${top}px;height:${h}px;left:calc(${ev.lane*w}% + 2px);width:calc(${w}% - 4px);background:${col};color:#0f1a20">
+        <div class="font-bold truncate">${esc(ev.p.title)}</div>
+        <div class="mono text-[9px] truncate opacity-80">${fmtTime(ev.p.start)}–${fmtTime(ev.p.end)} · ${esc(ev.p.location)}</div></div>`;
+    });
+  });
+  if(isToday){
+    const nm=nowMin();
+    if(nm>=minH*60&&nm<=maxH*60) html+=`<div class="now-line" style="top:${(nm/60-minH)*PX}px"></div>`;
+  }
+  html+=`</div>`;
+  if(!day.length) html+=`<div class="mono text-xs text-center text-slate-100 py-3">No posts on this day.</div>`;
+  tl.innerHTML=html;
+  bindCards(tl);
+
+  // unclaimed
+  const un=reqs.filter(p=>statusOf(p)==="open");
+  $("d-unclaimed").innerHTML=un.length?un.map(p=>`<div class="r p-2.5 cursor-pointer" style="background:rgba(27,37,43,.4);border:1px solid var(--border)" data-open="${p.id}">
+    <div class="text-xs font-semibold truncate">${esc(p.title)}</div>
+    <div class="mono text-[10px] text-slate-100 mt-0.5">${fmtTime(p.start)}–${fmtTime(p.end)} · ${esc(p.location)}</div></div>`).join(""):`<div class="mono text-[11px] text-slate-100">All requests for this day are claimed 🎉</div>`;
+  bindCards($("d-unclaimed"));
+
+  // next 7 days
+  let wk="";
+  for(let i=0;i<7;i++){
+    const d=addDays(todayStr(),i);
+    const items=postList().filter(p=>p.date===d);
+    const open=items.filter(p=>p.type==="request"&&statusOf(p)==="open").length;
+    wk+=`<button class="btn w-full justify-between" data-jump="${d}"><span>${fmtDate(d)}</span><span class="flex gap-1.5">${open?`<span class="chip" style="color:var(--req)">${open} open</span>`:""}<span class="chip">${items.length}</span></span></button>`;
+  }
+  $("d-week").innerHTML=wk;
+  $("d-week").querySelectorAll("[data-jump]").forEach(b=>b.onclick=()=>{dashDate=b.dataset.jump;renderDash()});
+}
+$("d-prev").onclick=()=>{dashDate=addDays(dashDate,-1);renderDash()};
+$("d-next").onclick=()=>{dashDate=addDays(dashDate,1);renderDash()};
+$("d-today").onclick=()=>{dashDate=todayStr();renderDash()};
+$("d-date").onchange=e=>{if(e.target.value){dashDate=e.target.value;renderDash()}};
+
+/* ───────── tabs & render ───────── */
+function renderAll(){
+  if(!me) return;
+  if(activeTab==="board") renderBoard();
+  if(activeTab==="dash") renderDash();
+  if(activeTab==="mine") renderMine();
+  if(!$("detail-modal").classList.contains("hidden") && $("detail-modal").dataset.id) refreshDetail();
+}
+document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{
+  activeTab=b.dataset.tab;
+  document.querySelectorAll("[data-tab]").forEach(x=>x.classList.toggle("active",x===b));
+  ["board","dash","mine"].forEach(t=>{
+    const el=$("tab-"+t);el.classList.toggle("hidden",t!==activeTab);el.classList.toggle("flex",t===activeTab);
+  });
+  renderAll();
+});
+["f-search","f-type","f-status","f-when"].forEach(id=>$(id).addEventListener(id==="f-search"?"input":"change",renderBoard));
+
+/* ───────── modals ───────── */
+function openModal(id){$(id).classList.add("show")}
+function closeModal(id){$(id).classList.remove("show");if(id==="detail-modal")$(id).dataset.id=""}
+document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>closeModal(b.dataset.close));
+document.querySelectorAll(".modal-bg").forEach(m=>m.addEventListener("click",e=>{if(e.target===m)closeModal(m.id)}));
+document.addEventListener("keydown",e=>{if(e.key==="Escape")document.querySelectorAll(".modal-bg.show").forEach(m=>closeModal(m.id))});
+
+/* ───────── create / edit ───────── */
+function setPostType(t){
+  postType=t;
+  $("pt-request").classList.toggle("on",t==="request");
+  $("pt-covering").classList.toggle("on",t==="covering");
+  $("p-title-lbl").textContent=t==="request"?"What do you need photographed?":"What are you covering?";
+  $("p-title").placeholder=t==="request"?"e.g. Robotics team group photo":"e.g. Varsity soccer vs. Concord";
+  $("p-reason-lbl").textContent=t==="request"?"Reason (why this photo?)":"Notes (optional)";
+  $("p-reason").placeholder=t==="request"?"e.g. Spread for the clubs section":"e.g. I'll upload to the yearbook drive by Friday";
+  $("p-reason").required=t==="request";
+}
+$("pt-request").onclick=()=>{if(!editingId)setPostType("request")};
+$("pt-covering").onclick=()=>{if(!editingId)setPostType("covering")};
+
+function openPostModal(type,existing){
+  editingId=existing?existing.id:null;
+  $("p-err").classList.add("hidden");
+  $("pm-title").textContent=existing?"Edit Post":"New Post";
+  $("p-submit").textContent=existing?"Save Changes":"Post";
+  setPostType(existing?existing.type:type);
+  $("p-title").value=existing?.title||"";
+  $("p-loc").value=existing?.location||"";
+  $("p-date").value=existing?.date||todayStr();
+  $("p-start").value=existing?.start||"";
+  $("p-end").value=existing?.end||"";
+  $("p-reason").value=existing?.reason||"";
+  openModal("post-modal");
+  setTimeout(()=>$("p-title").focus(),50);
+}
+document.querySelectorAll("[data-new]").forEach(b=>b.onclick=()=>openPostModal(b.dataset.new));
+
+$("post-form").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const err=m=>{const x=$("p-err");x.textContent=m;x.classList.remove("hidden")};
+  const data={
+    type:postType,
+    title:$("p-title").value.trim(),
+    location:$("p-loc").value.trim(),
+    date:$("p-date").value,
+    start:$("p-start").value,
+    end:$("p-end").value,
+    reason:$("p-reason").value.trim()
+  };
+  if(!data.title||!data.location||!data.date||!data.start||!data.end) return err("Please fill out every required field.");
+  if(toMin(data.end)<=toMin(data.start)) return err("End time must be after the start time.");
+  if(postType==="request"&&!data.reason) return err("Please give a reason.");
+  const btn=$("p-submit");btn.disabled=true;
+  try{
+    if(editingId){
+      await update(ref(db,`${ROOT}/posts/${editingId}`),{...data,updatedAt:Date.now()});
+      toast("Post updated","success");
+    }else{
+      const r=push(ref(db,`${ROOT}/posts`));
+      await set(r,{...data,author:me.username,status:"open",createdAt:Date.now()});
+      toast(postType==="request"?"Photo request posted":"Coverage posted","success");
+    }
+    closeModal("post-modal");
+  }catch(ex){err("Couldn't save: "+ex.message)}
+  finally{btn.disabled=false}
+});
+
+/* ───────── detail & actions ───────── */
+function openDetail(id){$("detail-modal").dataset.id=id;refreshDetail();openModal("detail-modal")}
+function refreshDetail(){
+  const id=$("detail-modal").dataset.id, p=posts[id];
+  if(!p){closeModal("detail-modal");return}
+  p.id=id;
+  const s=statusOf(p), mine=p.author===me.username, claimer=p.claimedBy===me.username, col=colorOf(p);
+  const isReq=p.type==="request";
+  const row=(icon,label,val)=>`<div class="flex gap-3 py-2" style="border-bottom:1px solid rgba(27,37,43,.5)"><i class="fa-solid ${icon} w-4 mt-0.5 text-center"></i><div><div class="mono text-[10px] uppercase tracking-wider text-slate-200">${label}</div><div class="text-sm break-words">${val}</div></div></div>`;
+  let actions="";
+  if(isReq&&s==="open") actions+=`<button class="btn btn-primary" data-act="claim"><i class="fa-solid fa-camera"></i>I'll Grab This Photo</button>`;
+  if(isReq&&s==="claimed"&&claimer) actions+=`<button class="btn" data-act="unclaim"><i class="fa-solid fa-rotate-left"></i>Unclaim</button>`;
+  if(s!=="done"&&((isReq&&s==="claimed"&&(claimer||mine))||(!isReq&&mine))) actions+=`<button class="btn btn-primary" data-act="done"><i class="fa-solid fa-circle-check"></i>${isReq?"Mark Done":"Mark Captured"}</button>`;
+  if(s==="done"&&(mine||claimer)) actions+=`<button class="btn" data-act="reopen"><i class="fa-solid fa-rotate-left"></i>Reopen</button>`;
+  if(mine) actions+=`<button class="btn" data-act="edit"><i class="fa-solid fa-pen"></i>Edit</button><button class="btn btn-danger" data-act="delete"><i class="fa-solid fa-trash"></i>Delete</button>`;
+  $("detail-body").innerHTML=`
+    <div class="flex items-start justify-between gap-2 mb-1">
+      <h3 class="font-bold text-base leading-snug break-words">${esc(p.title)}</h3>
+      <span class="chip shrink-0" style="color:${col}">${statusLabel(p)}</span>
+    </div>
+    <div class="mb-2"><span class="chip"><i class="fa-solid ${isReq?"fa-hand":"fa-camera"}"></i>${isReq?"Photo Request":"Self-Covered"}</span></div>
+    ${row("fa-location-dot","Where",esc(p.location))}
+    ${row("fa-calendar","When",`${fmtDate(p.date)} · ${fmtTime(p.start)} – ${fmtTime(p.end)}`)}
+    ${p.reason?row("fa-comment",isReq?"Reason":"Notes",esc(p.reason).replace(/\n/g,"<br>")):""}
+    ${row("fa-user","Posted by",esc(p.author))}
+    ${p.claimedBy?row("fa-camera","Photographer",esc(p.claimedBy)):""}
+    <div class="flex flex-wrap gap-2 mt-4">${actions||`<span class="mono text-[11px] text-slate-100">No actions available.</span>`}</div>`;
+  $("detail-body").querySelectorAll("[data-act]").forEach(b=>b.onclick=()=>doAction(b.dataset.act,p));
+}
+async function doAction(act,p){
+  const r=ref(db,`${ROOT}/posts/${p.id}`);
+  try{
+    if(act==="claim"){await update(r,{status:"claimed",claimedBy:me.username,claimedAt:Date.now()});toast("Claimed — thanks!","success")}
+    else if(act==="unclaim"){await update(r,{status:"open",claimedBy:null,claimedAt:null});toast("Unclaimed")}
+    else if(act==="done"){await update(r,{status:"done",doneAt:Date.now()});toast("Marked done","success")}
+    else if(act==="reopen"){await update(r,{status:p.type==="request"&&p.claimedBy?"claimed":"open",doneAt:null})}
+    else if(act==="edit"){closeModal("detail-modal");openPostModal(p.type,p)}
+    else if(act==="delete"){
+      if(!confirm("Delete this post?")) return;
+      await remove(r);closeModal("detail-modal");toast("Post deleted")
+    }
+  }catch(ex){toast("Action failed: "+ex.message,"error")}
+}
+
+// Refresh the "NOW" line every minute
+setInterval(()=>{if(me&&activeTab==="dash")renderDash()},60000);
+
+setAuthMode("login");
+restoreSession();
+</script>
+</body>
+</html>
