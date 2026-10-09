@@ -1,1 +1,2711 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Class Bell Countdown — Aperture</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2338bdf8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cline x1='14.31' y1='8' x2='20.05' y2='17.94'/%3E%3Cline x1='9.69' y1='8' x2='21.17' y2='8'/%3E%3Cline x1='7.38' y1='12' x2='13.12' y2='2.06'/%3E%3Cline x1='9.69' y1='16' x2='3.95' y2='6.06'/%3E%3Cline x1='14.31' y1='16' x2='2.83' y2='16'/%3E%3Cline x1='16.62' y1='12' x2='10.88' y2='21.94'/%3E%3C/svg%3E">
 
+    <!-- Firebase RTDB SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+        import { initializeFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+        window.firebaseModules = { initializeApp, getAuth, signInAnonymously, onAuthStateChanged, initializeFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, serverTimestamp };
+    </script>
+
+    <!-- Tailwind CSS CDN with 5px radius configuration -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        window.tailwind = window.tailwind || {};
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    borderRadius: {
+                        DEFAULT: '5px',
+                        'sm': '5px',
+                        'md': '5px',
+                        'lg': '5px',
+                        'xl': '5px',
+                        '2xl': '5px',
+                        '3xl': '5px'
+                    },
+                    colors: {
+                        brand: {
+                            bg: '#455762',
+                            surface: '#3b4b55',
+                            surface2: '#34434c',
+                            card: '#3b4b55',
+                            border: '#1b252b',
+                            accent: '#38bdf8',
+                            accentHover: '#0ea5e9',
+                            text: '#f8fafc',
+                            muted: '#e2e8f0'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'Fira Code', 'monospace']
+                    }
+                }
+            }
+        };
+    </script>
+
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #26333a;
+            color: #f8fafc;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .grid-pattern {
+            background-image: radial-gradient(rgba(56, 189, 248, 0.08) 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+
+        *:focus-visible {
+            outline: 2px solid #1b252b;
+            outline-offset: 2px;
+        }
+
+        select option { background-color: #526b7a; color: #f8fafc; }
+        optgroup { background-color: #4a6372; color: #94a3b8; font-style: normal; font-weight: 600; }
+
+        .time-tabular { font-variant-numeric: tabular-nums; }
+
+        .pulse-glow {
+            box-shadow: 0 0 18px rgba(56, 189, 248, 0.15);
+        }
+    
+        /* Precision scrollbar suppression */
+        html, body, * {
+            scrollbar-width: none !important;
+            -ms-overflow-style: none !important;
+        }
+        *::-webkit-scrollbar,
+        html::-webkit-scrollbar,
+        body::-webkit-scrollbar {
+            display: none !important;
+            width: 0 !important;
+            height: 0 !important;
+        }
+    
+    /* Prevent iOS auto-zoom on input focus */
+    @media screen and (max-width: 768px) {
+        input, select, textarea {
+            font-size: 16px !important;
+        }
+    }
+
+@keyframes fadeSlideIn { from { opacity: 0; transform: translateX(-15px); } to { opacity: 1; transform: translateX(0); } } .animate-fade-slide { animation: fadeSlideIn 0.35s ease-out forwards; }
+
+/**
+ * ══════════════════════════════════════════════════════════════════
+ * CHARGER TOOLS — UNIVERSAL DESIGN SYSTEM (MAIN.CSS)
+ * Centralized theme, smooth animations, and strict 5px rounding
+ * ══════════════════════════════════════════════════════════════════
+ */
+
+:root {
+    /* Color Palette — Midnight Slate */
+    --bg-main: #455762;
+    --bg-page: #455762;
+    --bg-surface: #5a7382;
+    --bg-surface-2: #526b7a;
+    --bg-surface-elevated: #637d8c;
+    --bg-card: #5a7382;
+    --bg-card-hover: #637d8c;
+    --bg-input: #5d7685;
+    --bg-overlay: rgba(69, 87, 98, 0.82);
+
+    /* Borders & Outlines */
+    --border-subtle: #243138;
+    --border-default: #1b252b;
+    --border-hover: #0f161a;
+    --border-accent: rgba(56, 189, 248, 0.35);
+
+    /* Brand Accents */
+    --accent-primary: #ffffff;
+    --accent-hover: #0ea5e9;
+    --accent-subtle: rgba(56, 189, 248, 0.12);
+    --accent-glow: rgba(56, 189, 248, 0.22);
+
+    /* Dynamic User Role Theming */
+    --role-color: #ffffff;
+    --role-bg: rgba(56, 189, 248, 0.08);
+    --role-border: rgba(56, 189, 248, 0.3);
+
+    /* Semantic Status */
+    --status-success: #10b981;
+    --status-warning: #f59e0b;
+    --status-danger: #ef4444;
+
+    /* Typography */
+    --text-primary: #f8fafc;
+    --text-muted: #e2e8f0;
+    --text-subtle: #cbd5e1;
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+    /* Universal 5px Rounding Token */
+    --radius: 5px;
+
+    /* Smooth Motion & Easing */
+    --ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+    --duration-fast: 120ms;
+    --duration-normal: 220ms;
+    --duration-slow: 360ms;
+    --trans-smooth: all var(--duration-normal) var(--ease-smooth);
+    --trans-fast: all var(--duration-fast) var(--ease-smooth);
+}
+
+/* ══════════════ CORE BRAND COLOR UTILITIES ══════════════ */
+.text-brand-accent { color: #ffffff !important; }
+.text-brand-accentHover { color: #f8fafc !important; }
+.text-slate-100 { color: #f1f5f9 !important; }
+.bg-brand-bg { background-color: #526b7a !important; }
+.bg-brand-surface { background-color: #5a7382 !important; }
+.bg-brand-surface2 { background-color: #526b7a !important; }
+.bg-brand-card { background-color: #5a7382 !important; }
+.border-brand-border { border-color: #1b252b !important; }
+.border-brand-border\/10 { border-color: rgba(98, 123, 139, 0.1) !important; }
+.border-brand-border\/20 { border-color: rgba(98, 123, 139, 0.2) !important; }
+.border-brand-border\/30 { border-color: rgba(98, 123, 139, 0.3) !important; }
+.border-brand-border\/40 { border-color: rgba(98, 123, 139, 0.4) !important; }
+.border-brand-border\/50 { border-color: rgba(98, 123, 139, 0.5) !important; }
+.border-brand-border\/60 { border-color: rgba(98, 123, 139, 0.6) !important; }
+.border-brand-border\/70 { border-color: rgba(98, 123, 139, 0.7) !important; }
+.border-brand-border\/80 { border-color: rgba(98, 123, 139, 0.8) !important; }
+.border-brand-border\/90 { border-color: rgba(98, 123, 139, 0.9) !important; }
+.border-brand-borderHover { border-color: #0f161a !important; }
+.border-brand-accent { border-color: #ffffff !important; }
+.border-brand-accent\/20 { border-color: rgba(56, 189, 248, 0.2) !important; }
+.border-brand-accent\/30 { border-color: rgba(56, 189, 248, 0.3) !important; }
+.border-brand-accent\/40 { border-color: rgba(56, 189, 248, 0.4) !important; }
+.border-brand-accent\/50 { border-color: rgba(56, 189, 248, 0.5) !important; }
+.bg-brand-accent { background-color: #ffffff !important; color: #2a373f !important; }
+.bg-brand-accent\/10 { background-color: rgba(56, 189, 248, 0.1) !important; }
+.bg-brand-accent\/15 { background-color: rgba(56, 189, 248, 0.15) !important; }
+.bg-brand-accent\/20 { background-color: rgba(56, 189, 248, 0.2) !important; }
+
+/* ══════════════ GLOBAL RESET & BASE ══════════════ */
+html {
+    scroll-behavior: smooth;
+    box-sizing: border-box;
+}
+
+*, *::before, *::after {
+    box-sizing: inherit;
+    border-color: var(--border-default);
+}
+
+.border,
+.border-t,
+.border-b,
+.border-l,
+.border-r,
+.border-x,
+.border-y,
+header,
+footer,
+nav,
+section,
+hr {
+    border-color: var(--border-default);
+}
+
+body {
+    background-color: var(--bg-page);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    margin: 0;
+    min-height: 100vh;
+}
+
+/* ══════════════ UNIVERSAL 5PX ROUNDING ENFORCEMENT ══════════════ */
+.rounded,
+.rounded-sm,
+.rounded-md,
+.rounded-lg,
+.rounded-xl,
+.rounded-2xl,
+.rounded-3xl,
+button,
+input,
+select,
+textarea,
+.btn,
+.badge,
+.pill,
+.card,
+.tool-card,
+.ent-card,
+.modal-box,
+.dropdown-panel,
+.search-popover,
+.avatar-box,
+.icon-box,
+.stat-box,
+.tab-btn {
+    border-radius: var(--radius) !important;
+}
+
+.rounded-full,
+.avatar-circle,
+img.rounded-full {
+    border-radius: 9999px !important;
+}
+
+/* ══════════════ FOCUS & INTERACTION ══════════════ */
+::selection {
+    background-color: var(--accent-subtle);
+    color: var(--accent-primary);
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus {
+    -webkit-text-fill-color: #ffffff;
+    -webkit-box-shadow: 0 0 0px 1000px var(--bg-surface) inset;
+    transition: background-color 5000s ease-in-out 0s;
+}
+
+/* ══════════════ SMOOTH COMPONENT UTILITIES ══════════════ */
+.smooth-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 0.5rem 0.875rem;
+    border-radius: var(--radius) !important;
+    border: 1px solid #40525d;
+    background-color: var(--bg-surface-2);
+    color: var(--text-primary);
+    cursor: pointer;
+    user-select: none;
+    transition: var(--trans-fast);
+}
+
+.smooth-btn:hover {
+    background-color: var(--bg-surface-elevated);
+    border-color: var(--border-hover);
+    color: #ffffff;
+    transform: translateY(-1px);
+}
+
+.smooth-btn:active { transform: translateY(0); }
+
+.section-body {
+    transition: max-height var(--duration-normal) var(--ease-smooth),
+                opacity var(--duration-fast) var(--ease-smooth);
+    overflow: hidden;
+}
+
+.section-body.collapsed {
+    max-height: 0 !important;
+    opacity: 0;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    pointer-events: none;
+}
+
+.smooth-modal-window,
+#teacher-lookup-modal > div,
+#lunch-modal > div,
+#universal-overlay > div,
+#settings-modal > div {
+    background: rgba(18, 25, 32, 0.96) !important;
+    backdrop-filter: blur(24px) saturate(190%) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(190%) !important;
+    border: 1.5px solid #1b2631 !important;
+    border-radius: var(--radius) !important;
+    box-shadow: 0 35px 80px -15px rgba(0, 0, 0, 0.85),
+                0 0 0 1px rgba(255, 255, 255, 0.06),
+                inset 0 1px 1px 0 rgba(255, 255, 255, 0.15) !important;
+    transition: transform var(--duration-normal) var(--ease-smooth),
+                opacity var(--duration-normal) var(--ease-smooth);
+}
+
+/* ══════════════ ACCESSIBILITY MODES ══════════════ */
+html.accessibility-reduced-motion,
+html.accessibility-reduced-motion *,
+body.accessibility-reduced-motion,
+body.accessibility-reduced-motion * {
+    animation-duration: 0.0001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.0001ms !important;
+    scroll-behavior: auto !important;
+}
+
+/* ══════════════ SLIDER CONTROLS ══════════════ */
+input[type=range] {
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    width: 100%;
+    cursor: pointer;
+}
+
+/* ══════════════ SLATE GLASSMORPHISM, REFLECTIONS & SHADOWS ══════════════ */
+body {
+    background-color: #26333a !important;
+    color: #f8fafc;
+    font-family: 'Inter', sans-serif;
+}
+
+.smooth-card {
+    background: rgba(90, 115, 130, 0.65) !important;
+    backdrop-filter: blur(16px) saturate(170%) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(170%) !important;
+    border: 1.5px solid #1b252b !important;
+    border-radius: var(--radius) !important;
+    box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.45), 
+                0 4px 12px rgba(0, 0, 0, 0.2), 
+                inset 0 1px 0 rgba(255, 255, 255, 0.24) !important;
+    transition: transform var(--duration-fast) var(--ease-smooth),
+                border-color var(--duration-fast) var(--ease-smooth),
+                background-color var(--duration-fast) var(--ease-smooth),
+                box-shadow var(--duration-fast) var(--ease-smooth);
+}
+
+.smooth-card:hover {
+    background: rgba(102, 128, 144, 0.8) !important;
+    border-color: #1b252b !important;
+    transform: translateY(-2px);
+    box-shadow: 0 22px 48px -10px rgba(0, 0, 0, 0.55), 
+                0 6px 18px rgba(0, 0, 0, 0.3), 
+                inset 0 1px 0 rgba(255, 255, 255, 0.36) !important;
+}
+
+.form-input, .form-select, textarea, input.search-input-command, input[type="text"], input[type="search"] {
+    background: rgba(65, 87, 100, 0.75) !important;
+    backdrop-filter: blur(14px) !important;
+    -webkit-backdrop-filter: blur(14px) !important;
+    border: 1.5px solid #1b252b !important;
+    color: #ffffff !important;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3), 
+                inset 0 1px 0 rgba(255, 255, 255, 0.2), 
+                0 4px 14px rgba(0, 0, 0, 0.22) !important;
+    border-radius: var(--radius) !important;
+}
+
+.form-input::placeholder, .form-select::placeholder, textarea::placeholder, input::placeholder {
+    color: #cbd5e1 !important;
+    opacity: 0.85;
+}
+
+.form-input:focus, .form-select:focus, textarea:focus, input:focus {
+    border-color: #1b252b !important;
+    background: rgba(78, 102, 116, 0.9) !important;
+    box-shadow: 0 0 0 2px #1b252b, 
+                0 0 22px rgba(0, 0, 0, 0.4), 
+                inset 0 1px 0 rgba(255, 255, 255, 0.32) !important;
+}
+
+.modal-overlay > div,
+.modal-box,
+#help-modal > div, 
+#teacher-lookup-modal > div, 
+#lunch-modal > div, 
+#universal-overlay > div {
+    background: rgba(58, 78, 91, 0.95) !important;
+    backdrop-filter: blur(24px) saturate(190%) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(190%) !important;
+    border: 1.5px solid #1b252b !important;
+    box-shadow: 0 35px 80px -15px rgba(0, 0, 0, 0.75), 
+                0 0 0 1px rgba(255, 255, 255, 0.1), 
+                inset 0 1px 1px 0 rgba(255, 255, 255, 0.3) !important;
+}
+
+/* ══════════════ HIGH-CONTRAST READABLE TYPOGRAPHY ══════════════ */
+p, 
+.text-slate-100,
+.font-sans.leading-relaxed {
+    color: #f1f5f9 !important;
+}
+
+h1 + p, 
+h2 + div, 
+h2 + p, 
+.subtitle,
+.text-slate-100.text-\[11px\],
+.text-slate-100.text-\[10px\] {
+    color: #e2e8f0 !important;
+    font-weight: 500 !important;
+}
+
+h1, h2, h3, h4, h5, h6,
+.search-result-name {
+    color: #ffffff !important;
+    font-weight: 700 !important;
+}
+
+.text-brand-accent {
+    color: #ffffff !important;
+    font-weight: 700 !important;
+}
+
+code, kbd {
+    background: rgba(255, 255, 255, 0.14) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.24) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+}
+
+header.sticky {
+    background: rgba(69, 87, 98, 0.88) !important;
+    backdrop-filter: blur(16px) saturate(170%) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(170%) !important;
+    border-bottom: 2px solid #1b252b !important;
+    box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.35), 
+                inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+}
+
+header a[href*="index.html"],
+header a[href*="aperture"],
+header a[href*="home"],
+header a[href*="chargertools"], 
+header button,
+.back-btn {
+    background: rgba(90, 115, 130, 0.75) !important;
+    border: 1px solid #1b252b !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2), 
+                inset 0 1px 0 rgba(255, 255, 255, 0.24) !important;
+    transition: all var(--duration-fast) var(--ease-smooth) !important;
+    border-radius: var(--radius) !important;
+}
+
+header a[href*="index.html"]:hover,
+header a[href*="aperture"]:hover,
+header a[href*="home"]:hover,
+header a[href*="chargertools"]:hover, 
+header button:hover,
+.back-btn:hover {
+    background: rgba(105, 130, 145, 0.92) !important;
+    border-color: #1b252b !important;
+    color: #ffffff !important;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3), 
+                inset 0 1px 0 rgba(255, 255, 255, 0.38) !important;
+}
+
+/* ══════════════ CLASS BELL COUNTDOWN: ACTIVE PERIOD GLOW ══════════════
+   (single definition — the old duplicate block was removed)
+   The card DOM is now kept alive between ticks, so this 2.2s pulse runs
+   continuously instead of restarting every second. */
+@keyframes activePeriodPulse {
+    0%, 100% {
+        box-shadow: 0 0 35px rgba(16, 185, 129, 0.75), 
+                    0 0 75px rgba(16, 185, 129, 0.4), 
+                    0 0 0 5px rgba(16, 185, 129, 0.5), 
+                    inset 0 0 25px rgba(16, 185, 129, 0.3),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.45);
+        border-color: #34d399;
+    }
+    50% {
+        box-shadow: 0 0 60px rgba(16, 185, 129, 0.98), 
+                    0 0 110px rgba(16, 185, 129, 0.6), 
+                    0 0 0 8px rgba(16, 185, 129, 0.7), 
+                    inset 0 0 35px rgba(16, 185, 129, 0.4),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.7);
+        border-color: #6ee7b7;
+    }
+}
+
+.active-period-card {
+    border: 4px solid #34d399 !important;
+    border-radius: var(--radius) !important;
+    background: rgba(18, 48, 38, 0.9) !important;
+    backdrop-filter: blur(20px) saturate(190%) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(190%) !important;
+    animation: activePeriodPulse 2.2s infinite ease-in-out !important;
+    transform: scale(1.03);
+    position: relative;
+    z-index: 20;
+    will-change: box-shadow;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .active-period-card { animation: none !important; }
+}
+</style>
+</head>
+<body class="grid-pattern antialiased selection:bg-brand-accent/20 selection:text-brand-accent flex flex-col justify-between">
+
+    <!-- ══════════════ NAVIGATION BAR ══════════════ -->
+    <header class="sticky top-0 z-40 bg-[#526b7a]/95 backdrop-blur-md border-b-2 border-[#1b252b]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between w-full">
+
+            <div class="flex items-center gap-2">
+                <a href="https://sites.google.com/students.nacs.k12.in.us/aperture/home" target="_top" class="inline-flex items-center justify-center bg-[#5d7685] hover:bg-[#668192] border border-[#1b252b] text-white px-4 py-1.5 rounded transition-all font-bold text-xs shadow-sm back-btn" style="box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.24);">
+                    Back
+                </a>
+                <div id="delay-status-badge" class="hidden inline-flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-xs px-3 py-1.5 rounded-full font-medium">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <span id="delay-status-text">Delay +0m</span>
+                </div>
+                <div id="day-type-banner" class="self-start sm:self-auto inline-flex items-center gap-2 bg-brand-accent/10 border border-brand-accent/30 text-brand-accent font-mono text-xs px-3.5 py-1.5 rounded-full uppercase tracking-wider font-medium">
+                    <span>Synchronizing...</span>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2.5">
+                <div class="hidden md:flex items-center gap-2 bg-brand-bg border border-brand-border px-3 py-1 rounded-lg text-xs font-mono text-slate-100">
+                    <i class="fa-solid fa-clock-rotate-left text-amber-400"></i>
+                    <span>Bell Delay:</span>
+                    <select id="quick-delay-select" class="bg-transparent text-amber-400 font-bold outline-none cursor-pointer">
+                        <option value="0">0m</option>
+                        <option value="1">+1m</option>
+                        <option value="2">+2m</option>
+                        <option value="3">+3m</option>
+                        <option value="4">+4m</option>
+                        <option value="5">+5m</option>
+                        <option value="10">+10m</option>
+                    </select>
+                </div>
+
+                <button id="lunch-lookup-btn" class="inline-flex items-center gap-2 bg-brand-bg hover:bg-brand-card border border-brand-border hover:border-brand-accent/40 px-3.5 py-1.5 rounded-lg text-xs font-mono text-slate-100 hover:text-white transition-all shadow-sm">
+                    <i class="fa-solid fa-magnifying-glass text-white"></i>
+                    <span class="hidden sm:inline">Find My Lunch</span>
+                </button>
+
+                <button id="lunch-menu-btn" class="inline-flex items-center gap-2 bg-brand-bg hover:bg-brand-card border border-brand-border hover:border-brand-accent/40 px-3.5 py-1.5 rounded-lg text-xs font-mono text-slate-100 hover:text-white transition-all shadow-sm">
+                    <i class="fa-solid fa-utensils text-white"></i>
+                    <span class="hidden sm:inline">Lunch Menu</span>
+                </button>
+
+                <button id="settings-toggle-btn" class="inline-flex items-center justify-center w-9 h-9 bg-brand-bg hover:bg-brand-card border border-brand-border hover:border-brand-accent/40 rounded-lg text-slate-100 hover:text-white transition-all shadow-sm" aria-label="Open Settings">
+                    <i class="fa-solid fa-sliders text-xs"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="animate-fade-slide max-w-6xl mx-auto px-4 sm:px-6 py-8 flex-1 w-full min-h-[calc(100dvh-4rem)] min-h-[calc(100vh-4rem)] flex-shrink-0 flex flex-col justify-between" style="scroll-snap-align: start;">
+        <div id="periods-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+    </main>
+
+    <!-- ══════════════ TEACHER LUNCH LOOKUP MODAL ══════════════ -->
+    <div id="teacher-lookup-modal" class="fixed inset-0 z-50 bg-brand-bg/90 backdrop-blur-md hidden items-center justify-center p-4 transition-opacity duration-300">
+        <div class="bg-brand-surface border border-brand-border rounded-xl p-4 sm:p-6 max-w-lg w-full shadow-2xl flex flex-col max-h-[85vh]">
+            <div class="flex items-center justify-between pb-4 border-b border-brand-border/60 mb-4">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-address-book text-brand-accent text-sm"></i>
+                    <h2 class="text-sm font-semibold text-white tracking-tight">Teacher Lunch Lookup</h2>
+                </div>
+                <button id="teacher-modal-close" class="text-slate-100 hover:text-white transition-colors" aria-label="Close Modal">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="relative mb-4">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-xs text-slate-100"></i>
+                <input type="text" id="teacher-search-input" placeholder="Search by teacher name (e.g. Arnold, Smith)..." 
+                       class="w-full bg-brand-bg border border-brand-border rounded-lg pl-9 pr-4 py-2.5 text-xs text-white placeholder:text-slate-100/50 focus:border-brand-accent/50 outline-none transition-all">
+            </div>
+
+            <div id="teacher-results-container" class="overflow-y-auto flex-1 space-y-2 pr-1 text-xs"></div>
+        </div>
+    </div>
+
+    <!-- ══════════════ OUT-OF-SCHOOL OVERLAY ══════════════ -->
+    <div id="universal-overlay" class="fixed inset-0 z-50 bg-brand-bg/95 backdrop-blur-md hidden items-center justify-center p-4 transition-opacity duration-300">
+        <div class="bg-brand-surface border border-brand-border rounded-xl p-8 max-w-md w-full text-center shadow-2xl relative">
+            <div class="w-12 h-12 rounded-xl bg-brand-accent/10 border border-brand-accent/20 flex items-center justify-center mx-auto mb-4 text-brand-accent text-xl">
+                <i class="fa-solid fa-graduation-cap"></i>
+            </div>
+            <p id="overlay-title" class="text-xs font-mono uppercase text-slate-100 tracking-widest mb-1">Carroll High School</p>
+            <h2 id="overlay-main" class="text-2xl font-bold text-white tracking-tight mb-2">School's Out</h2>
+            <div id="overlay-subtitle" class="text-xs text-slate-100 leading-relaxed font-sans mb-6"></div>
+            <button id="overlay-bypass-btn" class="w-full bg-brand-surface hover:bg-brand-card border border-brand-border hover:border-brand-accent/40 text-brand-text font-mono text-xs py-2.5 px-4 rounded-lg transition-all shadow-md">
+                View Schedule Anyway
+            </button>
+        </div>
+    </div>
+
+    <!-- ══════════════ LUNCH MENU MODAL ══════════════ -->
+    <div id="lunch-modal" class="fixed inset-0 z-50 bg-brand-bg/90 backdrop-blur-md hidden items-center justify-center p-4 transition-opacity duration-300">
+        <div class="bg-brand-surface border border-brand-border rounded-xl p-4 sm:p-6 max-w-lg w-full shadow-2xl flex flex-col max-h-[85vh]">
+            <div class="flex items-center justify-between pb-4 border-b border-brand-border/60 mb-4">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-utensils text-brand-accent text-sm"></i>
+                    <h2 class="text-sm font-semibold text-white tracking-tight">Lunch Menu</h2>
+                </div>
+                <button id="lunch-modal-close" class="text-slate-100 hover:text-white transition-colors" aria-label="Close Modal">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 p-1 bg-brand-bg border border-brand-border rounded-lg mb-4">
+                <button class="lunch-grade-btn py-1.5 text-xs font-mono rounded-md transition-all text-white bg-brand-accent/20 border border-brand-accent/40 font-medium" data-grade="chs">10-12 (CHS)</button>
+                <button class="lunch-grade-btn py-1.5 text-xs font-mono rounded-md transition-all text-slate-100 hover:text-white" data-grade="fresh">Freshman Center</button>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2 mb-4 font-mono">
+                <button class="lunch-day-tab bg-brand-bg border border-brand-border hover:border-brand-accent/30 rounded-lg p-2 text-center transition-all" data-offset="-1">
+                    <div class="text-[10px] text-slate-100 uppercase">Yesterday</div>
+                    <div class="text-xs font-semibold text-white mt-0.5" id="ltab-prev">--</div>
+                </button>
+                <button class="lunch-day-tab bg-brand-accent/10 border border-brand-accent/40 rounded-lg p-2 text-center transition-all" data-offset="0">
+                    <div class="text-[10px] text-brand-accent uppercase font-bold">Today</div>
+                    <div class="text-xs font-semibold text-white mt-0.5" id="ltab-today">--</div>
+                </button>
+                <button class="lunch-day-tab bg-brand-bg border border-brand-border hover:border-brand-accent/30 rounded-lg p-2 text-center transition-all" data-offset="1">
+                    <div class="text-[10px] text-slate-100 uppercase">Tomorrow</div>
+                    <div class="text-xs font-semibold text-white mt-0.5" id="ltab-next">--</div>
+                </button>
+            </div>
+
+            <div id="lunch-items-container" class="overflow-y-auto flex-1 space-y-3 pr-1 text-xs"></div>
+        </div>
+    </div>
+
+    <!-- ══════════════ SETTINGS DRAWER ══════════════ -->
+    <div id="mini-menu-overlay" class="fixed inset-0 z-40 bg-brand-bg/60 backdrop-blur-sm hidden transition-opacity"></div>
+    <aside id="mini-menu" class="fixed top-0 right-0 z-50 w-full sm:w-96 h-full bg-brand-surface border-l border-brand-border transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col shadow-2xl">
+        <div class="p-4 sm:p-5 border-b border-brand-border/60 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-sliders text-brand-accent text-sm"></i>
+                <h2 class="text-sm font-semibold text-white tracking-tight">Configuration Settings</h2>
+            </div>
+            <button id="menu-close-btn" class="text-slate-100 hover:text-white transition-colors" aria-label="Close Settings">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <div class="p-4 sm:p-5 overflow-y-auto flex-1 space-y-6">
+
+            <!-- Personal Schedule -->
+            <section class="space-y-3">
+                <div class="text-xs font-mono font-medium text-slate-100 uppercase tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-chalkboard-user text-white"></i>
+                    <span>Personal Schedule</span>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="block text-[11px] font-mono text-slate-100 uppercase">Lunch Group Assignment</label>
+                    <select id="user-lunch-select" class="w-full bg-brand-bg border border-brand-border rounded-lg px-3 py-2 text-xs text-white focus:border-brand-accent/50 outline-none transition-all">
+                        <option value="">Show All Lunches</option>
+                        <option value="A">Lunch A</option>
+                        <option value="B">Lunch B</option>
+                        <option value="C">Lunch C</option>
+                    </select>
+                </div>
+
+                <div class="space-y-2 pt-2">
+                    <label class="block text-[11px] font-mono text-slate-100 uppercase">Custom Class Mapping</label>
+                    <div id="period-inputs-container" class="space-y-2"></div>
+                </div>
+
+                <button id="btn-save-prefs" class="w-full bg-brand-accent hover:bg-brand-accentHover text-brand-bg font-semibold text-xs py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2 mt-2">
+                    <i class="fa-solid fa-floppy-disk"></i>
+                    <span>Save to Device</span>
+                </button>
+            </section>
+
+            <hr class="border-brand-border/60">
+
+            <!-- Bell Delay Control -->
+            <section class="space-y-3">
+                <div class="text-xs font-mono font-medium text-amber-400 uppercase tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                    <span>Bell Offset / Delay Adjustment</span>
+                </div>
+                <p class="text-[11px] text-slate-100 leading-relaxed">
+                    Adjust this if school bells are delayed by a few minutes today. All period and lunch timings will shift forward automatically.
+                </p>
+                <div class="flex items-center gap-2">
+                    <select id="menu-delay-select" class="flex-1 bg-brand-bg border border-brand-border rounded-lg px-3 py-2 text-xs text-amber-400 font-mono font-semibold focus:border-amber-400/50 outline-none">
+                        <option value="0">0 Minutes (On Schedule)</option>
+                        <option value="1">+1 Minute Delay</option>
+                        <option value="2">+2 Minutes Delay</option>
+                        <option value="3">+3 Minutes Delay</option>
+                        <option value="4">+4 Minutes Delay</option>
+                        <option value="5">+5 Minutes Delay</option>
+                        <option value="6">+6 Minutes Delay</option>
+                        <option value="7">+7 Minutes Delay</option>
+                        <option value="8">+8 Minutes Delay</option>
+                        <option value="9">+9 Minutes Delay</option>
+                        <option value="10">+10 Minutes Delay</option>
+                    </select>
+                </div>
+            </section>
+
+            <hr class="border-brand-border/60">
+
+            <!-- Display & Clock Preferences -->
+            <section class="space-y-3">
+                <div class="text-xs font-mono font-medium text-slate-100 uppercase tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-display text-white"></i>
+                    <span>Display Preferences</span>
+                </div>
+                <div class="grid grid-cols-1 gap-2 font-mono text-xs">
+                    <button id="btn-toggle-time" class="w-full bg-brand-bg hover:bg-brand-card border border-brand-border hover:border-brand-accent/40 text-slate-100 hover:text-white py-2 px-3 rounded-lg transition-all flex items-center justify-between">
+                        <span>Clock Format</span>
+                        <span class="text-brand-accent font-semibold" id="time-format-label">12-Hour</span>
+                    </button>
+                </div>
+            </section>
+
+            <hr class="border-brand-border/60">
+
+            <!-- Bell & Chime Trigger Customization Suite -->
+            <section class="space-y-3.5">
+                <div class="flex items-center justify-between">
+                    <div class="text-xs font-mono font-medium text-brand-accent uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-bell"></i>
+                        <span>Custom Bell Chime Schedule</span>
+                    </div>
+                    <button id="btn-toggle-sound" class="text-xs font-mono px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-bold">
+                        Sound: ON
+                    </button>
+                </div>
+
+                <div class="space-y-2 font-mono text-xs bg-brand-bg border border-brand-border rounded-lg p-3">
+                    <div class="text-[11px] font-bold text-white uppercase tracking-wider flex items-center gap-1.5 pb-1 border-b border-brand-border/60">
+                        <i class="fa-solid fa-graduation-cap text-white"></i> Class Period Bell Triggers
+                    </div>
+                    <label class="flex items-center justify-between py-1 cursor-pointer">
+                        <span class="text-slate-100">Ring on Class Start</span>
+                        <input type="checkbox" id="bell-opt-class-start" checked class="accent-sky-400 rounded">
+                    </label>
+                    <label class="flex items-center justify-between py-1 cursor-pointer">
+                        <span class="text-slate-100">Ring on Class End / Dismissal</span>
+                        <input type="checkbox" id="bell-opt-class-end" checked class="accent-sky-400 rounded">
+                    </label>
+                    <div class="flex items-center justify-between py-1">
+                        <span class="text-slate-100">Class Ending Warning</span>
+                        <select id="bell-opt-class-warn" class="bg-brand-surface border border-brand-border rounded px-2 py-1 text-brand-accent outline-none text-xs">
+                            <option value="0">Disabled</option>
+                            <option value="1">1 min before</option>
+                            <option value="2" selected>2 min before</option>
+                            <option value="3">3 min before</option>
+                            <option value="5">5 min before</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="space-y-2 font-mono text-xs bg-brand-bg border border-brand-border rounded-lg p-3">
+                    <div class="text-[11px] font-bold text-white uppercase tracking-wider flex items-center gap-1.5 pb-1 border-b border-brand-border/60">
+                        <i class="fa-solid fa-utensils text-white"></i> Lunch & Transition Triggers
+                    </div>
+                    <label class="flex items-center justify-between py-1 cursor-pointer">
+                        <span class="text-slate-100">Ring on Lunch Start</span>
+                        <input type="checkbox" id="bell-opt-lunch-start" checked class="accent-sky-400 rounded">
+                    </label>
+                    <label class="flex items-center justify-between py-1 cursor-pointer">
+                        <span class="text-slate-100">Ring on Lunch End</span>
+                        <input type="checkbox" id="bell-opt-lunch-end" checked class="accent-sky-400 rounded">
+                    </label>
+                    <div class="flex items-center justify-between py-1">
+                        <span class="text-slate-100">Lunch Ending Warning</span>
+                        <select id="bell-opt-lunch-warn" class="bg-brand-surface border border-brand-border rounded px-2 py-1 text-brand-accent outline-none text-xs">
+                            <option value="0">Disabled</option>
+                            <option value="1" selected>1 min before</option>
+                            <option value="2">2 min before</option>
+                            <option value="3">3 min before</option>
+                        </select>
+                    </div>
+                    <label class="flex items-center justify-between py-1 cursor-pointer">
+                        <span class="text-slate-100">Ring on Lunch Transitions</span>
+                        <input type="checkbox" id="bell-opt-trans-start" checked class="accent-sky-400 rounded">
+                    </label>
+                    <div class="flex items-center justify-between py-1">
+                        <span class="text-slate-100">Transition Ending Warning</span>
+                        <select id="bell-opt-trans-warn" class="bg-brand-surface border border-brand-border rounded px-2 py-1 text-brand-accent outline-none text-xs">
+                            <option value="0">Disabled</option>
+                            <option value="1" selected>1 min before</option>
+                            <option value="2">2 min before</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="space-y-2 font-mono text-xs">
+                    <div class="flex items-center justify-between">
+                        <span class="text-slate-100">Bell Chime Tone</span>
+                        <select id="bell-opt-tone" class="bg-brand-bg border border-brand-border rounded px-2 py-1 text-white outline-none text-xs">
+                            <option value="harmonic">Dual Harmonic Tone</option>
+                            <option value="passing">Triple Passing Bell</option>
+                            <option value="pulse">Subtle Single Pulse</option>
+                        </select>
+                    </div>
+                    <button id="btn-test-notif" class="w-full bg-brand-surface2 hover:bg-brand-card border border-brand-accent/30 text-brand-accent hover:text-white py-2 px-3 rounded-lg transition-all flex items-center justify-center gap-2 font-semibold shadow-sm">
+                        <i class="fa-solid fa-play text-[10px]"></i>
+                        <span>Test Custom Bell Chime</span>
+                    </button>
+                </div>
+            </section>
+
+            <hr class="border-brand-border/60">
+
+            <!-- Server Override Schedule & Manual Schedule Entry (Admin Protected) -->
+            <section class="space-y-3">
+                <div class="flex items-center justify-between">
+                    <div class="text-xs font-mono font-medium text-slate-100 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-calendar-days text-white"></i>
+                        <span>Server Schedule Override</span>
+                    </div>
+                    <div id="admin-status-badge" class="hidden text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 font-semibold items-center gap-1">
+                        <i class="fa-solid fa-shield-halved text-[9px]"></i> Admin Unlocked
+                    </div>
+                </div>
+
+                <div id="admin-lock-box" class="bg-brand-surface/90 border border-brand-border rounded p-3.5 space-y-2.5 [box-shadow:0_4px_14px_rgba(0,0,0,0.35),inset_0_1px_0_rgba(255,255,255,0.06)]">
+                    <div class="flex items-center gap-2 text-amber-400 text-xs font-mono font-semibold">
+                        <i class="fa-solid fa-lock text-sm"></i>
+                        <span>Admin Authorization Required</span>
+                    </div>
+                    <p class="text-[11px] text-slate-300 leading-relaxed font-sans">
+                        Enter administrator passkey to publish daily overrides or configure custom manual period schedules.
+                    </p>
+                    <div class="flex gap-2 pt-1">
+                        <input type="password" id="admin-code-input" placeholder="Enter admin code" class="flex-1 bg-brand-input border border-brand-border rounded px-3 py-2 text-xs text-white focus:border-brand-accent outline-none transition-all font-mono tracking-wider [box-shadow:inset_0_1px_2px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.08)]">
+                        <button type="button" id="btn-verify-admin" class="bg-brand-surface2 hover:bg-brand-surfaceElevated border border-brand-accent/40 text-brand-accent hover:text-white px-3.5 py-2 rounded text-xs font-mono font-bold transition flex items-center gap-1.5 shrink-0 shadow-sm [box-shadow:inset_0_1px_0_rgba(255,255,255,0.1)]">
+                            <i class="fa-solid fa-key text-[10px]"></i>
+                            <span>Unlock</span>
+                        </button>
+                    </div>
+                    <div id="admin-error-msg" class="hidden text-[11px] text-red-400 font-mono flex items-center gap-1.5 pt-0.5">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <span>Incorrect admin code. Access denied.</span>
+                    </div>
+                </div>
+
+                <div id="admin-controls-box" class="hidden space-y-3">
+                    <div class="flex items-center justify-between pb-1 border-b border-brand-border/40">
+                        <span class="text-[11px] font-mono text-slate-300">Schedule Management</span>
+                        <button type="button" id="btn-lock-admin" class="text-[10px] font-mono px-2 py-0.5 rounded bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 hover:text-red-300 transition flex items-center gap-1">
+                            <i class="fa-solid fa-lock text-[9px]"></i>Lock
+                        </button>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="block text-[11px] font-mono text-slate-100 uppercase">Target Date</label>
+                        <input type="date" id="event-date-input" class="w-full bg-brand-input border border-brand-border rounded px-3 py-2 text-xs text-white focus:border-brand-accent outline-none transition-all [box-shadow:inset_0_1px_2px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.08)]">
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="block text-[11px] font-mono text-slate-100 uppercase">Override Mode</label>
+                        <div class="grid grid-cols-2 gap-1.5 bg-brand-surface p-1 rounded border border-brand-border">
+                            <button type="button" id="tab-override-preset" class="py-1.5 text-xs font-mono rounded transition-all text-white bg-brand-surface2 border border-brand-accent/40 font-semibold flex items-center justify-center gap-1.5 [box-shadow:inset_0_1px_0_rgba(255,255,255,0.1)]">
+                                <i class="fa-solid fa-list-check text-[10px]"></i>
+                                <span>Preset Model</span>
+                            </button>
+                            <button type="button" id="tab-override-manual" class="py-1.5 text-xs font-mono rounded transition-all text-slate-300 hover:text-white border border-transparent font-normal flex items-center justify-center gap-1.5">
+                                <i class="fa-solid fa-pen-ruler text-[10px]"></i>
+                                <span>Manual Entry</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="panel-override-preset" class="space-y-2">
+                        <label class="block text-[11px] font-mono text-slate-100 uppercase">Schedule Model</label>
+                        <select id="event-type-select" class="w-full bg-brand-bg border border-brand-border rounded-lg px-3 py-2 text-xs text-white focus:border-brand-accent/50 outline-none transition-all">
+                            <optgroup label="Standard Schedules">
+                                <option value="regular-schedule">Normal Day (7 Periods)</option>
+                                <option value="homeroom-schedule">Homeroom Schedule (M-F)</option>
+                                <option value="activity-schedule">Activity / Pep Rally (7 Periods)</option>
+                                <option value="half-day">Half Day / Early Dismissal</option>
+                            </optgroup>
+                            <optgroup label="2-Hour Delays">
+                                <option value="two-hour-delay">2-Hour Delay (Standard)</option>
+                                <option value="two-hour-delay-homeroom">2-Hour Delay (With Homeroom)</option>
+                                <option value="sync-learning">Sync Learning (Virtual Day)</option>
+                            </optgroup>
+                            <optgroup label="Exam Schedules">
+                                <option value="finals-1">Finals Day 1 (P5 Exam)</option>
+                                <option value="finals-2">Finals Day 2 (P1 & P7)</option>
+                                <option value="finals-3">Finals Day 3 (P2 & P4)</option>
+                                <option value="finals-4">Finals Day 4 (P3 & P6)</option>
+                            </optgroup>
+                        </select>
+                    </div>
+
+                    <div id="panel-override-manual" class="hidden space-y-2.5">
+                        <div class="space-y-1">
+                            <label class="block text-[11px] font-mono text-slate-100 uppercase">Schedule Title / Label</label>
+                            <input type="text" id="manual-schedule-title" value="Special Schedule" placeholder="e.g. Pep Rally / Extended 4th" class="w-full bg-brand-bg border border-brand-border rounded-lg px-3 py-2 text-xs text-white focus:border-brand-accent/50 outline-none transition-all">
+                        </div>
+
+                        <div class="space-y-1">
+                            <span class="text-[10px] font-mono text-slate-300 uppercase">Prefill from Template:</span>
+                            <div class="flex flex-wrap gap-1">
+                                <button type="button" id="btn-template-regular" class="px-2 py-0.5 rounded bg-brand-bg hover:bg-brand-surface border border-brand-border text-[10px] font-mono text-slate-200 hover:text-white transition">Normal</button>
+                                <button type="button" id="btn-template-homeroom" class="px-2 py-0.5 rounded bg-brand-bg hover:bg-brand-surface border border-brand-border text-[10px] font-mono text-slate-200 hover:text-white transition">Homeroom</button>
+                                <button type="button" id="btn-template-delay" class="px-2 py-0.5 rounded bg-brand-bg hover:bg-brand-surface border border-brand-border text-[10px] font-mono text-slate-200 hover:text-white transition">2-Hr Delay</button>
+                                <button type="button" id="btn-template-halfday" class="px-2 py-0.5 rounded bg-brand-bg hover:bg-brand-surface border border-brand-border text-[10px] font-mono text-slate-200 hover:text-white transition">Half Day</button>
+                                <button type="button" id="btn-template-clear" class="px-2 py-0.5 rounded bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-[10px] font-mono text-red-400 transition">Clear</button>
+                            </div>
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <div class="flex items-center justify-between text-[10px] font-mono text-slate-300 uppercase">
+                                <span>Periods</span>
+                                <span id="manual-period-count">7 Periods</span>
+                            </div>
+                            <div id="manual-periods-container" class="space-y-1.5 max-h-60 overflow-y-auto pr-1"></div>
+                            <button type="button" id="btn-add-manual-period" class="w-full py-1.5 bg-brand-bg hover:bg-brand-surface border border-dashed border-brand-border hover:border-brand-accent/50 text-slate-200 hover:text-white text-xs font-mono rounded-lg transition flex items-center justify-center gap-1.5">
+                                <i class="fa-solid fa-plus text-[10px] text-sky-400"></i>
+                                <span>Add Period</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button type="button" id="save-event-btn" class="w-full bg-brand-surface2 hover:bg-brand-card border border-brand-accent/40 text-brand-accent hover:text-white font-mono text-xs py-2.5 rounded-lg transition-all flex items-center justify-center gap-2 font-semibold shadow-sm">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                        <span id="save-event-btn-text">Publish Schedule Override</span>
+                    </button>
+                </div>
+
+                <div class="pt-2">
+                    <label class="block text-[11px] font-mono text-slate-100 uppercase mb-1.5">Upcoming Overrides</label>
+                    <div id="server-schedule-list" class="space-y-1.5 text-xs font-mono">
+                        <div class="text-slate-100 text-[11px]">Connecting to Cloud...</div>
+                    </div>
+                </div>
+            </section>
+
+            <hr class="border-brand-border/60">
+
+            <!-- Debug Tools -->
+            <section class="space-y-3">
+                <div class="text-xs font-mono font-medium text-amber-400 uppercase tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-bug"></i>
+                    <span>Debug Tools</span>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="block text-[11px] font-mono text-slate-100 uppercase">Simulated Time Travel</label>
+                    <div class="flex gap-2">
+                        <input type="time" id="debug-time-input" class="flex-1 bg-brand-bg border border-brand-border rounded-lg px-3 py-1.5 text-xs text-white focus:border-brand-accent/50 outline-none">
+                        <button id="debug-time-set" class="bg-brand-bg hover:bg-brand-card border border-brand-border px-3 py-1.5 rounded-lg text-xs font-mono text-white">Go</button>
+                        <button id="debug-reset" class="bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 px-3 py-1.5 rounded-lg text-xs font-mono text-red-400">Reset</button>
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="block text-[11px] font-mono text-slate-100 uppercase">Force Schedule Override</label>
+                    <select id="debug-override-select" class="w-full bg-brand-bg border border-brand-border rounded-lg px-3 py-2 text-xs text-white focus:border-brand-accent/50 outline-none">
+                        <option value="">None (Use Real System Time)</option>
+                        <optgroup label="Standard Schedules">
+                            <option value="regular-schedule">Normal Day (7 Periods)</option>
+                            <option value="homeroom-schedule">Homeroom Schedule (M-F)</option>
+                            <option value="activity-schedule">Activity / Pep Rally (7 Periods)</option>
+                            <option value="half-day">Half Day / Early Dismissal</option>
+                        </optgroup>
+                        <optgroup label="2-Hour Delays">
+                            <option value="two-hour-delay">2-Hour Delay (Standard)</option>
+                            <option value="two-hour-delay-homeroom">2-Hour Delay (With Homeroom)</option>
+                            <option value="sync-learning">Sync Learning</option>
+                        </optgroup>
+                        <optgroup label="Finals">
+                            <option value="finals-1">Finals Day 1</option>
+                            <option value="finals-2">Finals Day 2</option>
+                            <option value="finals-3">Finals Day 3</option>
+                            <option value="finals-4">Finals Day 4</option>
+                        </optgroup>
+                    </select>
+                </div>
+            </section>
+
+        </div>
+    </aside>
+
+    <!-- Toast Notifications Container -->
+    <div id="toast-container" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex flex-col-reverse items-center gap-2 pointer-events-none"></div>
+
+    <!-- ══════════════ STANDARDIZED OWNERSHIP & COPYRIGHT FOOTER ══════════════ -->
+    <footer class="platform-footer w-full flex-shrink-0 mt-8 py-8 text-center text-xs text-slate-300 font-mono" style="scroll-snap-align: end;">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-slate-200 font-medium">
+                <span>&copy; 2026 Aperture. All rights reserved.</span>
+                <span class="hidden sm:inline text-slate-500">•</span>
+                <span>Aperture is owned and operated by Farren Solutions which is owned by TheFarwaydev.</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ══════════════ ENGINE LOGIC ══════════════ -->
+    <script type="module">
+        const { initializeApp, getAuth, signInAnonymously, onAuthStateChanged, initializeFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, serverTimestamp } = window.firebaseModules;
+
+        const productionConfig = {
+            apiKey: "AIzaSyDLUbW8cgqVcgELxlI_MTR4DK2vk9BROjs",
+            authDomain: "charger-tools.firebaseapp.com",
+                        projectId: "charger-tools",
+            storageBucket: "charger-tools.firebasestorage.app",
+            messagingSenderId: "1083614493674",
+            appId: "1:1083614493674:web:a6b5eb621ff1cb40679093"
+        };
+
+        const firebaseConfig = (typeof __firebase_config !== 'undefined') ? JSON.parse(__firebase_config) : productionConfig;
+        const app  = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        // Cloud Firestore (replaces Realtime Database).
+        // Overrides live in the "calendar_events" collection, one document per date (id = "YYYY-MM-DD"):
+        //   preset → { kind: "preset", preset: "two-hour-delay", updatedAt }
+        //   manual → { kind: "manual", label: "Pep Rally", periods: [...], updatedAt }
+        const db = initializeFirestore(app, { ignoreUndefinedProperties: true });
+        const CAL_COLLECTION = 'calendar_events';
+
+        // Firestore document -> the in-app format (string preset id, or { custom, label, periods })
+        function fromFirestoreDoc(data) {
+            if (!data) return null;
+            if (data.kind === 'preset' || typeof data.preset === 'string') return data.preset || null;
+            if (Array.isArray(data.periods)) return { custom: true, label: data.label || 'Manual Schedule', periods: data.periods };
+            return null;
+        }
+
+        // In-app format -> Firestore document
+        function toFirestoreDoc(payload) {
+            if (typeof payload === 'string') return { kind: 'preset', preset: payload, updatedAt: serverTimestamp() };
+            return { kind: 'manual', label: payload.label || 'Manual Schedule', periods: JSON.parse(JSON.stringify(payload.periods)), updatedAt: serverTimestamp() };
+        }
+
+        /* System State */
+        let globalSchedule   = {};
+        try {
+            const cachedEvents = localStorage.getItem('aperture_calendar_events');
+            if (cachedEvents) globalSchedule = JSON.parse(cachedEvents) || {};
+        } catch(e) {}
+        const ADMIN_HASH = "1a4e552cd3fead8cb03e65533a6e825962121e4dbc55bd43fe7325aeed36095c";
+        let userProfile      = { lunch: '', periods: {} };
+        let userPrefs        = { is12Hour: true, soundEnabled: true };
+        let debugTimeOffset  = 0;
+        let bellDelayMinutes = 0;
+        let debugOverride    = null;
+        let bypassOverlay    = sessionStorage.getItem('bp') === '1';
+
+        // Cloud connection status for the "Upcoming Overrides" list
+        // states: 'connecting' | 'live' | 'offline' | 'error'
+        let cloudStatus   = { state: 'connecting', detail: '' };
+        let calendarUnsub = null;
+
+        const escapeHtml = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+        const isAdminSession = () => sessionStorage.getItem('aperture_bell_admin') === '1';
+
+        /* ══════════════════════════════════════════════════════════════════
+           SCHEDULE TIMINGS & VARIANTS
+           ══════════════════════════════════════════════════════════════════ */
+        const SCH_REGULAR = [
+            { name:'1st Period', id:'1', start:'08:35', end:'09:21' },
+            { name:'2nd Period', id:'2', start:'09:29', end:'10:14' },
+            { name:'3rd Period', id:'3', start:'10:22', end:'11:07' },
+            { name:'4th Period / Lunch Block', id:'4', start:'11:15', end:'12:51',
+              lunch:[{name:'Lunch A',start:'11:07',end:'11:37'},
+                     {name:'Lunch B',start:'11:44',end:'12:14'},
+                     {name:'Lunch C',start:'12:21',end:'12:51'}] },
+            { name:'5th Period', id:'5', start:'12:59', end:'13:44' },
+            { name:'6th Period', id:'6', start:'13:52', end:'14:37' },
+            { name:'7th Period', id:'7', start:'14:45', end:'15:30' }
+        ];
+
+        const SCH_HOMEROOM = [
+            { name:'1st Period', id:'1', start:'08:35', end:'09:16' },
+            { name:'2nd Period', id:'2', start:'09:24', end:'10:04' },
+            { name:'3rd Period', id:'3', start:'10:12', end:'10:52' },
+            { name:'Homeroom',   id:'HR', start:'11:00', end:'11:30' },
+            { name:'4th Period / Lunch Block', id:'4', start:'11:38', end:'13:08',
+              lunch:[{name:'Lunch A',start:'11:30',end:'12:00'},
+                     {name:'Lunch B',start:'12:03',end:'12:33'},
+                     {name:'Lunch C',start:'12:36',end:'13:06'}] },
+            { name:'5th Period', id:'5', start:'13:14', end:'13:54' },
+            { name:'6th Period', id:'6', start:'14:02', end:'14:42' },
+            { name:'7th Period', id:'7', start:'14:50', end:'15:30' }
+        ];
+
+        const SCH_DELAY_REGULAR = [
+            { name:'1st Period', id:'1', start:'10:35', end:'11:05' },
+            { name:'2nd Period', id:'2', start:'11:13', end:'11:38' },
+            { name:'3rd Period / Lunch Block', id:'3', start:'11:46', end:'13:16',
+              lunch:[{name:'Lunch A',start:'11:46',end:'12:16'},
+                     {name:'Lunch B',start:'12:16',end:'12:46'},
+                     {name:'Lunch C',start:'12:46',end:'13:16'}] },
+            { name:'4th Period', id:'4', start:'13:24', end:'13:49' },
+            { name:'5th Period', id:'5', start:'13:57', end:'14:22' },
+            { name:'6th Period', id:'6', start:'14:30', end:'14:55' },
+            { name:'7th Period', id:'7', start:'15:03', end:'15:35' }
+        ];
+
+        const SCH_DELAY_HOMEROOM = [
+            { name:'1st Period', id:'1', start:'10:35', end:'11:00' },
+            { name:'2nd Period', id:'2', start:'11:06', end:'11:31' },
+            { name:'3rd Period', id:'3', start:'11:37', end:'12:02' },
+            { name:'Homeroom',   id:'HR', start:'12:08', end:'12:28' },
+            { name:'4th Period / Lunch Block', id:'4', start:'12:34', end:'14:04',
+              lunch:[{name:'Lunch A',start:'12:34',end:'13:04'},
+                     {name:'Lunch B',start:'13:04',end:'13:34'},
+                     {name:'Lunch C',start:'13:34',end:'14:04'}] },
+            { name:'5th Period', id:'5', start:'14:10', end:'14:35' },
+            { name:'6th Period', id:'6', start:'14:40', end:'15:05' },
+            { name:'7th Period', id:'7', start:'15:10', end:'15:30' }
+        ];
+
+        const SCH_HALF_DAY = [
+            { name:'1st Period', id:'1', start:'08:35', end:'09:02' },
+            { name:'2nd Period', id:'2', start:'09:08', end:'09:33' },
+            { name:'3rd Period', id:'3', start:'09:39', end:'10:04' },
+            { name:'4th Period', id:'4', start:'10:10', end:'10:35' },
+            { name:'5th Period', id:'5', start:'10:41', end:'11:06' },
+            { name:'6th Period', id:'6', start:'11:12', end:'11:37' },
+            { name:'7th Period', id:'7', start:'11:43', end:'12:10' }
+        ];
+
+        const SCH_ACTIVITY = [
+            { name:'1st Period', id:'1', start:'08:35', end:'09:15' },
+            { name:'2nd Period', id:'2', start:'09:23', end:'10:00' },
+            { name:'3rd Period', id:'3', start:'10:08', end:'10:45' },
+            { name:'4th Period / Lunch Block', id:'4', start:'10:53', end:'12:23',
+              lunch:[{name:'Lunch A',start:'10:53',end:'11:23'},
+                     {name:'Lunch B',start:'11:23',end:'11:53'},
+                     {name:'Lunch C',start:'11:53',end:'12:23'}] },
+            { name:'5th Period', id:'5', start:'12:31', end:'13:08' },
+            { name:'6th Period', id:'6', start:'13:16', end:'13:53' },
+            { name:'7th Period', id:'7', start:'14:01', end:'14:38' },
+            { name:'Pep Rally / Activity', id:'act', start:'14:46', end:'15:30' }
+        ];
+
+        const SCH_SYNC_REGULAR = [
+            { name:'1st Period', id:'1', start:'10:35', end:'11:00' },
+            { name:'2nd Period', id:'2', start:'11:05', end:'11:30' },
+            { name:'3rd Period', id:'3', start:'11:35', end:'12:00' },
+            { name:'4th Period', id:'4', start:'12:05', end:'12:35' },
+            { name:'5th Period', id:'5', start:'13:10', end:'13:35' },
+            { name:'6th Period', id:'6', start:'13:40', end:'14:05' },
+            { name:'7th Period', id:'7', start:'14:10', end:'14:35' }
+        ];
+
+        const SCH_FINALS_1 = [
+            { name:'1st Period', id:'1', start:'08:35', end:'09:07' },
+            { name:'2nd Period', id:'2', start:'09:14', end:'09:46' },
+            { name:'3rd Period', id:'3', start:'09:53', end:'10:25' },
+            { name:'4th Period', id:'4', start:'10:32', end:'11:04' },
+            { name:'5th Period / Lunch Block', id:'5', start:'11:11', end:'12:34',
+              lunch:[{name:'Lunch A',start:'11:04',end:'11:34'},
+                     {name:'Lunch B',start:'11:34',end:'12:04'},
+                     {name:'Lunch C',start:'12:04',end:'12:34'}] },
+            { name:'6th Period', id:'6', start:'12:41', end:'13:13' },
+            { name:'7th Period', id:'7', start:'13:20', end:'13:52' },
+            { name:'Period 5 Final Exam', id:'5x', start:'14:00', end:'15:30' }
+        ];
+
+        const SCH_FINALS_2 = [
+            { name:'Student Success Time',      start:'08:35', end:'10:30' },
+            { name:'Individual Study / Lunch', start:'10:35', end:'12:05',
+              lunch:[{name:'Lunch A',start:'10:35',end:'11:05'},
+                     {name:'Lunch B',start:'11:05',end:'11:35'},
+                     {name:'Lunch C',start:'11:35',end:'12:05'}] },
+            { name:'Period 1 Final Exam', id:'1', start:'12:20', end:'13:50' },
+            { name:'Period 7 Final Exam', id:'7', start:'14:00', end:'15:30' }
+        ];
+
+        const SCH_FINALS_3 = [
+            { name:'Student Success Time',      start:'08:35', end:'10:30' },
+            { name:'Individual Study / Lunch', start:'10:35', end:'12:05',
+              lunch:[{name:'Lunch A',start:'10:35',end:'11:05'},
+                     {name:'Lunch B',start:'11:05',end:'11:35'},
+                     {name:'Lunch C',start:'11:35',end:'12:05'}] },
+            { name:'Period 2 Final Exam', id:'2', start:'12:20', end:'13:50' },
+            { name:'Period 4 Final Exam', id:'4', start:'14:00', end:'15:30' }
+        ];
+
+        const SCH_FINALS_4 = [
+            { name:'Student Success Time',      start:'08:35', end:'10:30' },
+            { name:'Individual Study / Lunch', start:'10:35', end:'12:05',
+              lunch:[{name:'Lunch A',start:'10:35',end:'11:05'},
+                     {name:'Lunch B',start:'11:05',end:'11:35'},
+                     {name:'Lunch C',start:'11:35',end:'12:05'}] },
+            { name:'Period 3 Final Exam', id:'3', start:'12:20', end:'13:50' },
+            { name:'Period 6 Final Exam', id:'6', start:'14:00', end:'15:30' }
+        ];
+
+        const SCHEDULE_MAP = {
+            'regular-schedule':        SCH_REGULAR,
+            'homeroom-schedule':       SCH_HOMEROOM,
+            'two-hour-delay':          SCH_DELAY_REGULAR,
+            'two-hour-delay-homeroom': SCH_DELAY_HOMEROOM,
+            'half-day':                SCH_HALF_DAY,
+            'activity-schedule':       SCH_ACTIVITY,
+            'sync-learning':           SCH_SYNC_REGULAR,
+            'finals-1':                SCH_FINALS_1,
+            'finals-2':                SCH_FINALS_2,
+            'finals-3':                SCH_FINALS_3,
+            'finals-4':                SCH_FINALS_4
+        };
+
+        // Built-in no-school weekdays (from the published lunch calendars).
+        // A server override for the same date still wins.
+        const NO_SCHOOL_DATES = {
+            '2026-09-07': 'Labor Day',
+            '2026-09-16': 'No School Day'
+        };
+
+        /* ══════════════════════════════════════════════════════════════════
+           TEACHER LUNCH DIRECTORY DATABASE
+           ══════════════════════════════════════════════════════════════════ */
+        const TEACHER_LUNCH_DB = [
+            // LUNCH A
+            { name: "Anon, CH", lunch: "A" },
+            { name: "Beers, Elizabeth", lunch: "A" },
+            { name: "Brenner, Michelle", lunch: "A" },
+            { name: "Briggs, Dan", lunch: "A" },
+            { name: "Brooks, David", lunch: "A" },
+            { name: "Cordobes, Alec", lunch: "A" },
+            { name: "Croy, Nicole", lunch: "A" },
+            { name: "Culbertson, Maria", lunch: "A" },
+            { name: "Cureton, Seth", lunch: "A" },
+            { name: "Driver, Steve", lunch: "A" },
+            { name: "Fiedler, Jacob", lunch: "A" },
+            { name: "Force, Schyler", lunch: "A" },
+            { name: "Forrest, Erin", lunch: "A" },
+            { name: "Galligher, Bailey", lunch: "A" },
+            { name: "Ginder, Dave", lunch: "A" },
+            { name: "Givens, Jack", lunch: "A" },
+            { name: "Harris, Cassie", lunch: "A" },
+            { name: "Hensinger, Tad", lunch: "A" },
+            { name: "Karst, Cheyenne", lunch: "A" },
+            { name: "Keith, Leanna", lunch: "A" },
+            { name: "Kieffer, Daniel", lunch: "A" },
+            { name: "Knight, Olivia", lunch: "A" },
+            { name: "Lalonde, Monica", lunch: "A" },
+            { name: "Lapin, Stacy", lunch: "A" },
+            { name: "Lee, Logan", lunch: "A" },
+            { name: "Leming, Brandi", lunch: "A" },
+            { name: "Lung, Amy", lunch: "A" },
+            { name: "Menge, Patricia", lunch: "A" },
+            { name: "Mohr, Denise", lunch: "A" },
+            { name: "Nguyen, Scott", lunch: "A" },
+            { name: "Nodine, Nick", lunch: "A" },
+            { name: "Ratliff, Angela", lunch: "A" },
+            { name: "Sarrazine, Haley", lunch: "A" },
+            { name: "Scare, Liz", lunch: "A" },
+            { name: "Schaffner, Michael", lunch: "A" },
+            { name: "Schoeph, Maggie", lunch: "A" },
+            { name: "Souliske, Jonathan", lunch: "A" },
+            { name: "Stetter, Meghan", lunch: "A" },
+            { name: "Turner, Tara", lunch: "A" },
+
+            // LUNCH B
+            { name: "English, Arnold", lunch: "B" },
+            { name: "Beckley, Nol", lunch: "B" },
+            { name: "Bilos, Meikka", lunch: "B" },
+            { name: "Bird, Michael", lunch: "B" },
+            { name: "Buzzard, Taylor", lunch: "B" },
+            { name: "Colbert, Beldina", lunch: "B" },
+            { name: "Croft, Tod", lunch: "B" },
+            { name: "Dhariwal, Maria", lunch: "B" },
+            { name: "Dinan, Douglas", lunch: "B" },
+            { name: "Gardner, Camilla", lunch: "B" },
+            { name: "Geeslin, Katy", lunch: "B" },
+            { name: "Gentis, Donovan", lunch: "B" },
+            { name: "Gordy, Julie", lunch: "B" },
+            { name: "Harshey, Makenzie", lunch: "B" },
+            { name: "Hartman, Joel", lunch: "B" },
+            { name: "Herald, Valerie", lunch: "B" },
+            { name: "Hisner, Gavin", lunch: "B" },
+            { name: "Hopkins, Melinda", lunch: "B" },
+            { name: "Julian, Braden", lunch: "B" },
+            { name: "Klein, Michael", lunch: "B" },
+            { name: "Lopez Lorou, Dunia", lunch: "B" },
+            { name: "McCool, Rebekah", lunch: "B" },
+            { name: "Ndlovu, Jenn", lunch: "B" },
+            { name: "Nesser, Caryn", lunch: "B" },
+            { name: "Phiri, Jessica", lunch: "B" },
+            { name: "Potter, Dawn", lunch: "B" },
+            { name: "Rickert, Elissa", lunch: "B" },
+            { name: "Riley, Trina", lunch: "B" },
+            { name: "Rohrbacher, Reid", lunch: "B" },
+            { name: "Scholz, Nancy", lunch: "B" },
+            { name: "Shamblin, Erin", lunch: "B" },
+            { name: "Sholl, Meaghan", lunch: "B" },
+            { name: "Sirois, Michelle", lunch: "B" },
+            { name: "Sneed, Kasey", lunch: "B" },
+            { name: "Taylor, Ryan", lunch: "B" },
+            { name: "Vanderkolk, Michael", lunch: "B" },
+            { name: "Wallace, Somer", lunch: "B" },
+            { name: "Wilson, Drew", lunch: "B" },
+
+            // LUNCH C
+            { name: "Barranda, Lisa", lunch: "C" },
+            { name: "Baron, Jennifer", lunch: "C" },
+            { name: "Bauer, Jamie", lunch: "C" },
+            { name: "Booker, Brian", lunch: "C" },
+            { name: "Brisco, Steven", lunch: "C" },
+            { name: "Brubaker, Helen", lunch: "C" },
+            { name: "Buranj, Jena", lunch: "C" },
+            { name: "Ewing, Kristy", lunch: "C" },
+            { name: "Francies, Christine", lunch: "C" },
+            { name: "Freitas, Renee", lunch: "C" },
+            { name: "Hanes, Marie", lunch: "C" },
+            { name: "Hartman, Nathan", lunch: "C" },
+            { name: "Hassell, Doug", lunch: "C" },
+            { name: "Jones, Daniel", lunch: "C" },
+            { name: "Kelley, Corbin", lunch: "C" },
+            { name: "Kelly, Katie", lunch: "C" },
+            { name: "Kieffer, Jennifer", lunch: "C" },
+            { name: "Knorr, David", lunch: "C" },
+            { name: "Kuhn, Maranda", lunch: "C" },
+            { name: "Leon, Jacquelyn", lunch: "C" },
+            { name: "Lomont, Kennedy", lunch: "C" },
+            { name: "Miller, Luke", lunch: "C" },
+            { name: "Raypole, Scott", lunch: "C" },
+            { name: "Reith, Kari", lunch: "C" },
+            { name: "Repp, Jennifer", lunch: "C" },
+            { name: "Ringle, Carter", lunch: "C" },
+            { name: "Ruselink, Cheryl", lunch: "C" },
+            { name: "Smith, Haleigh", lunch: "C" },
+            { name: "Stegenga, Sarah", lunch: "C" },
+            { name: "Turner, Jordan", lunch: "C" },
+            { name: "Wood, Richard", lunch: "C" },
+            { name: "Zhao, Lionel", lunch: "C" }
+        ];
+
+        function resolveSchedule(type) {
+            if (!type) return SCH_REGULAR;
+            if (Array.isArray(type)) return type;
+            if (typeof type === 'object' && Array.isArray(type.periods)) return type.periods;
+            return SCHEDULE_MAP[type] || SCH_REGULAR;
+        }
+
+        function getScheduleForDate(dateStr, day) {
+            if (debugOverride) return resolveSchedule(debugOverride);
+            if (globalSchedule[dateStr]) return resolveSchedule(globalSchedule[dateStr]);
+            if (NO_SCHOOL_DATES[dateStr]) return null;
+            if (day >= 1 && day <= 5) return SCH_REGULAR;
+            return null;
+        }
+
+        function applyTimeDelay(hhmm, offsetMinutes) {
+            if (!offsetMinutes) return hhmm;
+            let [h, m] = hhmm.split(':').map(Number);
+            let total = h * 60 + m + offsetMinutes;
+            let newH = Math.floor(total / 60) % 24;
+            let newM = total % 60;
+            return `${String(newH).padStart(2, '0')}:${String(newM).padStart(2, '0')}`;
+        }
+
+        function isSummerBreak(date) {
+            const m = date.getMonth(), d = date.getDate();
+            return (m === 4 && d >= 22) || (m === 5) || (m === 6) || (m === 7 && d < 5);
+        }
+
+        const localDate = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+
+        function to12H(hhmm) {
+            if (!userPrefs.is12Hour) return hhmm;
+            let [h, m] = hhmm.split(':'); h = +h;
+            return `${h%12||12}:${m} ${h>=12?'PM':'AM'}`;
+        }
+
+        const msUntil = (hhmm, now) => {
+            const d = new Date(now), [h,m] = hhmm.split(':');
+            d.setHours(+h,+m,0,0);
+            return Math.max(0, d - now);
+        };
+
+        // Shows h:mm:ss once a countdown exceeds an hour (e.g. long lunch blocks)
+        const fmtMs = ms => {
+            const total = Math.floor(ms / 1000);
+            const h = Math.floor(total / 3600), m = Math.floor((total % 3600) / 60), s = total % 60;
+            return h > 0
+                ? `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`
+                : `${m}:${String(s).padStart(2,'0')}`;
+        };
+
+        const curHHMM = date => date.toTimeString().substring(0,5);
+        const secOfDay = d => d.getHours() * 3600 + d.getMinutes() * 60 + d.getSeconds() + d.getMilliseconds() / 1000;
+        const hhmmToSec = hhmm => { const [h, m] = hhmm.split(':').map(Number); return h * 3600 + m * 60; };
+
+        function showToast(msg, type = 'info') {
+            const c = document.getElementById('toast-container');
+            const t = document.createElement('div');
+            const borderCol = type === 'success' ? 'border-emerald-500/40 text-emerald-400' : type === 'error' ? 'border-red-500/40 text-red-400' : 'border-brand-accent/40 text-brand-accent';
+            t.className = `bg-brand-surface/90 backdrop-blur-md border ${borderCol} px-4 py-2.5 rounded-xl font-mono text-xs shadow-xl flex items-center gap-2 pointer-events-auto transition-all duration-300`;
+            const icon = type === 'success' ? 'fa-circle-check' : type === 'error' ? 'fa-circle-exclamation' : 'fa-circle-info';
+            t.innerHTML = `<i class="fa-solid ${icon}"></i><span>${escapeHtml(msg)}</span>`;
+            c.appendChild(t);
+            setTimeout(() => { t.classList.add('opacity-0'); setTimeout(() => t.remove(), 300); }, 3000);
+        }
+
+        function scheduleTypeName(schedule) {
+            if (!schedule) return 'No School';
+            if (schedule === SCH_REGULAR)            return 'Regular Day (7 Periods)';
+            if (schedule === SCH_HOMEROOM)           return 'Homeroom Schedule';
+            if (schedule === SCH_DELAY_REGULAR)      return '2-Hour Delay';
+            if (schedule === SCH_DELAY_HOMEROOM)     return '2-Hour Delay (Homeroom)';
+            if (schedule === SCH_HALF_DAY)           return 'Half Day / Early Dismissal';
+            if (schedule === SCH_ACTIVITY)           return 'Pep Rally / Activity';
+            if (schedule === SCH_SYNC_REGULAR)       return 'Sync Learning';
+            if (schedule === SCH_FINALS_1)           return 'Finals Day 1';
+            if (schedule === SCH_FINALS_2)           return 'Finals Day 2';
+            if (schedule === SCH_FINALS_3)           return 'Finals Day 3';
+            if (schedule === SCH_FINALS_4)           return 'Finals Day 4';
+            if (Array.isArray(schedule))             return `Manual Schedule (${schedule.length} Periods)`;
+            return 'Special Schedule';
+        }
+
+        /* ══════════════════════════════════════════════════════════════════
+           CLOUD SYNC (calendar_events)
+           Previously the list only ever rendered inside the success callback,
+           so any auth failure / permission error / slow network left it stuck
+           on "Connecting to Cloud..." forever. Now every outcome is surfaced.
+           ══════════════════════════════════════════════════════════════════ */
+        function setCloudStatus(state, detail = '') {
+            cloudStatus = { state, detail };
+            updateEventListUI();
+        }
+
+        function attachCalendarListener() {
+            if (calendarUnsub) { calendarUnsub(); calendarUnsub = null; }
+            calendarUnsub = onSnapshot(collection(db, CAL_COLLECTION), { includeMetadataChanges: true }, snap => {
+                // A snapshot served from the local cache (offline) is not authoritative — before the
+                // first server response it can be empty, which would wipe the saved copy. Only replace
+                // local state with data the server confirmed.
+                if (snap.metadata.fromCache) {
+                    if (cloudStatus.state === 'live') setCloudStatus('offline');
+                    return;
+                }
+                const next = {};
+                snap.forEach(d => {
+                    const val = fromFirestoreDoc(d.data());
+                    if (val) next[d.id] = val;
+                });
+                // Replace (not merge) — the cloud is the source of truth once connected.
+                globalSchedule = next;
+                try { localStorage.setItem('aperture_calendar_events', JSON.stringify(globalSchedule)); } catch(e) {}
+                setCloudStatus('live');
+                renderSchedule();
+            }, err => {
+                console.error('[Firebase] calendar_events listener failed:', err);
+                calendarUnsub = null;
+                setCloudStatus('error', err.code || err.message || 'read failed');
+            });
+        }
+
+        onAuthStateChanged(auth, user => {
+            if (user) attachCalendarListener();
+        });
+
+        async function initAuth() {
+            try {
+                await signInAnonymously(auth);
+            } catch(e) {
+                console.error('[Firebase] Anonymous sign-in failed:', e);
+                // Still try a read — works if the DB rules allow public reads.
+                attachCalendarListener();
+            }
+        }
+
+        // Safety net: never sit on "connecting" forever
+        setTimeout(() => {
+            if (cloudStatus.state === 'connecting') setCloudStatus('offline', 'cloud not responding');
+        }, 8000);
+
+        function loadLocalProfile() {
+            try { userProfile = JSON.parse(localStorage.getItem('chs_profile')) || { lunch: '', periods: {} }; }
+            catch(e) { userProfile = { lunch: '', periods: {} }; }
+        }
+
+        function populateSettings() {
+            document.getElementById('user-lunch-select').value = userProfile.lunch || '';
+            const c = document.getElementById('period-inputs-container');
+            c.innerHTML = '';
+            
+            const periodKeys = ['1', '2', '3', 'HR', '4', '5', '6', '7'];
+            periodKeys.forEach(key => {
+                const p = (userProfile.periods && userProfile.periods[key]) ? userProfile.periods[key] : { name: '', room: '' };
+                const label = key === 'HR' ? 'HR' : `P${key}`;
+                const placeholderName = key === 'HR' ? 'Homeroom / Advisor' : 'Class name';
+                const row = document.createElement('div');
+                row.className = 'flex items-center gap-2';
+                row.innerHTML = `
+                    <span class="text-[11px] font-mono text-slate-100 w-6 text-center">${label}</span>
+                    <input type="text" class="p-name flex-1 bg-brand-bg border border-brand-border rounded-lg px-2.5 py-1.5 text-xs text-white focus:border-brand-accent/50 outline-none" data-id="${key}" placeholder="${placeholderName}" value="${escapeHtml(p.name)}">
+                    <input type="text" class="p-room w-16 bg-brand-bg border border-brand-border rounded-lg px-2.5 py-1.5 text-xs text-white focus:border-brand-accent/50 outline-none" data-id="${key}" placeholder="Rm #" value="${escapeHtml(p.room)}">
+                `;
+                c.appendChild(row);
+            });
+        }
+
+        document.getElementById('btn-save-prefs').addEventListener('click', () => {
+            const lunch = document.getElementById('user-lunch-select').value;
+            const periods = {};
+            document.querySelectorAll('.p-name').forEach(inp => {
+                const id = inp.dataset.id;
+                const room = inp.parentElement.querySelector('.p-room').value;
+                if (inp.value || room) periods[id] = { name: inp.value, room };
+            });
+            userProfile = { lunch, periods };
+            localStorage.setItem('chs_profile', JSON.stringify(userProfile));
+            showToast('Preferences saved locally', 'success');
+            renderSchedule();
+        });
+
+        function playBellChime(type = 'harmonic') {
+            if (userPrefs.soundEnabled === false) return;
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContext) return;
+                const ctx = new AudioContext();
+                const notes = type === 'passing' ? [523.25, 659.25, 783.99] : type === 'warning' ? [659.25, 587.33] : type === 'pulse' ? [659.25] : [587.33, 880.00];
+                let startTime = ctx.currentTime;
+                notes.forEach((freq, idx) => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, startTime + (idx * 0.16));
+                    gain.gain.setValueAtTime(0, startTime + (idx * 0.16));
+                    gain.gain.linearRampToValueAtTime(0.18, startTime + (idx * 0.16) + 0.03);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, startTime + (idx * 0.16) + 0.55);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(startTime + (idx * 0.16));
+                    osc.stop(startTime + (idx * 0.16) + 0.6);
+                });
+            } catch(e) { console.warn('Audio chime failed', e); }
+        }
+
+        let bellCustomPrefs = {
+            classStart: true,
+            classEnd: true,
+            classWarnMin: 2,
+            lunchStart: true,
+            lunchEnd: true,
+            lunchWarnMin: 1,
+            transStart: true,
+            transWarnMin: 1,
+            tone: 'harmonic'
+        };
+
+        function loadBellCustomPrefs() {
+            try {
+                const saved = localStorage.getItem('chs_bell_custom_prefs');
+                if (saved) bellCustomPrefs = { ...bellCustomPrefs, ...JSON.parse(saved) };
+            } catch(e) {}
+
+            if (document.getElementById('bell-opt-class-start')) document.getElementById('bell-opt-class-start').checked = !!bellCustomPrefs.classStart;
+            if (document.getElementById('bell-opt-class-end')) document.getElementById('bell-opt-class-end').checked = !!bellCustomPrefs.classEnd;
+            if (document.getElementById('bell-opt-class-warn')) document.getElementById('bell-opt-class-warn').value = String(bellCustomPrefs.classWarnMin);
+            if (document.getElementById('bell-opt-lunch-start')) document.getElementById('bell-opt-lunch-start').checked = !!bellCustomPrefs.lunchStart;
+            if (document.getElementById('bell-opt-lunch-end')) document.getElementById('bell-opt-lunch-end').checked = !!bellCustomPrefs.lunchEnd;
+            if (document.getElementById('bell-opt-lunch-warn')) document.getElementById('bell-opt-lunch-warn').value = String(bellCustomPrefs.lunchWarnMin);
+            if (document.getElementById('bell-opt-trans-start')) document.getElementById('bell-opt-trans-start').checked = !!bellCustomPrefs.transStart;
+            if (document.getElementById('bell-opt-trans-warn')) document.getElementById('bell-opt-trans-warn').value = String(bellCustomPrefs.transWarnMin);
+            if (document.getElementById('bell-opt-tone')) document.getElementById('bell-opt-tone').value = bellCustomPrefs.tone || 'harmonic';
+        }
+
+        function saveBellCustomPrefs() {
+            bellCustomPrefs.classStart = document.getElementById('bell-opt-class-start')?.checked ?? true;
+            bellCustomPrefs.classEnd = document.getElementById('bell-opt-class-end')?.checked ?? true;
+            bellCustomPrefs.classWarnMin = +(document.getElementById('bell-opt-class-warn')?.value ?? 2);
+            bellCustomPrefs.lunchStart = document.getElementById('bell-opt-lunch-start')?.checked ?? true;
+            bellCustomPrefs.lunchEnd = document.getElementById('bell-opt-lunch-end')?.checked ?? true;
+            bellCustomPrefs.lunchWarnMin = +(document.getElementById('bell-opt-lunch-warn')?.value ?? 1);
+            bellCustomPrefs.transStart = document.getElementById('bell-opt-trans-start')?.checked ?? true;
+            bellCustomPrefs.transWarnMin = +(document.getElementById('bell-opt-trans-warn')?.value ?? 1);
+            bellCustomPrefs.tone = document.getElementById('bell-opt-tone')?.value || 'harmonic';
+            localStorage.setItem('chs_bell_custom_prefs', JSON.stringify(bellCustomPrefs));
+        }
+
+        const alertTracker = {};
+
+        function triggerAlert(id, title, msg, type = 'warning') {
+            if (alertTracker[id]) return;
+            alertTracker[id] = true;
+            playBellChime(bellCustomPrefs.tone || type);
+        }
+
+        const timeDiffSec = (hhmm, now) => {
+            if (!hhmm) return -999999;
+            const d = new Date(now), [h,m] = hhmm.split(':');
+            d.setHours(+h,+m,0,0);
+            return Math.floor((d.getTime() - now.getTime()) / 1000);
+        };
+
+        function seedPastAlerts(schedule, now, dateStr = localDate(now)) {
+            if (!schedule) return;
+            schedule.forEach(p => {
+                const secUntilStart = timeDiffSec(p.start, now);
+                const secUntilEnd = timeDiffSec(p.end, now);
+                if (secUntilStart < -1) alertTracker[`${dateStr}_p_start_${p.name}_${p.start}`] = true;
+                if (secUntilEnd < -1) alertTracker[`${dateStr}_p_end_${p.name}_${p.end}`] = true;
+                if (secUntilEnd < (bellCustomPrefs.classWarnMin * 60 - 4)) alertTracker[`${dateStr}_p_warn_${p.name}_${bellCustomPrefs.classWarnMin}m`] = true;
+                if (p.lunch) {
+                    p.lunch.forEach((l, lIdx) => {
+                        const secToLunchStart = timeDiffSec(l.start, now);
+                        const secLeftLunch = timeDiffSec(l.end, now);
+                        if (secToLunchStart < -1) alertTracker[`${dateStr}_l_start_${l.name}_${l.start}`] = true;
+                        if (secLeftLunch < -1) alertTracker[`${dateStr}_l_end_${l.name}_${l.end}`] = true;
+                        if (secLeftLunch < (bellCustomPrefs.lunchWarnMin * 60 - 4)) alertTracker[`${dateStr}_l_warn_${l.name}_${bellCustomPrefs.lunchWarnMin}m`] = true;
+                        const nextLunch = p.lunch[lIdx + 1];
+                        if (nextLunch) {
+                            const secToNextLunch = timeDiffSec(nextLunch.start, now);
+                            if (secToNextLunch < (bellCustomPrefs.transWarnMin * 60 - 4)) alertTracker[`${dateStr}_t_warn_${nextLunch.name}_${bellCustomPrefs.transWarnMin}m`] = true;
+                        }
+                    });
+                }
+            });
+        }
+
+        function checkNotifications(schedule, cur, now, dateStr = localDate(now)) {
+            if (!schedule) return;
+
+            schedule.forEach(p => {
+                const secUntilStart = timeDiffSec(p.start, now);
+                const secUntilEnd = timeDiffSec(p.end, now);
+
+                if (bellCustomPrefs.classStart && secUntilStart >= -1 && secUntilStart <= 2) {
+                    triggerAlert(`${dateStr}_p_start_${p.name}_${p.start}`, `Bell Ringing: ${p.name} Beginning`, "Classes are now in session.", 'passing');
+                }
+
+                if (cur >= p.start && cur < p.end && bellCustomPrefs.classWarnMin > 0) {
+                    const warnSec = bellCustomPrefs.classWarnMin * 60;
+                    if (secUntilEnd <= warnSec && secUntilEnd > (warnSec - 4) && secUntilEnd > 0) {
+                        triggerAlert(`${dateStr}_p_warn_${p.name}_${bellCustomPrefs.classWarnMin}m`, `${bellCustomPrefs.classWarnMin} Minute(s) Left in ${p.name}`, "Pack up materials and prepare for dismissal.", 'warning');
+                    }
+                }
+
+                if (bellCustomPrefs.classEnd && secUntilEnd >= -1 && secUntilEnd <= 2) {
+                    triggerAlert(`${dateStr}_p_end_${p.name}_${p.end}`, `Dismissal Bell: ${p.name} Ended`, "Passing period is now active.", 'passing');
+                }
+
+                if (p.lunch) {
+                    p.lunch.forEach((l, lIdx) => {
+                        const secToLunchStart = timeDiffSec(l.start, now);
+                        const secLeftLunch = timeDiffSec(l.end, now);
+                        const isUserLunch = !userProfile.lunch || l.name.toUpperCase().includes(`LUNCH ${userProfile.lunch.toUpperCase()}`);
+
+                        if (isUserLunch) {
+                            if (bellCustomPrefs.lunchStart && secToLunchStart >= -1 && secToLunchStart <= 2) {
+                                triggerAlert(`${dateStr}_l_start_${l.name}_${l.start}`, `${l.name} Started`, "Enjoy your lunch break!", 'passing');
+                            }
+                            if (cur >= l.start && cur < l.end && bellCustomPrefs.lunchWarnMin > 0) {
+                                const lWarnSec = bellCustomPrefs.lunchWarnMin * 60;
+                                if (secLeftLunch <= lWarnSec && secLeftLunch > (lWarnSec - 4) && secLeftLunch > 0) {
+                                    triggerAlert(`${dateStr}_l_warn_${l.name}_${bellCustomPrefs.lunchWarnMin}m`, `${bellCustomPrefs.lunchWarnMin} Minute(s) Left in ${l.name}`, "Prepare to transition to your next class.", 'warning');
+                                }
+                            }
+                            if (bellCustomPrefs.lunchEnd && secLeftLunch >= -1 && secLeftLunch <= 2) {
+                                triggerAlert(`${dateStr}_l_end_${l.name}_${l.end}`, `${l.name} Concluded`, "Transition period active.", 'passing');
+                            }
+                        }
+
+                        const nextLunch = p.lunch[lIdx + 1];
+                        if (nextLunch && cur >= l.end && cur < nextLunch.start) {
+                            const secToNextLunch = timeDiffSec(nextLunch.start, now);
+                            if (bellCustomPrefs.transWarnMin > 0) {
+                                const tWarnSec = bellCustomPrefs.transWarnMin * 60;
+                                if (secToNextLunch <= tWarnSec && secToNextLunch > (tWarnSec - 4) && secToNextLunch > 0) {
+                                    triggerAlert(`${dateStr}_t_warn_${nextLunch.name}_${bellCustomPrefs.transWarnMin}m`, `Transition Ending in ${bellCustomPrefs.transWarnMin}m`, `${nextLunch.name} begins shortly.`, 'warning');
+                                }
+                            }
+                        }
+                    });
+                }
+            });
+        }
+
+        function showOverlay(main, subtitleHtml) {
+            const overlay = document.getElementById('universal-overlay');
+            overlay.classList.remove('hidden');
+            overlay.classList.add('flex');
+            document.getElementById('overlay-main').textContent = main;
+            document.getElementById('overlay-subtitle').innerHTML = subtitleHtml;
+        }
+
+        function renderSchedule() {
+            const now      = new Date(Date.now() + debugTimeOffset);
+            const cur      = curHHMM(now);
+            const dateStr  = localDate(now);
+            const day      = now.getDay();
+            const rawSched = getScheduleForDate(dateStr, day);
+            const overlay  = document.getElementById('universal-overlay');
+            let label = null;
+            if (globalSchedule[dateStr]) {
+                if (typeof globalSchedule[dateStr] === 'string') {
+                    label = globalSchedule[dateStr].replace(/-/g, ' ').toUpperCase();
+                } else if (typeof globalSchedule[dateStr] === 'object') {
+                    label = String(globalSchedule[dateStr].label || globalSchedule[dateStr].name || 'Manual Schedule').toUpperCase();
+                }
+            }
+
+            const schedule = rawSched ? rawSched.map(p => ({
+                ...p,
+                start: applyTimeDelay(p.start, bellDelayMinutes),
+                end: applyTimeDelay(p.end, bellDelayMinutes),
+                lunch: p.lunch ? p.lunch.map(l => ({
+                    ...l,
+                    start: applyTimeDelay(l.start, bellDelayMinutes),
+                    end: applyTimeDelay(l.end, bellDelayMinutes)
+                })) : null
+            })) : null;
+
+            const delayBadge = document.getElementById('delay-status-badge');
+            const delayText  = document.getElementById('delay-status-text');
+            if (bellDelayMinutes > 0) {
+                delayBadge.classList.remove('hidden');
+                delayText.textContent = `Delay +${bellDelayMinutes}m`;
+            } else {
+                delayBadge.classList.add('hidden');
+            }
+
+            const noSchoolReason = (!rawSched && !globalSchedule[dateStr]) ? NO_SCHOOL_DATES[dateStr] : null;
+            const bannerText = label || (schedule ? scheduleTypeName(rawSched) : (noSchoolReason || 'No School'));
+            const banner = document.getElementById('day-type-banner');
+            if (banner.textContent.trim() !== bannerText) banner.innerHTML = `<span>${escapeHtml(bannerText)}</span>`;
+
+            if (!debugOverride && isSummerBreak(now)) {
+                if (bypassOverlay) { renderCards(SCH_REGULAR, cur, now); return; }
+                showOverlay('Summer Break', 'School resumes <strong>August 5, 2026</strong>.<br>Enjoy your break!');
+                return;
+            }
+
+            if (!schedule) {
+                if (bypassOverlay) { renderCards(SCH_REGULAR, cur, now); return; }
+                const isWeekend = day === 0 || day === 6;
+                showOverlay(
+                    isWeekend ? 'Weekend' : 'No School',
+                    noSchoolReason ? `${escapeHtml(noSchoolReason)} — no classes today.` : 'No active classes scheduled today.'
+                );
+                return;
+            }
+
+            const schoolStart = schedule[0].start;
+            const schoolEnd   = schedule[schedule.length - 1].end;
+
+            if (!bypassOverlay && (cur < schoolStart || cur >= schoolEnd)) {
+                if (cur < schoolStart) {
+                    showOverlay('Good Morning', `Classes begin at <strong>${to12H(schoolStart)}</strong><br><span class="text-brand-accent mt-1 inline-block">${escapeHtml(label || scheduleTypeName(rawSched))}</span>`);
+                } else {
+                    showOverlay("School's Out", 'All scheduled periods are complete for today.');
+                }
+                return;
+            }
+
+            overlay.classList.add('hidden');
+            overlay.classList.remove('flex');
+            renderCards(schedule, cur, now);
+        }
+
+        /* ══════════════════════════════════════════════════════════════════
+           CARD RENDERING
+           Fix for the active-period glow: the grid used to be torn down and
+           rebuilt every second, which restarted the 2.2s pulse animation (and
+           the progress bar transitions) on every tick so the glow never
+           actually pulsed. Cards are now only rebuilt when the schedule
+           *state* changes; countdowns & meters are updated in place.
+           ══════════════════════════════════════════════════════════════════ */
+        let lastCardsSig = '';
+
+        function updateLiveValues(now) {
+            const container = document.getElementById('periods-container');
+            container.querySelectorAll('[data-countdown]').forEach(el => {
+                el.textContent = (el.dataset.prefix || '') + fmtMs(msUntil(el.dataset.countdown, now));
+            });
+            const s = secOfDay(now);
+            container.querySelectorAll('[data-meter-start]').forEach(el => {
+                const a = hhmmToSec(el.dataset.meterStart), b = hhmmToSec(el.dataset.meterEnd);
+                const pct = b > a ? Math.min(100, Math.max(0, ((s - a) / (b - a)) * 100)) : 100;
+                el.style.width = pct.toFixed(2) + '%';
+            });
+        }
+
+        function renderCards(schedule, cur, now) {
+            const container = document.getElementById('periods-container');
+
+            let passingIdx = -1;
+            for (let i = 0; i < schedule.length - 1; i++) {
+                if (cur >= schedule[i].end && cur < schedule[i+1].start) { passingIdx = i + 1; break; }
+            }
+
+            const states = schedule.map((p, idx) => ({
+                active: cur >= p.start && cur < p.end,
+                passing: idx === passingIdx,
+                lunch: p.lunch ? p.lunch.map((l, lIdx) => {
+                    const next = p.lunch[lIdx + 1];
+                    if (next && cur >= l.end && cur < next.start) return 'trans';
+                    if (!next && cur >= l.end && cur < p.end) return 'trans-out';
+                    if (cur >= l.start && cur < l.end) return 'active';
+                    return 'idle';
+                }) : null
+            }));
+
+            const sig = JSON.stringify([schedule, states, userProfile, userPrefs.is12Hour]);
+            if (sig === lastCardsSig && container.childElementCount) {
+                updateLiveValues(now);
+                return;
+            }
+            lastCardsSig = sig;
+            container.innerHTML = '';
+
+            schedule.forEach((p, idx) => {
+                const { active: isActive, passing: isPassing } = states[idx];
+                const card = document.createElement('div');
+
+                let cardBorder = 'smooth-card border-brand-border bg-brand-surface hover:border-brand-accent/40';
+                if (isActive) cardBorder = 'active-period-card';
+                if (isPassing) cardBorder = 'smooth-card border-amber-500/50 bg-brand-surface [box-shadow:0_0_25px_rgba(250,204,21,0.15),inset_0_1px_0_rgba(255,255,255,0.1)]';
+
+                card.className = `group rounded border p-5 relative flex flex-col justify-between ${cardBorder}`;
+
+                let displayName = escapeHtml(p.name), roomHtml = '';
+                if (p.id && userProfile.periods && userProfile.periods[p.id]) {
+                    const up = userProfile.periods[p.id];
+                    if (up.name) displayName = escapeHtml(up.name);
+                    if (up.room) roomHtml = `<span class="text-[11px] font-mono text-brand-accent flex items-center gap-1"><i class="fa-solid fa-door-open text-[9px]"></i> Rm ${escapeHtml(up.room)}</span>`;
+                }
+
+                let html = `
+                    <div>
+                        <div class="flex items-start justify-between gap-2 mb-2">
+                            <h3 class="font-semibold text-sm text-white tracking-tight">${displayName}</h3>
+                            ${roomHtml}
+                        </div>
+                        <div class="text-xs font-mono text-slate-100">${to12H(p.start)} – ${to12H(p.end)}</div>
+                    </div>
+                `;
+
+                if (isActive) {
+                    html += `
+                        <div class="mt-4 pt-3 border-t border-brand-border/60">
+                            <div class="flex items-baseline justify-between mb-1.5">
+                                <span class="text-[11px] font-mono uppercase text-emerald-300 font-extrabold tracking-wider">In Session</span>
+                                <span class="active-time-val text-2xl font-mono font-black text-emerald-300 drop-shadow-[0_0_15px_rgba(16,185,129,0.9)] time-tabular" data-countdown="${p.end}"></span>
+                            </div>
+                            <div class="w-full h-2.5 bg-black/40 rounded-full overflow-hidden p-0.5 border border-emerald-500/40 shadow-inner">
+                                <div class="active-meter-fill h-full bg-gradient-to-r from-emerald-400 via-teal-300 to-emerald-400 rounded-full transition-[width] duration-1000 ease-linear shadow-[0_0_15px_rgba(16,185,129,0.95)]" data-meter-start="${p.start}" data-meter-end="${p.end}" style="width:0%"></div>
+                            </div>
+                        </div>
+                    `;
+                } else if (isPassing) {
+                    const prev = schedule[idx - 1];
+                    html += `
+                        <div class="mt-4 pt-3 border-t border-brand-border/60">
+                            <div class="flex items-baseline justify-between mb-1">
+                                <span class="text-[10px] font-mono uppercase text-amber-400 font-semibold tracking-wider">Passing Period</span>
+                                <span class="passing-time-val text-lg font-mono font-semibold text-amber-400 time-tabular" data-countdown="${p.start}" data-prefix="Starts in "></span>
+                            </div>
+                            <div class="w-full h-1.5 bg-brand-bg rounded-full overflow-hidden">
+                                <div class="passing-meter-fill h-full bg-amber-400 transition-[width] duration-1000 ease-linear" data-meter-start="${prev ? prev.end : p.start}" data-meter-end="${p.start}" style="width:0%"></div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                card.innerHTML = html;
+
+                if (p.lunch) {
+                    const wrap = document.createElement('div');
+                    wrap.className = 'mt-3 pt-3 border-t border-brand-border/40 space-y-1.5';
+                    let lunchHtml = '';
+
+                    p.lunch.forEach((l, lIdx) => {
+                        const lState = states[idx].lunch[lIdx];
+                        const nextLunch = p.lunch[lIdx + 1];
+
+                        if (lState === 'trans' || lState === 'trans-out') {
+                            const title = lState === 'trans' ? `Transition to ${escapeHtml(nextLunch.name)}` : 'Transition to Next Period';
+                            const target = lState === 'trans' ? nextLunch.start : p.end;
+                            lunchHtml += `
+                                <div class="p-2.5 rounded-lg border border-amber-500/50 bg-amber-500/15 text-amber-300 font-mono text-xs flex items-center justify-between shadow-md pulse-glow">
+                                    <span class="flex items-center gap-1.5 font-bold">
+                                        <i class="fa-solid fa-arrow-right-arrow-left text-[11px] text-amber-400"></i>
+                                        ${title}
+                                    </span>
+                                    <span class="font-extrabold text-amber-400 tracking-wider time-tabular" data-countdown="${target}" data-prefix="Starts in "></span>
+                                </div>
+                            `;
+                        } else {
+                            const lActive = lState === 'active';
+                            const isUserLunch = userProfile.lunch && l.name.toUpperCase().includes(`LUNCH ${userProfile.lunch.toUpperCase()}`);
+                            let activeBg = 'bg-brand-bg border-brand-border/60 text-slate-100';
+                            if (isUserLunch) {
+                                activeBg = 'bg-brand-accent/10 border-brand-accent/60 text-white shadow-sm ring-1 ring-brand-accent/30';
+                            } else if (lActive) {
+                                activeBg = 'bg-amber-500/10 border-amber-500/30 text-amber-300';
+                            }
+
+                            lunchHtml += `
+                                <div class="p-2.5 rounded-lg border text-xs font-mono flex items-center justify-between transition-colors ${activeBg}">
+                                    <span class="font-medium flex items-center gap-1">
+                                        ${escapeHtml(l.name)}
+                                        ${isUserLunch ? '<span class="text-[9px] px-1.5 py-0.5 rounded bg-brand-accent text-brand-bg font-extrabold ml-1">YOUR LUNCH</span>' : ''}
+                                    </span>
+                                    ${lActive
+                                        ? `<span class="time-tabular" data-countdown="${l.end}" data-prefix="Ends "></span>`
+                                        : `<span>${to12H(l.start)}–${to12H(l.end)}</span>`}
+                                </div>
+                            `;
+                        }
+                    });
+
+                    wrap.innerHTML = lunchHtml;
+                    card.appendChild(wrap);
+                }
+
+                container.appendChild(card);
+            });
+
+            updateLiveValues(now);
+        }
+
+        /* ══════════════════════════════════════════════════════════════════
+           UPCOMING OVERRIDES LIST
+           ══════════════════════════════════════════════════════════════════ */
+        function updateEventListUI() {
+            const list = document.getElementById('server-schedule-list');
+            if (!list) return;
+
+            const isAdmin = isAdminSession();
+            const today = localDate(new Date(Date.now() + debugTimeOffset));
+            const allKeys = Object.keys(globalSchedule).sort();
+            const keys = allKeys.filter(d => d >= today);
+            const pastCount = allKeys.length - keys.length;
+
+            const statusMap = {
+                connecting: ['text-slate-300',   'fa-circle-notch fa-spin',    'Connecting to cloud… (showing saved copy)'],
+                live:       ['text-emerald-300', 'fa-circle-check',            'Live — synced with cloud'],
+                offline:    ['text-amber-300',   'fa-cloud',                   'Offline — showing saved copy'],
+                error:      ['text-red-400',     'fa-triangle-exclamation',    'Cloud unavailable — showing saved copy']
+            };
+            const [cls, icon, text] = statusMap[cloudStatus.state] || statusMap.connecting;
+            const detail = cloudStatus.detail ? ` (${escapeHtml(cloudStatus.detail)})` : '';
+
+            list.innerHTML = `<div class="flex items-center gap-1.5 text-[10px] ${cls} pb-0.5"><i class="fa-solid ${icon}"></i><span>${text}${detail}</span></div>`;
+
+            if (!keys.length) {
+                list.insertAdjacentHTML('beforeend', '<div class="text-slate-100/60 text-[11px]">No upcoming overrides.</div>');
+            }
+
+            keys.forEach(d => {
+                const item = document.createElement('div');
+                item.className = 'flex items-center justify-between bg-brand-bg border border-brand-border rounded-lg p-2 text-xs gap-2';
+                const entry = globalSchedule[d];
+                let displayType = 'Custom';
+                if (typeof entry === 'string') {
+                    displayType = entry.replace(/-/g, ' ');
+                } else if (entry && typeof entry === 'object') {
+                    displayType = entry.label || entry.name || `Manual (${entry.periods ? entry.periods.length : 0} Periods)`;
+                }
+                item.innerHTML = `
+                    <div class="flex flex-col min-w-0">
+                        <span class="text-brand-accent font-semibold text-xs">${escapeHtml(d)}${d === today ? ' · TODAY' : ''}</span>
+                        <span class="text-slate-100 uppercase text-[10px] truncate">${escapeHtml(displayType)}</span>
+                    </div>
+                    ${isAdmin ? `<button type="button" class="event-remove text-red-400 hover:text-red-300 px-1 shrink-0 transition" data-date="${escapeHtml(d)}" title="Remove override"><i class="fa-solid fa-trash-can text-xs"></i></button>` : ''}
+                `;
+                list.appendChild(item);
+            });
+
+            if (pastCount) {
+                list.insertAdjacentHTML('beforeend', `<div class="text-slate-100/50 text-[10px] pt-0.5">${pastCount} past override${pastCount > 1 ? 's' : ''} hidden</div>`);
+            }
+
+            list.querySelectorAll('.event-remove').forEach(btn => btn.addEventListener('click', async e => {
+                if (!isAdminSession()) { showToast('Admin unlock required', 'error'); return; }
+                const date = e.currentTarget.dataset.date;
+                const copy = { ...globalSchedule }; delete copy[date];
+                globalSchedule = copy;
+                try { localStorage.setItem('aperture_calendar_events', JSON.stringify(globalSchedule)); } catch(err) {}
+                updateEventListUI();
+                renderSchedule();
+                try {
+                    if (!auth.currentUser) {
+                        throw Object.assign(new Error('Not signed in to Firebase'), { code: 'auth/not-signed-in' });
+                    }
+                    await deleteDoc(doc(db, CAL_COLLECTION, date));
+                    showToast('Override removed and synced to cloud', 'success');
+                } catch(err) {
+                    console.error('[Firebase] Cloud sync failed while removing override:', err);
+                    showToast(`Removed locally only (${err.code || err.message || 'unknown error'})`, 'error');
+                }
+            }));
+        }
+
+        /* ══════════════════════════════════════════════════════════════════
+           TEACHER LUNCH LOOKUP ENGINE
+           ══════════════════════════════════════════════════════════════════ */
+        function renderTeacherDirectory(searchTerm = '') {
+            const container = document.getElementById('teacher-results-container');
+            container.innerHTML = '';
+            const query = searchTerm.toLowerCase().trim();
+            const matches = TEACHER_LUNCH_DB.filter(t => t.name.toLowerCase().includes(query));
+
+            if (!matches.length) {
+                container.innerHTML = '<div class="text-center py-8 text-slate-100">No teachers found matching your search.</div>';
+                return;
+            }
+
+            matches.forEach(t => {
+                const isCurrent = userProfile.lunch === t.lunch;
+                const card = document.createElement('div');
+                card.className = `p-3 rounded-lg border transition-all flex items-center justify-between ${
+                    isCurrent ? 'bg-brand-accent/10 border-brand-accent/40' : 'bg-brand-bg border-brand-border/60 hover:border-brand-accent/30'
+                }`;
+                card.innerHTML = `
+                    <div>
+                        <div class="font-medium text-white">${t.name}</div>
+                        <div class="text-[10px] font-mono text-slate-100 mt-0.5">Assigned Lunch: <strong class="text-white">Lunch ${t.lunch}</strong></div>
+                    </div>
+                    <button class="set-teacher-lunch-btn px-3 py-1.5 rounded-md text-xs font-mono transition-all ${ isCurrent ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 cursor-default' : 'bg-brand-surface hover:bg-brand-card text-brand-accent border border-brand-border hover:border-brand-accent/40' }" data-lunch="${t.lunch}">
+                        ${isCurrent ? '<i class="fa-solid fa-check mr-1"></i>Active' : 'Set My Lunch'}
+                    </button>
+                `;
+                container.appendChild(card);
+            });
+
+            container.querySelectorAll('.set-teacher-lunch-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const l = e.currentTarget.dataset.lunch;
+                    if (!l || userProfile.lunch === l) return;
+                    userProfile.lunch = l;
+                    localStorage.setItem('chs_profile', JSON.stringify(userProfile));
+                    populateSettings();
+                    renderSchedule();
+                    renderTeacherDirectory(document.getElementById('teacher-search-input').value);
+                    showToast(`Assigned to Lunch ${l}`, 'success');
+                });
+            });
+        }
+
+        document.getElementById('teacher-search-input').addEventListener('input', (e) => {
+            renderTeacherDirectory(e.target.value);
+        });
+
+        document.getElementById('lunch-lookup-btn').addEventListener('click', () => {
+            renderTeacherDirectory('');
+            document.getElementById('teacher-search-input').value = '';
+            document.getElementById('teacher-lookup-modal').classList.remove('hidden');
+            document.getElementById('teacher-lookup-modal').classList.add('flex');
+            setTimeout(() => document.getElementById('teacher-search-input').focus(), 100);
+        });
+
+        document.getElementById('teacher-modal-close').addEventListener('click', () => {
+            document.getElementById('teacher-lookup-modal').classList.add('hidden');
+            document.getElementById('teacher-lookup-modal').classList.remove('flex');
+        });
+
+        /* ══════════════════════════════════════════════════════════════════
+           LUNCH MENUS — AUGUST 2026 + SEPTEMBER 2026 (through Oct 2)
+           September entries re-parsed from the official CHS & Freshman PDFs.
+           ══════════════════════════════════════════════════════════════════ */
+        var MENU_CHS = {
+            // ── August ──
+            '2026-08-05': { entrees: ['Buffalo Chicken Melt', 'Chicken Smackers', 'Beefy Cheesy Ravioli', 'Soup & Salad Bar'], sides: ['Garlic Texas Toast', 'Seasoned Green Beans', 'California Blend Vegetables', 'Chilled Fruit', 'Sunshine Bar', 'Milk'] },
+            '2026-08-06': { entrees: ['Grilled Hamburger', 'Sriracha Chicken', 'Chicken Corn Dog', 'Soup & Salad Bar'], sides: ['Onion Rings', 'Baked Beans', 'Mixed Berries', 'Milk'] },
+            '2026-08-07': { entrees: ['Homemade Mac & Cheese', 'Popcorn Chicken', 'Roasted Chicken Hot Wings', 'Soup & Salad Bar'], sides: ['Homemade Yeast Roll W/ Margarine & Jelly', 'Baby Carrots & Grape Tomatoes w/ Dip', 'Paco Blend', 'Chilled Applesauce', 'Milk'] },
+            '2026-08-10': { entrees: ['Asian Noodle Bowl', 'Penne Pasta W/ Queso Sauce', 'Teriyaki Chicken with Rice', 'Cheesy Garlic French Bread', 'Soup & Salad Bar'], sides: ['Steamed Fresh Broccoli', 'Petite Carrots with Dip', 'Chilled Pineapple', 'Chilled Mandarin Oranges', 'Milk'] },
+            '2026-08-11': { entrees: ['Sausage Egg & Cheese Muffin', 'Chicken Tenders', 'Mini Corn Dogs', 'Soup & Salad Bar'], sides: ['Crispy Cube Potatoes', 'Mixed Vegetables', 'Apple Slices', '100% Fruit Juice', 'Churro Bites', 'Milk'] },
+            '2026-08-12': { entrees: ['Pulled Pork Sandwich', 'Roasted Chicken Hot Wings', 'Detroit Style Cheese Pizza', 'Walking Taco', 'Soup & Salad Bar'], sides: ['Refried Beans', 'Romaine & Grape Tomato Salad w/ Dressing', 'Fresh Red Grapes & Strawberries', 'Garlic Breadstick', 'Milk'] },
+            '2026-08-13': { entrees: ['Hot & Spicy Chicken Sandwich', 'Chicken & Noodles', 'Charger Fried Chicken', 'Stuffed Crust Sausage Pizza', 'Soup & Salad Bar'], sides: ['Mashed Potatoes W/ Gravy', 'Homemade Broccoli Salad', 'Chilled Fruit Cocktail w/ Cherries/Grapes', 'Poppyseed Bread', 'Milk'] },
+            '2026-08-14': { entrees: ['Pepperoni French Bread', 'Taco Max Snacks', 'Italian Grilled Cheese W/ Pizza Sauce', 'Shrimp Poppers', 'Soup & Salad Bar'], sides: ['Buffalo Cauliflower Bites', 'Grape Tomatoes with Dip', 'Chilled Pears', 'Milk'] },
+            '2026-08-17': { entrees: ['Dill Nuggets', 'Italian Spaghetti', 'Cheesy Breadstick', 'Soup & Salad Bar'], sides: ['Garlic Breadstick', 'Seasoned Green Beans', 'Cucumber & Grape Tomatoes w/ Veggie Dip', 'Warm Cinnamon Apples', 'Milk'] },
+            '2026-08-18': { entrees: ['Soft Taco', 'Fiestada Pizza', 'Beefy Cheesy Nachos', 'Soup & Salad Bar'], sides: ['Mexicali Corn', 'Cowboy Beans', 'Baked Tostito Scoops', 'Fresh Watermelon', 'Milk'] },
+            '2026-08-19': { entrees: ['Mozzarella Breadstick W/ Pizza Sauce', 'Hot Dog', 'Ham & Cheese Pocket', 'Chicken Quesadilla', 'Soup & Salad Bar'], sides: ['Roasted Brussel Sprouts W/ Bacon', 'Baby Carrots with Dip', 'Chilled Peaches', 'Wacky Cake', 'Milk'] },
+            '2026-08-20': { entrees: ['Chicken Nuggets', 'Bosco Stick', 'Roasted Chicken Hot Wings', 'Soup & Salad Bar'], sides: ['Baked Potato W/ Toppings', 'Broccoli with Cheese Sauce', 'Rosy Applesauce', 'Milk'] },
+            '2026-08-21': { entrees: ['Tangerine Chicken', 'Corn Dog', 'Teriyaki Dumplings', 'Soup & Salad Bar'], sides: ['Brown Rice', 'Oriental Salad', 'Kyoto Vegetable Blend', 'Sweetened Strawberries', 'Fortune Cookie', 'Milk'] },
+            '2026-08-24': { entrees: ['Breaded Pork Sandwich', 'Chick Filay Sandwich W/ Chick Filay Sauce', 'Bosco Sticks W/ Pizza Sauce', 'Soup & Salad Bar'], sides: ['Seasoned Criss-Cut Fries', 'Romaine Salad W/ Dressing', 'Fresh Grape Tomatoes', 'Chilled Peaches', 'Milk'] },
+            '2026-08-25': { entrees: ['Sausage Links W/ Pancakes', 'Pizza Crunchers', 'Tater Tot Bowl', 'Soup & Salad Bar'], sides: ['Tater Tots', 'Seasoned Corn', 'Fresh Banana', '100% Fruit Juice', 'Milk'] },
+            '2026-08-26': { entrees: ['Buffalo Chicken Melt', 'Chicken Smackers', 'Beefy Cheesy Ravioli', 'Soup & Salad Bar'], sides: ['Garlic Texas Toast', 'Romaine Salad W/ Assorted Dressings', 'California Blend Vegetables', 'Chilled Fruit', 'Sunshine Bar', 'Milk'] },
+            '2026-08-27': { entrees: ['Grilled Hamburger', 'Sriracha Chicken', 'Chicken Corn Dog', 'Soup & Salad Bar'], sides: ['Onion Rings', 'Baked Beans', 'Mixed Berries', 'Milk'] },
+            '2026-08-28': { entrees: ['Homemade Mac & Cheese', 'Popcorn Chicken', 'Roasted Chicken Hot Wings', 'Soup & Salad Bar'], sides: ['Homemade Yeast Roll W/ Margarine & Jelly', 'Honey Ginger Carrots', 'Paco Blend', 'Chilled Applesauce', 'Milk'] },
+            '2026-08-31': { entrees: ['Asian Noodle Bowl', 'Penne Pasta W/ Queso Sauce', 'Teriyaki Chicken with Rice', 'Cheesy Garlic French Bread', 'Soup & Salad Bar'], sides: ['Steamed Fresh Broccoli', 'Petite Carrots with Dip', 'Chilled Pineapple', 'Chilled Mandarin Oranges', 'Milk'] },
+
+            // ── September (from CHS September 2026 PDF) ──
+            '2026-09-01': { entrees: ['Sausage Egg & Cheese Muffin', 'Chicken Tenders', 'Mini Corn Dogs', 'Soup & Salad Bar'], sides: ['Crispy Cube Potatoes', 'Mixed Vegetables', 'Apple Slices', '100% Fruit Juice', 'Churro Bites', 'Milk'] },
+            '2026-09-02': { entrees: ['Pulled Pork Sandwich', 'Roasted Chicken Hot Wings', 'Detroit Style Cheese Pizza', 'Walking Taco', 'Soup & Salad Bar'], sides: ['Refried Beans', 'Romaine & Grape Tomato Salad w/ Dressing', 'Fresh Red Grapes & Strawberries', 'Garlic Breadstick', 'Milk'] },
+            '2026-09-03': { entrees: ['Hot & Spicy Chicken Sandwich', 'Chicken & Noodles', 'Charger Fried Chicken', 'Stuffed Crust Sausage Pizza', 'Soup & Salad Bar'], sides: ['Mashed Potatoes W/ Gravy', 'Homemade Broccoli Salad', 'Chilled Fruit Cocktail w/ Cherries or Grapes', 'Raisin Batter Bread', 'Milk'] },
+            '2026-09-04': { entrees: ['Pepperoni French Bread', 'Taco Max Snacks', 'Italian Grilled Cheese W/ Pizza Sauce', 'Shrimp Poppers', 'Soup & Salad Bar'], sides: ['Buffalo Cauliflower Bites', 'Grape Tomatoes with Dip', 'Chilled Pears', 'Milk'] },
+            '2026-09-07': { noSchool: 'Labor Day' },
+            '2026-09-08': { entrees: ['Soft Taco', 'Fiestada Pizza', 'Beefy Cheesy Nachos', 'Soup & Salad Bar'], sides: ['Mexicali Corn', 'Vegetarian Salsa Salad', 'Baked Tostito Scoops', 'Fresh Watermelon', 'Milk'] },
+            '2026-09-09': { entrees: ['Mozzarella Breadstick W/ Pizza Sauce', 'Hot Dog', 'Ham & Cheese Pocket', 'Chicken Quesadilla', 'Soup & Salad Bar'], sides: ['Roasted Brussel Sprouts W/ Bacon', 'Baby Carrots with Dip', 'Chilled Peaches', 'Wacky Cake', 'Milk'] },
+            '2026-09-10': { entrees: ['Chicken Nuggets', 'Bosco Stick', 'Roasted Chicken Hot Wings', 'Soup & Salad Bar'], sides: ['Baked Potato W/ Toppings', 'Broccoli with Cheese Sauce', 'Rosy Applesauce', 'Milk'] },
+            '2026-09-11': { entrees: ['Tangerine Chicken', 'Corn Dog', 'Teriyaki Dumplings', 'Soup & Salad Bar'], sides: ['Brown Rice', 'Oriental Salad', 'Kyoto Vegetable Blend', 'Sweetened Strawberries', 'Fortune Cookie', 'Milk'] },
+            '2026-09-14': { entrees: ['Breaded Pork Sandwich', 'Chick Filay Sandwich W/ Chick Filay Sauce', 'Bosco Sticks W/ Pizza Sauce', 'Soup & Salad Bar'], sides: ['Seasoned Criss-Cut Fries', 'Romaine Salad W/ Dressing', 'Fresh Grape Tomatoes', 'Chilled Peaches', 'Milk'] },
+            '2026-09-15': { entrees: ['Sausage Links W/ Pancakes', 'Pizza Crunchers', 'Tater Tot Bowl', 'Soup & Salad Bar'], sides: ['Tater Tots', 'Seasoned Corn', 'Fresh Banana', '100% Fruit Juice', 'Milk'] },
+            '2026-09-16': { noSchool: 'No School' },
+            '2026-09-17': { entrees: ['Grilled Hamburger', 'Sriracha Chicken', 'Chicken Corn Dog', 'Soup & Salad Bar'], sides: ['Onion Rings', 'Baked Beans', 'Mixed Berries', 'Milk'] },
+            '2026-09-18': { entrees: ['Homemade Mac & Cheese', 'Popcorn Chicken', 'Roasted Chicken Hot Wings', 'Soup & Salad Bar'], sides: ['Homemade Yeast Roll W/ Margarine & Jelly', 'Baby Carrots & Grape Tomatoes w/ Dip', 'Paco Blend', 'Chilled Applesauce', 'Milk'] },
+            '2026-09-21': { entrees: ['Asian Noodle Bowl', 'Penne Pasta W/ Queso Sauce', 'Teriyaki Chicken with Rice', 'Cheesy Garlic French Bread', 'Soup & Salad Bar'], sides: ['Steamed Fresh Broccoli', 'Petite Carrots with Dip', 'Chilled Pineapple', 'Chilled Mandarin Oranges', 'Milk'] },
+            '2026-09-22': { entrees: ['Sausage Egg & Cheese Muffin', 'Chicken Tenders', 'Mini Corn Dogs', 'Soup & Salad Bar'], sides: ['Crispy Cube Potatoes', 'Mixed Vegetables', 'Orchard Fresh Apple Slices', '100% Fruit Juice', 'Churro Bites', 'Milk'] },
+            '2026-09-23': { entrees: ['Pulled Pork Sandwich', 'Roasted Chicken Hot Wings', 'Detroit Style Cheese Pizza', 'Walking Taco', 'Soup & Salad Bar'], sides: ['Refried Beans', 'Romaine & Grape Tomato Salad w/ Dressing', 'Fresh Red Grapes & Strawberries', 'Garlic Breadstick', 'Milk'] },
+            '2026-09-24': { entrees: ['Hot & Spicy Chicken Sandwich', 'Chicken & Noodles', 'Charger Fried Chicken', 'Stuffed Crust Sausage Pizza', 'Soup & Salad Bar'], sides: ['Mashed Potatoes W/ Gravy', 'Homemade Broccoli Salad', 'Chilled Fruit Cocktail w/ Cherries or Grapes', 'Milk'] },
+            '2026-09-25': { entrees: ['Pepperoni French Bread', 'Taco Max Snacks', 'Italian Grilled Cheese W/ Pizza Sauce', 'Shrimp Poppers', 'Soup & Salad Bar'], sides: ['Buffalo Cauliflower Bites', 'Grape Tomatoes with Dip', 'Chilled Pears', 'Banana Bread', 'Milk'] },
+            '2026-09-28': { entrees: ['Dill Nuggets', 'Italian Spaghetti', 'Cheesy Breadstick', 'Soup & Salad Bar'], sides: ['Garlic Breadstick', 'Seasoned Green Beans', 'Cucumber & Grape Tomatoes w/ Veggie Dip', 'Warm Cinnamon Apples', 'Milk'] },
+            '2026-09-29': { entrees: ['Soft Taco', 'Fiestada Pizza', 'Beefy Cheesy Nachos', 'Soup & Salad Bar'], sides: ['Mexican Street Corn', 'Cowboy Beans', 'Baked Tostito Scoops', 'Fresh Watermelon', 'Milk'] },
+            '2026-09-30': { entrees: ['Mozzarella Breadstick W/ Pizza Sauce', 'Hot Dog', 'Ham & Cheese Pocket', 'Chicken Quesadilla', 'Soup & Salad Bar'], sides: ['Roasted Brussel Sprouts W/ Bacon', 'Baby Carrots with Dip', 'Chilled Peaches', 'Wacky Cake', 'Milk'] },
+            '2026-10-01': { entrees: ['Chicken Nuggets', 'Bosco Stick', 'Roasted Chicken Hot Wings', 'Soup & Salad Bar'], sides: ['Baked Potato W/ Toppings', 'Broccoli with Cheese Sauce', 'Rosy Applesauce', 'Homemade Yeast Roll W/ Margarine & Jelly', 'Milk'] },
+            '2026-10-02': { entrees: ['Tangerine Chicken', 'Corn Dog', 'Teriyaki Dumplings', 'Soup & Salad Bar'], sides: ['Brown Rice', 'Oriental Salad', 'Kyoto Vegetable Blend', 'Sweetened Strawberries', 'Fortune Cookie', 'Milk'] }
+        };
+
+        var MENU_FRESH = {
+            // ── August ──
+            '2026-08-05': { entrees: ['Breaded Pork Sandwich', 'Bosco Sticks W/ Pizza Sauce'], sides: ['Fresh Veggies with Dip', 'Cinnamon Applesauce', 'Milk'] },
+            '2026-08-06': { entrees: ['Pepperoni Pizza Rippers', 'Chicken Tenders'], sides: ['Broccoli Salad', 'Smiley Potatoes', 'Sweetened Strawberries', 'Sunshine Bar', 'Milk'] },
+            '2026-08-07': { entrees: ['Chicken Smackers W/ Slice of Bread', 'Ham & Cheese Stuffer'], sides: ['Mashed Potatoes', 'Carrots & Cucumbers w/ Veggie Dip', 'Chilled Pears', 'Milk'] },
+            '2026-08-10': { entrees: ['Taco Max Snacks', 'Cheeseburger'], sides: ['Seasoned Green Beans', 'Onion Rings', 'Fresh Red Apple Slices w/ Vanilla Yogurt Dip', 'Milk'] },
+            '2026-08-11': { entrees: ['Sausage Links W/ Maple Waffle', 'Chicken Bites W/ Maple Waffle'], sides: ['Crispy Cubes', 'Fresh Red Grapes', '100% Fruit Juice', 'Milk'] },
+            '2026-08-12': { entrees: ['Pizza Crunchers', 'Cheesy Dog'], sides: ['Baked Beans', 'Fresh Steamed Broccoli', 'Whole Grain Cheez-Its', 'Chilled Peaches', 'Milk'] },
+            '2026-08-13': { entrees: ['Pork & Vegetable Egg Rolls', 'Tangerine Chicken W/ Chow Mein Noodles'], sides: ['Brown Rice', 'Kyoto Blend Vegetables', 'Chilled Pineapple-Mandarin', 'Milk'] },
+            '2026-08-14': { entrees: ['Sriracha Boneless Chicken Bites', 'Walking Taco W/ Lettuce & Tomato'], sides: ['Seasoned Corn', 'Fresh Petite Banana', 'Poppyseed Bread', 'Milk'] },
+            '2026-08-17': { entrees: ['Cheeseburger', 'Breaded Chicken Sandwich'], sides: ['Dill Pickle Spear', 'Seasoned Corn', 'Seasoned Crinkle Fries', 'Chilled Fresh Fruit', 'Milk'] },
+            '2026-08-18': { entrees: ['Roasted Chicken Wings', 'Cheesy Italian Pull-Aparts'], sides: ['Mashed Potatoes W/ Chicken Gravy', 'Baby Carrots & Cucumber Coins w/ Dip', 'Chilled Fruit Cocktail', 'Churro Bites', 'Milk'] },
+            '2026-08-19': { entrees: ['Buffalo Chicken Melt', 'Mini Chicken Corn Dogs'], sides: ['Roasted Brussel Sprouts', 'Seasoned Green Beans', 'Blushing Pears', 'Baked Chips', 'Milk'] },
+            '2026-08-20': { entrees: ['Cheese Pizza', 'Taco Salad'], sides: ['Refried Beans', 'Romaine Salad W/ Dressing', 'Chilled Applesauce', 'Milk'] },
+            '2026-08-21': { entrees: ['BBQ Rib Sandwich', 'Mozzarella Breadstick Bites W/ Pizza Sauce'], sides: ['Baked Potato W/ Toppings', 'Broccoli with Cheese Sauce', 'Chilled Fruit', 'Milk'] },
+            '2026-08-24': { entrees: ['Taco Max Snacks', 'Walking Taco'], sides: ['Spanish Rice', 'Mexican Street Corn', 'Shredded Lettuce, Diced Tomatoes & Salsa', 'Chilled Fruit', 'Milk'] },
+            '2026-08-25': { entrees: ['Pepperoni French Bread', 'Chili Dog / Hot Dog'], sides: ['Baked Beans', 'Tater Tots', 'Chilled Peaches', 'Frozen Treat', 'Milk'] },
+            '2026-08-26': { entrees: ['Pizza Crunchers', 'Chicken Smackers W/ Slice of Bread'], sides: ['Seasoned Green Beans', 'Romaine & Tomato Salad w/ Dressing', 'Warm Cinnamon Apples', 'Milk'] },
+            '2026-08-27': { entrees: ['Teriyaki Beef Dippers', 'Honey Sriracha Chicken'], sides: ['Honey Ginger Carrots', 'Brown Rice', 'Pineapple Mandarin Salad', 'Fortune Cookie', 'Milk'] },
+            '2026-08-28': { entrees: ['Meatballs W/ Marinara Sauce', 'Chicken Queso W/ Parmesan Noodles'], sides: ['Fresh Steamed Broccoli', 'Fresh Apple Slices w/ Vanilla Yogurt Dip', 'Milk'] },
+            '2026-08-31': { entrees: ['Buffalo Chicken Pizza', 'Italian Grilled Cheese W/ Pizza Sauce'], sides: ['Seasoned Green Beans', 'Romaine Salad W/ Dressing', 'Rosy Applesauce', 'Milk'] },
+
+            // ── September (from Freshman Center September 2026 PDF) ──
+            '2026-09-01': { entrees: ['Detroit Style Pizza', 'BBQ Pulled Pork Sandwich'], sides: ['Curly Fries', 'Baked Beans', 'Chilled Fruit', 'Milk'] },
+            '2026-09-02': { entrees: ['Hot Honey Chicken Bites', 'Pancakes W/ Sausage Links'], sides: ['Crispy Cube Potatoes', '100% Fruit Juice', 'Milk'] },
+            '2026-09-03': { entrees: ['Chicken Tenders', 'Italian Pasta'], sides: ['Garlic Toast', 'Caesar Salad', 'California Blend', 'Chilled Fruit', 'Milk'] },
+            '2026-09-04': { entrees: ['Spicy Chicken Sandwich', 'Bosco Sticks W/ Pizza Sauce'], sides: ['Baby Carrots & Grape Tomatoes w/ Dip', 'Fresh Banana', 'Milk'] },
+            '2026-09-07': { noSchool: 'Labor Day' },
+            '2026-09-08': { entrees: ['Pepperoni French Bread', 'Beef Soft Taco'], sides: ['Refried Beans', 'Romaine Salad W/ Dressing', 'Cinnamon Applesauce', 'Milk'] },
+            '2026-09-09': { entrees: ['Pizza Crunchers', 'Mini Corn Dogs'], sides: ['Roasted Cauliflower', 'Vegetarian Salsa Salad', 'Fresh Watermelon Wedge', 'Baked Scoops', 'Milk'] },
+            '2026-09-10': { entrees: ['Roasted Chicken Wings', 'General Tso’s Chicken'], sides: ['Fried Rice', 'Fresh Steamed Broccoli', 'Chilled Pineapple Tidbits', 'Wacky Cake', 'Milk'] },
+            '2026-09-11': { entrees: ['Dill Chicken Bites', 'Chicken Drumstick'], sides: ['Homemade Yeast Roll W/ Margarine & Jelly', 'Mashed Potatoes W/ Chicken Gravy', 'Fresh Veggies with Dip', 'Fresh Grapes', 'Chilled Fruit Juice', 'Milk'] },
+            '2026-09-14': { entrees: ['Cheese Pizza', 'Chicken Quesadilla'], sides: ['Refried Beans', 'Seasoned Corn', 'Chilled Fruit', 'Milk'] },
+            '2026-09-15': { entrees: ['Mini Chicken Corn Dogs', 'Chick Filay Sandwich W/ Chick Filay Sauce'], sides: ['Romaine Salad W/ Dressing', 'Waffle Fries', 'Chilled Peaches', 'Milk'] },
+            '2026-09-16': { noSchool: 'No School' },
+            '2026-09-17': { entrees: ['Pepperoni Pizza Rippers', 'Chicken Tenders'], sides: ['Broccoli Salad', 'Smiley Potatoes', 'Sweetened Strawberries', 'Cheddar Cheese Goldfish', 'Milk'] },
+            '2026-09-18': { entrees: ['Chicken Smackers W/ Slice of Bread', 'Ham & Cheese Stuffer'], sides: ['Mashed Potatoes', 'Carrots & Cucumbers w/ Veggie Dip', 'Chilled Pears', 'Milk'] },
+            '2026-09-21': { entrees: ['Taco Max Snacks', 'Cheeseburger'], sides: ['Romaine & Tomato Salad w/ Dressing', 'Onion Rings', 'Orchard Fresh Apple Slices w/ Vanilla Yogurt Dip', 'Milk'] },
+            '2026-09-22': { entrees: ['Sausage Links', 'Chicken Bites'], sides: ['Maple Waffle', 'Crispy Cubes', 'Fresh Red Grapes', 'Orange Medley Juice', 'Milk'] },
+            '2026-09-23': { entrees: ['Pizza Crunchers', 'Cheesy Dog'], sides: ['Baked Beans', 'Fresh Steamed Broccoli', 'Whole Grain Cheez-Its', 'Chilled Peaches', 'Milk'] },
+            '2026-09-24': { entrees: ['Chicken & Vegetable Egg Rolls', 'Tangerine Chicken W/ Chow Mein Noodles'], sides: ['Brown Rice', 'Kyoto Blend Vegetables', 'Chilled Pineapple-Mandarin', 'Milk'] },
+            '2026-09-25': { entrees: ['Sriracha Boneless Chicken Bites W/ Doritos', 'Walking Taco'], sides: ['Shredded Lettuce & Diced Tomatoes', 'Seasoned Corn', 'Fresh Petite Banana', 'Chilled Fruit', 'Banana Bread', 'Milk'] },
+            '2026-09-28': { entrees: ['Cheeseburger', 'Breaded Chicken Sandwich'], sides: ['Dill Pickle Spear', 'Seasoned Corn', 'Seasoned Crinkle Fries', 'Orchard Fresh Apple Slices', 'Milk'] },
+            '2026-09-29': { entrees: ['Roasted Chicken Wings W/ Slice of Bread & Margarine', 'Cheesy Italian Pull-Aparts'], sides: ['Mashed Potatoes W/ Chicken Gravy', 'Baby Carrots & Cucumber Coins w/ Dip', 'Chilled Fruit Cocktail', 'Churro Bites', 'Milk'] },
+            '2026-09-30': { entrees: ['Buffalo Chicken Melt', 'Mini Chicken Corn Dogs'], sides: ['Roasted Brussel Sprouts', 'Seasoned Green Beans', 'Blushing Pears', 'Baked Chips', 'Milk'] },
+            '2026-10-01': { entrees: ['Cheese Pizza', 'Taco Salad'], sides: ['Refried Beans', 'Romaine Salad W/ Dressing', 'Chilled Applesauce', 'Milk'] },
+            '2026-10-02': { entrees: ['BBQ Rib Sandwich', 'Mozzarella Breadstick Bites W/ Pizza Sauce'], sides: ['Baked Potato W/ Toppings', 'Broccoli W/ Cheese Sauce', 'Chilled Fruit', 'Milk'] }
+        };
+
+        // Daily extras printed at the bottom of each PDF
+        var MENU_DAILY_NOTE = {
+            chs:   'Yogurt/Granola & PBJ Uncrustable offered daily as additional entrée choices.',
+            fresh: 'Yogurt & Chef Salad offered daily as an additional choice to the main dish.'
+        };
+        var MENU_PRICES = {
+            chs:   'Lunch $2.90/$3.20 · Milk $0.60 · Adults $4.85',
+            fresh: 'Lunch $2.90 · Milk $0.60 · Adults $4.85'
+        };
+
+        var activeLunchGrade = 'chs';
+        var activeLunchOffset = 0;
+        var DAY_NAMES_LM = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+        var MON_NAMES_LM = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+        function lunchDateLabel(offset) {
+            var d = new Date(Date.now() + debugTimeOffset);
+            d.setDate(d.getDate() + offset);
+            return DAY_NAMES_LM[d.getDay()] + ' ' + MON_NAMES_LM[d.getMonth()] + ' ' + d.getDate();
+        }
+
+        function updateLunchTabDates() {
+            document.getElementById('ltab-prev').textContent  = lunchDateLabel(-1);
+            document.getElementById('ltab-today').textContent = lunchDateLabel(0);
+            document.getElementById('ltab-next').textContent  = lunchDateLabel(1);
+        }
+
+        function renderLunchDay(offset, grade) {
+            var d = new Date(Date.now() + debugTimeOffset);
+            d.setDate(d.getDate() + offset);
+            if (d.getDay() === 0 || d.getDay() === 6) return '<div class="text-center py-8 text-slate-100">No school on weekends.</div>';
+            var dateStr = localDate(d);
+            var data = (grade === 'fresh' ? MENU_FRESH : MENU_CHS)[dateStr];
+            if (!data) return '<div class="text-center py-8 text-slate-100">Menu details not available for this date.</div>';
+            if (data.noSchool) return `<div class="text-center py-8 text-slate-100"><i class="fa-solid fa-calendar-xmark mr-1"></i> No school — ${data.noSchool}</div>`;
+            
+            var html = '';
+            if (data.note) html += `<div class="bg-amber-500/10 border border-amber-500/30 p-2.5 rounded-lg text-amber-300 text-xs mb-3"><i class="fa-solid fa-circle-info mr-1"></i> ${data.note}</div>`;
+            
+            html += '<div class="text-[10px] font-mono text-brand-accent uppercase tracking-wider font-semibold mb-1">Entrees</div>';
+            data.entrees.forEach(i => { html += `<div class="bg-brand-bg border-l-2 border-brand-accent border-brand-border/60 p-2 rounded-r-lg text-xs text-white mb-1.5">${i}</div>`; });
+            
+            html += '<div class="text-[10px] font-mono text-brand-accent uppercase tracking-wider font-semibold mt-3 mb-1">Sides & Drinks</div>';
+            data.sides.forEach(i => { html += `<div class="bg-brand-bg border border-brand-border/60 p-2 rounded-lg text-xs text-slate-100 mb-1">${i}</div>`; });
+
+            html += `<div class="mt-3 pt-2 border-t border-brand-border/40 text-[10px] font-mono text-slate-100 leading-relaxed">${MENU_DAILY_NOTE[grade] || ''}<br>${MENU_PRICES[grade] || ''}</div>`;
+            return html;
+        }
+
+        function loadLunchTab(offset) {
+            activeLunchOffset = offset;
+            document.querySelectorAll('.lunch-day-tab').forEach(btn => {
+                const isActive = +btn.dataset.offset === offset;
+                btn.className = isActive ? 'lunch-day-tab bg-brand-accent/10 border border-brand-accent/40 rounded-lg p-2 text-center transition-all' : 'lunch-day-tab bg-brand-bg border border-brand-border hover:border-brand-accent/30 rounded-lg p-2 text-center transition-all';
+            });
+            document.getElementById('lunch-items-container').innerHTML = renderLunchDay(offset, activeLunchGrade);
+        }
+
+        function syncDelay(value) {
+            bellDelayMinutes = parseInt(value, 10) || 0;
+            document.getElementById('quick-delay-select').value = bellDelayMinutes;
+            document.getElementById('menu-delay-select').value = bellDelayMinutes;
+            renderSchedule();
+            showToast(bellDelayMinutes > 0 ? `Bell delay set to +${bellDelayMinutes}m` : 'Bell delay cleared', 'info');
+        }
+
+        document.getElementById('quick-delay-select').addEventListener('change', e => syncDelay(e.target.value));
+        document.getElementById('menu-delay-select').addEventListener('change', e => syncDelay(e.target.value));
+
+        document.getElementById('settings-toggle-btn').addEventListener('click', () => {
+            updateEventListUI();
+            document.getElementById('mini-menu').classList.remove('translate-x-full');
+            document.getElementById('mini-menu-overlay').classList.remove('hidden');
+        });
+
+        const closeMenu = () => {
+            document.getElementById('mini-menu').classList.add('translate-x-full');
+            document.getElementById('mini-menu-overlay').classList.add('hidden');
+        };
+
+        document.getElementById('menu-close-btn').addEventListener('click', closeMenu);
+        document.getElementById('mini-menu-overlay').addEventListener('click', closeMenu);
+
+        document.getElementById('overlay-bypass-btn').addEventListener('click', () => {
+            bypassOverlay = true;
+            sessionStorage.setItem('bp', '1');
+            document.getElementById('universal-overlay').classList.add('hidden');
+            document.getElementById('universal-overlay').classList.remove('flex');
+            renderSchedule();
+        });
+
+        document.getElementById('btn-toggle-time').addEventListener('click', () => {
+            userPrefs.is12Hour = !userPrefs.is12Hour;
+            renderSchedule();
+            document.getElementById('time-format-label').textContent = userPrefs.is12Hour ? '12-Hour' : '24-Hour';
+            showToast(`Clock format switched to ${userPrefs.is12Hour ? '12-Hour' : '24-Hour'}`, 'info');
+        });
+
+        /* ══════════════════════════════════════════════════════════════════
+           ADMIN AUTHORIZATION & MANUAL SCHEDULE BUILDER CONTROLLERS
+           ══════════════════════════════════════════════════════════════════ */
+        async function verifyAdminCode(str) {
+            try {
+                const enc = new TextEncoder().encode(str.trim());
+                const hashBuf = await crypto.subtle.digest("SHA-256", enc);
+                const hashHex = Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2, '0')).join('');
+                return hashHex === ADMIN_HASH;
+            } catch (err) {
+                console.error('Crypto error', err);
+                return false;
+            }
+        }
+
+        function updateAdminAuthState() {
+            const isAuthed = isAdminSession();
+            const lockBox = document.getElementById('admin-lock-box');
+            const controlsBox = document.getElementById('admin-controls-box');
+            const statusBadge = document.getElementById('admin-status-badge');
+            const errorMsg = document.getElementById('admin-error-msg');
+
+            if (isAuthed) {
+                if (lockBox) lockBox.classList.add('hidden');
+                if (controlsBox) controlsBox.classList.remove('hidden');
+                if (statusBadge) { statusBadge.classList.remove('hidden'); statusBadge.classList.add('flex'); }
+                if (errorMsg) errorMsg.classList.add('hidden');
+            } else {
+                if (lockBox) lockBox.classList.remove('hidden');
+                if (controlsBox) controlsBox.classList.add('hidden');
+                if (statusBadge) { statusBadge.classList.add('hidden'); statusBadge.classList.remove('flex'); }
+            }
+            // Delete buttons in the overrides list are admin-only
+            updateEventListUI();
+        }
+
+        const verifyAdminBtn = document.getElementById('btn-verify-admin');
+        const adminCodeInput = document.getElementById('admin-code-input');
+        const adminErrorMsg = document.getElementById('admin-error-msg');
+
+        async function handleAdminUnlockAttempt() {
+            if (!adminCodeInput) return;
+            const code = adminCodeInput.value;
+            if (!code) {
+                if (adminErrorMsg) adminErrorMsg.classList.remove('hidden');
+                return;
+            }
+            const valid = await verifyAdminCode(code);
+            if (valid) {
+                sessionStorage.setItem('aperture_bell_admin', '1');
+                adminCodeInput.value = '';
+                if (adminErrorMsg) adminErrorMsg.classList.add('hidden');
+                updateAdminAuthState();
+                showToast('Admin access granted', 'success');
+            } else {
+                if (adminErrorMsg) adminErrorMsg.classList.remove('hidden');
+                showToast('Incorrect administrator passkey', 'error');
+            }
+        }
+
+        if (verifyAdminBtn) verifyAdminBtn.addEventListener('click', handleAdminUnlockAttempt);
+        if (adminCodeInput) {
+            adminCodeInput.addEventListener('keydown', e => {
+                if (e.key === 'Enter') handleAdminUnlockAttempt();
+            });
+        }
+
+        const lockAdminBtn = document.getElementById('btn-lock-admin');
+        if (lockAdminBtn) {
+            lockAdminBtn.addEventListener('click', () => {
+                sessionStorage.removeItem('aperture_bell_admin');
+                updateAdminAuthState();
+                showToast('Admin session locked', 'info');
+            });
+        }
+
+        let activeOverrideMode = 'preset';
+        let manualScheduleData = [];
+        const tabPreset = document.getElementById('tab-override-preset');
+        const tabManual = document.getElementById('tab-override-manual');
+        const panelPreset = document.getElementById('panel-override-preset');
+        const panelManual = document.getElementById('panel-override-manual');
+        const saveBtnText = document.getElementById('save-event-btn-text');
+
+        function switchOverrideMode(mode) {
+            activeOverrideMode = mode;
+            const on = 'py-1.5 text-xs font-mono rounded transition-all text-white bg-brand-surface2 border border-brand-accent/40 font-semibold flex items-center justify-center gap-1.5';
+            const off = 'py-1.5 text-xs font-mono rounded transition-all text-slate-300 hover:text-white border border-transparent font-normal flex items-center justify-center gap-1.5';
+            if (mode === 'preset') {
+                if (tabPreset) tabPreset.className = on;
+                if (tabManual) tabManual.className = off;
+                if (panelPreset) panelPreset.classList.remove('hidden');
+                if (panelManual) panelManual.classList.add('hidden');
+                if (saveBtnText) saveBtnText.textContent = 'Publish Preset Override';
+            } else {
+                if (tabManual) tabManual.className = on;
+                if (tabPreset) tabPreset.className = off;
+                if (panelManual) panelManual.classList.remove('hidden');
+                if (panelPreset) panelPreset.classList.add('hidden');
+                if (saveBtnText) saveBtnText.textContent = 'Publish Manual Override';
+                if (!manualScheduleData.length) loadManualScheduleTemplate('regular-schedule');
+            }
+        }
+
+        if (tabPreset) tabPreset.addEventListener('click', () => switchOverrideMode('preset'));
+        if (tabManual) tabManual.addEventListener('click', () => switchOverrideMode('manual'));
+
+        function renderManualPeriods() {
+            const container = document.getElementById('manual-periods-container');
+            const countBadge = document.getElementById('manual-period-count');
+            if (!container) return;
+            container.innerHTML = '';
+            if (countBadge) countBadge.textContent = `${manualScheduleData.length} Periods`;
+
+            if (manualScheduleData.length === 0) {
+                container.innerHTML = '<div class="text-[11px] text-slate-300 font-mono py-3 text-center bg-brand-bg/50 border border-dashed border-brand-border rounded-lg">No periods configured. Use a template or tap Add Period.</div>';
+                return;
+            }
+
+            manualScheduleData.forEach((p, idx) => {
+                const row = document.createElement('div');
+                row.className = 'manual-period-row bg-brand-bg border border-brand-border rounded-lg p-2 space-y-1.5 text-xs font-mono';
+                row.innerHTML = `
+                    <div class="flex items-center gap-1.5">
+                        <span class="text-brand-accent text-[10px] w-5 text-center font-bold">#${idx+1}</span>
+                        <input type="text" class="period-name-input flex-1 bg-brand-surface border border-brand-border rounded px-2 py-1 text-white text-xs outline-none focus:border-brand-accent/50" placeholder="Period Name" value="${escapeHtml(p.name)}">
+                        <input type="text" class="period-id-input w-12 bg-brand-surface border border-brand-border rounded px-1.5 py-1 text-white text-xs text-center outline-none focus:border-brand-accent/50" placeholder="ID" value="${escapeHtml(p.id)}" title="Period ID (optional, e.g. 1-7, HR)">
+                        <button type="button" class="remove-period-row text-red-400 hover:text-red-300 p-1 transition" data-index="${idx}" title="Delete Period">
+                            <i class="fa-solid fa-trash-can text-xs"></i>
+                        </button>
+                    </div>
+                    <div class="flex items-center gap-2 text-[11px] text-slate-300">
+                        <div class="flex items-center gap-1 flex-1">
+                            <span class="text-[10px] text-slate-300">Start:</span>
+                            <input type="time" class="period-start-input flex-1 bg-brand-surface border border-brand-border rounded px-1.5 py-0.5 text-white text-xs outline-none focus:border-brand-accent/50" value="${p.start || '08:35'}">
+                        </div>
+                        <div class="flex items-center gap-1 flex-1">
+                            <span class="text-[10px] text-slate-300">End:</span>
+                            <input type="time" class="period-end-input flex-1 bg-brand-surface border border-brand-border rounded px-1.5 py-0.5 text-white text-xs outline-none focus:border-brand-accent/50" value="${p.end || '09:20'}">
+                        </div>
+                    </div>
+                `;
+                container.appendChild(row);
+            });
+
+            container.querySelectorAll('.remove-period-row').forEach(btn => {
+                btn.addEventListener('click', e => {
+                    syncManualPeriodsFromDOM();
+                    const i = parseInt(e.currentTarget.dataset.index, 10);
+                    manualScheduleData.splice(i, 1);
+                    renderManualPeriods();
+                });
+            });
+        }
+
+        function syncManualPeriodsFromDOM() {
+            const rows = document.querySelectorAll('#manual-periods-container .manual-period-row');
+            if (!rows.length) return;
+            const updated = [];
+            rows.forEach((row, i) => {
+                const name = row.querySelector('.period-name-input').value.trim() || `Period ${i + 1}`;
+                const id = row.querySelector('.period-id-input').value.trim();
+                const start = row.querySelector('.period-start-input').value;
+                const end = row.querySelector('.period-end-input').value;
+                const prevLunch = manualScheduleData[i] && manualScheduleData[i].lunch ? manualScheduleData[i].lunch : undefined;
+                const obj = { name, start, end };
+                if (id) obj.id = id;
+                if (prevLunch) obj.lunch = prevLunch;
+                updated.push(obj);
+            });
+            manualScheduleData = updated;
+        }
+
+        function loadManualScheduleTemplate(type) {
+            const base = SCHEDULE_MAP[type] || SCH_REGULAR;
+            manualScheduleData = JSON.parse(JSON.stringify(base));
+            const titles = {
+                'regular-schedule': 'Normal Day (7 Periods)',
+                'homeroom-schedule': 'Homeroom Schedule',
+                'two-hour-delay': '2-Hour Delay',
+                'half-day': 'Half Day'
+            };
+            const titleInput = document.getElementById('manual-schedule-title');
+            if (titleInput) titleInput.value = titles[type] || 'Custom Schedule';
+            renderManualPeriods();
+            showToast(`Loaded ${titles[type] || 'template'}`, 'info');
+        }
+
+        document.getElementById('btn-template-regular')?.addEventListener('click', () => loadManualScheduleTemplate('regular-schedule'));
+        document.getElementById('btn-template-homeroom')?.addEventListener('click', () => loadManualScheduleTemplate('homeroom-schedule'));
+        document.getElementById('btn-template-delay')?.addEventListener('click', () => loadManualScheduleTemplate('two-hour-delay'));
+        document.getElementById('btn-template-halfday')?.addEventListener('click', () => loadManualScheduleTemplate('half-day'));
+        document.getElementById('btn-template-clear')?.addEventListener('click', () => {
+            manualScheduleData = [];
+            renderManualPeriods();
+            showToast('Periods cleared', 'info');
+        });
+
+        document.getElementById('btn-add-manual-period')?.addEventListener('click', () => {
+            syncManualPeriodsFromDOM();
+            let nextStart = '12:00';
+            let nextEnd = '12:45';
+            if (manualScheduleData.length > 0) {
+                const last = manualScheduleData[manualScheduleData.length - 1];
+                if (last.end) {
+                    nextStart = last.end;
+                    const [h, m] = last.end.split(':').map(Number);
+                    const endTotal = h * 60 + m + 45;
+                    const eh = Math.min(23, Math.floor(endTotal / 60));
+                    const em = endTotal % 60;
+                    nextEnd = `${String(eh).padStart(2, '0')}:${String(em).padStart(2, '0')}`;
+                }
+            }
+            const nextNum = manualScheduleData.length + 1;
+            manualScheduleData.push({ name: `Period ${nextNum}`, id: String(nextNum), start: nextStart, end: nextEnd });
+            renderManualPeriods();
+        });
+
+        document.getElementById('save-event-btn')?.addEventListener('click', async () => {
+            if (!isAdminSession()) { showToast('Admin unlock required', 'error'); return; }
+            const dateInput = document.getElementById('event-date-input');
+            const date = dateInput.value;
+            if (!date) {
+                showToast('Please select a target date first', 'error');
+                dateInput.focus();
+                return;
+            }
+
+            let payload;
+            if (activeOverrideMode === 'preset') {
+                payload = document.getElementById('event-type-select').value;
+            } else {
+                syncManualPeriodsFromDOM();
+                if (manualScheduleData.length === 0) {
+                    showToast('Please add at least one period', 'error');
+                    return;
+                }
+                for (let i = 0; i < manualScheduleData.length; i++) {
+                    const p = manualScheduleData[i];
+                    if (!p.start || !p.end) {
+                        showToast(`Period ${i+1} (${p.name}) is missing start or end time`, 'error');
+                        return;
+                    }
+                    if (p.start >= p.end) {
+                        showToast(`Period ${i+1} (${p.name}): start time must precede end time`, 'error');
+                        return;
+                    }
+                }
+                manualScheduleData.sort((a, b) => a.start.localeCompare(b.start));
+                const title = document.getElementById('manual-schedule-title').value.trim() || 'Manual Schedule';
+                payload = { custom: true, label: title, periods: manualScheduleData };
+            }
+
+            globalSchedule = { ...globalSchedule, [date]: payload };
+            try { localStorage.setItem('aperture_calendar_events', JSON.stringify(globalSchedule)); } catch(e) {}
+            updateEventListUI();
+            renderSchedule();
+
+            try {
+                if (!auth.currentUser) {
+                    throw Object.assign(new Error('Not signed in to Firebase'), { code: 'auth/not-signed-in' });
+                }
+                await setDoc(doc(db, CAL_COLLECTION, date), toFirestoreDoc(payload));
+                showToast(`Override for ${date} synced to cloud`, 'success');
+            } catch(err) {
+                console.error('[Firebase] Cloud sync failed, override only saved locally:', err);
+                showToast(`Cloud sync failed (${err.code || err.message || 'unknown error'}) — ${date} saved on this device only`, 'error');
+            }
+        });
+
+        document.getElementById('debug-time-set').addEventListener('click', () => {
+            const v = document.getElementById('debug-time-input').value;
+            if (!v) return;
+            const n = new Date(); const [h,m] = v.split(':'); n.setHours(+h,+m,0,0);
+            debugTimeOffset = n.getTime() - Date.now();
+            renderSchedule();
+            showToast('Simulated time offset set', 'info');
+        });
+
+        document.getElementById('debug-reset').addEventListener('click', () => {
+            debugTimeOffset = 0;
+            document.getElementById('debug-time-input').value = '';
+            renderSchedule();
+            showToast('Time reset to system real-time', 'info');
+        });
+
+        document.getElementById('debug-override-select').addEventListener('change', e => {
+            debugOverride = e.target.value || null;
+            renderSchedule();
+            showToast('Schedule override applied', 'info');
+        });
+
+        document.getElementById('lunch-menu-btn').addEventListener('click', () => {
+            updateLunchTabDates();
+            document.getElementById('lunch-modal').classList.remove('hidden');
+            document.getElementById('lunch-modal').classList.add('flex');
+            loadLunchTab(0);
+        });
+
+        document.getElementById('lunch-modal-close').addEventListener('click', () => {
+            document.getElementById('lunch-modal').classList.add('hidden');
+            document.getElementById('lunch-modal').classList.remove('flex');
+        });
+
+        document.querySelectorAll('.lunch-grade-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                activeLunchGrade = btn.dataset.grade;
+                document.querySelectorAll('.lunch-grade-btn').forEach(b => {
+                    b.className = 'lunch-grade-btn py-1.5 text-xs font-mono rounded-md transition-all text-slate-100 hover:text-white';
+                });
+                btn.className = 'lunch-grade-btn py-1.5 text-xs font-mono rounded-md transition-all text-white bg-brand-accent/20 border border-brand-accent/40 font-medium';
+                document.getElementById('lunch-items-container').innerHTML = renderLunchDay(activeLunchOffset, activeLunchGrade);
+            });
+        });
+
+        document.querySelectorAll('.lunch-day-tab').forEach(btn => {
+            btn.addEventListener('click', () => loadLunchTab(+btn.dataset.offset));
+        });
+
+        function refreshSoundButton() {
+            const btn = document.getElementById('btn-toggle-sound');
+            if (!btn) return;
+            btn.textContent = userPrefs.soundEnabled ? 'Sound: ON' : 'Sound: OFF';
+            btn.className = userPrefs.soundEnabled ? 'text-xs font-mono px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-bold' : 'text-xs font-mono px-2 py-0.5 rounded bg-slate-500/10 border border-slate-500/30 text-slate-100 font-bold';
+        }
+
+        document.getElementById('btn-toggle-sound')?.addEventListener('click', () => {
+            userPrefs.soundEnabled = !userPrefs.soundEnabled;
+            localStorage.setItem('chs_sound_pref', userPrefs.soundEnabled ? '1' : '0');
+            refreshSoundButton();
+            if (userPrefs.soundEnabled) playBellChime('harmonic');
+            showToast(`Audio Bell Chime: ${userPrefs.soundEnabled ? 'Enabled' : 'Disabled'}`, 'info');
+        });
+
+        document.getElementById('btn-test-notif')?.addEventListener('click', () => {
+            playBellChime(bellCustomPrefs.tone || 'harmonic');
+        });
+
+        function getEffectiveSchedule(dateStr, day) {
+            const rawSched = getScheduleForDate(dateStr, day);
+            if (!rawSched) return null;
+            if (!bellDelayMinutes) return rawSched;
+            return rawSched.map(p => ({
+                ...p,
+                start: applyTimeDelay(p.start, bellDelayMinutes),
+                end: applyTimeDelay(p.end, bellDelayMinutes),
+                lunch: p.lunch ? p.lunch.map(l => ({
+                    ...l,
+                    start: applyTimeDelay(l.start, bellDelayMinutes),
+                    end: applyTimeDelay(l.end, bellDelayMinutes)
+                })) : null
+            }));
+        }
+
+        function tickEngine() {
+            renderSchedule();
+            const now = new Date(Date.now() + debugTimeOffset);
+            const cur = curHHMM(now);
+            const dateStr = localDate(now);
+            const day = now.getDay();
+            const sched = getEffectiveSchedule(dateStr, day);
+            if (sched) checkNotifications(sched, cur, now, dateStr);
+        }
+
+        /* ══════════════ INIT ══════════════ */
+        userPrefs.soundEnabled = localStorage.getItem('chs_sound_pref') !== '0';
+        refreshSoundButton();
+        loadLocalProfile();
+        loadBellCustomPrefs();
+        ['bell-opt-class-start','bell-opt-class-end','bell-opt-class-warn','bell-opt-lunch-start','bell-opt-lunch-end','bell-opt-lunch-warn','bell-opt-trans-start','bell-opt-trans-warn','bell-opt-tone'].forEach(id => {
+            document.getElementById(id)?.addEventListener('change', saveBellCustomPrefs);
+        });
+        populateSettings();
+
+        const dateInputEl = document.getElementById('event-date-input');
+        if (dateInputEl && !dateInputEl.value) dateInputEl.value = localDate(new Date(Date.now() + debugTimeOffset));
+
+        updateAdminAuthState();   // also renders the overrides list from the cached copy
+
+        const initNow = new Date(Date.now() + debugTimeOffset);
+        const initDateStr = localDate(initNow);
+        const initSched = getEffectiveSchedule(initDateStr, initNow.getDay());
+        if (initSched) seedPastAlerts(initSched, initNow, initDateStr);
+
+        tickEngine();
+        initAuth();
+        setInterval(tickEngine, 1000);
+
+        (function initFooterScrollSnap() {
+            let isSnapping = false;
+            window.addEventListener('wheel', function(e) {
+                if (isSnapping) return;
+                const scrollY = window.scrollY || window.pageYOffset;
+                const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+                if (maxScroll <= 15) return;
+                if (scrollY < 20 && e.deltaY > 25) {
+                    isSnapping = true;
+                    window.scrollTo({ top: maxScroll, behavior: 'smooth' });
+                    setTimeout(() => { isSnapping = false; }, 650);
+                } else if (scrollY > maxScroll - 20 && e.deltaY < -25) {
+                    isSnapping = true;
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    setTimeout(() => { isSnapping = false; }, 650);
+                }
+            }, { passive: true });
+        })();
+    </script>
+</body>
+</html>
