@@ -570,6 +570,7 @@ window.APERTURE = {
     var grid = '<svg viewBox="0 0 16 16" fill="currentColor"><rect x="1.5" y="1.5" width="5.2" height="5.2" rx="1.4"/><rect x="9.3" y="1.5" width="5.2" height="5.2" rx="1.4"/><rect x="1.5" y="9.3" width="5.2" height="5.2" rx="1.4"/><rect x="9.3" y="9.3" width="5.2" height="5.2" rx="1.4"/></svg>';
     var body = '<a class="ap-item' + (page ? '' : ' is-here') + '" href="' + url(cfg.home) + '" target="' + target + '"><span class="ap-ico"><i class="fa-solid fa-house"></i></span><span class="ap-txt"><div class="ap-ttl">' + esc(cfg.name) + ' home</div><div class="ap-path">' + esc(cfg.home) + '</div></span></a>';
     cfg.groups.forEach(function (g) {
+      if (g.hidden && !(page && page.group === g.id)) return;
       body += '<div class="ap-group">' + esc(g.title) + '</div>';
       cfg.pages.filter(function (p) { return p.group === g.id; }).forEach(function (p) {
         var here = page && page.id === p.id;
