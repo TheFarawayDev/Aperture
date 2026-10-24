@@ -382,6 +382,17 @@ window.APERTURE = {
       "keywords": "weather snow day delay closure forecast prediction wind chill temperature zip commute"
     },
     {
+      "id": "directory",
+      "search": false,
+      "tags": ["Student search", "Staff & rooms", "My schedule"],
+      "title": "Student Directory",
+      "group": "utility",
+      "path": "utility/directory.html",
+      "icon": "fa-address-book",
+      "blurb": "Search schedules, find any teacher or room, and keep your own day on a live countdown.",
+      "keywords": "student directory teacher staff room extension lunch schedule compare homeroom period email locker find classmate calendar ics"
+    },
+    {
       "id": "geography",
       "tags": ["24 worksheets", "Print 2-up", "Answer keys"],
       "title": "Geography Worksheets",
@@ -727,7 +738,7 @@ function dirSeg() {
 }
 $('dir-rows').innerHTML = cfg.pages.map(function (p) {
     var g = groupOf(p.group);
-    return '<a class="dir-row" href="' + esc(p.path) + '" target="' + A.target + '" data-g="' + esc(p.group) + '" data-k="' + esc((p.title + ' ' + p.blurb + ' ' + (p.keywords || '') + ' ' + (p.tags || []).join(' ')).toLowerCase()) + '">' +
+    return '<a class="dir-row" href="' + esc(p.path) + '" target="' + A.target + '" data-s="' + (p.search === false ? '0' : '1') + '" data-g="' + esc(p.group) + '" data-k="' + esc((p.title + ' ' + p.blurb + ' ' + (p.keywords || '') + ' ' + (p.tags || []).join(' ')).toLowerCase()) + '">' +
         '<div class="dr-main"><span class="di"><i class="fa-solid ' + esc(p.icon) + '"></i></span><div style="min-width:0"><b>' + esc(p.title) + '</b><span class="s">' + esc(p.blurb) + '</span></div></div>' +
         '<div class="dr-cat">' + esc(g ? g.title : '') + '</div>' +
         '<div class="dr-tags">' + (p.tags || []).slice(0, 3).map(function (t) { return '<span>' + esc(t) + '</span>'; }).join('') + '</div>' +
@@ -736,7 +747,7 @@ $('dir-rows').innerHTML = cfg.pages.map(function (p) {
 function dirFilter() {
     var t = $('dir-q').value.toLowerCase().split(/\s+/).filter(Boolean), shown = 0;
     document.querySelectorAll('.dir-row').forEach(function (r) {
-        var ok = (dirG === 'all' || r.dataset.g === dirG) && t.every(function (w) { return r.dataset.k.indexOf(w) > -1; });
+        var ok = (!t.length || r.dataset.s !== '0') && (dirG === 'all' || r.dataset.g === dirG) && t.every(function (w) { return r.dataset.k.indexOf(w) > -1; });
         r.hidden = !ok; if (ok) shown++;
     });
     $('dir-empty').hidden = shown > 0;
@@ -782,6 +793,7 @@ function jump(id) { return function () { $(id).scrollIntoView({ behavior: 'smoot
 function gather(q) {
     var t = tokens(q), groups = [], pages = [], tops = [], cmds = [];
     cfg.pages.forEach(function (p) {
+        if (p.search === false) return;
         var sc = t.length ? score((p.title + ' ' + p.blurb + ' ' + (p.keywords || '') + ' ' + p.path + ' ' + (p.tags || []).join(' ')).toLowerCase(), t) : 1;
         if (sc >= 0) pages.push({ sc: sc + 2, title: p.title, sub: p.blurb, icon: p.icon, hint: 'Open', run: function () { go(p.path); } });
         (p.topics || []).forEach(function (tp) {
