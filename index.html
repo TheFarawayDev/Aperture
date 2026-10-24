@@ -61,7 +61,7 @@ button, input { font: inherit; color: inherit; }
 #page { will-change: transform, filter, opacity; overflow-x: clip; }
 .wrap { max-width: 72rem; margin: 0 auto; padding: 0 20px; }
 
-.header-wrap { position: sticky; top: 12px; z-index: 40; padding: 12px 12px 0; }
+.header-wrap { position: sticky; top: 0; z-index: 40; padding: 6px 12px 0; }
 .app-header { max-width: 72rem; margin: 0 auto; height: 56px; padding: 0 10px 0 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px;
     background: rgba(24, 31, 39, 0.78); -webkit-backdrop-filter: blur(16px) saturate(1.2); backdrop-filter: blur(16px) saturate(1.2);
     border: 1px solid var(--hair); border-radius: 18px; box-shadow: var(--shadow-1); }
@@ -351,13 +351,20 @@ mark { background: var(--accent-soft); color: var(--accent-2); border-radius: 3p
 window.APERTURE = {
   "name": "Aperture",
   "owner": "Faros Technologies Inc.",
-  "home": "index.html",
+  "home": "./",
   "groups": [
     {
       "id": "utility",
       "title": "Utility",
       "path": "utility/",
       "blurb": "Day-to-day school tools"
+    },
+    {
+      "id": "yearbook",
+      "title": "Yearbook",
+      "path": "yearbook/",
+      "blurb": "Student directory and schedules",
+      "hidden": true
     }
   ],
   "pages": [
@@ -366,7 +373,7 @@ window.APERTURE = {
       "tags": ["Live countdown", "Lunch finder", "Lunch menu"],
       "title": "Class Bell Countdown",
       "group": "utility",
-      "path": "utility/class-bell.html",
+      "path": "utility/class-bell-countdown.html",
       "icon": "fa-bell",
       "blurb": "Live bell schedule with passing periods, lunch blocks, delays and the lunch menu.",
       "keywords": "schedule bell lunch period countdown delay menu cafeteria timer class time"
@@ -376,7 +383,7 @@ window.APERTURE = {
       "tags": ["Delay odds", "Hourly forecast", "ZIP lookup"],
       "title": "School Status",
       "group": "utility",
-      "path": "utility/school-status.html",
+      "path": "utility/is-school-closed.html",
       "icon": "fa-cloud-sun-rain",
       "blurb": "Weather-based estimate of 2-hour delay and closure risk, with an hourly commute forecast.",
       "keywords": "weather snow day delay closure forecast prediction wind chill temperature zip commute"
@@ -386,8 +393,8 @@ window.APERTURE = {
       "search": false,
       "tags": ["Student search", "Staff & rooms", "My schedule"],
       "title": "Student Directory",
-      "group": "utility",
-      "path": "utility/directory.html",
+      "group": "yearbook",
+      "path": "yearbook/student-directory.html",
       "icon": "fa-address-book",
       "blurb": "Search schedules, find any teacher or room, and keep your own day on a live countdown.",
       "keywords": "student directory teacher staff room extension lunch schedule compare homeroom period email locker find classmate calendar ics"
@@ -397,7 +404,7 @@ window.APERTURE = {
       "tags": ["24 worksheets", "Print 2-up", "Answer keys"],
       "title": "Geography Worksheets",
       "group": "utility",
-      "path": "utility/geography.html",
+      "path": "utility/geo-worksheet-creator.html",
       "icon": "fa-earth-americas",
       "blurb": "Pick worksheets, preview them live, then print two to a page or save a PDF with an answer key.",
       "keywords": "geography worksheet print pdf teacher answer key social studies skill builders",
@@ -586,6 +593,8 @@ window.APERTURE = {
       var p = clean(cfg.pages[i].path);
       if (here === p || here.slice(-(p.length + 1)) === '/' + p) return cfg.pages[i];
     }
+    var leaf = here.split('/').pop();   // fallback: host rewrote the folder part
+    for (var j = 0; j < cfg.pages.length; j++) { if (clean(cfg.pages[j].path).split('/').pop() === leaf) return cfg.pages[j]; }
     return null;
   }
   var page = current();
@@ -674,6 +683,23 @@ window.APERTURE = {
   window.Aperture = { config: cfg, root: ROOT.href, url: url, current: page, target: target, up: upHref };
 })();
 
+/* ── Basic inspect deterrent (keyboard shortcuts + context menu) ── */
+(function () {
+  var block = function (e) { e.preventDefault(); e.stopPropagation(); return false; };
+  document.addEventListener('keydown', function (e) {
+    var k = (e.key || '').toLowerCase(), c = e.ctrlKey || e.metaKey;
+    if (e.keyCode === 123 || k === 'f12' ||
+        (c && e.shiftKey && 'ijcknm'.indexOf(k) > -1 && k.length === 1) ||
+        (e.metaKey && e.altKey && 'iujc'.indexOf(k) > -1 && k.length === 1) ||
+        (c && !e.shiftKey && (k === 'u' || k === 's'))) return block(e);
+  }, true);
+  document.addEventListener('contextmenu', function (e) {
+    var t = e.target && e.target.tagName;
+    if (t === 'INPUT' || t === 'TEXTAREA') return;
+    return block(e);
+  }, true);
+})();
+
 </script>
 <script>
 (function () {
@@ -733,7 +759,7 @@ if (geo) wsRender(); else $('worksheets').style.display = 'none';
 /* ───────── directory ───────── */
 var dirG = 'all';
 function dirSeg() {
-    var items = [['all', 'All']].concat(cfg.groups.map(function (g) { return [g.id, g.title]; }));
+    var items = [['all', 'All']].concat(cfg.groups.filter(function (g) { return !g.hidden; }).map(function (g) { return [g.id, g.title]; }));
     $('dir-seg').innerHTML = items.map(function (x) { return '<button type="button" role="tab" data-g="' + esc(x[0]) + '" class="' + (dirG === x[0] ? 'on' : '') + '">' + esc(x[1]) + '</button>'; }).join('');
 }
 $('dir-rows').innerHTML = cfg.pages.map(function (p) {
