@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="color-scheme" content="dark">
+    <meta name="theme-color" content="#161c23">
+    <title>School Status — Charger Tools</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%235b8fe8' d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z'/%3E%3C/svg%3E">
+
+    <!-- Tailwind CSS CDN (layout utilities) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: { extend: {
+                colors: { brand: { bg: '#1a2129', surface: '#212a34', border: '#2f3c4a', accent: '#5b8fe8', red: '#e0707a', amber: '#d8a44b', emerald: '#5fb894' } },
+                fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] }
+            } }
+        };
+    </script>
+
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+/* ══════════════════════════════════════════════════════════════════
+   APERTURE · SCHOOL STATUS — matte slate-blue & gray
+   ══════════════════════════════════════════════════════════════════ */
+:root {
+    --bg: #161c23; --bg-2: #1a2129;
+    --surface: #212a34; --surface-2: #283340; --surface-3: #30404f;
+    --inset: rgba(8, 12, 17, 0.28);
+    --hair: rgba(255, 255, 255, 0.07); --hair-2: rgba(255, 255, 255, 0.12);
+    --text: #e8edf3; --text-2: #b4c0cf; --text-3: #8795a8;
+    --accent: #5b8fe8; --accent-2: #8fb3f5; --accent-soft: rgba(91, 143, 232, 0.14); --accent-line: rgba(91, 143, 232, 0.45);
+    --amber: #d8a44b; --amber-soft: rgba(216, 164, 75, 0.13);
+    --rose: #e0707a;  --rose-soft: rgba(224, 112, 122, 0.13);
+    --green: #5fb894; --green-soft: rgba(95, 184, 148, 0.13);
+    --shadow-1: 0 1px 2px rgba(4, 8, 13, 0.3), 0 12px 28px -16px rgba(4, 8, 13, 0.6);
+    --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+html { background: var(--bg); color-scheme: dark; }
+body { margin: 0; min-height: 100vh; color: var(--text); font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif; line-height: 1.5; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+body::before { content: ""; position: fixed; inset: 0; z-index: -2; pointer-events: none;
+    background: radial-gradient(900px 480px at 10% -14%, rgba(91, 143, 232, 0.11), transparent 62%), radial-gradient(700px 420px at 106% 4%, rgba(120, 140, 172, 0.08), transparent 62%); }
+body::after { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: 0.045;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+::selection { background: var(--accent-soft); color: #fff; }
+*:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+* { scrollbar-width: thin; scrollbar-color: var(--surface-3) transparent; }
+*::-webkit-scrollbar { width: 8px; height: 8px; } *::-webkit-scrollbar-thumb { background: var(--surface-3); border-radius: 8px; } *::-webkit-scrollbar-track { background: transparent; }
+.cursor-grab { cursor: grab; } .cursor-grabbing { cursor: grabbing; user-select: none; }
+.num { font-variant-numeric: tabular-nums; font-feature-settings: "tnum", "cv11"; letter-spacing: -0.03em; }
+
+@keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.rise { animation: rise 0.5s var(--ease) both; }
+.rise:nth-child(2) { animation-delay: 0.05s; } .rise:nth-child(3) { animation-delay: 0.1s; }
+
+/* ── Header (floating) ── */
+.header-wrap { position: sticky; top: 12px; z-index: 40; padding: 12px 12px 0; }
+.app-header { max-width: 72rem; margin: 0 auto; height: 56px; padding: 0 10px 0 8px; display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    background: rgba(30, 38, 48, 0.8); -webkit-backdrop-filter: blur(16px) saturate(1.2); backdrop-filter: blur(16px) saturate(1.2);
+    border: 1px solid var(--hair); border-radius: 18px; box-shadow: var(--shadow-1); }
+.pill { display: inline-flex; align-items: center; gap: 8px; height: 38px; padding: 0 14px; border-radius: 12px; background: transparent; color: var(--text-2); border: 1px solid transparent; font-size: 13px; font-weight: 500; cursor: pointer; text-decoration: none; white-space: nowrap; transition: background .15s var(--ease), color .15s var(--ease), border-color .15s var(--ease); }
+.pill:hover { background: var(--surface-2); color: #fff; }
+.pill.is-outlined { border-color: var(--hair-2); }
+.pill i { color: var(--text-3); font-size: 12px; transition: color .15s; } .pill:hover i { color: var(--accent-2); }
+.loc-chip { display: inline-flex; align-items: center; gap: 8px; height: 38px; padding: 0 14px; border-radius: 12px; background: var(--accent-soft); color: var(--accent-2); font-size: 13px; font-weight: 600; min-width: 0; }
+.loc-chip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.zip { display: inline-flex; align-items: center; gap: 8px; height: 38px; padding: 0 6px 0 12px; border-radius: 12px; background: var(--inset); border: 1px solid var(--hair); transition: border-color .15s, box-shadow .15s; }
+.zip:focus-within { border-color: var(--accent-line); box-shadow: 0 0 0 3px var(--accent-soft); }
+.zip i.pin { color: var(--text-3); font-size: 12px; }
+.zip input { width: 52px; background: transparent; border: 0; outline: none; color: #fff; font: 600 13px 'Inter', sans-serif; text-align: center; letter-spacing: .02em; font-variant-numeric: tabular-nums; }
+.zip input::placeholder { color: var(--text-3); }
+.zip button { width: 28px; height: 28px; display: grid; place-items: center; border: 0; border-radius: 8px; background: transparent; color: var(--text-3); cursor: pointer; transition: background .15s, color .15s; }
+.zip button:hover { background: var(--accent); color: #0e1620; }
+
+/* ── Cards ── */
+.card { position: relative; background: var(--surface); border: 1px solid var(--hair); border-radius: 22px; box-shadow: var(--shadow-1); padding: 24px; overflow: hidden; }
+.card-title { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 18px; }
+.eyebrow { font-size: 11px; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; color: var(--text-3); display: inline-flex; align-items: center; gap: 8px; }
+.eyebrow.is-accent { color: var(--accent-2); }
+.tile { background: var(--inset); border: 1px solid rgba(255, 255, 255, 0.04); border-radius: 16px; padding: 14px 16px; }
+.tile-label { font-size: 12px; color: var(--text-3); font-weight: 500; }
+.tile-value { margin-top: 2px; font-size: 22px; font-weight: 600; color: #fff; }
+.dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); display: inline-block; animation: pulse 2.4s ease-out infinite; }
+.is-commute .dot { background: var(--amber); animation-name: pulseAmber; }
+@keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(91,143,232,.5); } 70%, 100% { box-shadow: 0 0 0 8px rgba(91,143,232,0); } }
+@keyframes pulseAmber { 0% { box-shadow: 0 0 0 0 rgba(216,164,75,.5); } 70%, 100% { box-shadow: 0 0 0 8px rgba(216,164,75,0); } }
+
+/* Weather hero */
+.hero-icon { position: absolute; right: -10px; top: -14px; font-size: 168px; line-height: 1; color: var(--accent); opacity: 0.09; pointer-events: none; transition: transform 1s var(--ease); }
+.card:hover .hero-icon { transform: scale(1.06) rotate(-3deg); }
+.temp { font-size: clamp(68px, 10vw, 100px); font-weight: 600; line-height: 0.95; color: #fff; letter-spacing: -0.05em; }
+.temp-unit { font-size: 26px; font-weight: 500; color: var(--text-3); margin-left: 4px; letter-spacing: 0; align-self: flex-start; margin-top: 10px; }
+
+/* Meters */
+.meter { height: 8px; border-radius: 999px; background: var(--inset); overflow: hidden; }
+.meter-fill { height: 100%; border-radius: inherit; transition: width 1s var(--ease); }
+.meter-fill.amber { background: var(--amber); } .meter-fill.rose { background: var(--rose); }
+.gauge-top { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 8px; }
+.gauge-name { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; color: var(--text-2); }
+.gauge-val { font-size: 26px; font-weight: 600; color: #fff; }
+
+.advisory { padding: 14px 16px; border-radius: 16px; font-size: 13px; line-height: 1.6; color: var(--text-2); background: var(--inset); border: 1px solid rgba(255,255,255,.04); border-left: 3px solid var(--line-2, #41526a); }
+.advisory strong { color: #fff; font-weight: 600; }
+.advisory[data-tone="clear"] { border-left-color: var(--green); } .advisory[data-tone="delay"] { border-left-color: var(--amber); } .advisory[data-tone="high"] { border-left-color: var(--rose); }
+.advisory i { margin-right: 6px; }
+
+/* Segmented control */
+.seg { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border-radius: 14px; background: var(--inset); border: 1px solid rgba(255,255,255,.04); }
+.seg button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 8px; border: 0; border-radius: 10px; background: transparent; color: var(--text-3); font: 600 12.5px 'Inter', sans-serif; cursor: pointer; transition: background .2s var(--ease), color .2s var(--ease); }
+.seg button:hover { color: #fff; }
+.seg button.is-on { background: var(--surface-3); color: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.35); }
+.seg button.is-on[data-mode="commute"] i { color: var(--amber); } .seg button.is-on[data-mode="live"] i { color: var(--accent-2); }
+.kv { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; font-size: 13px; color: var(--text-2); }
+.kv + .kv { border-top: 1px solid var(--hair); } .kv b { color: #fff; font-weight: 600; font-size: 15px; }
+
+/* Metrics strip */
+.metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--hair); border: 1px solid var(--hair); border-radius: 22px; overflow: hidden; box-shadow: var(--shadow-1); }
+@media (min-width: 1024px) { .metrics { grid-template-columns: repeat(9, 1fr); } }
+.metric { background: var(--surface); padding: 16px 16px 15px; transition: background .2s var(--ease); }
+.metric:hover { background: var(--surface-2); }
+.metric i { font-size: 13px; color: var(--accent-2); opacity: .85; }
+.metric .m-label { margin-top: 10px; font-size: 11.5px; font-weight: 500; color: var(--text-3); }
+.metric .m-value { font-size: 17px; font-weight: 600; color: #fff; margin-top: 1px; }
+
+/* Timeline */
+.hour { flex: none; width: 78px; justify-content: center; gap: 14px; padding: 14px 8px 12px; border-radius: 18px; background: var(--inset); border: 1px solid rgba(255,255,255,.04); display: flex; flex-direction: column; align-items: center; transition: border-color .2s, background .2s; }
+.hour:hover { border-color: var(--hair-2); }
+.hour.is-first { background: var(--accent-soft); border-color: var(--accent-line); }
+.hour .h-time { font-size: 11.5px; font-weight: 600; color: var(--text-3); } .hour.is-first .h-time { color: var(--accent-2); }
+.hour .h-icon { font-size: 22px; color: var(--accent-2); height: 28px; display: grid; place-items: center; }
+.hour .h-temp { font-size: 17px; font-weight: 600; color: #fff; }
+.hour .h-pop { font-size: 11px; font-weight: 500; color: var(--text-3); display: inline-flex; align-items: center; gap: 4px; } .hour .h-pop i { font-size: 9px; color: var(--accent); }
+
+/* Risk factors */
+.factor { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 13px 15px; border-radius: 16px; background: var(--inset); border: 1px solid rgba(255,255,255,.04); }
+.factor .f-name { font-size: 13.5px; font-weight: 600; color: #fff; } .factor .f-detail { font-size: 12px; color: var(--text-3); margin-top: 1px; }
+.tag { flex: none; padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; border: 1px solid transparent; }
+.tag-critical { color: var(--rose); background: var(--rose-soft); border-color: rgba(224,112,122,.35); }
+.tag-high { color: var(--amber); background: var(--amber-soft); border-color: rgba(216,164,75,.35); }
+.tag-moderate { color: var(--accent-2); background: var(--accent-soft); border-color: var(--accent-line); }
+.tag-ok { color: var(--green); background: var(--green-soft); border-color: rgba(95,184,148,.35); }
+
+/* Toast */
+.toast { display: flex; align-items: center; gap: 10px; padding: 11px 16px; border-radius: 14px; font-size: 13px; font-weight: 500; background: rgba(33, 42, 52, 0.92); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); border: 1px solid var(--hair-2); color: var(--text); box-shadow: var(--shadow-1); pointer-events: auto; transition: opacity .3s; }
+.toast i { font-size: 13px; } .toast.t-success i { color: var(--green); } .toast.t-error i { color: var(--rose); } .toast.t-info i { color: var(--accent-2); }
+
+.site-footer { border-top: 1px solid var(--hair); color: var(--text-3); font-size: 12px; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+@media (max-width: 640px) { .card { padding: 20px; border-radius: 20px; } input { font-size: 16px; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; } }
+    </style>
+</head>
+<body class="antialiased flex flex-col">
+
+    <!-- ══════════════ HEADER ══════════════ -->
+    <div class="header-wrap">
+        <header class="app-header">
+            <div class="flex items-center gap-2 min-w-0">
+                <a href="https://sites.google.com/students.nacs.k12.in.us/chargertools/" class="pill is-outlined" aria-label="Back">
+                    <i class="fa-solid fa-arrow-left"></i><span class="hidden sm:inline">Back</span>
+                </a>
+                <div id="location-label" class="loc-chip">
+                    <i class="fa-solid fa-location-crosshairs text-[12px]"></i>
+                    <span id="location-name">Fort Wayne, IN (NACS)</span>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-1.5">
+                <label class="zip" title="Change location">
+                    <i class="fa-solid fa-location-dot pin"></i>
+                    <span class="sr-only">ZIP code</span>
+                    <input type="text" id="zip-input" inputmode="numeric" placeholder="46818" maxlength="5" value="46818" onkeypress="if(event.key==='Enter') fetchWeatherData();">
+                    <button type="button" onclick="fetchWeatherData()" title="Update location" aria-label="Update location"><i class="fa-solid fa-arrow-right text-[11px]"></i></button>
+                </label>
+                <button id="quick-sim-toggle" onclick="toggleSimulationMode()" class="pill is-outlined">
+                    <i class="fa-solid fa-bus"></i>
+                    <span id="sim-toggle-text" class="hidden sm:inline">Commute projection</span>
+                </button>
+            </div>
+        </header>
+    </div>
+
+    <!-- ══════════════ MAIN ══════════════ -->
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8 flex-1 w-full flex flex-col gap-4 sm:gap-5">
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5">
+
+            <!-- Current conditions -->
+            <section class="card rise lg:col-span-5 flex flex-col justify-between" id="hero-card">
+                <div class="hero-icon" id="hero-bg-icon"><i class="fa-solid fa-sun"></i></div>
+                <div class="relative">
+                    <div class="card-title" style="margin-bottom:10px">
+                        <span class="eyebrow is-accent"><span class="dot"></span><span id="feed-mode-label">Live Conditions</span></span>
+                        <span id="time-stamp" class="num text-xs font-medium" style="color:var(--text-3)">--:--</span>
+                    </div>
+                    <div class="text-[22px] font-semibold text-white tracking-tight" id="weather-desc">Loading conditions…</div>
+                </div>
+
+                <div class="relative my-7 flex items-start">
+                    <span class="temp num" id="main-temp">--</span>
+                    <span class="temp-unit">°F</span>
+                </div>
+
+                <div class="relative grid grid-cols-2 gap-3">
+                    <div class="tile"><div class="tile-label">Wind chill</div><div class="tile-value num" id="wind-chill">--°F</div></div>
+                    <div class="tile"><div class="tile-label">Snow accumulation</div><div class="tile-value num" id="snow-accum">0.0 in</div></div>
+                </div>
+            </section>
+
+            <!-- Delay & closure outlook -->
+            <section class="card rise lg:col-span-4 flex flex-col gap-6">
+                <div class="card-title" style="margin-bottom:0">
+                    <span class="eyebrow"><i class="fa-solid fa-chart-simple"></i>Delay &amp; closure outlook</span>
+                    <span class="text-[11px] font-medium" style="color:var(--text-3)" id="model-accuracy-badge">Open-Meteo v2</span>
+                </div>
+
+                <div>
+                    <div class="gauge-top">
+                        <span class="gauge-name"><i class="fa-solid fa-clock" style="color:var(--amber)"></i>2-hour delay</span>
+                        <span id="delay-prob-val" class="gauge-val num">0%</span>
+                    </div>
+                    <div class="meter"><div id="delay-prob-bar" class="meter-fill amber" style="width:0%"></div></div>
+                </div>
+
+                <div>
+                    <div class="gauge-top">
+                        <span class="gauge-name"><i class="fa-solid fa-triangle-exclamation" style="color:var(--rose)"></i>Closure / e-learning</span>
+                        <span id="close-prob-val" class="gauge-val num">0%</span>
+                    </div>
+                    <div class="meter"><div id="close-prob-bar" class="meter-fill rose" style="width:0%"></div></div>
+                </div>
+
+                <div class="advisory mt-auto" id="advisory-summary" data-tone="clear">Analyzing conditions…</div>
+            </section>
+
+            <!-- Projection + delay impact -->
+            <section class="card rise lg:col-span-3 flex flex-col gap-5">
+                <div class="card-title" style="margin-bottom:0"><span class="eyebrow"><i class="fa-solid fa-sliders"></i>View</span></div>
+
+                <div class="seg" role="group" aria-label="Forecast view">
+                    <button onclick="setSimulationMode(false)" id="btn-mode-live" data-mode="live" class="is-on"><i class="fa-solid fa-satellite-dish"></i>Live</button>
+                    <button onclick="setSimulationMode(true)" id="btn-mode-commute" data-mode="commute"><i class="fa-solid fa-bus"></i>Commute</button>
+                </div>
+
+                <p id="view-hint" class="text-[13px] leading-relaxed" style="color:var(--text-2)">Showing conditions right now.</p>
+
+                <div class="mt-auto">
+                    <div class="eyebrow" style="margin-bottom:4px"><i class="fa-solid fa-bell"></i>2-hour delay schedule</div>
+                    <div class="kv"><span>First bell</span><b class="num">10:35 AM</b></div>
+                    <div class="kv"><span>Dismissal</span><b class="num">3:35 PM</b></div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Conditions strip -->
+        <section class="rise" aria-label="Conditions">
+            <div class="metrics">
+                <div class="metric"><i class="fa-solid fa-wind"></i><div class="m-label">Wind speed</div><div class="m-value num" id="m-wind">--</div></div>
+                <div class="metric"><i class="fa-regular fa-compass"></i><div class="m-label">Direction</div><div class="m-value num" id="m-dir">--</div></div>
+                <div class="metric"><i class="fa-solid fa-cloud-rain"></i><div class="m-label">Precip chance</div><div class="m-value num" id="m-precip">--</div></div>
+                <div class="metric"><i class="fa-solid fa-droplet"></i><div class="m-label">Humidity</div><div class="m-value num" id="m-hum">--</div></div>
+                <div class="metric"><i class="fa-solid fa-gauge"></i><div class="m-label">Pressure</div><div class="m-value num" id="m-pres">--</div></div>
+                <div class="metric"><i class="fa-solid fa-temperature-low"></i><div class="m-label">Dew point</div><div class="m-value num" id="m-dew">--</div></div>
+                <div class="metric"><i class="fa-regular fa-eye"></i><div class="m-label">Visibility</div><div class="m-value num" id="m-vis">--</div></div>
+                <div class="metric"><i class="fa-solid fa-cloud"></i><div class="m-label">Cloud cover</div><div class="m-value num" id="m-cloud">--</div></div>
+                <div class="metric"><i class="fa-regular fa-sun"></i><div class="m-label">UV index</div><div class="m-value num" id="m-uv">--</div></div>
+            </div>
+        </section>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5">
+            <section class="card rise lg:col-span-8 flex flex-col">
+                <div class="card-title">
+                    <span class="eyebrow"><i class="fa-solid fa-timeline"></i>Next 24 hours</span>
+                    <span class="text-[11px] font-medium" style="color:var(--text-3)">Scroll or drag <i class="fa-solid fa-arrow-right text-[9px] ml-1"></i></span>
+                </div>
+                <div id="hourly-scroll" class="flex flex-1 items-stretch gap-2.5 overflow-x-auto custom-scroll cursor-grab pb-2 -mx-1 px-1">
+                    <div class="text-sm p-4" style="color:var(--text-3)">Loading forecast…</div>
+                </div>
+            </section>
+
+            <section class="card rise lg:col-span-4">
+                <div class="card-title"><span class="eyebrow"><i class="fa-solid fa-list-check"></i>Risk factors</span></div>
+                <div id="risk-factors-list" class="flex flex-col gap-2.5">
+                    <div class="text-sm" style="color:var(--text-3)">Calculating…</div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <div id="toast-container" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex flex-col-reverse items-center gap-2 pointer-events-none"></div>
+
+    <!-- ══════════════ FOOTER ══════════════ -->
+    <footer class="site-footer mt-6 py-7 text-center">
+        <div class="max-w-6xl mx-auto px-4 flex flex-col items-center gap-1">
+            <p>Estimates are generated from forecast data and are not an official school announcement.</p>
+            <p>&copy; 2026 Charger Tools. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- ══════════════ ENGINE LOGIC ══════════════ -->
+    <script>
+        /* Threshold Rules & Codes */
+        const THRESHOLDS = { 
+            SNOW_DELAY: 2.0,
+            SNOW_CLOSE: 5.5,   
+            ICE_CLOSE: 0.8,      
+            CHILL_DELAY: -12.0,
+            CHILL_CLOSE: -22.0,
+            WIND_CRITICAL: 35.0,
+            VIS_BAD: 1.5,
+            VIS_ZERO: 0.5
+        };
+
+        const WEATHER_CODES = { 
+            SNOW: [71, 73, 75, 77, 85, 86], 
+            ICE: [66, 67, 56, 57], 
+            RAIN: [61, 63, 65, 80, 81, 82],
+            FOG: [45, 48]
+        };
+
+        let globalWeatherData = null;
+        let isSimulationCommuteMode = false;
+
+        function getCardinalDirection(deg) {
+            const dirs = ['N','NE','E','SE','S','SW','W','NW'];
+            return dirs[Math.round(deg / 45) % 8];
+        }
+
+        function getWeatherDescription(code) {
+            if (code === 0) return "Clear & Fair";
+            if (code <= 3) return "Partly Cloudy";
+            if (WEATHER_CODES.SNOW.includes(code)) return "Snowfall & Flurries";
+            if (WEATHER_CODES.ICE.includes(code)) return "Freezing Rain / Sleet";
+            if (WEATHER_CODES.RAIN.includes(code)) return "Rain Showers";
+            if (WEATHER_CODES.FOG.includes(code)) return "Dense Fog Advisory";
+            return "Overcast";
+        }
+
+        function getWeatherIcon(code) {
+            if (code === 0) return "fa-sun";
+            if (code <= 3) return "fa-cloud-sun";
+            if (WEATHER_CODES.SNOW.includes(code)) return "fa-snowflake";
+            if (WEATHER_CODES.ICE.includes(code)) return "fa-icicles";
+            if (WEATHER_CODES.RAIN.includes(code)) return "fa-cloud-showers-heavy";
+            if (WEATHER_CODES.FOG.includes(code)) return "fa-smog";
+            return "fa-cloud";
+        }
+
+        function showToast(msg, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast t-${type}`;
+            const icon = type === 'success' ? 'fa-circle-check' : type === 'error' ? 'fa-circle-exclamation' : 'fa-circle-info';
+            toast.innerHTML = `<i class="fa-solid ${icon}"></i><span>${msg}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => { toast.classList.add('opacity-0'); setTimeout(() => toast.remove(), 300); }, 3000);
+        }
+
+        async function fetchWeatherData() {
+            const zip = document.getElementById('zip-input').value.trim();
+            if (!/^\d{5}$/.test(zip)) {
+                showToast('Please enter a valid 5-digit US ZIP code.', 'error');
+                return;
+            }
+
+            try {
+                // Geo lookup
+                const geoRes = await fetch(`https://api.zippopotam.us/us/${zip}`);
+                if (!geoRes.ok) throw new Error("ZIP not found");
+                const geoData = await geoRes.json();
+                const place = geoData.places[0];
+                const placeName = `${place['place name']}, ${place['state abbreviation']}`;
+                
+                document.getElementById('location-name').textContent = placeName;
+
+                // Open-Meteo Weather Call
+                const url = `https://api.open-meteo.com/v1/forecast?latitude=${place.latitude}&longitude=${place.longitude}&hourly=temperature_2m,apparent_temperature,snowfall,weather_code,wind_speed_10m,wind_direction_10m,precipitation_probability,relative_humidity_2m,surface_pressure,visibility,cloud_cover,uv_index,dew_point_2m&daily=snowfall_sum&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch&length_unit=imperial&timezone=auto&forecast_days=3`;
+                
+                const weatherRes = await fetch(url);
+                globalWeatherData = await weatherRes.json();
+                
+                renderDashboard();
+                showToast(`Weather data updated for ${placeName}`, 'success');
+
+            } catch(err) {
+                console.error(err);
+                showToast('Failed to retrieve location weather telemetry.', 'error');
+            }
+        }
+
+        function setSimulationMode(isCommute) {
+            isSimulationCommuteMode = isCommute;
+            const btnLive = document.getElementById('btn-mode-live');
+            const btnCommute = document.getElementById('btn-mode-commute');
+            const feedLabel = document.getElementById('feed-mode-label');
+
+            btnCommute.classList.toggle('is-on', isCommute);
+            btnLive.classList.toggle('is-on', !isCommute);
+            document.getElementById('hero-card').classList.toggle('is-commute', isCommute);
+            feedLabel.textContent = isCommute ? "7:00 AM Commute" : "Live Conditions";
+            document.getElementById('view-hint').textContent = isCommute ? "Showing the forecast for tomorrow at 7:00 AM, when buses start rolling." : "Showing conditions right now.";
+
+            renderDashboard();
+        }
+
+        function toggleSimulationMode() {
+            setSimulationMode(!isSimulationCommuteMode);
+        }
+
+        function renderDashboard() {
+            if (!globalWeatherData) return;
+
+            const data = globalWeatherData;
+            const h = data.hourly;
+            const now = new Date();
+            let targetIdx = 0;
+
+            if (isSimulationCommuteMode) {
+                const tom = new Date();
+                tom.setDate(tom.getDate() + 1);
+                tom.setHours(7, 0, 0, 0);
+                targetIdx = h.time.findIndex(t => new Date(t) >= tom);
+                if (targetIdx === -1) targetIdx = 0;
+            } else {
+                targetIdx = h.time.findIndex(t => new Date(t) >= now);
+                if (targetIdx === -1) targetIdx = 0;
+            }
+
+            const current = {
+                temp: h.temperature_2m[targetIdx],
+                chill: h.apparent_temperature[targetIdx],
+                code: h.weather_code[targetIdx],
+                wind: h.wind_speed_10m[targetIdx],
+                dir: h.wind_direction_10m[targetIdx],
+                precip: h.precipitation_probability[targetIdx],
+                hum: h.relative_humidity_2m[targetIdx],
+                pres: h.surface_pressure[targetIdx],
+                dew: h.dew_point_2m[targetIdx],
+                vis: (h.visibility[targetIdx] / 1609.34).toFixed(1),
+                cloud: h.cloud_cover[targetIdx],
+                uv: h.uv_index[targetIdx],
+                timeStr: h.time[targetIdx] ? h.time[targetIdx].split('T')[1].substring(0,5) : '--:--'
+            };
+
+            // Snow Calculation
+            let snowSum = 0;
+            if (isSimulationCommuteMode) {
+                let start = h.time.findIndex(t => new Date(t) >= now);
+                for (let i = start; i <= targetIdx; i++) {
+                    if (h.snowfall[i]) snowSum += h.snowfall[i];
+                }
+            } else {
+                snowSum = data.daily.snowfall_sum[0] || 0;
+            }
+
+            // Populate Hero
+            document.getElementById('weather-desc').textContent = getWeatherDescription(current.code);
+            document.getElementById('hero-bg-icon').innerHTML = `<i class="fa-solid ${getWeatherIcon(current.code)}"></i>`;
+            document.getElementById('main-temp').textContent = Math.round(current.temp);
+            document.getElementById('wind-chill').textContent = Math.round(current.chill) + "°F";
+            document.getElementById('snow-accum').textContent = snowSum.toFixed(1) + " in";
+            document.getElementById('time-stamp').textContent = current.timeStr;
+
+            // Populate Grid Matrix
+            document.getElementById('m-wind').textContent = Math.round(current.wind) + " mph";
+            document.getElementById('m-dir').textContent = getCardinalDirection(current.dir);
+            document.getElementById('m-precip').textContent = current.precip + "%";
+            document.getElementById('m-hum').textContent = current.hum + "%";
+            document.getElementById('m-pres').textContent = Math.round(current.pres) + " hPa";
+            document.getElementById('m-dew').textContent = Math.round(current.dew) + "°F";
+            document.getElementById('m-vis').textContent = current.vis + " mi";
+            document.getElementById('m-cloud').textContent = current.cloud + "%";
+            document.getElementById('m-uv').textContent = current.uv;
+
+            // --- RISK ENGINE CALCULATIONS ---
+            let delayScore = 0;
+            let closeScore = 0;
+            const factorList = [];
+
+            // 1. Snow Risk Vector
+            const snowMod = (current.temp > 28 && current.temp < 34) ? 1.3 : 1.0;
+            if (snowSum > 0.1) {
+                const snowDelayPt = Math.min(50, (snowSum / THRESHOLDS.SNOW_DELAY) * 50 * snowMod);
+                const snowClosePt = Math.min(60, (snowSum / THRESHOLDS.SNOW_CLOSE) * 60 * snowMod);
+                delayScore += snowDelayPt;
+                closeScore += snowClosePt;
+                factorList.push({ name: 'Snow Accumulation', risk: snowSum > 3 ? 'High' : 'Moderate', detail: `${snowSum.toFixed(1)}" snow depth` });
+            }
+
+            // 2. Ice / Freezing Rain
+            if (WEATHER_CODES.ICE.includes(current.code)) {
+                const iceRisk = (current.precip / 100) * 80;
+                delayScore += iceRisk + 25;
+                closeScore += iceRisk + 20;
+                factorList.push({ name: 'Freezing Rain / Ice', risk: 'Critical', detail: 'Slick road conditions' });
+            }
+
+            // 3. Wind Chill Danger
+            if (current.chill < THRESHOLDS.CHILL_DELAY) {
+                const chillDiff = Math.abs(current.chill - THRESHOLDS.CHILL_DELAY);
+                delayScore += chillDiff * 4;
+                if (current.chill < THRESHOLDS.CHILL_CLOSE) closeScore += chillDiff * 6;
+                factorList.push({ name: 'Extreme Wind Chill', risk: current.chill < -20 ? 'Critical' : 'High', detail: `${Math.round(current.chill)}°F apparent temp` });
+            }
+
+            // 4. Visibility Factor
+            if (parseFloat(current.vis) < THRESHOLDS.VIS_BAD) {
+                delayScore += 25;
+                if (parseFloat(current.vis) < THRESHOLDS.VIS_ZERO) closeScore += 30;
+                factorList.push({ name: 'Low Visibility', risk: 'Moderate', detail: `${current.vis} mi sightline` });
+            }
+
+            // 5. High Wind Speeds
+            if (current.wind > 25) {
+                delayScore += (current.wind - 25);
+                factorList.push({ name: 'Strong Wind Gusts', risk: 'Low', detail: `${Math.round(current.wind)} mph sustained` });
+            }
+
+            if (!factorList.length) {
+                factorList.push({ name: 'Road Surface Safety', risk: 'Optimal', detail: 'Clear driving conditions' });
+                factorList.push({ name: 'Thermal Index', risk: 'Optimal', detail: 'Above frost threshold' });
+            }
+
+            const delayPct = Math.min(99, Math.round(delayScore));
+            const closePct = Math.min(99, Math.round(closeScore));
+
+            document.getElementById('delay-prob-val').textContent = delayPct + "%";
+            document.getElementById('delay-prob-bar').style.width = delayPct + "%";
+            document.getElementById('close-prob-val').textContent = closePct + "%";
+            document.getElementById('close-prob-bar').style.width = closePct + "%";
+
+            // Advisory Note Update
+            const advisorySummary = document.getElementById('advisory-summary');
+
+            if (closePct >= 70) {
+                advisorySummary.dataset.tone = 'high';
+                advisorySummary.innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="color:var(--rose)"></i><strong>High Closure Probability:</strong> Severe weather telemetry indicates extreme conditions. Buses may be unable to complete routes safely.`;
+            } else if (delayPct >= 50) {
+                advisorySummary.dataset.tone = 'delay';
+                advisorySummary.innerHTML = `<i class="fa-solid fa-clock" style="color:var(--amber)"></i><strong>Delay Alert:</strong> Significant weather factors present. Carroll High School schedule is likely to shift to the 10:35 AM start.`;
+            } else {
+                advisorySummary.dataset.tone = 'clear';
+                advisorySummary.innerHTML = `<i class="fa-solid fa-circle-check" style="color:var(--green)"></i><strong>Clear Conditions:</strong> Minimal delay factors detected. School will proceed on the standard 8:35 AM schedule.`;
+            }
+
+            // Render Risk Factor List
+            const factorsContainer = document.getElementById('risk-factors-list');
+            factorsContainer.innerHTML = '';
+            factorList.forEach(f => {
+                const tag = f.risk === 'Critical' ? 'tag-critical' : f.risk === 'High' ? 'tag-high' : f.risk === 'Moderate' ? 'tag-moderate' : f.risk === 'Low' ? 'tag-moderate' : 'tag-ok';
+                const item = document.createElement('div');
+                item.className = 'factor';
+                item.innerHTML = `
+                    <div>
+                        <div class="f-name">${f.name}</div>
+                        <div class="f-detail">${f.detail}</div>
+                    </div>
+                    <span class="tag ${tag}">${f.risk}</span>
+                `;
+                factorsContainer.appendChild(item);
+            });
+
+            // Populate Timeline Slider
+            const timelineContainer = document.getElementById('hourly-scroll');
+            timelineContainer.innerHTML = '';
+            for (let i = targetIdx; i < targetIdx + 24; i++) {
+                if (!h.time[i]) break;
+                const dt = new Date(h.time[i]);
+                let hrs = dt.getHours();
+                const ampm = hrs >= 12 ? 'PM' : 'AM';
+                hrs = hrs % 12 || 12;
+
+                const card = document.createElement('div');
+                card.className = 'hour' + (i === targetIdx ? ' is-first' : '');
+                card.innerHTML = `
+                    <span class="h-time">${hrs} ${ampm}</span>
+                    <span class="h-icon"><i class="fa-solid ${getWeatherIcon(h.weather_code[i])}"></i></span>
+                    <span class="h-temp num">${Math.round(h.temperature_2m[i])}°</span>
+                    <span class="h-pop num"><i class="fa-solid fa-droplet"></i>${h.precipitation_probability[i]}%</span>
+                `;
+                timelineContainer.appendChild(card);
+            }
+        }
+
+        /* Draggable Timeline Logic */
+        const slider = document.getElementById('hourly-scroll');
+        let isDown = false, startX, scrollLeft;
+        slider.addEventListener('mousedown', (e) => { isDown = true; slider.classList.replace('cursor-grab', 'cursor-grabbing'); startX = e.pageX - slider.offsetLeft; scrollLeft = slider.scrollLeft; });
+        slider.addEventListener('mouseleave', () => { isDown = false; slider.classList.replace('cursor-grabbing', 'cursor-grab'); });
+        slider.addEventListener('mouseup', () => { isDown = false; slider.classList.replace('cursor-grabbing', 'cursor-grab'); });
+        slider.addEventListener('mousemove', (e) => { if(!isDown) return; e.preventDefault(); const x = e.pageX - slider.offsetLeft; const walk = (x - startX) * 2; slider.scrollLeft = scrollLeft - walk; });
+
+        /* Initial Setup */
+        window.addEventListener('load', () => {
+            fetchWeatherData();
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/gh/TheFarawayDev/Random-Stuff@main/utility/featureSuggestions.js"></script>
+</body>
+</html>
