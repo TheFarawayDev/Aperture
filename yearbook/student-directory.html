@@ -281,15 +281,55 @@ window.APERTURE = {
       "path": "yearbook/",
       "blurb": "Student directory and schedules",
       "hidden": true
+    },
+    {
+      "id": "legal",
+      "title": "Legal",
+      "path": "legal/",
+      "blurb": "Privacy, terms and school information",
+      "hidden": true
     }
   ],
   "pages": [
+    {
+      "id": "privacy-policy",
+      "search": false,
+      "tags": [],
+      "title": "Privacy Policy",
+      "group": "legal",
+      "path": "legal/privacy-policy",
+      "icon": "fa-user-shield",
+      "blurb": "How Aperture handles information.",
+      "keywords": ""
+    },
+    {
+      "id": "terms-of-use",
+      "search": false,
+      "tags": [],
+      "title": "Terms of Use",
+      "group": "legal",
+      "path": "legal/terms-of-use",
+      "icon": "fa-file-contract",
+      "blurb": "The rules for using Aperture.",
+      "keywords": ""
+    },
+    {
+      "id": "school-and-district",
+      "search": false,
+      "tags": [],
+      "title": "Schools & Districts",
+      "group": "legal",
+      "path": "legal/school-and-district",
+      "icon": "fa-school",
+      "blurb": "Information for schools and districts.",
+      "keywords": ""
+    },
     {
       "id": "class-bell",
       "tags": ["Live countdown", "Lunch finder", "Lunch menu"],
       "title": "Class Bell Countdown",
       "group": "utility",
-      "path": "utility/class-bell-countdown.html",
+      "path": "utility/class-bell-countdown",
       "icon": "fa-bell",
       "blurb": "Live bell schedule with passing periods, lunch blocks, delays and the lunch menu.",
       "keywords": "schedule bell lunch period countdown delay menu cafeteria timer class time"
@@ -299,7 +339,7 @@ window.APERTURE = {
       "tags": ["Delay odds", "Hourly forecast", "ZIP lookup"],
       "title": "School Status",
       "group": "utility",
-      "path": "utility/is-school-closed.html",
+      "path": "utility/is-school-closed",
       "icon": "fa-cloud-sun-rain",
       "blurb": "Weather-based estimate of 2-hour delay and closure risk, with an hourly commute forecast.",
       "keywords": "weather snow day delay closure forecast prediction wind chill temperature zip commute"
@@ -310,7 +350,7 @@ window.APERTURE = {
       "tags": ["Student search", "Staff & rooms", "My schedule"],
       "title": "Student Directory",
       "group": "yearbook",
-      "path": "yearbook/student-directory.html",
+      "path": "yearbook/student-directory",
       "icon": "fa-address-book",
       "blurb": "Search schedules, find any teacher or room, and keep your own day on a live countdown.",
       "keywords": "student directory teacher staff room extension lunch schedule compare homeroom period email locker find classmate calendar ics"
@@ -320,7 +360,7 @@ window.APERTURE = {
       "tags": ["24 worksheets", "Print 2-up", "Answer keys"],
       "title": "Geography Worksheets",
       "group": "utility",
-      "path": "utility/geo-worksheet-creator.html",
+      "path": "utility/geo-worksheet-creator",
       "icon": "fa-earth-americas",
       "blurb": "Pick worksheets, preview them live, then print two to a page or save a PDF with an answer key.",
       "keywords": "geography worksheet print pdf teacher answer key social studies skill builders",
@@ -496,7 +536,14 @@ window.APERTURE = {
   if (!cfg || !script) return;
 
   var ROOT = new URL(document.documentElement.getAttribute('data-root') || './', location.href);                       // …/assets/nav.js → site root
-  var url = function (p) { return new URL(p, ROOT).href; };
+  // Links are written without ".html" (cleaner URLs). Opening straight from disk (file://) still needs the extension.
+  var NOEXT = location.protocol !== 'file:';
+  var url = function (p) {
+    var m = String(p).match(/^([^#?]*)(.*)$/), base = m[1], tail = m[2];
+    if (base && !/\/$/.test(base) && !/\.[a-z0-9]+$/i.test(base) && !NOEXT) base += '.html';
+    if (NOEXT) base = base.replace(/\/?index\.html$/, '/').replace(/\.html$/, '');
+    return new URL(base + tail, ROOT).href;
+  };
   var clean = function (p) { return p.replace(/index\.html$/, '').replace(/\.html$/, '').replace(/\/+$/, ''); };
   var target = '_self';
   try { if (window.top !== window.self) target = '_top'; } catch (e) { target = '_top'; }
@@ -517,7 +564,8 @@ window.APERTURE = {
 
   // "up one part": from a page → its folder on the main page; from the main page → itself
   function upHref() {
-    if (page) return url(cfg.home) + '#' + page.group;
+    var pg = page && groupOf(page.group);
+    if (page && pg && !pg.hidden) return url(cfg.home) + '#' + page.group;
     return url(cfg.home);
   }
 
@@ -595,6 +643,20 @@ window.APERTURE = {
       }
     });
   });
+
+  /* ── legal links: fix hrefs, and add them to the footer of every page ── */
+  var LEGAL = [['legal/privacy-policy', 'Privacy'], ['legal/terms-of-use', 'Terms'], ['legal/school-and-district', 'Schools & districts']];
+  function legalLinks() {
+    document.querySelectorAll('a[data-lg]').forEach(function (a) { a.setAttribute('href', url(a.getAttribute('href').replace(/^(\.\.\/)+/, ''))); });
+    var f = document.querySelector('footer');
+    if (!f || f.querySelector('[data-lg]') || document.documentElement.hasAttribute('data-no-legal')) return;
+    var d = document.createElement('div');
+    d.className = 'no-print';
+    d.style.cssText = 'display:flex;flex-wrap:wrap;gap:4px 16px;justify-content:center;margin-top:10px;font-size:12px';
+    d.innerHTML = LEGAL.map(function (l) { return '<a data-lg href="' + url(l[0]) + '" target="' + target + '" style="color:#8fb3f5;text-decoration:none">' + esc(l[1]) + '</a>'; }).join('');
+    (f.firstElementChild || f).appendChild(d);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', legalLinks); else legalLinks();
 
   /* ── public helpers (used by the main page) ── */
   window.Aperture = { config: cfg, root: ROOT.href, url: url, current: page, target: target, up: upHref };
