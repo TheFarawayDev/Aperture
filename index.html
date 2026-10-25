@@ -172,6 +172,7 @@ section.block { padding: 34px 0 20px; }
 .dir-empty[hidden] { display: none; }
 
 /* about / footer */
+.legal-links { display: flex; flex-wrap: wrap; gap: 6px 18px; } .legal-links a { color: var(--text-3); } .legal-links a:hover { color: #fff; }
 .about { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
 .about > div { padding: 22px; border-radius: 22px; background: transparent; border: 1px solid var(--hair); }
 .about i { color: var(--accent-2); font-size: 18px; } .about h4 { margin: 14px 0 6px; font-size: 15px; font-weight: 650; color: #fff; } .about p { margin: 0; font-size: 13.5px; color: var(--text-3); }
@@ -265,7 +266,7 @@ mark { background: var(--accent-soft); color: var(--accent-2); border-radius: 3p
                 Aperture
             </a>
             <div class="hright">
-                <nav class="nav" aria-label="Sections" id="nav"><a href="#tools" data-s="tools">Tools</a><a href="#worksheets" data-s="worksheets">Worksheets</a><a href="#directory" data-s="directory">Directory</a><a href="#about" data-s="about">About</a></nav>
+                <nav class="nav" aria-label="Sections" id="nav"><a href="#tools" data-s="tools">Tools</a><a href="#directory" data-s="directory">Directory</a><a href="#about" data-s="about">About</a></nav>
                 <button class="btn is-outlined" id="open-search" type="button" aria-label="Search"><i class="fa-solid fa-magnifying-glass"></i><span class="lbl">Search</span><kbd>Ctrl K</kbd></button>
             </div>
         </header>
@@ -276,7 +277,7 @@ mark { background: var(--accent-soft); color: var(--accent-2); border-radius: 3p
             <div class="hero-bg" aria-hidden="true"><svg viewBox="-300 -300 600 600" fill="none" stroke="#8fb3f5" stroke-width="1"><circle r="290" opacity=".35"/><circle r="230" opacity=".3" stroke-dasharray="2 7"/><circle r="170" opacity=".4"/><g opacity=".5" id="hero-blades"></g></svg></div>
             <div>
                 <h1 data-rv="hero" style="--d:2">A clearer view of the <em>school day.</em></h1>
-                <p class="lead" data-rv="hero" style="--d:3">Bell schedules, weather-based delay estimates and printable classroom worksheets, all in one place.</p>
+                <p class="lead" data-rv="hero" style="--d:3">Bell schedules, weather-based delay estimates and classroom tools, all in one place.</p>
                 <button class="search-trigger" id="hero-search" type="button" aria-label="Search tools, worksheets and pages" data-rv="hero" style="--d:4">
                     <i class="fa-solid fa-magnifying-glass"></i><span>Search tools, worksheets and pages…</span><kbd>/</kbd>
                 </button>
@@ -293,10 +294,6 @@ mark { background: var(--accent-soft); color: var(--accent-2); border-radius: 3p
             <div class="grid" id="tool-grid"></div>
         </section>
 
-        <section class="block" id="worksheets">
-            <div class="sec-head" data-rv><div><h2>Geography worksheets</h2><p>Jump straight to a worksheet. It opens already selected.</p></div><div class="seg" id="ws-seg" role="tablist" aria-label="Difficulty"></div></div>
-            <div class="ws" id="ws-grid" data-rv></div>
-        </section>
 
         <section class="block" id="directory">
             <div class="sec-head" data-rv><div><h2>Directory</h2><p>Every page on Aperture, in one list.</p></div></div>
@@ -315,7 +312,7 @@ mark { background: var(--accent-soft); color: var(--accent-2); border-radius: 3p
             <div class="sec-head" data-rv><div><h2>About Aperture</h2></div></div>
             <div class="about">
                 <div data-rv style="--d:0"><i class="fa-solid fa-gauge-high"></i><h4>Built for the school day</h4><p>Quick, readable tools that work on a phone between classes or on a classroom display.</p></div>
-                <div data-rv style="--d:1"><i class="fa-solid fa-print"></i><h4>Print-ready</h4><p>Worksheets print two to a page with a matching answer key, no cleanup needed.</p></div>
+                <div data-rv style="--d:1"><i class="fa-solid fa-user-shield"></i><h4>Privacy first</h4><p>No ads and no tracking. Read how data is handled in the <a href="legal/privacy-policy" data-lg style="color:var(--accent-2)">Privacy Policy</a>.</p></div>
                 <div data-rv style="--d:2"><i class="fa-solid fa-shield-halved"></i><h4>No accounts</h4><p>Open a page and use it. Nothing to install and nothing to sign in to.</p></div>
             </div>
         </section>
@@ -324,6 +321,7 @@ mark { background: var(--accent-soft); color: var(--accent-2); border-radius: 3p
     <footer>
         <div class="wrap">
             <div class="l"><b>Aperture</b><span>&copy; 2026 Faros Technologies Inc. All rights reserved.</span><span>Aperture is owned and operated by Faros Technologies Inc.</span></div>
+            <nav class="legal-links" aria-label="Legal"><a href="legal/privacy-policy" data-lg>Privacy</a><a href="legal/terms-of-use" data-lg>Terms</a><a href="legal/school-and-district" data-lg>Schools &amp; districts</a></nav>
             <button type="button" id="replay"><i class="fa-solid fa-rotate-right"></i>&nbsp; Replay intro</button>
         </div>
     </footer>
@@ -365,15 +363,55 @@ window.APERTURE = {
       "path": "yearbook/",
       "blurb": "Student directory and schedules",
       "hidden": true
+    },
+    {
+      "id": "legal",
+      "title": "Legal",
+      "path": "legal/",
+      "blurb": "Privacy, terms and school information",
+      "hidden": true
     }
   ],
   "pages": [
+    {
+      "id": "privacy-policy",
+      "search": false,
+      "tags": [],
+      "title": "Privacy Policy",
+      "group": "legal",
+      "path": "legal/privacy-policy",
+      "icon": "fa-user-shield",
+      "blurb": "How Aperture handles information.",
+      "keywords": ""
+    },
+    {
+      "id": "terms-of-use",
+      "search": false,
+      "tags": [],
+      "title": "Terms of Use",
+      "group": "legal",
+      "path": "legal/terms-of-use",
+      "icon": "fa-file-contract",
+      "blurb": "The rules for using Aperture.",
+      "keywords": ""
+    },
+    {
+      "id": "school-and-district",
+      "search": false,
+      "tags": [],
+      "title": "Schools & Districts",
+      "group": "legal",
+      "path": "legal/school-and-district",
+      "icon": "fa-school",
+      "blurb": "Information for schools and districts.",
+      "keywords": ""
+    },
     {
       "id": "class-bell",
       "tags": ["Live countdown", "Lunch finder", "Lunch menu"],
       "title": "Class Bell Countdown",
       "group": "utility",
-      "path": "utility/class-bell-countdown.html",
+      "path": "utility/class-bell-countdown",
       "icon": "fa-bell",
       "blurb": "Live bell schedule with passing periods, lunch blocks, delays and the lunch menu.",
       "keywords": "schedule bell lunch period countdown delay menu cafeteria timer class time"
@@ -383,7 +421,7 @@ window.APERTURE = {
       "tags": ["Delay odds", "Hourly forecast", "ZIP lookup"],
       "title": "School Status",
       "group": "utility",
-      "path": "utility/is-school-closed.html",
+      "path": "utility/is-school-closed",
       "icon": "fa-cloud-sun-rain",
       "blurb": "Weather-based estimate of 2-hour delay and closure risk, with an hourly commute forecast.",
       "keywords": "weather snow day delay closure forecast prediction wind chill temperature zip commute"
@@ -394,7 +432,7 @@ window.APERTURE = {
       "tags": ["Student search", "Staff & rooms", "My schedule"],
       "title": "Student Directory",
       "group": "yearbook",
-      "path": "yearbook/student-directory.html",
+      "path": "yearbook/student-directory",
       "icon": "fa-address-book",
       "blurb": "Search schedules, find any teacher or room, and keep your own day on a live countdown.",
       "keywords": "student directory teacher staff room extension lunch schedule compare homeroom period email locker find classmate calendar ics"
@@ -404,7 +442,7 @@ window.APERTURE = {
       "tags": ["24 worksheets", "Print 2-up", "Answer keys"],
       "title": "Geography Worksheets",
       "group": "utility",
-      "path": "utility/geo-worksheet-creator.html",
+      "path": "utility/geo-worksheet-creator",
       "icon": "fa-earth-americas",
       "blurb": "Pick worksheets, preview them live, then print two to a page or save a PDF with an answer key.",
       "keywords": "geography worksheet print pdf teacher answer key social studies skill builders",
@@ -580,7 +618,14 @@ window.APERTURE = {
   if (!cfg || !script) return;
 
   var ROOT = new URL(document.documentElement.getAttribute('data-root') || './', location.href);                       // …/assets/nav.js → site root
-  var url = function (p) { return new URL(p, ROOT).href; };
+  // Links are written without ".html" (cleaner URLs). Opening straight from disk (file://) still needs the extension.
+  var NOEXT = location.protocol !== 'file:';
+  var url = function (p) {
+    var m = String(p).match(/^([^#?]*)(.*)$/), base = m[1], tail = m[2];
+    if (base && !/\/$/.test(base) && !/\.[a-z0-9]+$/i.test(base) && !NOEXT) base += '.html';
+    if (NOEXT) base = base.replace(/\/?index\.html$/, '/').replace(/\.html$/, '');
+    return new URL(base + tail, ROOT).href;
+  };
   var clean = function (p) { return p.replace(/index\.html$/, '').replace(/\.html$/, '').replace(/\/+$/, ''); };
   var target = '_self';
   try { if (window.top !== window.self) target = '_top'; } catch (e) { target = '_top'; }
@@ -601,7 +646,8 @@ window.APERTURE = {
 
   // "up one part": from a page → its folder on the main page; from the main page → itself
   function upHref() {
-    if (page) return url(cfg.home) + '#' + page.group;
+    var pg = page && groupOf(page.group);
+    if (page && pg && !pg.hidden) return url(cfg.home) + '#' + page.group;
     return url(cfg.home);
   }
 
@@ -680,6 +726,20 @@ window.APERTURE = {
     });
   });
 
+  /* ── legal links: fix hrefs, and add them to the footer of every page ── */
+  var LEGAL = [['legal/privacy-policy', 'Privacy'], ['legal/terms-of-use', 'Terms'], ['legal/school-and-district', 'Schools & districts']];
+  function legalLinks() {
+    document.querySelectorAll('a[data-lg]').forEach(function (a) { a.setAttribute('href', url(a.getAttribute('href').replace(/^(\.\.\/)+/, ''))); });
+    var f = document.querySelector('footer');
+    if (!f || f.querySelector('[data-lg]') || document.documentElement.hasAttribute('data-no-legal')) return;
+    var d = document.createElement('div');
+    d.className = 'no-print';
+    d.style.cssText = 'display:flex;flex-wrap:wrap;gap:4px 16px;justify-content:center;margin-top:10px;font-size:12px';
+    d.innerHTML = LEGAL.map(function (l) { return '<a data-lg href="' + url(l[0]) + '" target="' + target + '" style="color:#8fb3f5;text-decoration:none">' + esc(l[1]) + '</a>'; }).join('');
+    (f.firstElementChild || f).appendChild(d);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', legalLinks); else legalLinks();
+
   /* ── public helpers (used by the main page) ── */
   window.Aperture = { config: cfg, root: ROOT.href, url: url, current: page, target: target, up: upHref };
 })();
@@ -731,11 +791,11 @@ tick(); setInterval(tick, 5000);
 
 /* ───────── quick launch + tool cards ───────── */
 $('ql').innerHTML = navPages.map(function (p) {
-    return '<a class="ql" href="' + esc(p.path) + '"><span class="qi"><i class="fa-solid ' + esc(p.icon) + '"></i></span><span class="qb"><div class="qt">' + esc(p.title) + '</div><div class="qs">' + esc(p.blurb) + '</div></span><i class="fa-solid fa-arrow-right qa"></i></a>';
+    return '<a class="ql" href="' + esc(A.url(p.path)) + '"><span class="qi"><i class="fa-solid ' + esc(p.icon) + '"></i></span><span class="qb"><div class="qt">' + esc(p.title) + '</div><div class="qs">' + esc(p.blurb) + '</div></span><i class="fa-solid fa-arrow-right qa"></i></a>';
 }).join('');
 $('tool-grid').innerHTML = navPages.map(function (p, i) {
     var g = groupOf(p.group);
-    return '<a class="tool" data-rv style="--d:' + i + '" href="' + esc(p.path) + '">' +
+    return '<a class="tool" data-rv style="--d:' + i + '" href="' + esc(A.url(p.path)) + '">' +
         '<div class="ico"><i class="fa-solid ' + esc(p.icon) + '"></i></div>' +
         '<div><h3>' + esc(p.title) + '</h3></div><p>' + esc(p.blurb) + '</p>' +
         '<div class="tags">' + (p.tags || []).map(function (t) { return '<span>' + esc(t) + '</span>'; }).join('') + '</div>' +
@@ -746,18 +806,6 @@ document.querySelectorAll('.tool').forEach(function (c) {
     c.addEventListener('pointermove', function (e) { var r = c.getBoundingClientRect(); c.style.setProperty('--mx', (e.clientX - r.left) + 'px'); c.style.setProperty('--my', (e.clientY - r.top) + 'px'); });
 });
 
-/* ───────── worksheet quick-jump ───────── */
-var wsF = 'all';
-function wsRender() {
-    var cnt = { all: topics.length, easy: 0, med: 0, hard: 0 }; topics.forEach(function (t) { cnt[t.diff]++; });
-    $('ws-seg').innerHTML = [['all', 'All'], ['easy', 'Easy'], ['med', 'Medium'], ['hard', 'Hard']].map(function (x) { return '<button type="button" role="tab" data-f="' + x[0] + '" class="' + (wsF === x[0] ? 'on' : '') + '">' + x[1] + '</button>'; }).join('');
-    $('ws-grid').innerHTML = topics.map(function (t) {
-        return '<a href="' + esc(geo.path) + '#m=' + t.id + '"' + (wsF === 'all' || wsF === t.diff ? '' : ' hidden') + ' target="' + A.target + '"><span class="wi"><i class="fa-solid ' + esc(t.icon) + '"></i></span><span><div class="wn">' + esc(t.name) + '</div><div class="wm"><i class="dot d-' + t.diff + '"></i>' + DL[t.diff] + ' · No. ' + t.id + '</div></span></a>';
-    }).join('');
-}
-$('ws-seg').addEventListener('click', function (e) { var b = e.target.closest('button[data-f]'); if (!b) return; wsF = b.dataset.f; wsRender(); });
-if (geo) wsRender(); else $('worksheets').style.display = 'none';
-
 /* ───────── directory ───────── */
 var dirG = 'all';
 function dirSeg() {
@@ -766,7 +814,7 @@ function dirSeg() {
 }
 $('dir-rows').innerHTML = navPages.map(function (p) {
     var g = groupOf(p.group);
-    return '<a class="dir-row" href="' + esc(p.path) + '" target="' + A.target + '" data-s="' + (p.search === false ? '0' : '1') + '" data-g="' + esc(p.group) + '" data-k="' + esc((p.title + ' ' + p.blurb + ' ' + (p.keywords || '') + ' ' + (p.tags || []).join(' ')).toLowerCase()) + '">' +
+    return '<a class="dir-row" href="' + esc(A.url(p.path)) + '" target="' + A.target + '" data-s="' + (p.search === false ? '0' : '1') + '" data-g="' + esc(p.group) + '" data-k="' + esc((p.title + ' ' + p.blurb + ' ' + (p.keywords || '') + ' ' + (p.tags || []).join(' ')).toLowerCase()) + '">' +
         '<div class="dr-main"><span class="di"><i class="fa-solid ' + esc(p.icon) + '"></i></span><div style="min-width:0"><b>' + esc(p.title) + '</b><span class="s">' + esc(p.blurb) + '</span></div></div>' +
         '<div class="dr-cat">' + esc(g ? g.title : '') + '</div>' +
         '<div class="dr-tags">' + (p.tags || []).slice(0, 3).map(function (t) { return '<span>' + esc(t) + '</span>'; }).join('') + '</div>' +
@@ -793,7 +841,7 @@ function applyHash() {
 window.addEventListener('hashchange', applyHash);
 
 /* ───────── nav highlight ───────── */
-var secs = ['tools', 'worksheets', 'directory', 'about'].map(function (id) { return $(id); }).filter(Boolean);
+var secs = ['tools', 'directory', 'about'].map(function (id) { return $(id); }).filter(Boolean);
 function spy() {
     var y = window.scrollY + 140, cur = '';
     secs.forEach(function (s) { if (s.offsetTop <= y) cur = s.id; });
@@ -832,7 +880,6 @@ function gather(q) {
     });
     [
         { n: 'Jump to tools', k: 'tools section', i: 'fa-table-cells-large', f: jump('tools') },
-        { n: 'Jump to worksheets', k: 'worksheets geography section', i: 'fa-globe', f: jump('worksheets') },
         { n: 'Jump to directory', k: 'directory all pages list section', i: 'fa-list', f: jump('directory') },
         { n: 'Replay intro animation', k: 'replay intro animation lens', i: 'fa-rotate-right', f: function () { window.scrollTo(0, 0); startIntro(); } }
     ].forEach(function (c) { var sc = t.length ? score(c.k + ' ' + c.n.toLowerCase(), t) : -1; if (sc >= 0) cmds.push({ sc: sc, title: c.n, sub: 'Action', icon: c.i, hint: 'Run', run: c.f }); });

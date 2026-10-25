@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en" data-no-legal data-root="./">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark">
+<meta name="robots" content="noindex">
+<title>We've moved — Aperture</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235b8fe8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M14.31 8l5.74 9.94M9.69 8h11.48M7.38 12l5.74-9.94M9.69 16L3.95 6.06M14.31 16H2.83m13.79-4l-5.74 9.94'/%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#161c23;--surface:#212a34;--hair:rgba(255,255,255,.1);--text:#e8edf3;--t2:#b4c0cf;--t3:#8795a8;--accent:#5b8fe8;--a2:#8fb3f5}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--bg)}
+body{min-height:100vh;display:grid;place-items:center;padding:16px;color:var(--text);font-family:Inter,system-ui,-apple-system,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased;background:radial-gradient(700px 360px at 50% -20%,rgba(91,143,232,.2),transparent 65%),var(--bg)}
+.card{width:100%;max-width:520px;text-align:center;padding:clamp(22px,5vw,36px);border-radius:24px;background:var(--surface);border:1px solid var(--hair);box-shadow:0 1px 2px rgba(2,5,9,.35),0 18px 40px -20px rgba(2,5,9,.75)}
+.mark{width:52px;height:52px;margin:0 auto 14px;display:grid;place-items:center;border-radius:16px;background:rgba(91,143,232,.14);color:var(--accent)}.mark svg{width:28px;height:28px}
+.tag{display:inline-block;margin-bottom:10px;font-size:11.5px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--t3)}
+h1{margin:0 0 8px;font-size:clamp(24px,5vw,30px);letter-spacing:-.02em;line-height:1.15}
+p{margin:0 auto 20px;max-width:38ch;color:var(--t2);font-size:15px;line-height:1.55}
+.go{display:inline-flex;align-items:center;gap:10px;height:48px;padding:0 24px;border-radius:14px;background:var(--accent);color:#0e1620;font-weight:600;font-size:15px;text-decoration:none;transition:transform .15s,background .15s}
+.go:hover{background:var(--a2);transform:translateY(-1px)}.go:focus-visible{outline:2px solid #fff;outline-offset:3px}
+.go svg{width:16px;height:16px}
+.sub{margin-top:14px;font-size:12px;color:var(--t3)}
+@media (max-height:400px){body{padding:10px}.card{padding:18px 20px}.mark{width:40px;height:40px;margin-bottom:8px;border-radius:12px}.mark svg{width:22px;height:22px}h1{font-size:24px}p{margin-bottom:14px;font-size:14px}.go{height:44px}.sub{margin-top:8px}}
+@media (max-height:260px){body{padding:8px}.card{padding:14px}.mark,.sub{display:none}p{margin-bottom:12px}}
+</style>
+</head>
+<body>
+<main class="card">
+  <div class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M14.31 8l5.74 9.94M9.69 8h11.48M7.38 12l5.74-9.94M9.69 16L3.95 6.06M14.31 16H2.83m13.79-4l-5.74 9.94"/></svg></div>
+  <span class="tag">Aperture</span>
+  <h1>We've moved</h1>
+  <p>The school tools you're looking for now live on the new Aperture home page.</p>
+  <a class="go" id="go" href="./" target="_blank" rel="noopener">Go to Aperture <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+  <div class="sub">Opens in a new tab</div>
+</main>
+<script>
+/* ══════════════════════════════════════════════════════════════════
+   APERTURE — PAGE REGISTRY
+   The single list every page and the main page read from.
+
+   ADD a page    → put the .html file in its folder, then add one entry below.
+   REMOVE a page → delete the file and delete its entry.
+   Paths are relative to the site root (the folder that holds index.html).
+   ══════════════════════════════════════════════════════════════════ */
+window.APERTURE = {
+  "name": "Aperture",
+  "owner": "Faros Technologies Inc.",
+  "home": "./",
+  "groups": [
+    {
+      "id": "utility",
+      "title": "Utility",
+      "path": "utility/",
+      "blurb": "Day-to-day school tools"
+    },
+    {
+      "id": "yearbook",
+      "title": "Yearbook",
+      "path": "yearbook/",
+      "blurb": "Student directory and schedules",
+      "hidden": true
+    },
+    {
+      "id": "legal",
+      "title": "Legal",
+      "path": "legal/",
+      "blurb": "Privacy, terms and school information",
+      "hidden": true
+    }
+  ],
+  "pages": [
+    {
+      "id": "privacy-policy",
+      "search": false,
+      "tags": [],
+      "title": "Privacy Policy",
+      "group": "legal",
+      "path": "legal/privacy-policy",
+      "icon": "fa-user-shield",
+      "blurb": "How Aperture handles information.",
+      "keywords": ""
+    },
+    {
+      "id": "terms-of-use",
+      "search": false,
+      "tags": [],
+      "title": "Terms of Use",
+      "group": "legal",
+      "path": "legal/terms-of-use",
+      "icon": "fa-file-contract",
+      "blurb": "The rules for using Aperture.",
+      "keywords": ""
+    },
+    {
+      "id": "school-and-district",
+      "search": false,
+      "tags": [],
+      "title": "Schools & Districts",
+      "group": "legal",
+      "path": "legal/school-and-district",
+      "icon": "fa-school",
+      "blurb": "Information for schools and districts.",
+      "keywords": ""
+    },
+    {
+      "id": "class-bell",
+      "tags": ["Live countdown", "Lunch finder", "Lunch menu"],
+      "title": "Class Bell Countdown",
+      "group": "utility",
+      "path": "utility/class-bell-countdown",
+      "icon": "fa-bell",
+      "blurb": "Live bell schedule with passing periods, lunch blocks, delays and the lunch menu.",
+      "keywords": "schedule bell lunch period countdown delay menu cafeteria timer class time"
+    },
+    {
+      "id": "school-status",
+      "tags": ["Delay odds", "Hourly forecast", "ZIP lookup"],
+      "title": "School Status",
+      "group": "utility",
+      "path": "utility/is-school-closed",
+      "icon": "fa-cloud-sun-rain",
+      "blurb": "Weather-based estimate of 2-hour delay and closure risk, with an hourly commute forecast.",
+      "keywords": "weather snow day delay closure forecast prediction wind chill temperature zip commute"
+    },
+    {
+      "id": "directory",
+      "search": false,
+      "tags": ["Student search", "Staff & rooms", "My schedule"],
+      "title": "Student Directory",
+      "group": "yearbook",
+      "path": "yearbook/student-directory",
+      "icon": "fa-address-book",
+      "blurb": "Search schedules, find any teacher or room, and keep your own day on a live countdown.",
+      "keywords": "student directory teacher staff room extension lunch schedule compare homeroom period email locker find classmate calendar ics"
+    },
+    {
+      "id": "geography",
+      "tags": ["24 worksheets", "Print 2-up", "Answer keys"],
+      "title": "Geography Worksheets",
+      "group": "utility",
+      "path": "utility/geo-worksheet-creator",
+      "icon": "fa-earth-americas",
+      "blurb": "Pick worksheets, preview them live, then print two to a page or save a PDF with an answer key.",
+      "keywords": "geography worksheet print pdf teacher answer key social studies skill builders",
+      "topics": [
+        {
+          "id": 11,
+          "name": "Map Projections",
+          "diff": "easy",
+          "icon": "fa-globe"
+        },
+        {
+          "id": 12,
+          "name": "Continents & Oceans",
+          "diff": "easy",
+          "icon": "fa-earth-americas"
+        },
+        {
+          "id": 13,
+          "name": "Landforms & Water",
+          "diff": "easy",
+          "icon": "fa-water"
+        },
+        {
+          "id": 14,
+          "name": "Weather v Climate",
+          "diff": "easy",
+          "icon": "fa-cloud-sun"
+        },
+        {
+          "id": 15,
+          "name": "Natural Resources",
+          "diff": "easy",
+          "icon": "fa-tree"
+        },
+        {
+          "id": 16,
+          "name": "Push & Pull",
+          "diff": "easy",
+          "icon": "fa-person-walking-arrow-right"
+        },
+        {
+          "id": 17,
+          "name": "Urban vs Rural",
+          "diff": "easy",
+          "icon": "fa-city"
+        },
+        {
+          "id": 18,
+          "name": "Culture & Customs",
+          "diff": "easy",
+          "icon": "fa-masks-theater"
+        },
+        {
+          "id": 19,
+          "name": "Demographics",
+          "diff": "med",
+          "icon": "fa-users"
+        },
+        {
+          "id": 20,
+          "name": "Econ Systems",
+          "diff": "med",
+          "icon": "fa-money-bill-trend-up"
+        },
+        {
+          "id": 21,
+          "name": "Boundaries",
+          "diff": "med",
+          "icon": "fa-map-location-dot"
+        },
+        {
+          "id": 22,
+          "name": "Env. Challenges",
+          "diff": "med",
+          "icon": "fa-smog"
+        },
+        {
+          "id": 23,
+          "name": "River Basins",
+          "diff": "med",
+          "icon": "fa-water"
+        },
+        {
+          "id": 24,
+          "name": "Agriculture",
+          "diff": "med",
+          "icon": "fa-tractor"
+        },
+        {
+          "id": 25,
+          "name": "Global Trade",
+          "diff": "med",
+          "icon": "fa-handshake"
+        },
+        {
+          "id": 26,
+          "name": "Megacities",
+          "diff": "med",
+          "icon": "fa-building-columns"
+        },
+        {
+          "id": 27,
+          "name": "Plate Tectonics",
+          "diff": "hard",
+          "icon": "fa-layer-group"
+        },
+        {
+          "id": 28,
+          "name": "GIS & Geodesy",
+          "diff": "hard",
+          "icon": "fa-satellite"
+        },
+        {
+          "id": 29,
+          "name": "Chokepoints",
+          "diff": "hard",
+          "icon": "fa-anchor"
+        },
+        {
+          "id": 30,
+          "name": "Microstates",
+          "diff": "hard",
+          "icon": "fa-landmark"
+        },
+        {
+          "id": 31,
+          "name": "African Rift",
+          "diff": "hard",
+          "icon": "fa-mountain"
+        },
+        {
+          "id": 32,
+          "name": "Asian Archipelagos",
+          "diff": "hard",
+          "icon": "fa-compass"
+        },
+        {
+          "id": 33,
+          "name": "Middle East Water",
+          "diff": "hard",
+          "icon": "fa-sun"
+        },
+        {
+          "id": 34,
+          "name": "Polar Geography",
+          "diff": "hard",
+          "icon": "fa-snowflake"
+        }
+      ]
+    }
+  ]
+};
+
+</script>
+<script>
+/* ══════════════════════════════════════════════════════════════════
+   APERTURE — FILE NAVIGATION
+   Every link is built from file paths, relative to the site root:
+     • going DOWN adds a part   →  utility/geography.html
+     • going UP removes a part  →  ../index.html  (or index.html#utility)
+   The root is found from where THIS file is loaded (assets/nav.js), so the
+   site works from any folder, any host, or straight from disk (file://).
+
+   Hooks a page can use (all optional):
+     <a data-aperture-back>        Back button → goes up to the main page
+     <span data-aperture-menu>     "Pages" dropdown listing every registered page
+     <nav data-aperture-crumbs>    Breadcrumb: Aperture › Utility › This page
+   ══════════════════════════════════════════════════════════════════ */
+(function () {
+  'use strict';
+  var cfg = window.APERTURE;
+  var script = document.currentScript;
+  if (!cfg || !script) return;
+
+  var ROOT = new URL(document.documentElement.getAttribute('data-root') || './', location.href);                       // …/assets/nav.js → site root
+  // Links are written without ".html" (cleaner URLs). Opening straight from disk (file://) still needs the extension.
+  var NOEXT = location.protocol !== 'file:';
+  var url = function (p) {
+    var m = String(p).match(/^([^#?]*)(.*)$/), base = m[1], tail = m[2];
+    if (base && !/\/$/.test(base) && !/\.[a-z0-9]+$/i.test(base) && !NOEXT) base += '.html';
+    if (NOEXT) base = base.replace(/\/?index\.html$/, '/').replace(/\.html$/, '');
+    return new URL(base + tail, ROOT).href;
+  };
+  var clean = function (p) { return p.replace(/index\.html$/, '').replace(/\.html$/, '').replace(/\/+$/, ''); };
+  var target = '_self';
+  try { if (window.top !== window.self) target = '_top'; } catch (e) { target = '_top'; }
+
+  function groupOf(id) { return cfg.groups.filter(function (g) { return g.id === id; })[0]; }
+
+  function current() {
+    var here = clean(decodeURIComponent(location.pathname));
+    for (var i = 0; i < cfg.pages.length; i++) {
+      var p = clean(cfg.pages[i].path);
+      if (here === p || here.slice(-(p.length + 1)) === '/' + p) return cfg.pages[i];
+    }
+    var leaf = here.split('/').pop();   // fallback: host rewrote the folder part
+    for (var j = 0; j < cfg.pages.length; j++) { if (clean(cfg.pages[j].path).split('/').pop() === leaf) return cfg.pages[j]; }
+    return null;
+  }
+  var page = current();
+
+  // "up one part": from a page → its folder on the main page; from the main page → itself
+  function upHref() {
+    var pg = page && groupOf(page.group);
+    if (page && pg && !pg.hidden) return url(cfg.home) + '#' + page.group;
+    return url(cfg.home);
+  }
+
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+
+  /* ── styles (self-contained so every page looks the same) ── */
+  var css = '' +
+  '.ap-btn{display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 14px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:transparent;color:#b4c0cf;font:500 13px Inter,system-ui,sans-serif;cursor:pointer;text-decoration:none;white-space:nowrap;transition:background .15s,color .15s,border-color .15s}' +
+  '.ap-btn:hover,.ap-btn[aria-expanded="true"]{background:#283340;color:#fff}' +
+  '.ap-btn svg{width:14px;height:14px;opacity:.8}' +
+  '.ap-menu{position:relative;display:inline-block}' +
+  '.ap-pop{position:absolute;z-index:80;top:calc(100% + 12px);left:0;width:340px;max-width:calc(100vw - 24px);padding:8px;border-radius:18px;background:#212a34;border:1px solid rgba(255,255,255,.12);box-shadow:0 24px 56px -20px rgba(2,5,9,.8),0 2px 6px rgba(2,5,9,.3);font-family:Inter,system-ui,sans-serif;animation:apIn .16s cubic-bezier(.2,.7,.2,1)}' +
+  '.ap-pop[hidden]{display:none}' +
+  '@keyframes apIn{from{opacity:0;transform:translateY(-6px) scale(.98)}to{opacity:1;transform:none}}' +
+  '.ap-group{padding:10px 10px 4px;font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:#8795a8}' +
+  '.ap-item{display:flex;align-items:center;gap:12px;padding:9px 10px;border-radius:12px;color:#b4c0cf;text-decoration:none}' +
+  '.ap-item:hover,.ap-item:focus-visible{background:#30404f;color:#fff;outline:none}' +
+  '.ap-item.is-here{background:rgba(91,143,232,.14)}' +
+  '.ap-ico{width:34px;height:34px;flex:none;display:grid;place-items:center;border-radius:10px;background:#1a2129;color:#8fb3f5;font-size:13px}' +
+  '.ap-item.is-here .ap-ico{background:#5b8fe8;color:#0e1620}' +
+  '.ap-txt{min-width:0;flex:1}.ap-ttl{font-size:13.5px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}' +
+  '.ap-path{font-size:11.5px;color:#8795a8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}' +
+  '.ap-here{font-size:11px;font-weight:600;color:#8fb3f5}' +
+  '.ap-crumbs{display:flex;align-items:center;gap:2px;font:500 13px Inter,system-ui,sans-serif;color:#8795a8;min-width:0}' +
+  '.ap-crumbs a{color:#b4c0cf;text-decoration:none;padding:5px 8px;border-radius:9px}.ap-crumbs a:hover{background:#283340;color:#fff}' +
+  '.ap-crumbs b{color:#fff;font-weight:600;padding:5px 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}' +
+  '.ap-crumbs i{font-style:normal;opacity:.5}' +
+  '@media (max-width:640px){.ap-pop{position:fixed;left:12px;right:12px;top:80px;width:auto}}';
+  var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
+
+  /* ── Back (up one part) ── */
+  document.querySelectorAll('[data-aperture-back]').forEach(function (a) {
+    a.setAttribute('href', upHref()); a.setAttribute('target', target);
+  });
+
+  /* ── Breadcrumbs: Aperture › Utility › Page  (each crumb is a path you can trim back to) ── */
+  document.querySelectorAll('[data-aperture-crumbs]').forEach(function (el) {
+    var h = '<a href="' + url(cfg.home) + '" target="' + target + '">' + esc(cfg.name) + '</a>';
+    if (page) {
+      var g = groupOf(page.group);
+      h += '<i>›</i><a href="' + url(cfg.home) + '#' + page.group + '" target="' + target + '">' + esc(g ? g.title : page.group) + '</a>';
+      h += '<i>›</i><b>' + esc(page.title) + '</b>';
+    }
+    el.className = (el.className ? el.className + ' ' : '') + 'ap-crumbs';
+    el.innerHTML = h;
+  });
+
+  /* ── Pages dropdown ── */
+  document.querySelectorAll('[data-aperture-menu]').forEach(function (mount) {
+    var grid = '<svg viewBox="0 0 16 16" fill="currentColor"><rect x="1.5" y="1.5" width="5.2" height="5.2" rx="1.4"/><rect x="9.3" y="1.5" width="5.2" height="5.2" rx="1.4"/><rect x="1.5" y="9.3" width="5.2" height="5.2" rx="1.4"/><rect x="9.3" y="9.3" width="5.2" height="5.2" rx="1.4"/></svg>';
+    var body = '<a class="ap-item' + (page ? '' : ' is-here') + '" href="' + url(cfg.home) + '" target="' + target + '"><span class="ap-ico"><i class="fa-solid fa-house"></i></span><span class="ap-txt"><div class="ap-ttl">' + esc(cfg.name) + ' home</div><div class="ap-path">' + esc(cfg.home) + '</div></span></a>';
+    cfg.groups.forEach(function (g) {
+      if (g.hidden && !(page && page.group === g.id)) return;
+      body += '<div class="ap-group">' + esc(g.title) + '</div>';
+      cfg.pages.filter(function (p) { return p.group === g.id; }).forEach(function (p) {
+        var here = page && page.id === p.id;
+        body += '<a class="ap-item' + (here ? ' is-here' : '') + '" href="' + url(p.path) + '" target="' + target + '"' + (here ? ' aria-current="page"' : '') + '>' +
+          '<span class="ap-ico"><i class="fa-solid ' + esc(p.icon) + '"></i></span>' +
+          '<span class="ap-txt"><div class="ap-ttl">' + esc(p.title) + '</div><div class="ap-path">' + esc(p.path) + '</div></span>' +
+          (here ? '<span class="ap-here">Here</span>' : '') + '</a>';
+      });
+    });
+    mount.className = (mount.className ? mount.className + ' ' : '') + 'ap-menu';
+    mount.innerHTML = '<button type="button" class="ap-btn" aria-haspopup="true" aria-expanded="false">' + grid + '<span>Pages</span></button><div class="ap-pop" hidden>' + body + '</div>';
+    var btn = mount.querySelector('button'), pop = mount.querySelector('.ap-pop');
+    function set(open) { pop.hidden = !open; btn.setAttribute('aria-expanded', open ? 'true' : 'false'); if (open) { var f = pop.querySelector('.is-here') || pop.querySelector('a'); f && f.focus({ preventScroll: true }); } }
+    btn.addEventListener('click', function () { set(pop.hidden); });
+    document.addEventListener('click', function (e) { if (!mount.contains(e.target)) set(false); });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !pop.hidden) { set(false); btn.focus(); }
+      if ((e.key === 'ArrowDown' || e.key === 'ArrowUp') && !pop.hidden) {
+        e.preventDefault();
+        var items = [].slice.call(pop.querySelectorAll('a')), i = items.indexOf(document.activeElement);
+        items[(i + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length].focus();
+      }
+    });
+  });
+
+  /* ── legal links: fix hrefs, and add them to the footer of every page ── */
+  var LEGAL = [['legal/privacy-policy', 'Privacy'], ['legal/terms-of-use', 'Terms'], ['legal/school-and-district', 'Schools & districts']];
+  function legalLinks() {
+    document.querySelectorAll('a[data-lg]').forEach(function (a) { a.setAttribute('href', url(a.getAttribute('href').replace(/^(\.\.\/)+/, ''))); });
+    var f = document.querySelector('footer');
+    if (!f || f.querySelector('[data-lg]') || document.documentElement.hasAttribute('data-no-legal')) return;
+    var d = document.createElement('div');
+    d.className = 'no-print';
+    d.style.cssText = 'display:flex;flex-wrap:wrap;gap:4px 16px;justify-content:center;margin-top:10px;font-size:12px';
+    d.innerHTML = LEGAL.map(function (l) { return '<a data-lg href="' + url(l[0]) + '" target="' + target + '" style="color:#8fb3f5;text-decoration:none">' + esc(l[1]) + '</a>'; }).join('');
+    (f.firstElementChild || f).appendChild(d);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', legalLinks); else legalLinks();
+
+  /* ── public helpers (used by the main page) ── */
+  window.Aperture = { config: cfg, root: ROOT.href, url: url, current: page, target: target, up: upHref };
+})();
+
+/* ── Basic inspect deterrent (keyboard shortcuts + context menu) ── */
+(function () {
+  var block = function (e) { e.preventDefault(); e.stopPropagation(); return false; };
+  document.addEventListener('keydown', function (e) {
+    var k = (e.key || '').toLowerCase(), c = e.ctrlKey || e.metaKey;
+    if (e.keyCode === 123 || k === 'f12' ||
+        (c && e.shiftKey && 'ijcknm'.indexOf(k) > -1 && k.length === 1) ||
+        (e.metaKey && e.altKey && 'iujc'.indexOf(k) > -1 && k.length === 1) ||
+        (c && !e.shiftKey && (k === 'u' || k === 's'))) return block(e);
+  }, true);
+  document.addEventListener('contextmenu', function (e) {
+    var t = e.target && e.target.tagName;
+    if (t === 'INPUT' || t === 'TEXTAREA') return;
+    return block(e);
+  }, true);
+})();
+
+</script>
+<script>
+/* Inside a frame (e.g. Google Sites) open in a new tab; as a normal page just navigate. */
+(function () {
+  var a = document.getElementById('go'), framed = false;
+  try { framed = window.top !== window.self; } catch (e) { framed = true; }
+  if (window.Aperture) a.href = Aperture.url(window.APERTURE.home);
+  if (!framed) { a.target = '_self'; document.querySelector('.sub').style.display = 'none'; }
+})();
+</script>
+</body>
+</html>
