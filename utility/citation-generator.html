@@ -20,7 +20,7 @@ a{color:var(--a2)}button,input,select,textarea{font:inherit;color:inherit}
 .hdr-wrap{order:-1;position:sticky;top:0;z-index:40;padding:6px 10px 0}
 .hdr{min-height:56px;padding:8px 10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:rgba(27,35,44,.96);border:1px solid var(--hair);border-radius:18px;box-shadow:var(--shadow)}
 .crumbs{display:flex;align-items:center;gap:2px;color:var(--t3);font-size:13px;min-width:0;flex:1;overflow:hidden}
-.home{margin-left:auto;display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 14px;border-radius:12px;border:1px solid var(--hair-2);color:var(--t2);text-decoration:none;font-size:13.5px;font-weight:500}.home:hover{background:var(--surface-2);color:#fff}
+.home{order:-1;margin-right:2px;display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 14px;border-radius:12px;border:1px solid var(--hair-2);color:var(--t2);text-decoration:none;font-size:13.5px;font-weight:500}.home:hover{background:var(--surface-2);color:#fff}
 main{flex:1;width:100%;padding:22px 16px 8px}
 .head h1{margin:0;font-size:clamp(26px,3.6vw,34px);letter-spacing:-.02em;line-height:1.15}.head p{margin:6px 0 0;color:var(--t2);max-width:70ch;font-size:15px}
 .badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.badges span{display:inline-flex;align-items:center;gap:7px;padding:5px 11px;border-radius:99px;background:rgba(95,184,148,.1);border:1px solid rgba(95,184,148,.28);color:#9fd9c0;font-size:12px;font-weight:500}
@@ -72,14 +72,13 @@ footer{margin-top:30px;padding:22px 16px 30px;border-top:1px solid var(--hair);c
 <header class="hdr-wrap"><div class="hdr">
   <span data-aperture-menu></span>
   <nav data-aperture-crumbs class="crumbs"></nav>
-  <a class="home" href="../" data-aperture-back><i class="fa-solid fa-house"></i><span>Home</span></a>
+  <a class="home" href="../" data-aperture-back><i class="fa-solid fa-arrow-left"></i><span>Back</span></a>
 </div></header>
 
 <main>
   <div class="head">
     <h1>Citation Generator</h1>
     <p>Make MLA 9, APA 7 and Chicago 17 citations in seconds. Everything is built from the official formatting rules, so the result is the same every time and you can trust it.</p>
-    <div class="badges"><span><i class="fa-solid fa-gift"></i> Completely free</span><span><i class="fa-solid fa-ban"></i> No AI. Nothing to cite</span><span><i class="fa-solid fa-lock"></i> Your list stays in your browser</span></div>
   </div>
 
   <div class="grid">
@@ -89,15 +88,10 @@ footer{margin-top:30px;padding:22px 16px 30px;border-top:1px solid var(--hair);c
       <div class="chips" id="types" role="tablist"></div>
 
       <div class="f" id="form">
-        <div class="full" data-t="doi">
-          <span class="lbl">Fill in from a DOI <small>(optional)</small></span>
-          <div class="auto"><input class="inp" id="q-doi" placeholder="10.1000/xyz123 or https://doi.org/…" autocomplete="off" spellcheck="false"><button class="btn" id="b-doi" type="button">Look up</button></div>
-          <div class="hint" id="h-doi"></div>
-        </div>
-        <div class="full" data-t="isbn">
-          <span class="lbl">Fill in from an ISBN <small>(optional)</small></span>
-          <div class="auto"><input class="inp" id="q-isbn" placeholder="978-0-14-310563-7" autocomplete="off" spellcheck="false" inputmode="numeric"><button class="btn" id="b-isbn" type="button">Look up</button></div>
-          <div class="hint" id="h-isbn"></div>
+        <div class="full">
+          <label class="lbl" for="q-auto">Auto-fill <small>(paste a web address, DOI or ISBN)</small></label>
+          <div class="auto"><input class="inp" id="q-auto" placeholder="https://…  or  10.1000/xyz123  or  978-0-14-310563-7" autocomplete="off" spellcheck="false"><button class="btn pri" id="b-auto" type="button"><i class="fa-solid fa-wand-magic-sparkles"></i> Fill in</button></div>
+          <div class="hint" id="h-auto">Works for every source type. You can still edit everything below.</div>
         </div>
 
         <div class="full">
@@ -182,7 +176,7 @@ footer{margin-top:30px;padding:22px 16px 30px;border-top:1px solid var(--hair);c
     <h2>How it works</h2>
     <p>This tool follows the published rules for each style: author order and initials, capitalization, italics, punctuation, dates, and what to do when a part is missing. There is no AI and no guessing. The same input always gives the same result.</p>
     <ul>
-      <li><b>Look-ups.</b> A DOI or ISBN can fill in the details. This uses the free Crossref and Open Library services. Always check the names and titles it returns.</li>
+      <li><b>Auto-fill.</b> Paste a web address, DOI or ISBN and the details are filled in for you. Web addresses use the free Microlink service, DOIs use Crossref and ISBNs use Open Library. Pages often leave out authors or dates, so always check what comes back.</li>
       <li><b>Your list</b> is saved in this browser only. It is sorted alphabetically for you, and the Word file uses double spacing and a hanging indent.</li>
       <li><b>Always check against your teacher's instructions.</b> Some assignments ask for small changes to the style.</li>
     </ul>
@@ -648,7 +642,7 @@ var SMALL = {};
 var SMALL_KEEP_LONG = { over: 1, upon: 1, into: 1, onto: 1, with: 1, from: 1, yet: 1, so: 1 };
 
 function capFirstLetter(w) { return w.replace(/[A-Za-zÀ-ɏ]/, function (c) { return c.toUpperCase(); }); }
-function isShouty(t) { var l = t.replace(/[^A-Za-z]/g, ''); return l.length > 3 && l === l.toUpperCase(); }
+function isShouty(t) { var l = t.replace(/[^A-Za-z]/g, ''); return l.length > 3 && l === l.toUpperCase() && /\s/.test(clean(t)); }
 function keepWord(w) { return /\d/.test(w) || /[A-Z]/.test(w.slice(1)) || /^[A-Z]{2,}[.,:;!?]*$/.test(w); }
 
 function titleCase(s) {
@@ -1046,7 +1040,7 @@ function toText(s) { return s.replace(/[]/g, ''); }
 function update() {
   var f = collect(); cur = f; var S = STYLES[state.style];
   document.querySelectorAll('#styles button').forEach(function (b) { b.classList.toggle('on', b.dataset.s === state.style); });
-  $('o-head').textContent = S.list.replace(/s$/, '') === 'Work Cited' ? 'Works cited entry' : (state.style === 'apa' ? 'Reference list entry' : 'Bibliography entry');
+  $('o-head').textContent = state.style === 'mla' ? 'Works cited entry' : (state.style === 'apa' ? 'Reference list entry' : 'Bibliography entry');
   $('list-title').textContent = S.list;
   var has = clean(f.title) || authCount(f);
   var out = $('out');
@@ -1121,7 +1115,7 @@ $('l-doc').onclick = function () {
 $('l-print').onclick = function () { window.print(); };
 $('l-clear').onclick = function () { if (items.length && confirm('Remove all ' + items.length + ' citations from your list?')) { items = []; persist(); renderList(); } };
 $('clear').onclick = function () {
-  fields.forEach(function (k) { $(k).value = ''; }); $('orgname').value = ''; $('loc').value = ''; $('container').dataset.touched = ''; delete $('container').dataset.auto;
+  fields.forEach(function (k) { $(k).value = ''; }); $('orgname').value = ''; $('loc').value = ''; $('container').dataset.touched = ''; delete $('container').dataset.auto; $('q-auto').value = ''; $('org').checked = false; state.org = false; setHint('h-auto', 'Works for every source type. You can still edit everything below.');
   state.authors = [{ f: '', l: '' }]; state.editors = [{ f: '', l: '' }]; renderPeople(); update(); $('title').focus();
 };
 
@@ -1129,40 +1123,77 @@ $('clear').onclick = function () {
 function timed(url) { var c = new AbortController(), t = setTimeout(function () { c.abort(); }, 10000); return fetch(url, { signal: c.signal }).then(function (r) { clearTimeout(t); if (!r.ok) throw new Error(r.status); return r.json(); }); }
 function setHint(id, msg, cls) { var h = $(id); h.textContent = msg; h.className = 'hint ' + (cls || ''); }
 function personsFrom(arr) { return (arr || []).map(function (p) { return { f: p.given || '', l: p.family || p.name || '' }; }).filter(function (p) { return p.f || p.l; }); }
-$('b-doi').onclick = function () {
-  var d = cleanDOI($('q-doi').value); if (!d) { setHint('h-doi', 'Enter a DOI first.', 'err'); return; }
-  setHint('h-doi', 'Looking it up…'); $('b-doi').disabled = true;
-  timed('https://api.crossref.org/works/' + encodeURIComponent(d)).then(function (j) {
-    var m = j.message || {}, ty = m.type || '';
-    var tp = /book-chapter|reference-entry/.test(ty) ? 'chapter' : (/^book|monograph|edited-book/.test(ty) ? 'book' : 'article');
-    state.type = tp; state.org = false;
-    var au = personsFrom(m.author); state.authors = au.length ? au : [{ f: '', l: '' }];
-    var ed = personsFrom(m.editor); state.editors = ed.length ? ed : [{ f: '', l: '' }];
-    var dp = (m.issued && m['issued']['date-parts'] && m['issued']['date-parts'][0]) || (m.published && m.published['date-parts'] && m.published['date-parts'][0]) || [];
-    $('title').value = ((m.title || [''])[0] + ((m.subtitle && m.subtitle[0]) ? ': ' + m.subtitle[0] : '')).replace(/<[^>]+>/g, '');
-    $('container').value = (m['container-title'] || [''])[0] || '';
-    $('volume').value = m.volume || ''; $('issue').value = m.issue || ''; $('pages').value = (m.page || '').replace(/-/g, '–');
-    $('publisher').value = (tp === 'article') ? '' : (m.publisher || ''); $('doi').value = m.DOI || d; $('url').value = '';
-    $('y').value = dp[0] || ''; $('m').value = (tp === 'article' && dp[1]) ? dp[1] : ''; $('d').value = '';
-    if (tp === 'book') { $('title').value = $('title').value; $('container').value = ''; }
-    renderPeople(); applyType(); update(); setHint('h-doi', 'Filled in. Please check the names and titles.', 'ok');
-  }).catch(function (e) { setHint('h-doi', /404/.test(e.message) ? 'No record found for that DOI.' : 'Could not reach the DOI service. Enter the details by hand.', 'err'); }).then(function () { $('b-doi').disabled = false; });
-};
-$('b-isbn').onclick = function () {
-  var q = $('q-isbn').value.replace(/[^0-9Xx]/g, ''); if (q.length !== 10 && q.length !== 13) { setHint('h-isbn', 'An ISBN has 10 or 13 digits.', 'err'); return; }
-  setHint('h-isbn', 'Looking it up…'); $('b-isbn').disabled = true;
-  timed('https://openlibrary.org/api/books?bibkeys=ISBN:' + q + '&format=json&jscmd=data').then(function (j) {
-    var b = j['ISBN:' + q]; if (!b) throw new Error('none');
-    state.type = 'book'; state.org = false;
-    var au = (b.authors || []).map(function (a) { var parts = clean(a.name).split(' '); var l = parts.pop(); return { f: parts.join(' '), l: l }; });
-    state.authors = au.length ? au : [{ f: '', l: '' }];
-    $('title').value = b.title + (b.subtitle ? ': ' + b.subtitle : '');
-    $('publisher').value = (b.publishers && b.publishers[0] && b.publishers[0].name) || ''; $('city').value = (b.publish_places && b.publish_places[0] && b.publish_places[0].name) || '';
-    var yr = /\d{4}/.exec(b.publish_date || ''); $('y').value = yr ? yr[0] : ''; $('edition').value = ''; $('container').value = '';
-    renderPeople(); applyType(); update(); setHint('h-isbn', 'Filled in. Check the author names, edition and publisher against your copy.', 'ok');
-  }).catch(function (e) { setHint('h-isbn', e.message === 'none' ? 'No book found for that ISBN.' : 'Could not reach the book service. Enter the details by hand.', 'err'); }).then(function () { $('b-isbn').disabled = false; });
-};
-['q-doi', 'q-isbn'].forEach(function (id) { $(id).addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); $(id === 'q-doi' ? 'b-doi' : 'b-isbn').click(); } }); });
+
+function applyCrossref(m, d) {
+  var ty = m.type || '';
+  var tp = /book-chapter|reference-entry/.test(ty) ? 'chapter' : (/^book|monograph|edited-book/.test(ty) ? 'book' : 'article');
+  state.type = tp; state.org = false; $('org').checked = false;
+  var au = personsFrom(m.author); state.authors = au.length ? au : [{ f: '', l: '' }];
+  var ed = personsFrom(m.editor); state.editors = ed.length ? ed : [{ f: '', l: '' }];
+  var dp = (m.issued && m.issued['date-parts'] && m.issued['date-parts'][0]) || (m.published && m.published['date-parts'] && m.published['date-parts'][0]) || [];
+  $('title').value = ((m.title || [''])[0] + ((m.subtitle && m.subtitle[0]) ? ': ' + m.subtitle[0] : '')).replace(/<[^>]+>/g, '');
+  $('container').value = tp === 'book' ? '' : ((m['container-title'] || [''])[0] || '');
+  $('volume').value = m.volume || ''; $('issue').value = m.issue || ''; $('pages').value = (m.page || '').replace(/-/g, '–');
+  $('publisher').value = (tp === 'article') ? '' : (m.publisher || ''); $('doi').value = m.DOI || d; $('url').value = ''; $('acc').value = '';
+  $('y').value = dp[0] || ''; $('m').value = (tp === 'article' && dp[1]) ? dp[1] : ''; $('d').value = '';
+}
+function applyBook(b) {
+  state.type = 'book'; state.org = false; $('org').checked = false;
+  var au = (b.authors || []).map(function (a) { var parts = clean(a.name).split(' '); var l = parts.pop(); return { f: parts.join(' '), l: l }; });
+  state.authors = au.length ? au : [{ f: '', l: '' }];
+  $('title').value = b.title + (b.subtitle ? ': ' + b.subtitle : '');
+  $('publisher').value = (b.publishers && b.publishers[0] && b.publishers[0].name) || ''; $('city').value = (b.publish_places && b.publish_places[0] && b.publish_places[0].name) || '';
+  var yr = /\d{4}/.exec(b.publish_date || ''); $('y').value = yr ? yr[0] : ''; $('edition').value = ''; $('container').value = ''; $('acc').value = ''; $('url').value = ''; $('doi').value = '';
+}
+function parseAuthors(str, site) {
+  str = clean(str).replace(/^by\s+/i, ''); if (!str) return null;
+  var parts = str.split(/\s*(?:,|;|&|\band\b)\s*/i).filter(Boolean);
+  var org = parts.length === 1 && (!/\s/.test(parts[0]) || (site && lc(parts[0]) === lc(clean(site))) || /\b(inc|llc|ltd|university|institute|department|agency|association|foundation|society|council|administration|news|times|post|press|magazine|network|center|centre|organization|committee|bureau|service|services)\b/i.test(parts[0]));
+  if (org) return { org: true, name: parts[0] };
+  return { org: false, list: parts.map(function (n) { var w = n.split(' '); var l = w.pop(); return { f: w.join(' '), l: l }; }) };
+}
+function applyPage(d, srcUrl) {
+  var site = clean(d.publisher || '');
+  var t = clean(d.title || '');
+  if (site && t) { var re = new RegExp('\\s*[|\\u2013\\u2014:\\-\\u00b7]\\s*' + site.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s*$', 'i'); t = t.replace(re, ''); }
+  var isVid = /(^|\.)youtube\.com$|^youtu\.be$/.test(new URL(srcUrl).hostname.replace(/^www\./, ''));
+  if (isVid) state.type = 'video'; else if (state.type === 'book' || state.type === 'chapter') state.type = 'web';
+  var a = parseAuthors(d.author, site);
+  if (isVid) { var ch = clean(d.author || ''); state.org = false; $('org').checked = false; state.authors = ch ? [{ f: '', l: ch }] : [{ f: '', l: '' }]; }
+  else if (a && a.org) { state.org = true; $('org').checked = true; $('orgname').value = a.name; }
+  else if (a) { state.org = false; $('org').checked = false; state.authors = a.list; }
+  else { state.org = false; $('org').checked = false; state.authors = [{ f: '', l: '' }]; }
+  $('title').value = t; $('container').value = isVid ? 'YouTube' : site; $('container').dataset.touched = '1';
+  $('url').value = (d.url || srcUrl); $('doi').value = '';
+  var dt = /^(\d{4})-(\d{2})-(\d{2})/.exec(d.date || '');
+  $('y').value = dt ? dt[1] : ''; $('m').value = dt ? +dt[2] : ''; $('d').value = dt ? +dt[3] : '';
+  var now = new Date(); $('acc').value = now.getFullYear() + '-' + ('0' + (now.getMonth() + 1)).slice(-2) + '-' + ('0' + now.getDate()).slice(-2);
+}
+function runAuto() {
+  var q = clean($('q-auto').value); if (!q) { setHint('h-auto', 'Paste a web address, DOI or ISBN first.', 'err'); return; }
+  var btn = $('b-auto'), done = function () { btn.disabled = false; };
+  var doiM = /(?:doi\.org\/|doi:\s*|^)(10\.\d{4,9}\/[^\s]+)$/i.exec(q), isbn = q.replace(/[\s-]/g, '');
+  var go;
+  btn.disabled = true; setHint('h-auto', 'Looking it up…');
+  if (doiM) {
+    go = timed('https://api.crossref.org/works/' + encodeURIComponent(doiM[1])).then(function (j) { applyCrossref(j.message || {}, doiM[1]); });
+  } else if (/^(\d{9}[\dXx]|\d{13})$/.test(isbn)) {
+    go = timed('https://openlibrary.org/api/books?bibkeys=ISBN:' + isbn + '&format=json&jscmd=data').then(function (j) { var b = j['ISBN:' + isbn]; if (!b) throw new Error('none'); applyBook(b); });
+  } else {
+    var u = q; if (!/^[a-z][a-z0-9+.-]*:\/\//i.test(u)) u = 'https://' + u;
+    try { new URL(u); } catch (e) { setHint('h-auto', 'That does not look like a web address, DOI or ISBN.', 'err'); done(); return; }
+    go = timed('https://api.microlink.io/?url=' + encodeURIComponent(u)).then(function (j) {
+      if (!j || j.status !== 'success' || !j.data) throw new Error('none');
+      applyPage(j.data, u);
+    });
+  }
+  go.then(function () { renderPeople(); applyType(); update(); setHint('h-auto', 'Filled in. Please check the names, titles and dates, then fix anything that is missing.', 'ok'); })
+    .catch(function (e) { setHint('h-auto', e && e.message === 'none' ? 'Nothing found for that. Fill in the details by hand.' : 'Could not reach the look-up service. Fill in the details by hand.', 'err'); })
+    .then(done);
+}
+$('b-auto').onclick = runAuto;
+$('q-auto').addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); runAuto(); } });
+$('q-auto').addEventListener('paste', function () { setTimeout(function () { if (clean($('q-auto').value).length > 6) runAuto(); }, 0); });
 
 $('caps').checked = state.caps;
 renderPeople(); applyType(); update(); renderList();
