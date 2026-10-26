@@ -65,6 +65,7 @@ footer{margin-top:36px;padding:24px 16px 32px;border-top:1px solid var(--hair);c
 <tr><td><b>Class Bell Countdown</b></td><td>Your device clock and your saved schedule choices. It also reads (and, for authorized staff, writes) shared schedule changes such as delays and special schedules. The shared calendar uses an anonymous sign-in with no name or email.</td><td>Google Firebase (Authentication and Cloud Firestore)</td></tr>
 <tr><td><b>School Status</b></td><td>The ZIP code you type is turned into map coordinates, and those coordinates are used to get a weather forecast. No account or exact street address is used.</td><td>Zippopotam.us (ZIP lookup) and Open-Meteo (forecast)</td></tr>
 <tr><td><b>Student Directory</b></td><td>Directory information supplied by the school: student and staff names, grade, schedules, rooms and school email addresses. A copy is cached in your browser.</td><td>Google Apps Script (the school's directory source)</td></tr>
+<tr><td><b>Citation Generator</b></td><td>Citations are built in your browser by fixed formatting rules, with no AI. Your saved list stays in your browser. If you choose a DOI or ISBN look-up, only that DOI or ISBN is sent.</td><td>Crossref (DOI look-up) and Open Library (ISBN look-up), only when you press Look up</td></tr>
 <tr><td><b>Geography Worksheets</b></td><td>Runs in your browser. The worksheets you generate are not uploaded anywhere.</td><td>None</td></tr>
 </table></div>
 <h2>Services that load page resources</h2>
@@ -176,6 +177,16 @@ window.APERTURE = {
       "icon": "fa-cloud-sun-rain",
       "blurb": "Weather-based estimate of 2-hour delay and closure risk, with an hourly commute forecast.",
       "keywords": "weather snow day delay closure forecast prediction wind chill temperature zip commute"
+    },
+    {
+      "id": "citation",
+      "tags": ["MLA 9", "APA 7", "Chicago 17"],
+      "title": "Citation Generator",
+      "group": "utility",
+      "path": "utility/citation-generator",
+      "icon": "fa-quote-right",
+      "blurb": "Free MLA, APA and Chicago citations built from the official rules. No AI, and your list stays in your browser.",
+      "keywords": "citation cite bibliography works cited references mla apa chicago source reference essay paper research footnote in-text"
     },
     {
       "id": "directory",

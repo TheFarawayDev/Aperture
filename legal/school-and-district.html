@@ -65,10 +65,11 @@ footer{margin-top:36px;padding:24px 16px 32px;border-top:1px solid var(--hair);c
 <tr><td><b>Class Bell Countdown</b></td><td>Saved lunch and period choices stay in the browser. Shared delay and special-schedule entries are stored as dates and schedule types only.</td><td>Firebase (Auth, Firestore)</td></tr>
 <tr><td><b>School Status</b></td><td>ZIP code, converted to coordinates for a forecast. No student data.</td><td>api.zippopotam.us, api.open-meteo.com</td></tr>
 <tr><td><b>Student Directory</b></td><td>School-supplied directory information, cached in the browser. Not available offline unless previously cached.</td><td>script.google.com</td></tr>
+<tr><td><b>Citation Generator</b></td><td>None. Citations are formatted in the browser and the list is saved only in the browser. A DOI or ISBN is sent only if the user presses Look up.</td><td>api.crossref.org, openlibrary.org (optional)</td></tr>
 <tr><td><b>Geography Worksheets</b></td><td>None. Runs entirely in the browser.</td><td>None</td></tr>
 </table></div>
 <h2>Content filter and firewall allowlist</h2>
-<p>If your network blocks unknown sites, these hosts may need to be allowed: <code>fonts.googleapis.com</code>, <code>fonts.gstatic.com</code>, <code>cdnjs.cloudflare.com</code>, <code>cdn.tailwindcss.com</code>, <code>cdn.jsdelivr.net</code>, <code>www.gstatic.com</code>, <code>firebaseapp.com</code> and <code>firestore.googleapis.com</code>, <code>script.google.com</code>, <code>api.zippopotam.us</code> and <code>api.open-meteo.com</code>.</p>
+<p>If your network blocks unknown sites, these hosts may need to be allowed: <code>fonts.googleapis.com</code>, <code>fonts.gstatic.com</code>, <code>cdnjs.cloudflare.com</code>, <code>cdn.tailwindcss.com</code>, <code>cdn.jsdelivr.net</code>, <code>www.gstatic.com</code>, <code>firebaseapp.com</code> and <code>firestore.googleapis.com</code>, <code>script.google.com</code>, <code>api.zippopotam.us</code>, <code>api.open-meteo.com</code>, and, for the optional look-ups in the Citation Generator, <code>api.crossref.org</code> and <code>openlibrary.org</code>.</p>
 <h2>Embedding and classroom displays</h2>
 <p>Aperture pages are plain web pages. They can be linked from a learning management system or a Google Sites page, or shown full-screen on a classroom display. The pages are designed to work on phones, tablets and computers.</p>
 <h2>Accuracy and official announcements</h2>
@@ -171,6 +172,16 @@ window.APERTURE = {
       "icon": "fa-cloud-sun-rain",
       "blurb": "Weather-based estimate of 2-hour delay and closure risk, with an hourly commute forecast.",
       "keywords": "weather snow day delay closure forecast prediction wind chill temperature zip commute"
+    },
+    {
+      "id": "citation",
+      "tags": ["MLA 9", "APA 7", "Chicago 17"],
+      "title": "Citation Generator",
+      "group": "utility",
+      "path": "utility/citation-generator",
+      "icon": "fa-quote-right",
+      "blurb": "Free MLA, APA and Chicago citations built from the official rules. No AI, and your list stays in your browser.",
+      "keywords": "citation cite bibliography works cited references mla apa chicago source reference essay paper research footnote in-text"
     },
     {
       "id": "directory",
