@@ -154,6 +154,12 @@ dialog{max-height:calc(100dvh - 24px);overflow:auto;overscroll-behavior:contain}
 #msgs{overflow-anchor:auto}
 .cv{contain:layout}
 @media(max-width:560px){.m{max-width:92%}.dh h2{font-size:17px}#d-new,#d-group,#d-set,#d-info,#d-pins,#d-ask,#d-pw,#d-block,#d-blocked{width:calc(100vw - 16px)}}
+.m.cont{margin-top:1px}.m.cont .who{display:none}.m.cont:not(.me) .bub{border-top-left-radius:6px}.m.cont.me .bub{border-top-right-radius:6px}
+.rcpt{align-self:flex-end;border:0;background:transparent;color:var(--t3);font-size:11px;cursor:default;margin:2px 5px 0;padding:0}.rcpt.g{cursor:pointer}.rcpt.g:hover{color:#fff}.rcpt i{color:var(--green);margin-right:4px;font-size:10px}
+.bub code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.92em;padding:1px 5px;border-radius:5px;background:rgba(6,10,14,.3)}.m.me .bub code{background:rgba(14,22,32,.2)}
+.bub s{opacity:.75}
+.seen-sec{margin:0 0 10px}.seen-sec h4{margin:0 0 6px;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--t3)}
+.mem time{font-size:12px;color:var(--t3);flex:none}
 </style>
 </head>
 <body>
@@ -240,6 +246,10 @@ dialog{max-height:calc(100dvh - 24px);overflow:auto;overscroll-behavior:contain}
     <label class="tg"><span>Play a sound for new messages and mentions</span><input type="checkbox" id="s-snd"></label>
     <label class="tg"><span>Desktop notifications when this tab is in the background</span><input type="checkbox" id="s-dn"></label>
     <div class="hint" id="s-dnh">Notifications never include message text. Muted chats stay silent.</div></div>
+  <div class="sec"><h3>Privacy and display</h3>
+    <label class="tg"><span>Send read receipts (show others when I have read their messages)</span><input type="checkbox" id="s-rr"></label>
+    <label class="tg"><span>Show others when I am typing</span><input type="checkbox" id="s-ty"></label>
+    <label class="tg"><span>Use a 24-hour clock</span><input type="checkbox" id="s-24"></label></div>
   <div class="sec"><h3>Blocked people</h3><div id="s-blocks"></div></div>
   <div class="sec"><h3>Account</h3><div class="grid2"><button class="btn" id="s-pw" type="button"><i class="fa-solid fa-key"></i> Change password</button><button class="btn" id="s-out" type="button"><i class="fa-solid fa-right-from-bracket"></i> Sign out</button><button class="btn" id="s-export" type="button"><i class="fa-solid fa-download"></i> Download my data</button></div></div>
   <div class="sec"><h3>Danger zone</h3><div class="grid2"><button class="btn danger" id="s-wipe" type="button"><i class="fa-solid fa-eraser"></i> Delete my messages</button><button class="btn danger" id="s-del" type="button"><i class="fa-regular fa-trash-can"></i> Delete my account</button></div><div class="hint">Signing out keeps your nickname reserved. Deleting your account frees the name and removes your chat list.</div></div>
@@ -261,6 +271,7 @@ dialog{max-height:calc(100dvh - 24px);overflow:auto;overscroll-behavior:contain}
   <label class="lbl" for="pw-new2" style="margin-top:12px">Confirm new password</label><input class="inp" id="pw-new2" type="password" autocomplete="new-password">
   <div class="hint err" id="pw-err"></div>
   <div class="acts"><button class="btn pri" id="pw-go" type="button">Change password</button><button class="btn" data-close type="button">Cancel</button></div></div></dialog>
+<dialog id="d-seen"><div class="dh"><h2>Seen by</h2><button class="ibtn" data-close type="button" aria-label="Close"><i class="fa-solid fa-xmark"></i></button></div><div class="db" id="seen-body"></div></dialog>
 <div id="picker" class="picker" hidden></div>
 <dialog id="d-pins"><div class="dh"><h2>Pinned messages</h2><button class="ibtn" data-close type="button" aria-label="Close"><i class="fa-solid fa-xmark"></i></button></div><div class="db" id="p-body"></div></dialog>
 <div id="toast" role="status"></div>
@@ -859,7 +870,7 @@ function refreshAvatars() { document.querySelectorAll('[data-av]').forEach(funct
 function dmId(a, b) { return a < b ? a + '~' + b : b + '~' + a; }
 function convPath(c) { return (c.kind === 'g' ? 'groups/' : 'dms/') + c.id; }
 function peerOf(id) { var p = id.split('~'); return p[0] === me ? p[1] : p[0]; }
-function fmtTime(ts) { return new Date(ts).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }); }
+function fmtTime(ts) { return new Date(ts).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: !store.h24 }); }
 function fmtDay(ts) { var d = new Date(ts), n = new Date(), y = new Date(Date.now() - 864e5); if (d.toDateString() === n.toDateString()) return 'Today'; if (d.toDateString() === y.toDateString()) return 'Yesterday'; return d.toLocaleDateString([], { month: 'short', day: 'numeric', year: d.getFullYear() === n.getFullYear() ? undefined : 'numeric' }); }
 function keyTs(k) { return parseInt(k.slice(0, 8), 36) || 0; }
 function newKey() { return Date.now().toString(36).padStart(8, '0') + Math.random().toString(36).slice(2, 7); }
@@ -948,6 +959,7 @@ function start() {
 }
 function stopTimers() { closeStream(); Object.keys(timers).forEach(function (k) { clearInterval(timers[k]); }); timers = {}; }
 function loadBlocks() { rt('GET', 'blocks/' + me).then(function (b) { b = b || {}; Object.keys(b).forEach(function (k) { store.blocks[k] = 1; }); blocks = store.blocks; save(); renderConvs(); }).catch(function () {}); }
+window.addEventListener('focus', function () { if (me && cur) { readMark[cur.id] = ''; pollMsgs(); } });
 document.addEventListener('visibilitychange', function () { if (!document.hidden && me) { refreshInbox(); if (cur) pollMsgs(); } });
 function signOut(msg) {
   stopTimers(); me = ''; myPriv = null; cur = null; convs = {}; keyCache = {}; plain = {}; pubCache = {}; escrowDone = {}; pics = {}; drafts = {}; inboxReady = false; seen = {}; document.title = 'Messages \u2014 Aperture';
@@ -1089,14 +1101,17 @@ $('b-back').onclick = closeChat;
 function sigOf(m) { return JSON.stringify([m.t, m.ed || 0, m.r || 0, m.rp && m.rp.t || 0]); }
 function mentionize(h) { return h.replace(/(^|[\s(])@([a-z0-9_]{3,20})\b/g, function (x, a, n) { return a + '<span class="at' + (n === me ? ' me' : n === 'everyone' ? ' all' : '') + '">@' + n + '</span>'; }); }
 function mentionsMe(t) { return new RegExp('(^|[^a-z0-9_])@(' + me + '|everyone)\\b', 'i').test(t || ''); }
+function md(h) {
+  return h.replace(/`([^`\n]{1,200})`/g, '<code>$1</code>').replace(/\*\*([^*\n]{1,300})\*\*/g, '<b>$1</b>').replace(/(^|[\s(])\*([^*\n]{1,300})\*(?=$|[\s).,!?])/g, '$1<i>$2</i>').replace(/~~([^~\n]{1,300})~~/g, '<s>$1</s>');
+}
 function msgInner(k, m, ts, c) {
   var mine = m.f === me;
   var rp = m.rp ? '<button type="button" class="rp" data-act="jump" data-k="' + esc(m.rp.k) + '"><i class="fa-solid fa-reply"></i> <b>' + esc(m.rp.f) + '</b> ' + esc(filterText(m.rp._t || '')) + '</button>' : '';
   var rx = Object.keys(m.r || {}).map(function (e) { var u = Object.keys(m.r[e] || {}); if (!u.length) return ''; var on = u.indexOf(me) >= 0; return '<button type="button" class="rx' + (on ? ' on' : '') + '" data-act="tgl" data-e="' + esc(e) + '" title="' + esc(u.slice(0, 12).join(', ')) + '">' + esc(e) + ' <span>' + u.length + '</span></button>'; }).join('');
-  var body = mentionize(esc(filterText(m._t || '')));
+  var body = mentionize(md(esc(filterText(m._t || ''))));
   return (!mine && c.kind === 'g' ? '<span class="who" data-act="mention" data-n="' + esc(m.f) + '"><span class="av sm" data-av="' + esc(m.f) + '" data-g="0"></span>' + esc(m.f) + '</span>' : '') + rp +
     '<div class="bub">' + body + '</div>' + (rx ? '<div class="rxs">' + rx + '</div>' : '') +
-    '<span class="tm">' + fmtTime(ts) + (m.ed ? ' · edited' : '') + '</span>' +
+    '<span class="tm" title="' + esc(new Date(ts).toLocaleString()) + '">' + fmtTime(ts) + (m.ed ? ' · edited' : '') + '</span>' +
     '<div class="act"><button type="button" data-act="react" title="React"><i class="fa-regular fa-face-smile"></i></button><button type="button" data-act="reply" title="Reply"><i class="fa-solid fa-reply"></i></button><button type="button" data-act="copy" title="Copy text"><i class="fa-regular fa-copy"></i></button><button type="button" data-act="pin" title="Pin"><i class="fa-solid fa-thumbtack"></i></button>' +
     (mine ? '<button type="button" data-act="edit" title="Edit"><i class="fa-solid fa-pen"></i></button><button type="button" data-act="del" title="Delete"><i class="fa-regular fa-trash-can"></i></button>' : '<button type="button" data-act="rep" title="Report"><i class="fa-regular fa-flag"></i></button><button type="button" data-act="blk" title="Block ' + esc(m.f) + '"><i class="fa-solid fa-ban"></i></button>') + '</div>';
 }
@@ -1112,15 +1127,16 @@ function pollMsgs(first) {
   var c = cur; if (!c) return; var base = convPath(c);
   Promise.all([
     rt('GET', base + '/m', undefined, 'orderBy=%22%24key%22&limitToLast=100'),
-    rt('GET', base + '/typing').catch(function () { return null; })
+    rt('GET', base + '/typing').catch(function () { return null; }),
+    rt('GET', base + '/read').catch(function () { return null; })
   ]).then(function (res) {
     if (cur !== c) return;
     var j = res[0] || {};
-    return decryptAll(c, j).then(function () { return [j, res[1]]; });
+    return decryptAll(c, j).then(function () { return [j, res[1], res[2]]; });
   }).then(function (res) {
     if (!res || cur !== c) return;
     var j = res[0], keys = Object.keys(j).sort(), box = $('msgs'), atEnd = first || forceEnd || box.scrollHeight - box.scrollTop - box.clientHeight < 90;
-    if (first) { box.innerHTML = ''; box.dataset.day = ''; shown = {}; msgData = {}; }
+    if (first) { box.innerHTML = ''; box.dataset.day = ''; box.dataset.lf = ''; box.dataset.lt = ''; shown = {}; msgData = {}; }
     var minK = keys[0];
     Array.prototype.slice.call(box.querySelectorAll('.m')).forEach(function (el) { if (!j[el.dataset.k] && (!minK || el.dataset.k >= minK)) { el.remove(); delete shown[el.dataset.k]; delete msgData[el.dataset.k]; } });
     var lastDay = box.dataset.day || '';
@@ -1130,11 +1146,13 @@ function pollMsgs(first) {
       if (shown[k]) { if (Date.now() - (touch[k] || 0) < 4000) return; if (sigOf(msgData[k]) !== sigOf(m)) { var el = box.querySelector('.m[data-k="' + k + '"]'); if (el) el.innerHTML = msgInner(k, m, ts, c); } msgData[k] = m; return; }
       shown[k] = 1; msgData[k] = m; if (k > lastKey) lastKey = k;
       var day = fmtDay(ts); if (day !== lastDay) { lastDay = day; var d = document.createElement('div'); d.className = 'day'; d.textContent = day; box.appendChild(d); }
-      var el2 = document.createElement('div'); el2.className = 'm' + (m.f === me ? ' me' : '') + (m.f !== me && mentionsMe(m._t) ? ' mention' : ''); el2.dataset.k = k; el2.innerHTML = msgInner(k, m, ts, c); box.appendChild(el2);
+      var cont = box.dataset.lf === m.f && day === box.dataset.ld && ts - (+box.dataset.lt || 0) < 300000; box.dataset.lf = m.f; box.dataset.ld = day; box.dataset.lt = ts;
+      var el2 = document.createElement('div'); el2.className = 'm' + (cont ? ' cont' : '') + (m.f === me ? ' me' : '') + (m.f !== me && mentionsMe(m._t) ? ' mention' : ''); el2.dataset.k = k; el2.innerHTML = msgInner(k, m, ts, c); box.appendChild(el2);
     });
     box.dataset.day = lastDay;
     if (!box.querySelector('.m')) box.innerHTML = '<div class="sys">' + (c.kind === 'd' ? 'This is the start of your chat with <b>' + esc(c.name) + '</b>. Say hello! Messages are encrypted.' : 'No messages yet. Say hello! Messages are encrypted.') + '</div>';
     else { var sy = box.querySelector('.sys'); if (sy) sy.remove(); }
+    renderReceipts(c, res[2] || {}, keys, j); markRead(c, keys);
     if (searchQ) applySearch();
     if (atEnd) { box.scrollTop = box.scrollHeight; forceEnd = false; }
     var cv = convs[c.id]; if (cv) { store.read[c.id] = Math.max(cv.ts, store.read[c.id] || 0); save(); }
@@ -1143,12 +1161,42 @@ function pollMsgs(first) {
     renderConvs(); refreshAvatars(); updDown();
   }).catch(function (e) { if (first && cur === c) $('msgs').innerHTML = '<div class="sys">' + (e && e.message === 'nopk' ? 'This person has not set up secure messaging yet.' : 'Could not load messages. Check your connection.') + '</div>'; });
 }
+/* read receipts */
+var readMark = {}, lastReads = {};
+function markRead(c, keys) {
+  if (store.rr === false || document.hidden || !document.hasFocus()) return;
+  var last = keys[keys.length - 1]; if (!last || readMark[c.id] === last) return; readMark[c.id] = last;
+  rt('PUT', convPath(c) + '/read/' + me, { k: last, ts: SV }).catch(function () { delete readMark[c.id]; });
+}
+function renderReceipts(c, reads, keys, j) {
+  lastReads = reads; var box = $('msgs'); box.querySelectorAll('.rcpt').forEach(function (x) { x.remove(); }); if (store.rr === false) return;
+  var mk = null; for (var i = keys.length - 1; i >= 0; i--) { var m = j[keys[i]]; if (m && m.f === me && shown[keys[i]]) { mk = keys[i]; break; } }
+  if (!mk) return; var el = box.querySelector('.m[data-k="' + mk + '"]'); if (!el) return;
+  var readers = Object.keys(reads).filter(function (n) { return n !== me && !blocks[n] && reads[n] && reads[n].k >= mk; });
+  var b = document.createElement('button'); b.type = 'button'; b.className = 'rcpt' + (c.kind === 'g' ? ' g' : '');
+  if (c.kind === 'd') { var r = reads[c.name]; b.innerHTML = readers.length ? '<i class="fa-solid fa-check-double"></i>Seen ' + fmtTime(r.ts) : '<i class="fa-solid fa-check" style="color:var(--t3)"></i>Sent'; }
+  else { b.dataset.act = 'seen'; b.innerHTML = readers.length ? '<i class="fa-solid fa-check-double"></i>Seen by ' + (readers.length <= 2 ? esc(readers.join(', ')) : readers.length + ' people') : '<i class="fa-solid fa-check" style="color:var(--t3)"></i>Sent'; }
+  el.appendChild(b);
+}
+function openSeen() {
+  var c = cur; if (!c || c.kind !== 'g') return; var mem = (c.members || []).filter(function (n) { return n !== me && !blocks[n]; }), box = $('seen-body');
+  var rd = mem.filter(function (n) { return lastReads[n]; }).sort(function (a, b) { return lastReads[b].ts - lastReads[a].ts; });
+  var up = mem.filter(function (n) { return !lastReads[n]; });
+  function row(n, t) { return '<div class="mem"><span class="av" data-av="' + esc(n) + '" style="width:30px;height:30px;border-radius:10px;font-size:13px"></span><span>' + esc(n) + '</span>' + (t ? '<time>' + esc(t) + '</time>' : '') + '</div>'; }
+  box.innerHTML = '<div class="hint" style="margin:0 0 10px">Shows how far each person has read in this chat. People who turn off read receipts do not appear.</div>' +
+    '<div class="seen-sec"><h4>Read (' + rd.length + ')</h4>' + (rd.length ? rd.map(function (n) { return row(n, fmtDay(lastReads[n].ts) + ' ' + fmtTime(lastReads[n].ts)); }).join('') : '<div class="hint">No one yet.</div>') + '</div>' +
+    (up.length ? '<div class="seen-sec"><h4>Not read yet (' + up.length + ')</h4>' + up.map(function (n) { return row(n, ''); }).join('') + '</div>' : '');
+  refreshAvatars(); $('d-seen').showModal();
+}
 function updDown() { var b = $('msgs'); $('b-down').hidden = !cur || b.scrollHeight - b.scrollTop - b.clientHeight < 240; }
 $('msgs').addEventListener('scroll', updDown);
 $('b-down').onclick = function () { var b = $('msgs'); b.scrollTo({ top: b.scrollHeight, behavior: 'smooth' }); };
 var drafts = {};
 function jumpTo(k) { var el = $('msgs').querySelector('.m[data-k="' + k + '"]'); if (!el) { toast('That message is not loaded or was deleted'); return; } el.scrollIntoView({ block: 'center', behavior: 'smooth' }); el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); }
 
+/* emoji shortcodes: type :fire: */
+var SC = { smile: '😊', grin: '😁', joy: '😂', sob: '😭', cry: '😢', heart: '❤️', thumbsup: '👍', thumbsdown: '👎', fire: '🔥', tada: '🎉', eyes: '👀', '100': '💯', ok: '👌', thinking: '🤔', clap: '👏', pray: '🙏', wave: '👋', sunglasses: '😎', party: '🥳', star: '⭐', check: '✅', x: '❌', laugh: '🤣', wink: '😉', shrug: '🤷', skull: '💀', sleepy: '😴', pizza: '🍕', book: '📚', muscle: '💪' };
+function shortcodes() { var t = $('text'), v = t.value, n = v.replace(/:([a-z0-9]{1,12}):/g, function (m, k) { return SC[k] || m; }); if (n !== v) { var d = n.length - v.length, p = (t.selectionStart || v.length) + d; t.value = n; t.selectionStart = t.selectionEnd = Math.max(0, p); } }
 /* mention autocomplete */
 var mentSel = 0, mentList = [];
 function insertMention(n) { var t = $('text'), v = t.value, p = t.selectionStart || v.length, m = /@([a-z0-9_]*)$/.exec(v.slice(0, p)); if (m) { t.value = v.slice(0, p - m[0].length) + '@' + n + ' ' + v.slice(p); p = p - m[0].length + n.length + 2; } else { t.value = v.slice(0, p) + (p && !/\s$/.test(v.slice(0, p)) ? ' ' : '') + '@' + n + ' ' + v.slice(p); p = t.value.length; } t.focus(); t.selectionStart = t.selectionEnd = p; autosize(); $('ment').hidden = true; }
@@ -1184,6 +1232,7 @@ $('msgs').addEventListener('click', function (e) {
   if (bub && !e.target.closest('[data-act]')) { var mm = bub.closest('.m'), was = mm.classList.contains('sel'); $('msgs').querySelectorAll('.m.sel').forEach(function (x) { x.classList.remove('sel'); }); if (!was) mm.classList.add('sel'); return; }
   var b = e.target.closest('[data-act]'); if (!b) return;
   var el = b.closest('.m'), k = (el && el.dataset.k) || b.dataset.k, act = b.dataset.act, m = msgData[k], c = cur;
+  if (act === 'seen') return openSeen();
   if (act === 'jump') return jumpTo(b.dataset.k);
   if (act === 'mention') { insertMention(b.dataset.n); return; }
   if (!m) return;
@@ -1250,7 +1299,7 @@ $('b-emoji').onclick = function () { openPicker(this, function (em) { var t = $(
 /* ═════════ SEND ═════════ */
 function autosize() { var t = $('text'); t.style.height = 'auto'; t.style.height = Math.min(130, t.scrollHeight) + 'px'; }
 function clearTypingMark() { if (cur) rt('DELETE', convPath(cur) + '/typing/' + me).catch(function () {}); lastTyping = 0; }
-$('text').addEventListener('input', function () { autosize(); var L = this.value.length, ct = $('count'); ct.hidden = L < 400; ct.textContent = L + '/500'; mentSel = 0; updMention(); if (cur && this.value && Date.now() - lastTyping > 3000) { lastTyping = Date.now(); rt('PUT', convPath(cur) + '/typing/' + me, Date.now()).catch(function () {}); } });
+$('text').addEventListener('input', function () { shortcodes(); autosize(); var L = this.value.length, ct = $('count'); ct.hidden = L < 400; ct.textContent = L + '/500'; mentSel = 0; updMention(); if (cur && store.ty !== false && this.value && Date.now() - lastTyping > 3000) { lastTyping = Date.now(); rt('PUT', convPath(cur) + '/typing/' + me, Date.now()).catch(function () {}); } });
 $('text').addEventListener('keydown', function (e) {
   if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('composer').requestSubmit(); }
   else if (e.key === 'Escape') { if (!$('ctx').hidden) cancelCtx(); }
@@ -1426,9 +1475,12 @@ $('b-settings').onclick = function () {
   var b = Object.keys(store.blocks || {});
   $('s-blocks').innerHTML = b.length ? b.map(function (n) { return '<div class="mem"><span>' + esc(n) + '</span><button class="btn sm" data-ub="' + esc(n) + '" type="button">Unblock</button></div>'; }).join('') : '<div class="hint">You have not blocked anyone.</div>';
   $('s-blocks').querySelectorAll('[data-ub]').forEach(function (x) { x.onclick = function () { doUnblock(x.dataset.ub); $('b-settings').click(); }; });
-  $('s-snd').checked = store.snd !== false; $('s-dn').checked = !!(store.dn && window.Notification && Notification.permission === 'granted'); $('s-dn').disabled = !window.Notification;
+  $('s-rr').checked = store.rr !== false; $('s-ty').checked = store.ty !== false; $('s-24').checked = !!store.h24; $('s-snd').checked = store.snd !== false; $('s-dn').checked = !!(store.dn && window.Notification && Notification.permission === 'granted'); $('s-dn').disabled = !window.Notification;
   pfpPreview(); $('s-pich').className = 'hint'; $('d-set').showModal();
 };
+$('s-rr').onchange = function () { store.rr = this.checked; save(); toast(this.checked ? 'Read receipts are on' : 'Read receipts are off. You will not see others\u2019 either.'); };
+$('s-ty').onchange = function () { store.ty = this.checked; save(); };
+$('s-24').onchange = function () { store.h24 = this.checked; save(); if (cur) { shown = {}; pollMsgs(true); } renderConvs(); };
 $('s-snd').onchange = function () { store.snd = this.checked; save(); if (this.checked) beep(1); };
 $('s-dn').onchange = function () { var c = this; if (!c.checked) { store.dn = false; save(); return; } if (!window.Notification) { c.checked = false; return; } Notification.requestPermission().then(function (p) { store.dn = p === 'granted'; c.checked = store.dn; save(); $('s-dnh').textContent = store.dn ? 'Notifications are on. They never include message text.' : 'Your browser blocked notifications. Allow them in the site settings.'; }); };
 function pfpPreview() { avatar($('s-pv'), me); $('s-pic').value = pics[me] || ''; }
