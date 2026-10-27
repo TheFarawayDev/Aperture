@@ -51,10 +51,12 @@ footer{margin-top:36px;padding:24px 16px 32px;border-top:1px solid var(--hair);c
 <p class="lead">These terms apply when you use Aperture. By using the site you agree to them. If you do not agree, please do not use it.</p>
 <div class="card">
 <h2>What Aperture is</h2>
-<p>Aperture is a free collection of school tools: a class bell countdown, a weather-based school status estimate, a citation generator, a student directory and printable geography worksheets. It is provided by Faros Technologies Inc.</p>
+<p>Aperture is a free collection of school tools: a class bell countdown, a weather-based school status estimate, a citation generator, nickname-based messaging, a student directory and printable geography worksheets. It is provided by Faros Technologies Inc.</p>
 <h2>Not an official school or district service</h2>
 <p>Aperture is an independent project. Unless a school or district says otherwise in writing, it is not an official service of any school, school district or government agency, and it does not speak for them. School and district names belong to their owners.</p>
 <div class="note"><b>Always confirm important information.</b> The School Status page gives an <b>estimate</b> from forecast data. It is not an announcement. Closures, delays and schedules are decided and announced by your school or district. Bell times, lunch menus and rooms can change, so check official sources before you rely on them.</div>
+<h2>Messages</h2>
+<p>Messages is for people who are 13 or older, and for friendly, respectful chat. Do not use it to bully, threaten, harass or spread hateful or sexual content, to share personal information about yourself or anyone else, or to pretend to be someone else, such as a teacher or staff member. We may remove nicknames, messages or groups, and may review reported messages. <b>All chats are monitored.</b> Messages are encrypted, but the site administrators hold a safety key and can review any chat at any time, and reported messages will be looked at. Every message has a report button. You must keep your password safe: it cannot be reset, and without it your old messages cannot be read. Accounts that break these rules can be suspended. Messages are not private from the site administrators, and the service is not a replacement for telling a trusted adult or contacting emergency services when someone needs help.</p>
 <h2>Acceptable use</h2>
 <ul>
 <li>Use Aperture lawfully and in line with your school's technology rules.</li>
@@ -67,6 +69,8 @@ footer{margin-top:36px;padding:24px 16px 32px;border-top:1px solid var(--hair);c
 <p>The Aperture design, code and original content belong to Faros Technologies Inc. You may use the tools and print worksheets for personal and classroom use. Third-party data (for example weather, maps and directory records) belongs to its respective owners.</p>
 <h2>No warranty</h2>
 <p>Aperture is provided "as is" and "as available". We do not promise that it will be accurate, uninterrupted or error-free, or that any estimate or schedule will be correct.</p>
+<h2>Messages disclaimer</h2>
+<div class="note"><b>All chats are monitored.</b> If anything bad happens while using Messages, including anything said or done by other users, Aperture and Faros Technologies Inc. are not responsible, to the fullest extent allowed by law. You use Messages at your own risk. Please report anything that is wrong using the report button on a message, and tell a trusted adult if you feel unsafe.</div>
 <h2>Limitation of liability</h2>
 <p>To the fullest extent allowed by law, Faros Technologies Inc. is not liable for any loss or damage that comes from using, or being unable to use, Aperture, including missed class, travel or schedule decisions made from an estimate.</p>
 <h2>Availability and changes</h2>
@@ -97,6 +101,12 @@ window.APERTURE = {
       "title": "Utility",
       "path": "utility/",
       "blurb": "Day-to-day school tools"
+    },
+    {
+      "id": "messages",
+      "title": "Messages",
+      "path": "messages/",
+      "blurb": "Nickname-only chat and groups"
     },
     {
       "id": "yearbook",
@@ -176,6 +186,16 @@ window.APERTURE = {
       "icon": "fa-quote-right",
       "blurb": "Free MLA, APA and Chicago citations built from the official rules. No AI, and your list stays in your browser.",
       "keywords": "citation cite bibliography works cited references mla apa chicago source reference essay paper research footnote in-text"
+    },
+    {
+      "id": "messages",
+      "tags": ["Nickname chat", "Groups", "Block & report"],
+      "title": "Messages",
+      "group": "messages",
+      "path": "messages/chat",
+      "icon": "fa-comments",
+      "blurb": "Chat by nickname, so you never share your real name. Start direct chats, make groups, block and report.",
+      "keywords": "messages chat message dm direct group nickname talk text friends"
     },
     {
       "id": "directory",

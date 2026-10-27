@@ -65,13 +65,16 @@ footer{margin-top:36px;padding:24px 16px 32px;border-top:1px solid var(--hair);c
 <tr><td><b>Class Bell Countdown</b></td><td>Saved lunch and period choices stay in the browser. Shared delay and special-schedule entries are stored as dates and schedule types only.</td><td>Firebase (Auth, Firestore)</td></tr>
 <tr><td><b>School Status</b></td><td>ZIP code, converted to coordinates for a forecast. No student data.</td><td>api.zippopotam.us, api.open-meteo.com</td></tr>
 <tr><td><b>Student Directory</b></td><td>School-supplied directory information, cached in the browser. Not available offline unless previously cached.</td><td>script.google.com</td></tr>
-<tr><td><b>Citation Generator</b></td><td>None. Citations are formatted in the browser and the list is saved only in the browser. A DOI or ISBN is sent only if the user presses Look up.</td><td>api.crossref.org, openlibrary.org (optional)</td></tr>
+<tr><td><b>Messages</b></td><td>Chosen nicknames, sign-in accounts, encrypted messages, group membership, blocks, suspensions and reports. No real names, grades or school email addresses are requested. Messages are text only and are stored in the project's Firebase database.</td><td>firebaseio.com, identitytoolkit.googleapis.com, securetoken.googleapis.com</td></tr>
+<tr><td><b>Citation Generator</b></td><td>None. Citations are formatted in the browser and the list is saved only in the browser. A pasted web address, DOI or ISBN is sent only when the user uses Auto-fill.</td><td>api.microlink.io, api.crossref.org, openlibrary.org (optional)</td></tr>
 <tr><td><b>Geography Worksheets</b></td><td>None. Runs entirely in the browser.</td><td>None</td></tr>
 </table></div>
 <h2>Content filter and firewall allowlist</h2>
-<p>If your network blocks unknown sites, these hosts may need to be allowed: <code>fonts.googleapis.com</code>, <code>fonts.gstatic.com</code>, <code>cdnjs.cloudflare.com</code>, <code>cdn.tailwindcss.com</code>, <code>cdn.jsdelivr.net</code>, <code>www.gstatic.com</code>, <code>firebaseapp.com</code> and <code>firestore.googleapis.com</code>, <code>script.google.com</code>, <code>api.zippopotam.us</code>, <code>api.open-meteo.com</code>, and, for the optional look-ups in the Citation Generator, <code>api.crossref.org</code> and <code>openlibrary.org</code>.</p>
+<p>If your network blocks unknown sites, these hosts may need to be allowed: <code>fonts.googleapis.com</code>, <code>fonts.gstatic.com</code>, <code>cdnjs.cloudflare.com</code>, <code>cdn.tailwindcss.com</code>, <code>cdn.jsdelivr.net</code>, <code>www.gstatic.com</code>, <code>firebaseapp.com</code>, <code>firestore.googleapis.com</code>, <code>aperture-5c3af-default-rtdb.firebaseio.com</code>, <code>identitytoolkit.googleapis.com</code> and <code>securetoken.googleapis.com</code>, <code>script.google.com</code>, <code>api.zippopotam.us</code>, <code>api.open-meteo.com</code>, and, for the optional Auto-fill in the Citation Generator, <code>api.microlink.io</code>, <code>api.crossref.org</code> and <code>openlibrary.org</code>.</p>
 <h2>Embedding and classroom displays</h2>
 <p>Aperture pages are plain web pages. They can be linked from a learning management system or a Google Sites page, or shown full-screen on a classroom display. The pages are designed to work on phones, tablets and computers.</p>
+<h2>Messages (student chat)</h2>
+<p>Messages lets people chat by nickname and make groups. It does not ask for real names, grades, school email addresses or photos, and it only sends text. Every user has a password-protected account, and messages are encrypted before storage. Users must confirm they are 13 or older (COPPA), messages expire after 30 days, and each user can download or delete what they sent. Links, email addresses and phone numbers are removed automatically, and people can block others and report messages. It is not an official school communication channel, and it is not monitored in real time. Schools and districts should decide whether and how students may use it, should tell families about it, and should check that it fits their own student-safety and acceptable-use policies before allowing it. All chats are monitored: the site administrators can review messages, and reported messages are looked at. Aperture and Faros Technologies Inc. are not responsible for what users say or do in Messages.</p>
 <h2>Accuracy and official announcements</h2>
 <p>Schedules, menus and the School Status estimate are conveniences. They do not replace official communication from the school or district. Please do not treat the School Status estimate as a closure or delay announcement.</p>
 <h2>Accessibility</h2>
@@ -103,6 +106,12 @@ window.APERTURE = {
       "title": "Utility",
       "path": "utility/",
       "blurb": "Day-to-day school tools"
+    },
+    {
+      "id": "messages",
+      "title": "Messages",
+      "path": "messages/",
+      "blurb": "Nickname-only chat and groups"
     },
     {
       "id": "yearbook",
@@ -182,6 +191,16 @@ window.APERTURE = {
       "icon": "fa-quote-right",
       "blurb": "Free MLA, APA and Chicago citations built from the official rules. No AI, and your list stays in your browser.",
       "keywords": "citation cite bibliography works cited references mla apa chicago source reference essay paper research footnote in-text"
+    },
+    {
+      "id": "messages",
+      "tags": ["Nickname chat", "Groups", "Block & report"],
+      "title": "Messages",
+      "group": "messages",
+      "path": "messages/chat",
+      "icon": "fa-comments",
+      "blurb": "Chat by nickname, so you never share your real name. Start direct chats, make groups, block and report.",
+      "keywords": "messages chat message dm direct group nickname talk text friends"
     },
     {
       "id": "directory",

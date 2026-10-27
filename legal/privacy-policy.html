@@ -65,7 +65,8 @@ footer{margin-top:36px;padding:24px 16px 32px;border-top:1px solid var(--hair);c
 <tr><td><b>Class Bell Countdown</b></td><td>Your device clock and your saved schedule choices. It also reads (and, for authorized staff, writes) shared schedule changes such as delays and special schedules. The shared calendar uses an anonymous sign-in with no name or email.</td><td>Google Firebase (Authentication and Cloud Firestore)</td></tr>
 <tr><td><b>School Status</b></td><td>The ZIP code you type is turned into map coordinates, and those coordinates are used to get a weather forecast. No account or exact street address is used.</td><td>Zippopotam.us (ZIP lookup) and Open-Meteo (forecast)</td></tr>
 <tr><td><b>Student Directory</b></td><td>Directory information supplied by the school: student and staff names, grade, schedules, rooms and school email addresses. A copy is cached in your browser.</td><td>Google Apps Script (the school's directory source)</td></tr>
-<tr><td><b>Citation Generator</b></td><td>Citations are built in your browser by fixed formatting rules, with no AI. Your saved list stays in your browser. If you choose a DOI or ISBN look-up, only that DOI or ISBN is sent.</td><td>Crossref (DOI look-up) and Open Library (ISBN look-up), only when you press Look up</td></tr>
+<tr><td><b>Messages</b></td><td>The nickname and password you choose (no real name or email is asked for; your password is handled by Google Firebase Authentication and is never visible to us), a public encryption key, an encrypted copy of your private key that only your password can open, the messages you send in direct chats and groups, your list of chats, who you block, and reports you send. Links, emails and phone numbers are removed from messages. Messages you send are deleted after 30 days (the app removes them when you next use it). You can download or delete everything you sent from Settings. Messages is only for people 13 and older. All chats are monitored. Messages are encrypted in your browser before they are stored, so the database holds only scrambled text. They can be read by the people in the chat and, through a safety key, by the site administrators, who may review any chat and look at reported messages. Reported messages are copied in readable form for review.</td><td>Google Firebase (Realtime Database and Authentication)</td></tr>
+<tr><td><b>Citation Generator</b></td><td>Citations are built in your browser by fixed formatting rules, with no AI. Your saved list stays in your browser. If you use Auto-fill, the web address, DOI or ISBN you paste is sent to a look-up service to read the page details.</td><td>Microlink (web addresses), Crossref (DOIs) and Open Library (ISBNs), only when you use Auto-fill</td></tr>
 <tr><td><b>Geography Worksheets</b></td><td>Runs in your browser. The worksheets you generate are not uploaded anywhere.</td><td>None</td></tr>
 </table></div>
 <h2>Services that load page resources</h2>
@@ -108,6 +109,12 @@ window.APERTURE = {
       "title": "Utility",
       "path": "utility/",
       "blurb": "Day-to-day school tools"
+    },
+    {
+      "id": "messages",
+      "title": "Messages",
+      "path": "messages/",
+      "blurb": "Nickname-only chat and groups"
     },
     {
       "id": "yearbook",
@@ -187,6 +194,16 @@ window.APERTURE = {
       "icon": "fa-quote-right",
       "blurb": "Free MLA, APA and Chicago citations built from the official rules. No AI, and your list stays in your browser.",
       "keywords": "citation cite bibliography works cited references mla apa chicago source reference essay paper research footnote in-text"
+    },
+    {
+      "id": "messages",
+      "tags": ["Nickname chat", "Groups", "Block & report"],
+      "title": "Messages",
+      "group": "messages",
+      "path": "messages/chat",
+      "icon": "fa-comments",
+      "blurb": "Chat by nickname, so you never share your real name. Start direct chats, make groups, block and report.",
+      "keywords": "messages chat message dm direct group nickname talk text friends"
     },
     {
       "id": "directory",
