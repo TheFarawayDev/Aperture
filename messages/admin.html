@@ -27,6 +27,15 @@ button,input,select,textarea{font:inherit;color:inherit}[hidden]{display:none!im
 .msg{padding:8px 0;border-bottom:1px solid var(--hair)}.msg .h{display:flex;gap:10px;align-items:center;font-size:12px;color:var(--t3)}.msg .h b{color:var(--a2);font-size:13px}.msg .h .btn{margin-left:auto}.msg p{margin:2px 0 0;white-space:pre-wrap;word-break:break-word}
 .tag{display:inline-block;padding:1px 8px;border-radius:99px;font-size:11px;font-weight:700;background:rgba(224,112,122,.18);color:#f0a0a7}
 #toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);opacity:0;pointer-events:none;background:#30404f;border:1px solid var(--hair-2);padding:10px 16px;border-radius:12px;font-size:13.5px;transition:.2s}#toast.show{opacity:1;transform:translate(-50%,0)}
+dialog{border:1px solid var(--hair-2);border-radius:20px;background:var(--surface);color:var(--text);padding:0;width:min(420px,calc(100vw - 24px));box-shadow:0 28px 60px -22px rgba(2,5,9,.85)}dialog::backdrop{background:rgba(6,10,14,.6);backdrop-filter:blur(3px)}
+.dh{padding:18px 20px 4px}.dh h2{margin:0;font-size:18px}.db{padding:6px 20px 20px;color:var(--t2);font-size:14px}.db p{margin:6px 0 0}
+.ask-ic{width:50px;height:50px;margin:16px auto 0;display:grid;place-items:center;border-radius:16px;background:rgba(91,143,232,.15);color:var(--accent);font-size:20px}.ask-ic.danger{background:rgba(224,112,122,.15);color:var(--rose)}
+#d-ask .dh,#d-ask .db{text-align:center}.acts{display:flex;gap:8px;justify-content:center;margin-top:18px}.acts .btn{min-width:110px}
+.btn.dangerfill{background:var(--rose);border-color:transparent;color:#1a0b0d}.btn.dangerfill:hover{background:#ea8790;color:#1a0b0d}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:14px}.stat{padding:12px 14px;border-radius:14px;background:var(--inset);border:1px solid var(--hair)}.stat b{display:block;font-size:22px;color:#fff}.stat span{font-size:12px;color:var(--t3)}
+.badge{display:inline-block;min-width:18px;padding:0 6px;margin-left:6px;border-radius:99px;background:var(--rose);color:#fff;font-size:11px;font-weight:700;line-height:18px;text-align:center}
+.av{width:32px;height:32px;border-radius:10px;object-fit:cover;background:var(--surface-3);flex:none;display:inline-grid;place-items:center;font-weight:700;color:#0e1620;overflow:hidden}
+.btn i{font-size:.9em}.msg .h .btn{margin-left:auto}
 </style>
 </head>
 <body>
@@ -42,9 +51,10 @@ button,input,select,textarea{font:inherit;color:inherit}[hidden]{display:none!im
   </section>
   <section id="main" hidden>
     <div class="top"><h1><i class="fa-solid fa-shield-halved"></i> Administration</h1><div class="tabs"><button data-t="rep" class="on">Reports</button><button data-t="chat">Chats</button><button data-t="usr">Users</button></div><button class="btn sm" id="out" type="button">Sign out</button></div>
-    <div class="card" id="view"></div>
+    <div id="st"></div><div class="card" id="view"></div>
   </section>
 </div>
+<dialog id="d-ask"><div class="ask-ic" id="a-ic"><i class="fa-solid fa-circle-question"></i></div><div class="dh"><h2 id="a-title"></h2></div><div class="db"><p id="a-text"></p><div class="acts"><button class="btn" id="a-no" type="button">Cancel</button><button class="btn pri" id="a-yes" type="button">Confirm</button></div></div></dialog>
 <div id="toast" role="status"></div>
 </div>
 <script>
@@ -100,6 +110,20 @@ function idbGet(k) { return idb().then(function (db) { return new Promise(functi
 function idbDel(k) { return idb().then(function (db) { return new Promise(function (res) { var t = db.transaction('k', 'readwrite'); t.objectStore('k').delete(k); t.oncomplete = res; t.onerror = res; }); }).catch(function () {}); }
 
 
+function ask(o) {
+  return new Promise(function (res) {
+    var d = $('d-ask'), done = false, yes = $('a-yes');
+    $('a-title').textContent = o.title; $('a-text').textContent = o.text || '';
+    $('a-ic').className = 'ask-ic' + (o.danger ? ' danger' : ''); $('a-ic').innerHTML = '<i class="fa-solid ' + (o.icon || (o.danger ? 'fa-triangle-exclamation' : 'fa-circle-question')) + '"></i>';
+    yes.className = 'btn ' + (o.danger ? 'dangerfill' : 'pri'); yes.textContent = o.ok || 'Confirm';
+    function fin(v) { if (done) return; done = true; d.removeEventListener('close', onc); if (d.open) d.close(); res(v); }
+    function onc() { fin(false); }
+    yes.onclick = function () { fin(true); }; $('a-no').onclick = function () { fin(false); }; d.addEventListener('close', onc);
+    d.showModal(); (o.danger ? $('a-no') : yes).focus();
+  });
+}
+function fail(what) { return function (e) { toast(what + (e && e.status === 401 ? ' (not permitted: publish the latest database rules)' : e && e.message ? ' (' + String(e.message).slice(0, 60) + ')' : '')); }; }
+document.getElementById('d-ask').addEventListener('click', function (e) { if (e.target === this) this.close(); });
 var tok = '', tokExp = 0, rtok = '', uid = '', adminPriv = null, adminPubStr = null, keyBlob = null, keyCache = {};
 function jf(url, opt) { return fetch(url, opt).then(function (r) { return r.json().catch(function () { return null; }).then(function (j) { if (!r.ok) { var e = new Error((j && j.error && (j.error.message || j.error)) || r.status); e.status = r.status; throw e; } return j; }); }); }
 function fresh() {
@@ -182,16 +206,23 @@ function basePath(id, kind) { return (kind === 'g' ? 'groups/' : 'dms/') + id; }
 function kindOf(id) { return id.indexOf('~') >= 0 ? 'd' : 'g'; }
 
 /* REPORTS */
+function loadStats() {
+  Promise.all([rt('GET', 'reports', undefined, 'shallow=true'), rt('GET', 'nicknames', undefined, 'shallow=true'), rt('GET', 'bans', undefined, 'shallow=true'), rt('GET', 'dms', undefined, 'shallow=true'), rt('GET', 'groups', undefined, 'shallow=true')]).then(function (r) {
+    var c = r.map(function (x) { return x ? Object.keys(x).length : 0; }), t = document.querySelector('.tabs [data-t="rep"]');
+    t.innerHTML = 'Reports' + (c[0] ? '<span class="badge">' + c[0] + '</span>' : '');
+    $('st').innerHTML = '<div class="stats"><div class="stat"><b>' + c[0] + '</b><span>Open reports</span></div><div class="stat"><b>' + c[1] + '</b><span>Users</span></div><div class="stat"><b>' + c[2] + '</b><span>Banned</span></div><div class="stat"><b>' + (c[3] + c[4]) + '</b><span>Chats</span></div></div>';
+  }).catch(function () {});
+}
 function reports() {
-  var v = $('view'); v.innerHTML = '<div class="hint">Loading…</div>';
+  var v = $('view'); v.innerHTML = '<div class="hint">Loading…</div>'; loadStats();
   rt('GET', 'reports').then(function (r) {
     r = r || {}; var ks = Object.keys(r).sort().reverse();
     v.innerHTML = '<div class="row sp"><b>' + ks.length + ' open report' + (ks.length === 1 ? '' : 's') + '</b><button class="btn sm" id="rf" type="button">Refresh</button></div>' + (ks.length ? ks.map(function (k) { var x = r[k]; return '<div class="item"><div class="row sp"><span><span class="tag">REPORT</span> <b>' + esc(x.from) + '</b> <span class="meta">reported by ' + esc(x.by) + ' · ' + fmt(x.ts) + '</span></span></div><div class="txt">' + esc(x.t) + '</div><div class="meta">Chat: ' + esc(x.conv) + '</div><div class="row" style="margin-top:10px"><button class="btn sm" data-o="' + esc(x.conv) + '">Open chat</button><button class="btn sm danger" data-d="' + esc(k) + '">Delete message</button><button class="btn sm danger" data-b="' + esc(x.from) + '">Ban ' + esc(x.from) + '</button><button class="btn sm" data-x="' + esc(k) + '">Dismiss</button></div></div>'; }).join('') : '<div class="hint">Nothing to review.</div>');
     $('rf').onclick = reports;
     v.querySelectorAll('[data-o]').forEach(function (b) { b.onclick = function () { tab('chat'); openConv(b.dataset.o); }; });
-    v.querySelectorAll('[data-x]').forEach(function (b) { b.onclick = function () { rt('DELETE', 'reports/' + b.dataset.x).then(reports); }; });
-    v.querySelectorAll('[data-b]').forEach(function (b) { b.onclick = function () { ban(b.dataset.b, true).then(function () { toast(b.dataset.b + ' banned'); }); }; });
-    v.querySelectorAll('[data-d]').forEach(function (b) { b.onclick = function () { var x = r[b.dataset.d]; if (!confirm('Delete the reported message?')) return; rt('DELETE', basePath(x.conv, x.kind) + '/m/' + x.mk).then(function () { toast('Message deleted'); }).catch(function () { toast('Could not delete it'); }); }; });
+    v.querySelectorAll('[data-x]').forEach(function (b) { b.onclick = function () { rt('DELETE', 'reports/' + b.dataset.x).then(reports).catch(fail('Could not dismiss')); }; });
+    v.querySelectorAll('[data-b]').forEach(function (b) { b.onclick = function () { var n = b.dataset.b; ask({ title: 'Ban ' + n + '?', text: 'They are signed out and can no longer send messages. You can unban them in Users.', ok: 'Ban', danger: true, icon: 'fa-ban' }).then(function (ok) { if (!ok) return; ban(n, true).then(function () { toast(n + ' banned'); b.disabled = true; b.textContent = 'Banned'; }).catch(fail('Could not ban')); }); }; });
+    v.querySelectorAll('[data-d]').forEach(function (b) { b.onclick = function () { var x = r[b.dataset.d]; ask({ title: 'Delete the reported message?', text: 'The message from ' + x.from + ' is removed for everyone in the chat.', ok: 'Delete message', danger: true, icon: 'fa-trash-can' }).then(function (ok) { if (!ok) return; rt('DELETE', basePath(x.conv, kindOf(x.conv)) + '/m/' + x.mk).then(function () { toast('Message deleted'); b.disabled = true; b.textContent = 'Deleted'; }).catch(fail('Could not delete it')); }); }; });
   }).catch(function () { v.innerHTML = '<div class="hint err">Could not load. Check the database rules and that your account is listed as an admin.</div>'; });
 }
 function ban(n, on) { return rt(on ? 'PUT' : 'DELETE', 'bans/' + n, on ? true : undefined); }
@@ -206,13 +237,14 @@ function chats() {
   }).catch(function () { $('cl').textContent = 'Could not load chats.'; $('cl').className = 'hint err'; });
 }
 function openConv(id) {
-  var kind = kindOf(id), v = $('view'); v.innerHTML = '<div class="row sp"><b>' + esc(id) + '</b><button class="btn sm" id="bk" type="button">Back</button></div><div id="mm" class="hint">Loading…</div>';
+  var kind = kindOf(id), v = $('view'); v.innerHTML = '<div class="row sp"><b>' + esc(id) + '</b><span class="row"><button class="btn sm danger" id="dc" type="button"><i class="fa-regular fa-trash-can"></i> Delete chat</button><button class="btn sm" id="bk" type="button">Back</button></span></div><div id="mm" class="hint">Loading…</div>';
   $('bk').onclick = function () { tab('chat'); };
+  $('dc').onclick = function () { ask({ title: 'Delete this entire chat?', text: 'Every message, pin and key in ' + id + ' is removed for everyone. This cannot be undone.', ok: 'Delete chat', danger: true, icon: 'fa-trash-can' }).then(function (ok) { if (!ok) return; rt('DELETE', basePath(id, kind)).then(function () { toast('Chat deleted'); tab('chat'); }).catch(fail('Could not delete the chat')); }); };
   Promise.all([convKey(id, kind), rt('GET', basePath(id, kind) + '/m', undefined, 'orderBy=%22%24key%22&limitToLast=300')]).then(function (r) {
     var key = r[0], j = r[1] || {}, ks = Object.keys(j).sort();
     return Promise.all(ks.map(function (k) { return aesDec(key, j[k].i, j[k].t).catch(function () { return '(could not decrypt)'; }); })).then(function (txt) {
       $('mm').className = ''; $('mm').innerHTML = ks.length ? ks.map(function (k, n) { var m = j[k]; return '<div class="msg"><div class="h"><b>' + esc(m.f) + '</b>' + fmt(typeof m.ts === 'number' ? m.ts : keyTs(k)) + (m.ed ? ' · edited' : '') + '<button class="btn sm danger" data-k="' + esc(k) + '">Delete</button></div><p>' + esc(txt[n]) + '</p></div>'; }).join('') : '<div class="hint">No messages.</div>';
-      $('mm').querySelectorAll('[data-k]').forEach(function (b) { b.onclick = function () { if (!confirm('Delete this message?')) return; rt('DELETE', basePath(id, kind) + '/m/' + b.dataset.k).then(function () { b.closest('.msg').remove(); }).catch(function () { toast('Could not delete it'); }); }; });
+      $('mm').querySelectorAll('[data-k]').forEach(function (b) { b.onclick = function () { ask({ title: 'Delete this message?', text: 'It is removed for everyone in the chat.', ok: 'Delete', danger: true, icon: 'fa-trash-can' }).then(function (ok) { if (!ok) return; rt('DELETE', basePath(id, kind) + '/m/' + b.dataset.k).then(function () { b.closest('.msg').remove(); toast('Message deleted'); }).catch(fail('Could not delete it')); }); }; });
     });
   }).catch(function (e) { $('mm').className = 'hint err'; $('mm').textContent = e.message === 'nokey' ? 'No admin key is stored for this chat yet. It is added the next time a member opens it after the admin key exists.' : 'Could not read this chat.'; });
 }
@@ -221,13 +253,19 @@ function openConv(id) {
 function users() {
   var v = $('view'); v.innerHTML = '<div class="row"><input class="inp" id="uf" placeholder="Filter nicknames" style="flex:1"></div><div id="ul" class="hint" style="margin-top:12px">Loading…</div>';
   Promise.all([rt('GET', 'nicknames', undefined, 'shallow=true'), rt('GET', 'bans')]).then(function (r) {
-    var names = Object.keys(r[0] || {}).sort(), bans = r[1] || {};
-    function draw() { var q = $('uf').value.trim().toLowerCase(), l = names.filter(function (n) { return !q || n.indexOf(q) >= 0; }).slice(0, 300); $('ul').className = ''; $('ul').innerHTML = (l.length ? l.map(function (n) { var b = bans[n]; return '<div class="item row sp" style="margin-top:6px"><span><b>' + esc(n) + '</b> ' + (b ? '<span class="tag">BANNED</span>' : '') + '</span><span class="row"><button class="btn sm ' + (b ? '' : 'danger') + '" data-b="' + esc(n) + '">' + (b ? 'Unban' : 'Ban') + '</button><button class="btn sm danger" data-x="' + esc(n) + '">Remove</button></span></div>'; }).join('') : '<div class="hint">No users.</div>'); 
-      $('ul').querySelectorAll('[data-b]').forEach(function (b) { b.onclick = function () { var n = b.dataset.b, on = !bans[n]; ban(n, on).then(function () { if (on) bans[n] = true; else delete bans[n]; draw(); }).catch(function () { toast('Failed'); }); }; });
-      $('ul').querySelectorAll('[data-x]').forEach(function (b) { b.onclick = function () { var n = b.dataset.x; if (!confirm('Remove ' + n + ' from Messages? Their chat list and nickname are deleted. Their sign-in account stays in Firebase Authentication; delete it there if needed.')) return; rt('GET', 'nicknames/' + n + '/u').then(function (u) { return Promise.all([rt('DELETE', 'users/' + u).catch(function () {}), rt('DELETE', 'keys/' + u).catch(function () {})]); }).then(function () { return rt('DELETE', 'inbox/' + n); }).then(function () { return rt('DELETE', 'nicknames/' + n); }).then(function () { names.splice(names.indexOf(n), 1); draw(); toast('Removed'); }).catch(function () { toast('Failed'); }); }; });
+    var names = Object.keys(r[0] || {}).sort(), bans = r[1] || {}, pics = {};
+    function draw() {
+      var q = $('uf').value.trim().toLowerCase(), l = names.filter(function (n) { return !q || n.indexOf(q) >= 0; }).slice(0, 100);
+      $('ul').className = '';
+      $('ul').innerHTML = l.length ? l.map(function (n) { var b = bans[n]; return '<div class="item row sp" style="margin-top:6px"><span class="row"><span class="av" data-n="' + esc(n) + '">' + esc(n.charAt(0).toUpperCase()) + '</span><b>' + esc(n) + '</b> ' + (b ? '<span class="tag">BANNED</span>' : '') + '</span><span class="row"><button class="btn sm" data-p="' + esc(n) + '" hidden>Clear picture</button><button class="btn sm ' + (b ? '' : 'danger') + '" data-b="' + esc(n) + '">' + (b ? 'Unban' : 'Ban') + '</button><button class="btn sm danger" data-x="' + esc(n) + '">Remove</button></span></div>'; }).join('') : '<div class="hint">No users.</div>';
+      l.forEach(function (n) { if (pics[n] === undefined) rt('GET', 'nicknames/' + n + '/pic').then(function (p) { pics[n] = p || ''; paint(n); }).catch(function () { pics[n] = ''; }); else paint(n); });
+      $('ul').querySelectorAll('[data-b]').forEach(function (b) { b.onclick = function () { var n = b.dataset.b, on = !bans[n]; ask({ title: (on ? 'Ban ' : 'Unban ') + n + '?', text: on ? 'They can no longer send messages or sign in to Messages.' : 'They can use Messages again.', ok: on ? 'Ban' : 'Unban', danger: on, icon: on ? 'fa-ban' : 'fa-user-check' }).then(function (ok) { if (!ok) return; ban(n, on).then(function () { if (on) bans[n] = true; else delete bans[n]; draw(); toast(on ? n + ' banned' : n + ' unbanned'); }).catch(fail('Failed')); }); }; });
+      $('ul').querySelectorAll('[data-p]').forEach(function (b) { b.onclick = function () { var n = b.dataset.p; ask({ title: 'Clear ' + n + "'s picture?", text: 'Their profile picture is removed. They can set a new one.', ok: 'Clear picture', danger: true, icon: 'fa-image' }).then(function (ok) { if (!ok) return; rt('DELETE', 'nicknames/' + n + '/pic').then(function () { pics[n] = ''; draw(); toast('Picture cleared'); }).catch(fail('Could not clear it')); }); }; });
+      $('ul').querySelectorAll('[data-x]').forEach(function (b) { b.onclick = function () { var n = b.dataset.x; ask({ title: 'Remove ' + n + '?', text: 'Their nickname, chat list and keys are deleted and the name becomes free. Their sign-in stays in Firebase Authentication; delete it there if needed.', ok: 'Remove user', danger: true, icon: 'fa-user-xmark' }).then(function (ok) { if (!ok) return; rt('GET', 'nicknames/' + n + '/u').then(function (u) { return Promise.all([rt('DELETE', 'users/' + u), rt('DELETE', 'keys/' + u)]); }).then(function () { return rt('DELETE', 'inbox/' + n); }).then(function () { return rt('DELETE', 'nicknames/' + n); }).then(function () { names.splice(names.indexOf(n), 1); draw(); toast(n + ' removed'); }).catch(fail('Could not remove the user')); }); }; });
     }
+    function paint(n) { var el = $('ul').querySelector('.av[data-n="' + n + '"]'), pb = $('ul').querySelector('[data-p="' + n + '"]'); if (pb) pb.hidden = !pics[n]; if (el && pics[n]) { var im = new Image(); im.className = 'av'; im.referrerPolicy = 'no-referrer'; im.onload = function () { el.replaceWith(im); }; im.src = pics[n]; } }
     $('uf').oninput = draw; draw();
-  }).catch(function () { $('ul').textContent = 'Could not load users.'; $('ul').className = 'hint err'; });
+  }).catch(fail('Could not load users'));
 }
 })();
 </script>
