@@ -932,10 +932,10 @@ function start() {
   rt('GET', 'bans/' + me).then(function (b) { if (b) { signOut('This account has been suspended.'); } }).catch(function () {});
   rt('GET', 'config/adminPub').then(function (p) { adminPub = p || null; }).catch(function () {}).then(function () { return refreshInbox(); }).then(retention);
   loadBlocks(); wantPic(me);
-  timers.inbox = setInterval(function () { if (!document.hidden) refreshInbox(); }, 4500);
+  timers.inbox = setInterval(function () { refreshInbox(); }, 4500); openStream();
   timers.msgs = setInterval(function () { if (!document.hidden && cur) pollMsgs(); }, 2200);
 }
-function stopTimers() { Object.keys(timers).forEach(function (k) { clearInterval(timers[k]); }); timers = {}; }
+function stopTimers() { closeStream(); Object.keys(timers).forEach(function (k) { clearInterval(timers[k]); }); timers = {}; }
 function loadBlocks() { rt('GET', 'blocks/' + me).then(function (b) { b = b || {}; Object.keys(b).forEach(function (k) { store.blocks[k] = 1; }); blocks = store.blocks; save(); renderConvs(); }).catch(function () {}); }
 document.addEventListener('visibilitychange', function () { if (!document.hidden && me) { refreshInbox(); if (cur) pollMsgs(); } });
 function signOut(msg) {
@@ -988,7 +988,21 @@ $('e-new').onclick = function () { $('b-new').click(); }; $('e-group').onclick =
 $('q-list').addEventListener('input', renderConvs);
 
 /* ═════════ ALERTS ═════════ */
-var inboxReady = false, seen = {}, actx = null;
+var inboxReady = false, seen = {}, actx = null, swReg = null, es = null, esT = 0, esDeb = 0;
+try { if (navigator.serviceWorker) { navigator.serviceWorker.register('sw.js', { scope: './' }).then(function (r) { swReg = r; }, function () {}); navigator.serviceWorker.addEventListener('message', function (e) { var id = e.data && e.data.open; if (id && convs[id]) { window.focus(); openChat(convs[id]); } }); } } catch (e) {}
+/* live push: keeps working in background tabs where timers are slowed down */
+function openStream() {
+  closeStream(); if (!me || !window.EventSource) return;
+  ensureAuth().then(function () {
+    es = new EventSource(DB_URL + '/inbox/' + me + '.json?auth=' + encodeURIComponent(auth.token));
+    var hit = function () { clearTimeout(esDeb); esDeb = setTimeout(function () { refreshInbox(); }, 200); };
+    es.addEventListener('put', hit); es.addEventListener('patch', hit);
+    es.addEventListener('auth_revoked', function () { closeStream(); setTimeout(openStream, 1500); });
+    es.onerror = function () { closeStream(); clearTimeout(esT); esT = setTimeout(openStream, 15000); };
+    clearTimeout(esT); esT = setTimeout(openStream, 45 * 60000);
+  }).catch(function () {});
+}
+function closeStream() { if (es) { es.close(); es = null; } clearTimeout(esT); }
 function beep(n) {
   if (store.snd === false) return;
   try { actx = actx || new (window.AudioContext || window.webkitAudioContext)(); if (actx.state === 'suspended') actx.resume(); var t = actx.currentTime;
@@ -996,10 +1010,14 @@ function beep(n) {
 }
 function notifyNew(c) {
   if (blocks[c.name] && c.kind === 'd') return; if (store.mute && store.mute[c.id]) return;
-  var viewing = cur && cur.id === c.id && !document.hidden; if (viewing) return;
+  var away = document.hidden || !document.hasFocus(), viewing = cur && cur.id === c.id && !away; if (viewing) return;
   beep(c.at ? 2 : 1);
-  if (!document.hidden) toast(c.at ? c.name + ' mentioned you' : 'New message from ' + (c.kind === 'g' ? c.l + ' in ' + c.name : c.name));
-  if (document.hidden && store.dn && window.Notification && Notification.permission === 'granted') { try { var nt = new Notification(c.name, { body: c.at ? 'You were mentioned' : 'New message', tag: c.id, silent: true }); nt.onclick = function () { window.focus(); if (convs[c.id]) openChat(convs[c.id]); nt.close(); }; } catch (e) {} }
+  if (!away) toast(c.at ? c.name + ' mentioned you' : 'New message from ' + (c.kind === 'g' ? c.l + ' in ' + c.name : c.name));
+  if (away && store.dn && window.Notification && Notification.permission === 'granted') {
+    var body = c.at ? 'You were mentioned' : 'New message', opt = { body: body, tag: c.id, silent: true, renotify: true };
+    var direct = function () { try { var nt = new Notification(c.name, opt); nt.onclick = function () { window.focus(); if (convs[c.id]) openChat(convs[c.id]); nt.close(); }; } catch (e) {} };
+    if (swReg && swReg.showNotification) swReg.showNotification(c.name, opt).catch(direct); else direct();
+  }
 }
 
 /* ═════════ CONVERSATION LIST ═════════ */
