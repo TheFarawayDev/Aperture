@@ -13,7 +13,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
 <style>
-
 :root{--bg:#161c23;--surface:#212a34;--surface-2:#283340;--surface-3:#30404f;--inset:rgba(6,10,14,.3);--hair:rgba(255,255,255,.07);--hair-2:rgba(255,255,255,.13);--text:#e8edf3;--t2:#b4c0cf;--t3:#8795a8;--accent:#5b8fe8;--a2:#8fb3f5;--green:#5fb894;--amber:#d8a44b;--rose:#e0707a;--shadow:0 1px 2px rgba(2,5,9,.35),0 14px 32px -18px rgba(2,5,9,.7)}
 *{box-sizing:border-box}html{background:var(--bg);color-scheme:dark}
 body{margin:0;min-height:100vh;display:flex;flex-direction:column;color:var(--text);font-family:Inter,system-ui,-apple-system,'Segoe UI',sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased;background:radial-gradient(900px 480px at 50% -10%,rgba(91,143,232,.13),transparent 62%),var(--bg)}
@@ -27,42 +26,30 @@ main{flex:1;width:100%;padding:12px 10px 10px;display:flex;flex-direction:column
 .card{background:var(--surface);border:1px solid var(--hair);border-radius:22px;box-shadow:var(--shadow)}
 .inp{width:100%;height:42px;padding:0 12px;border-radius:12px;background:var(--inset);border:1px solid var(--hair);outline:none;transition:border-color .15s,box-shadow .15s}
 .inp:focus{border-color:rgba(91,143,232,.55);box-shadow:0 0 0 3px rgba(91,143,232,.14)}.inp::placeholder{color:#5c6b7d}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:42px;padding:0 16px;border-radius:12px;border:1px solid var(--hair-2);background:transparent;color:var(--t2);cursor:pointer;font-weight:600;font-size:13.5px;white-space:nowrap}.btn:hover{background:var(--surface-2);color:#fff}
-.btn.pri{background:var(--accent);border-color:transparent;color:#0e1620}.btn.pri:hover{background:var(--a2)}.btn:disabled{opacity:.45;cursor:not-allowed}.btn.sm{height:34px;padding:0 12px;font-size:13px;border-radius:10px}.btn.danger{color:#f0a0a7;border-color:rgba(224,112,122,.35)}.btn.danger:hover{background:rgba(224,112,122,.12);color:#fff}
-.lbl{display:block;font-size:12px;font-weight:600;color:var(--t2);margin:0 0 6px}
-.hint{margin-top:8px;font-size:12.5px;color:var(--t3);min-height:18px}.hint.err{color:var(--rose)}.hint.ok{color:var(--green)}
-
-
-main{padding:12px 10px 0}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;padding:0 16px;border-radius:12px;border:1px solid var(--hair-2);background:transparent;color:var(--t2);cursor:pointer;font-weight:600;font-size:13.5px;white-space:nowrap;text-decoration:none;transition:background .15s,color .15s}.btn:hover{background:var(--surface-2);color:#fff}
+.btn.pri{background:var(--accent);border-color:transparent;color:#0e1620}.btn.pri:hover{background:var(--a2)}.btn.sm{height:34px;padding:0 12px;font-size:13px;border-radius:10px}
 footer{padding:14px 12px 22px;text-align:center;color:var(--t3);font-size:12px}footer a{color:var(--t2)}
-#arc{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:12px;height:calc(100vh - 150px);height:calc(100dvh - 150px);min-height:460px}
-@media(max-width:900px){#arc{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(300px,56vh) auto;height:auto}}
-#stage{display:flex;flex-direction:column;min-width:0;min-height:0;overflow:hidden}
-.bar{display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--hair);min-height:58px}
-.bar .t{flex:1;min-width:0}.bar .t b{display:block;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.bar .t span{font-size:12px;color:var(--t3)}
-.ibtn{width:38px;height:38px;border-radius:11px;border:1px solid var(--hair);background:transparent;color:var(--t2);cursor:pointer;display:inline-grid;place-items:center;text-decoration:none}.ibtn:hover{background:var(--surface-3);color:#fff}.ibtn:disabled{opacity:.4;cursor:default}
-.tile{flex:none;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-weight:700;color:#0e1620;font-size:16px}
-#frame-wrap{position:relative;flex:1;min-height:0;background:#0b0f14}
-#frame{position:absolute;inset:0;width:100%;height:100%;border:0;background:#fff}
-#frame[hidden]{display:none}
-.ov{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:24px;color:var(--t3)}
-.ov .big{width:72px;height:72px;margin:0 auto 14px;display:grid;place-items:center;border-radius:22px;background:rgba(91,143,232,.12);color:var(--accent);font-size:28px}
-.ov h2{margin:0 0 6px;color:var(--text);font-size:20px}.ov p{margin:0 auto 14px;max-width:360px;font-size:14px}
-.spin{width:34px;height:34px;border-radius:50%;border:3px solid var(--surface-3);border-top-color:var(--accent);margin:0 auto 12px;animation:sp .8s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
-#side{display:flex;flex-direction:column;min-height:0;overflow:hidden}
-#side .top{padding:14px 14px 8px}
-#side h2{margin:0 0 10px;font-size:16px;display:flex;align-items:center;justify-content:space-between}#side h2 small{font-weight:500;color:var(--t3);font-size:12.5px}
-.fsearch{position:relative}.fsearch i{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--t3);font-size:13px;pointer-events:none}.fsearch .inp{height:40px;padding-left:34px;border-radius:99px}
-.chips{display:flex;gap:6px;padding:0 14px 8px;overflow-x:auto}.chips button{flex:none;height:28px;padding:0 12px;border-radius:99px;border:1px solid var(--hair);background:transparent;color:var(--t2);font-size:12.5px;font-weight:600;cursor:pointer}.chips button:hover{background:var(--surface-2)}.chips button.on{background:rgba(91,143,232,.2);border-color:rgba(91,143,232,.5);color:#fff}
-#list{flex:1;overflow-y:auto;padding:0 8px 10px;min-height:0}
-.g{display:flex;align-items:center;gap:11px;width:100%;text-align:left;padding:9px 10px;border:0;background:transparent;border-radius:14px;cursor:pointer;position:relative}.g:hover{background:var(--surface-2)}.g.on{background:rgba(91,143,232,.16)}
-.g .t{flex:1;min-width:0}.g .t b{display:block;font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.g .t span{display:block;font-size:12px;color:var(--t3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.g .st{flex:none;width:28px;height:28px;border-radius:8px;border:0;background:transparent;color:var(--t3);cursor:pointer}.g .st:hover{color:var(--amber);background:var(--surface-3)}.g .st.on{color:var(--amber)}
-.none{padding:28px 16px;text-align:center;color:var(--t3);font-size:13.5px}
-.sec-h{padding:10px 12px 4px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--t3);font-weight:700}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;padding:0 16px;border-radius:12px;border:1px solid var(--hair-2);background:transparent;color:var(--t2);cursor:pointer;font-weight:600;font-size:13.5px}.btn:hover{background:var(--surface-2);color:#fff}.btn.pri{background:var(--accent);border-color:transparent;color:#0e1620}
-.note{padding:10px 14px;border-top:1px solid var(--hair);font-size:11.5px;color:var(--t3)}
-.lic{display:inline-block;margin-left:6px;padding:0 6px;border-radius:6px;background:var(--inset);border:1px solid var(--hair);font-size:10.5px;color:var(--t3)}
+.top{padding:18px 18px 4px}
+.top h1{margin:0 0 4px;font-size:22px;display:flex;align-items:center;gap:10px}
+.top p{margin:0 0 14px;color:var(--t3);font-size:14px;max-width:62ch}
+.fsearch{position:relative;max-width:420px}.fsearch i{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--t3);font-size:13px;pointer-events:none}.fsearch .inp{height:44px;padding-left:38px;border-radius:99px}
+.chips{display:flex;gap:6px;padding:14px 18px 6px;overflow-x:auto}.chips button{flex:none;height:30px;padding:0 13px;border-radius:99px;border:1px solid var(--hair);background:transparent;color:var(--t2);font-size:12.5px;font-weight:600;cursor:pointer}.chips button:hover{background:var(--surface-2)}.chips button.on{background:rgba(91,143,232,.2);border-color:rgba(91,143,232,.5);color:#fff}
+#count{color:var(--t3);font-size:12.5px;font-weight:500}
+.sec-h{padding:14px 18px 6px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--t3);font-weight:700;display:flex;justify-content:space-between;align-items:center}
+.clear-btn{background:none;border:none;color:var(--t3);font-size:11px;font-weight:600;cursor:pointer;padding:2px 6px;border-radius:6px}.clear-btn:hover{color:var(--text);background:var(--surface-2)}
+.grid-wrap{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;padding:6px 18px 20px}
+.gc{display:flex;flex-direction:column;gap:10px;padding:16px;border-radius:18px;background:var(--inset);border:1px solid var(--hair);position:relative;transition:border-color .15s}
+.gc:hover{border-color:var(--hair-2)}
+.gc .row1{display:flex;align-items:center;gap:12px}
+.tile{flex:none;width:46px;height:46px;border-radius:14px;display:grid;place-items:center;font-weight:700;color:#0e1620;font-size:18px}
+.gc .nm{min-width:0;flex:1}.gc .nm b{display:block;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.gc .nm span{display:block;font-size:12px;color:var(--t3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gc .desc{font-size:13px;color:var(--t2);margin:0;min-height:36px;flex:1}
+.gc .meta{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.lic{display:inline-block;padding:2px 8px;border-radius:7px;background:var(--surface-3);border:1px solid var(--hair);font-size:10.5px;color:var(--t3)}
+.gc .acts{display:flex;gap:8px}
+.st{flex:none;width:32px;height:32px;border-radius:9px;border:1px solid var(--hair);background:transparent;color:var(--t3);cursor:pointer;display:inline-grid;place-items:center}.st:hover{color:var(--amber);background:var(--surface-3)}.st.on{color:var(--amber);border-color:rgba(216,164,75,.5)}
+.none{padding:30px 18px;text-align:center;color:var(--t3);font-size:13.5px;grid-column:1/-1}
+.notice{display:flex;gap:12px;align-items:flex-start;margin:0 18px 16px;padding:12px 14px;border-radius:14px;background:rgba(216,164,75,.1);border:1px solid rgba(216,164,75,.3);color:#e6c27f;font-size:12.5px}.notice i{margin-top:3px}.notice b{color:#f3d9a0}
 </style>
 </head>
 <body>
@@ -73,27 +60,23 @@ footer{padding:14px 12px 22px;text-align:center;color:var(--t3);font-size:12px}f
 </div></header>
 
 <main>
-<div id="arc">
-  <section id="stage" class="card">
-    <div class="bar">
-      <div class="tile" id="b-tile" style="background:var(--surface-3);color:var(--t2)"><i class="fa-solid fa-gamepad"></i></div>
-      <div class="t"><b id="b-name">Arcade</b><span id="b-sub">Pick a game from the list</span></div>
-      <button class="ibtn" id="b-reload" type="button" title="Restart game" aria-label="Restart game" disabled><i class="fa-solid fa-rotate-right"></i></button>
-      <a class="ibtn" id="b-src" href="#" target="_blank" rel="noopener noreferrer" title="View source on GitHub" aria-label="View source on GitHub" hidden><i class="fa-brands fa-github"></i></a>
-      <button class="ibtn" id="b-full" type="button" title="Fullscreen" aria-label="Fullscreen" disabled><i class="fa-solid fa-expand"></i></button>
-    </div>
-    <div id="frame-wrap">
-      <iframe id="frame" title="Game" hidden sandbox="allow-scripts allow-same-origin allow-pointer-lock allow-forms allow-popups allow-downloads allow-modals" allow="fullscreen; gamepad; autoplay" referrerpolicy="no-referrer"></iframe>
-      <div class="ov" id="ov"><div><div class="big"><i class="fa-solid fa-gamepad"></i></div><h2>Choose a game</h2><p>Pick one from the list. Games load straight from their GitHub projects when you open them.</p></div></div>
-    </div>
-  </section>
-  <aside id="side" class="card">
-    <div class="top"><h2>Games <small id="count"></small></h2><div class="fsearch"><i class="fa-solid fa-magnifying-glass"></i><input class="inp" id="q" placeholder="Search games" autocomplete="off" aria-label="Search games"></div></div>
-    <div class="chips" id="chips"></div>
-    <div id="list"></div>
-    <div class="note"><i class="fa-brands fa-github"></i> Each game belongs to its authors and keeps its own license. Press <b>/</b> to search.</div>
-  </aside>
-</div>
+<section class="card">
+  <div class="top">
+    <h1><i class="fa-solid fa-gamepad"></i> Arcade</h1>
+    <p>Open-source browser games. Pressing Play pulls the game's <code>index.html</code> from GitHub and embeds it directly inside a clean <code>about:blank</code> tab.</p>
+    <div class="fsearch"><i class="fa-solid fa-magnifying-glass"></i><input class="inp" id="q" placeholder="Search games (press / to focus)" autocomplete="off" aria-label="Search games"></div>
+  </div>
+  <div class="chips" id="chips"></div>
+
+  <div id="recent-sec" hidden>
+    <div class="sec-h"><span>Recently Played</span><button type="button" class="clear-btn" id="clear-rec">Clear</button></div>
+    <div class="grid-wrap" id="recent-grid" style="padding-bottom:8px"></div>
+  </div>
+
+  <div class="sec-h"><span>Games</span><span id="count"></span></div>
+  <div class="grid-wrap" id="grid"></div>
+  <div class="notice"><i class="fa-brands fa-github"></i><div><b>Each game belongs to its own authors</b> and keeps its own open-source license, shown on its card. Aperture does not host or change the game code — it pulls the project straight from GitHub through the jsDelivr CDN into an isolated <code>about:blank</code> tab.</div></div>
+</section>
 </main>
 <footer>&copy; 2026 Faros Technologies Inc. All rights reserved. · <a href="../legal/privacy-policy" data-lg>Privacy</a> · <a href="../legal/terms-of-use" data-lg>Terms</a></footer>
 
@@ -101,10 +84,6 @@ footer{padding:14px 12px 22px;text-align:center;color:var(--t3);font-size:12px}f
 /* ══════════════════════════════════════════════════════════════════
    APERTURE — PAGE REGISTRY
    The single list every page and the main page read from.
-
-   ADD a page    → put the .html file in its folder, then add one entry below.
-   REMOVE a page → delete the file and delete its entry.
-   Paths are relative to the site root (the folder that holds index.html).
    ══════════════════════════════════════════════════════════════════ */
 window.APERTURE = {
   "name": "Aperture",
@@ -251,169 +230,39 @@ window.APERTURE = {
       "blurb": "Pick worksheets, preview them live, then print two to a page or save a PDF with an answer key.",
       "keywords": "geography worksheet print pdf teacher answer key social studies skill builders",
       "topics": [
-        {
-          "id": 11,
-          "name": "Map Projections",
-          "diff": "easy",
-          "icon": "fa-globe"
-        },
-        {
-          "id": 12,
-          "name": "Continents & Oceans",
-          "diff": "easy",
-          "icon": "fa-earth-americas"
-        },
-        {
-          "id": 13,
-          "name": "Landforms & Water",
-          "diff": "easy",
-          "icon": "fa-water"
-        },
-        {
-          "id": 14,
-          "name": "Weather v Climate",
-          "diff": "easy",
-          "icon": "fa-cloud-sun"
-        },
-        {
-          "id": 15,
-          "name": "Natural Resources",
-          "diff": "easy",
-          "icon": "fa-tree"
-        },
-        {
-          "id": 16,
-          "name": "Push & Pull",
-          "diff": "easy",
-          "icon": "fa-person-walking-arrow-right"
-        },
-        {
-          "id": 17,
-          "name": "Urban vs Rural",
-          "diff": "easy",
-          "icon": "fa-city"
-        },
-        {
-          "id": 18,
-          "name": "Culture & Customs",
-          "diff": "easy",
-          "icon": "fa-masks-theater"
-        },
-        {
-          "id": 19,
-          "name": "Demographics",
-          "diff": "med",
-          "icon": "fa-users"
-        },
-        {
-          "id": 20,
-          "name": "Econ Systems",
-          "diff": "med",
-          "icon": "fa-money-bill-trend-up"
-        },
-        {
-          "id": 21,
-          "name": "Boundaries",
-          "diff": "med",
-          "icon": "fa-map-location-dot"
-        },
-        {
-          "id": 22,
-          "name": "Env. Challenges",
-          "diff": "med",
-          "icon": "fa-smog"
-        },
-        {
-          "id": 23,
-          "name": "River Basins",
-          "diff": "med",
-          "icon": "fa-water"
-        },
-        {
-          "id": 24,
-          "name": "Agriculture",
-          "diff": "med",
-          "icon": "fa-tractor"
-        },
-        {
-          "id": 25,
-          "name": "Global Trade",
-          "diff": "med",
-          "icon": "fa-handshake"
-        },
-        {
-          "id": 26,
-          "name": "Megacities",
-          "diff": "med",
-          "icon": "fa-building-columns"
-        },
-        {
-          "id": 27,
-          "name": "Plate Tectonics",
-          "diff": "hard",
-          "icon": "fa-layer-group"
-        },
-        {
-          "id": 28,
-          "name": "GIS & Geodesy",
-          "diff": "hard",
-          "icon": "fa-satellite"
-        },
-        {
-          "id": 29,
-          "name": "Chokepoints",
-          "diff": "hard",
-          "icon": "fa-anchor"
-        },
-        {
-          "id": 30,
-          "name": "Microstates",
-          "diff": "hard",
-          "icon": "fa-landmark"
-        },
-        {
-          "id": 31,
-          "name": "African Rift",
-          "diff": "hard",
-          "icon": "fa-mountain"
-        },
-        {
-          "id": 32,
-          "name": "Asian Archipelagos",
-          "diff": "hard",
-          "icon": "fa-compass"
-        },
-        {
-          "id": 33,
-          "name": "Middle East Water",
-          "diff": "hard",
-          "icon": "fa-sun"
-        },
-        {
-          "id": 34,
-          "name": "Polar Geography",
-          "diff": "hard",
-          "icon": "fa-snowflake"
-        }
+        { "id": 11, "name": "Map Projections", "diff": "easy", "icon": "fa-globe" },
+        { "id": 12, "name": "Continents & Oceans", "diff": "easy", "icon": "fa-earth-americas" },
+        { "id": 13, "name": "Landforms & Water", "diff": "easy", "icon": "fa-water" },
+        { "id": 14, "name": "Weather v Climate", "diff": "easy", "icon": "fa-cloud-sun" },
+        { "id": 15, "name": "Natural Resources", "diff": "easy", "icon": "fa-tree" },
+        { "id": 16, "name": "Push & Pull", "diff": "easy", "icon": "fa-person-walking-arrow-right" },
+        { "id": 17, "name": "Urban vs Rural", "diff": "easy", "icon": "fa-city" },
+        { "id": 18, "name": "Culture & Customs", "diff": "easy", "icon": "fa-masks-theater" },
+        { "id": 19, "name": "Demographics", "diff": "med", "icon": "fa-users" },
+        { "id": 20, "name": "Econ Systems", "diff": "med", "icon": "fa-money-bill-trend-up" },
+        { "id": 21, "name": "Boundaries", "diff": "med", "icon": "fa-map-location-dot" },
+        { "id": 22, "name": "Env. Challenges", "diff": "med", "icon": "fa-smog" },
+        { "id": 23, "name": "River Basins", "diff": "med", "icon": "fa-water" },
+        { "id": 24, "name": "Agriculture", "diff": "med", "icon": "fa-tractor" },
+        { "id": 25, "name": "Global Trade", "diff": "med", "icon": "fa-handshake" },
+        { "id": 26, "name": "Megacities", "diff": "med", "icon": "fa-building-columns" },
+        { "id": 27, "name": "Plate Tectonics", "diff": "hard", "icon": "fa-layer-group" },
+        { "id": 28, "name": "GIS & Geodesy", "diff": "hard", "icon": "fa-satellite" },
+        { "id": 29, "name": "Chokepoints", "diff": "hard", "icon": "fa-anchor" },
+        { "id": 30, "name": "Microstates", "diff": "hard", "icon": "fa-landmark" },
+        { "id": 31, "name": "African Rift", "diff": "hard", "icon": "fa-mountain" },
+        { "id": 32, "name": "Asian Archipelagos", "diff": "hard", "icon": "fa-compass" },
+        { "id": 33, "name": "Middle East Water", "diff": "hard", "icon": "fa-sun" },
+        { "id": 34, "name": "Polar Geography", "diff": "hard", "icon": "fa-snowflake" }
       ]
     }
   ]
 };
-
 </script>
+
 <script>
 /* ══════════════════════════════════════════════════════════════════
    APERTURE — FILE NAVIGATION
-   Every link is built from file paths, relative to the site root:
-     • going DOWN adds a part   →  utility/geography.html
-     • going UP removes a part  →  ../index.html  (or index.html#utility)
-   The root is found from where THIS file is loaded (assets/nav.js), so the
-   site works from any folder, any host, or straight from disk (file://).
-
-   Hooks a page can use (all optional):
-     <a data-aperture-back>        Back button → goes up to the main page
-     <span data-aperture-menu>     "Pages" dropdown listing every registered page
-     <nav data-aperture-crumbs>    Breadcrumb: Aperture › Utility › This page
    ══════════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
@@ -421,8 +270,7 @@ window.APERTURE = {
   var script = document.currentScript;
   if (!cfg || !script) return;
 
-  var ROOT = new URL(document.documentElement.getAttribute('data-root') || './', location.href);                       // …/assets/nav.js → site root
-  // Links are written without ".html" (cleaner URLs). Opening straight from disk (file://) still needs the extension.
+  var ROOT = new URL(document.documentElement.getAttribute('data-root') || './', location.href);
   var NOEXT = location.protocol !== 'file:';
   var url = function (p) {
     var m = String(p).match(/^([^#?]*)(.*)$/), base = m[1], tail = m[2];
@@ -442,13 +290,12 @@ window.APERTURE = {
       var p = clean(cfg.pages[i].path);
       if (here === p || here.slice(-(p.length + 1)) === '/' + p) return cfg.pages[i];
     }
-    var leaf = here.split('/').pop();   // fallback: host rewrote the folder part
+    var leaf = here.split('/').pop();
     for (var j = 0; j < cfg.pages.length; j++) { if (clean(cfg.pages[j].path).split('/').pop() === leaf) return cfg.pages[j]; }
     return null;
   }
   var page = current();
 
-  // "up one part": from a page → its folder on the main page; from the main page → itself
   function upHref() {
     var pg = page && groupOf(page.group);
     if (page && pg && !pg.hidden) return url(cfg.home) + '#' + page.group;
@@ -457,7 +304,6 @@ window.APERTURE = {
 
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
 
-  /* ── styles (self-contained so every page looks the same) ── */
   var css = '' +
   '.ap-btn{display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 14px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:transparent;color:#b4c0cf;font:500 13px Inter,system-ui,sans-serif;cursor:pointer;text-decoration:none;white-space:nowrap;transition:background .15s,color .15s,border-color .15s}' +
   '.ap-btn:hover,.ap-btn[aria-expanded="true"]{background:#283340;color:#fff}' +
@@ -479,15 +325,24 @@ window.APERTURE = {
   '.ap-crumbs a{color:#b4c0cf;text-decoration:none;padding:5px 8px;border-radius:9px}.ap-crumbs a:hover{background:#283340;color:#fff}' +
   '.ap-crumbs b{color:#fff;font-weight:600;padding:5px 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}' +
   '.ap-crumbs i{font-style:normal;opacity:.5}' +
-  '@media (max-width:640px){.ap-pop{position:fixed;left:12px;right:12px;top:80px;width:auto}}';
+  '@media (max-width:640px){.ap-pop{position:fixed;left:12px;right:12px;top:80px;width:auto}}' +
+  'html{-webkit-text-size-adjust:100%;text-size-adjust:100%}' +
+  'a,button,select,summary,label,[role=button]{-webkit-tap-highlight-color:rgba(91,143,232,.18);touch-action:manipulation}' +
+  'body{padding-bottom:env(safe-area-inset-bottom)}' +
+  '@media (max-width:640px){html,body{max-width:100%;overflow-x:clip}input,select,textarea{font-size:max(16px,1em)}}' +
+  '@media (pointer:coarse){' +
+    '.ap-btn,.ap-item{min-height:44px}' +
+    'a[data-lg]{display:inline-block;padding:11px 8px;margin:-6px -2px}' +
+    'button:not(.ibtn),select,[role=button],summary,a.btn,a.pill{min-height:40px}' +
+    'input:not([type=checkbox]):not([type=radio]):not([type=range]),textarea{min-height:42px}' +
+    '.ap-crumbs a{padding:10px 8px}' +
+  '}';
   var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
 
-  /* ── Back (up one part) ── */
   document.querySelectorAll('[data-aperture-back]').forEach(function (a) {
     a.setAttribute('href', upHref()); a.setAttribute('target', target);
   });
 
-  /* ── Breadcrumbs: Aperture › Utility › Page  (each crumb is a path you can trim back to) ── */
   document.querySelectorAll('[data-aperture-crumbs]').forEach(function (el) {
     var h = '<a href="' + url(cfg.home) + '" target="' + target + '">' + esc(cfg.name) + '</a>';
     if (page) {
@@ -499,7 +354,6 @@ window.APERTURE = {
     el.innerHTML = h;
   });
 
-  /* ── Pages dropdown ── */
   document.querySelectorAll('[data-aperture-menu]').forEach(function (mount) {
     var grid = '<svg viewBox="0 0 16 16" fill="currentColor"><rect x="1.5" y="1.5" width="5.2" height="5.2" rx="1.4"/><rect x="9.3" y="1.5" width="5.2" height="5.2" rx="1.4"/><rect x="1.5" y="9.3" width="5.2" height="5.2" rx="1.4"/><rect x="9.3" y="9.3" width="5.2" height="5.2" rx="1.4"/></svg>';
     var body = '<a class="ap-item' + (page ? '' : ' is-here') + '" href="' + url(cfg.home) + '" target="' + target + '"><span class="ap-ico"><i class="fa-solid fa-house"></i></span><span class="ap-txt"><div class="ap-ttl">' + esc(cfg.name) + ' home</div><div class="ap-path">' + esc(cfg.home) + '</div></span></a>';
@@ -530,7 +384,6 @@ window.APERTURE = {
     });
   });
 
-  /* ── legal links: fix hrefs, and add them to the footer of every page ── */
   var LEGAL = [['legal/privacy-policy', 'Privacy'], ['legal/terms-of-use', 'Terms'], ['legal/school-and-district', 'Schools & districts']];
   function legalLinks() {
     document.querySelectorAll('a[data-lg]').forEach(function (a) { a.setAttribute('href', url(a.getAttribute('href').replace(/^(\.\.\/)+/, ''))); });
@@ -544,7 +397,6 @@ window.APERTURE = {
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', legalLinks); else legalLinks();
 
-  /* ── public helpers (used by the main page) ── */
   window.Aperture = { config: cfg, root: ROOT.href, url: url, current: page, target: target, up: upHref };
 })();
 
@@ -564,24 +416,30 @@ window.APERTURE = {
     return block(e);
   }, true);
 })();
-
 </script>
+
 <script>
 (function () {
 'use strict';
 /* ═════════ GAME LIST ═════════
-   To add a game, add one line here. Each game is loaded from GitHub through the jsDelivr CDN:
-     repo  = "owner/name"      ref = branch or tag      dir = folder inside the repo ('' for the top)
-     entry = the page to open (usually index.html)
-   Only add games you have the right to use. */
+   Each game is pulled from its GitHub project through the jsDelivr CDN and embedded
+   directly into an about:blank window with a <base> tag so all assets resolve properly. */
 var GAMES = [
-  { id: '2048',        name: '2048',         repo: 'gabrielecirulli/2048',  ref: 'master',   dir: '', entry: 'index.html', tag: 'Puzzle',  license: 'MIT',     desc: 'Slide tiles and combine them to reach 2048.' },
-  { id: 'hextris',     name: 'Hextris',      repo: 'Hextris/hextris',       ref: 'gh-pages', dir: '', entry: 'index.html', tag: 'Arcade',  license: 'GPL-3.0', desc: 'Fast-paced puzzle with a spinning hexagon.' },
-  { id: 'clumsy-bird', name: 'Clumsy Bird',  repo: 'ellisonleao/clumsy-bird', ref: 'master', dir: '', entry: 'index.html', tag: 'Arcade',  license: 'GPL-3.0', desc: 'A flappy-style bird game built with melonJS.' },
-  { id: 'adarkroom',   name: 'A Dark Room',  repo: 'doublespeakgames/adarkroom', ref: 'main', dir: '', entry: 'index.html', tag: 'Strategy', license: 'MPL-2.0', desc: 'A minimalist text adventure that grows as you play.' },
-  { id: 'tetris',      name: 'Tetris',       repo: 'jakesgordon/javascript-tetris', ref: 'master', dir: '', entry: 'index.html', tag: 'Puzzle', license: 'MIT', desc: 'A classic falling-block puzzle game.' },
-  { id: 'pacman',      name: 'Pac-Man',      repo: 'daleharvey/pacman', ref: 'master', dir: '', entry: 'index.html', tag: 'Arcade', license: 'WTFPL', desc: 'A JavaScript remake of the arcade classic.' },
-  { id: 'racer',       name: 'Racer',        repo: 'jakesgordon/javascript-racer', ref: 'master', dir: '', entry: 'index.html', tag: 'Arcade', license: 'MIT', desc: 'A pseudo-3D racing game built with canvas.' }
+  { id: '2048',        name: '2048',                              repo: 'gabrielecirulli/2048',          ref: 'master',   dir: '',      entry: 'index.html', tag: 'Puzzle',   license: 'MIT',        desc: 'Slide tiles and combine them to reach 2048.' },
+  { id: 'hextris',     name: 'Hextris',                           repo: 'Hextris/hextris',               ref: 'gh-pages', dir: '',      entry: 'index.html', tag: 'Arcade',   license: 'GPL-3.0',    desc: 'Fast-paced puzzle with a spinning hexagon.' },
+  { id: 'clumsy-bird', name: 'Clumsy Bird',                       repo: 'ellisonleao/clumsy-bird',       ref: 'master',   dir: '',      entry: 'index.html', tag: 'Arcade',   license: 'GPL-3.0',    desc: 'A flappy-style bird game built with melonJS.' },
+  { id: 'adarkroom',   name: 'A Dark Room',                       repo: 'doublespeakgames/adarkroom',    ref: 'main',     dir: '',      entry: 'index.html', tag: 'Strategy', license: 'MPL-2.0',    desc: 'A minimalist text adventure that grows as you play.' },
+  { id: 'tetris',      name: 'Tetris',                            repo: 'jakesgordon/javascript-tetris', ref: 'master',   dir: '',      entry: 'index.html', tag: 'Puzzle',   license: 'MIT',        desc: 'A classic falling-block puzzle game.' },
+  { id: 'pacman',      name: 'Pac-Man',                           repo: 'daleharvey/pacman',             ref: 'master',   dir: '',      entry: 'index.html', tag: 'Arcade',   license: 'WTFPL',      desc: 'A JavaScript remake of the arcade classic.' },
+  { id: 'racer',       name: 'Racer',                             repo: 'jakesgordon/javascript-racer',  ref: 'master',   dir: '',      entry: 'index.html', tag: 'Arcade',   license: 'MIT',        desc: 'A pseudo-3D racing game built with canvas.' },
+  { id: 'fnaf1',       name: "Five Nights at Freddy's",           repo: 'irv77/hd_fnaf',                 ref: 'main',     dir: '1',     entry: 'index.html', tag: 'Horror',   license: 'Proprietary', desc: 'Survive five night shifts monitoring security cameras at Freddy Fazbear\'s Pizza.' },
+  { id: 'fnaf2',       name: "Five Nights at Freddy's 2",         repo: 'irv77/hd_fnaf',                 ref: 'main',     dir: '2',     entry: 'index.html', tag: 'Horror',   license: 'Proprietary', desc: 'Defend against new and retro animatronics with a Freddy mask and flashlight.' },
+  { id: 'fnaf3',       name: "Five Nights at Freddy's 3",         repo: 'irv77/hd_fnaf',                 ref: 'main',     dir: '3',     entry: 'index.html', tag: 'Horror',   license: 'Proprietary', desc: 'Manage ventilation, audio, and camera systems to survive Springtrap at Fazbear\'s Fright.' },
+  { id: 'fnaf4',       name: "Five Nights at Freddy's 4",         repo: 'irv77/hd_fnaf',                 ref: 'main',     dir: '4',     entry: 'index.html', tag: 'Horror',   license: 'Proprietary', desc: 'Listen for breathing and defend your bedroom doors and closet against nightmare animatronics.' },
+  { id: 'fnaf-sl',     name: "Five Nights at Freddy's: Sister Location", repo: 'irv77/hd_fnaf',           ref: 'main',     dir: 'sl',    entry: 'index.html', tag: 'Horror',   license: 'Proprietary', desc: 'Navigate maintenance rooms and perform nightly tasks across Circus Baby\'s Entertainment and Rental.' },
+  { id: 'fnaf-ps',     name: "Freddy Fazbear's Pizzeria Simulator", repo: 'irv77/hd_fnaf',               ref: 'main',     dir: 'ps',    entry: 'index.html', tag: 'Simulation', license: 'Proprietary', desc: 'Design your own restaurant by day and salvage rogue animatronics by night.' },
+  { id: 'fnaf-ucn',    name: 'Ultimate Custom Night',             repo: 'irv77/hd_fnaf',                 ref: 'main',     dir: 'ucn',   entry: 'index.html', tag: 'Survival', license: 'Proprietary', desc: 'Customize and face off against up to 50 selectable animatronic characters.' },
+  { id: 'fnaf-world',  name: 'FNAF World',                        repo: 'irv77/hd_fnaf',                 ref: 'main',     dir: 'w',     entry: 'index.html', tag: 'RPG',      license: 'Proprietary', desc: 'Lead an animatronic party on an animated turn-based RPG adventure through Village and beyond.' }
 ];
 var CDN = 'https://cdn.jsdelivr.net/gh/';
 
@@ -589,73 +447,175 @@ var $ = function (id) { return document.getElementById(id); };
 var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
 var store = (function () { try { return JSON.parse(localStorage.getItem('aperture-arcade') || '{}'); } catch (e) { return {}; } })();
 function save() { try { localStorage.setItem('aperture-arcade', JSON.stringify(store)); } catch (e) {} }
-store.fav = store.fav || {}; store.recent = store.recent || [];
-var cat = 'All', cur = null, token = 0;
+store.fav = store.fav || {};
+store.recent = store.recent || [];
+var cat = 'All';
+
 function color(s) { var h = 0; for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0; return 'hsl(' + (h % 360) + ' 55% 68%)'; }
-function tile(el, g) { el.style.background = color(g.name); el.style.color = '#0e1620'; el.textContent = g.name.charAt(0).toUpperCase(); }
+function tile(el, g) { if (!g) return; el.style.background = color(g.name); el.style.color = '#0e1620'; el.textContent = g.name.charAt(0).toUpperCase(); }
 function base(g) { return CDN + g.repo + '@' + g.ref + '/' + (g.dir ? g.dir.replace(/^\/|\/$/g, '') + '/' : ''); }
+function url(g) { return base(g) + g.entry; }
 function byId(id) { for (var i = 0; i < GAMES.length; i++) if (GAMES[i].id === id) return GAMES[i]; return null; }
 
-/* list */
-function row(g) {
-  var on = cur && cur.id === g.id, f = store.fav[g.id];
-  return '<div class="g' + (on ? ' on' : '') + '" data-id="' + esc(g.id) + '" role="button" tabindex="0"><span class="tile" data-t="' + esc(g.id) + '"></span><span class="t"><b>' + esc(g.name) + '</b><span>' + esc(g.tag) + ' · ' + esc(g.desc) + '</span></span><button class="st' + (f ? ' on' : '') + '" data-fav="' + esc(g.id) + '" type="button" aria-label="' + (f ? 'Remove from favorites' : 'Add to favorites') + '"><i class="fa-' + (f ? 'solid' : 'regular') + ' fa-star"></i></button></div>';
+/* ═════════ ABOUT:BLANK EMBED LAUNCHER ═════════
+   Opens a genuine about:blank tab, fetches the game's index.html from jsDelivr,
+   injects a <base> tag pointing to the repository directory on jsDelivr so all
+   relative CSS/JS/images/audio resolve cleanly, and writes it directly into about:blank. */
+function launchInAboutBlank(g) {
+  var win = window.open('about:blank', '_blank');
+  if (!win) {
+    alert('Popup blocked! Please allow popups for this site to launch games in about:blank.');
+    return;
+  }
+
+  var gameBase = base(g);
+  var gameUrl = url(g);
+
+  // Initial loading state inside the about:blank tab
+  var loaderHtml = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Loading ' + esc(g.name) + '…</title>' +
+    '<style>html,body{margin:0;height:100%;background:#161c23;color:#e8edf3;font-family:Inter,system-ui,-apple-system,sans-serif;display:grid;place-items:center;text-align:center}' +
+    '.box{display:flex;flex-direction:column;align-items:center;gap:14px;padding:24px}' +
+    '.spin{width:38px;height:38px;border:3px solid rgba(91,143,232,.25);border-top-color:#5b8fe8;border-radius:50%;animation:s .8s linear infinite}' +
+    '@keyframes s{to{transform:rotate(360deg)}}' +
+    'p{margin:0;font-size:14px;color:#8795a8}' +
+    '.err{color:#e0707a;max-width:420px;line-height:1.5}</style></head>' +
+    '<body><div class="box"><div class="spin"></div><b>Loading ' + esc(g.name) + '…</b><p>Fetching ' + esc(g.entry) + ' from GitHub</p></div></body></html>';
+
+  win.document.open();
+  win.document.write(loaderHtml);
+  win.document.close();
+
+  fetch(gameUrl)
+    .then(function (res) {
+      if (!res.ok) throw new Error('HTTP ' + res.status + ' when fetching ' + gameUrl);
+      return res.text();
+    })
+    .then(function (html) {
+      var baseTag = '<base href="' + esc(gameBase) + '">';
+      // Inject <base> right inside <head> (or at the top of the document if no <head> exists)
+      if (/<head[^>]*>/i.test(html)) {
+        html = html.replace(/<head[^>]*>/i, function (m) { return m + '\n' + baseTag; });
+      } else if (/<html[^>]*>/i.test(html)) {
+        html = html.replace(/<html[^>]*>/i, function (m) { return m + '\n<head>' + baseTag + '</head>'; });
+      } else {
+        html = '<head>' + baseTag + '</head>\n' + html;
+      }
+
+      // Replace the about:blank document with the fetched index.html while keeping the URL as about:blank
+      win.document.open();
+      win.document.write(html);
+      win.document.close();
+    })
+    .catch(function (err) {
+      if (!win || win.closed) return;
+      win.document.open();
+      win.document.write('<!DOCTYPE html><html><head><meta charset="utf-8"><title>Error — ' + esc(g.name) + '</title>' +
+        '<style>html,body{margin:0;height:100%;background:#161c23;color:#e8edf3;font-family:system-ui,sans-serif;display:grid;place-items:center;text-align:center}' +
+        '.err{padding:24px;max-width:440px;background:#212a34;border:1px solid rgba(255,255,255,.1);border-radius:16px}' +
+        'h3{margin:0 0 8px;color:#e0707a}p{margin:0 0 16px;color:#b4c0cf;font-size:13.5px}' +
+        'button{padding:8px 16px;border-radius:10px;border:none;background:#5b8fe8;color:#0e1620;font-weight:600;cursor:pointer}</style></head>' +
+        '<body><div class="err"><h3>Could not load ' + esc(g.name) + '</h3><p>' + esc(err.message) + '</p>' +
+        '<button onclick="window.close()">Close Tab</button></div></body></html>');
+      win.document.close();
+    });
 }
+
+function card(g) {
+  var f = store.fav[g.id];
+  return '<div class="gc" data-id="' + esc(g.id) + '">' +
+    '<div class="row1"><span class="tile" data-t="' + esc(g.id) + '"></span><div class="nm"><b>' + esc(g.name) + '</b><span>' + esc(g.repo) + '</span></div>' +
+    '<button class="st' + (f ? ' on' : '') + '" data-fav="' + esc(g.id) + '" type="button" aria-label="' + (f ? 'Remove from favorites' : 'Add to favorites') + '"><i class="fa-' + (f ? 'solid' : 'regular') + ' fa-star"></i></button></div>' +
+    '<p class="desc">' + esc(g.desc) + '</p>' +
+    '<div class="meta"><span class="lic">' + esc(g.tag) + ' · ' + esc(g.license) + '</span><div class="acts">' +
+    '<a class="btn sm" href="https://github.com/' + esc(g.repo) + '" target="_blank" rel="noopener noreferrer" title="View source on GitHub" aria-label="View source on GitHub"><i class="fa-brands fa-github"></i></a>' +
+    '<button type="button" class="btn sm pri" data-play="' + esc(g.id) + '"><i class="fa-solid fa-play"></i> Play</button>' +
+    '</div></div></div>';
+}
+
 function render() {
-  var q = $('q').value.trim().toLowerCase(), list = GAMES.filter(function (g) { return (cat === 'All' || (cat === 'Favorites' ? store.fav[g.id] : g.tag === cat)) && (!q || (g.name + ' ' + g.tag + ' ' + g.desc + ' ' + g.repo).toLowerCase().indexOf(q) >= 0); });
+  var q = $('q').value.trim().toLowerCase();
+  var list = GAMES.filter(function (g) {
+    return (cat === 'All' || (cat === 'Favorites' ? store.fav[g.id] : g.tag === cat)) &&
+           (!q || (g.name + ' ' + g.tag + ' ' + g.desc + ' ' + g.repo).toLowerCase().indexOf(q) >= 0);
+  });
   list.sort(function (a, b) { return (store.fav[b.id] ? 1 : 0) - (store.fav[a.id] ? 1 : 0) || a.name.localeCompare(b.name); });
   $('count').textContent = list.length + (list.length === 1 ? ' game' : ' games');
-  var html = '';
-  if (!q && cat === 'All') {
-    var rec = store.recent.map(byId).filter(Boolean).slice(0, 3);
-    if (rec.length) html += '<div class="sec-h">Recently played</div>' + rec.map(row).join('') + '<div class="sec-h">All games</div>';
+
+  // Render Recently Played section cleanly without duplicating cards inside the main grid
+  var rec = (!q && cat === 'All') ? store.recent.map(byId).filter(Boolean).slice(0, 3) : [];
+  if (rec.length) {
+    $('recent-sec').hidden = false;
+    $('recent-grid').innerHTML = rec.map(card).join('');
+    $('recent-grid').querySelectorAll('[data-t]').forEach(function (el) { tile(el, byId(el.dataset.t)); });
+  } else {
+    $('recent-sec').hidden = true;
+    $('recent-grid').innerHTML = '';
   }
-  $('list').innerHTML = html + (list.length ? list.map(row).join('') : '<div class="none">' + (cat === 'Favorites' ? 'No favorites yet. Press the star on a game.' : 'No games match \u201C' + esc(q) + '\u201D.') + '</div>');
-  $('list').querySelectorAll('[data-t]').forEach(function (el) { tile(el, byId(el.dataset.t)); });
+
+  $('grid').innerHTML = list.length
+    ? list.map(card).join('')
+    : '<div class="none">' + (cat === 'Favorites' ? 'No favorites yet. Press the star on a game.' : 'No games match “' + esc(q) + '”.') + '</div>';
+
+  $('grid').querySelectorAll('[data-t]').forEach(function (el) { tile(el, byId(el.dataset.t)); });
 }
+
 function chips() {
-  var tags = ['All', 'Favorites']; GAMES.forEach(function (g) { if (tags.indexOf(g.tag) < 0) tags.push(g.tag); });
-  $('chips').innerHTML = tags.map(function (t) { return '<button type="button" data-c="' + esc(t) + '" class="' + (t === cat ? 'on' : '') + '">' + (t === 'Favorites' ? '<i class="fa-solid fa-star"></i> ' : '') + esc(t) + '</button>'; }).join('');
+  var tags = ['All', 'Favorites'];
+  GAMES.forEach(function (g) { if (tags.indexOf(g.tag) < 0) tags.push(g.tag); });
+  $('chips').innerHTML = tags.map(function (t) {
+    return '<button type="button" data-c="' + esc(t) + '" class="' + (t === cat ? 'on' : '') + '">' +
+      (t === 'Favorites' ? '<i class="fa-solid fa-star"></i> ' : '') + esc(t) + '</button>';
+  }).join('');
 }
-$('chips').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; cat = b.dataset.c; chips(); render(); });
-$('q').addEventListener('input', render);
-$('list').addEventListener('click', function (e) {
-  var s = e.target.closest('[data-fav]'); if (s) { e.stopPropagation(); var id = s.dataset.fav; if (store.fav[id]) delete store.fav[id]; else store.fav[id] = 1; save(); render(); return; }
-  var r = e.target.closest('.g'); if (r) play(byId(r.dataset.id));
-});
-$('list').addEventListener('keydown', function (e) { if ((e.key === 'Enter' || e.key === ' ') && e.target.classList.contains('g')) { e.preventDefault(); e.target.click(); } });
-document.addEventListener('keydown', function (e) { if (e.key === '/' && !/input|textarea/i.test(document.activeElement.tagName)) { e.preventDefault(); $('q').focus(); } });
 
-/* player */
-function overlay(html) { var o = $('ov'); o.hidden = !html; if (html) o.innerHTML = '<div>' + html + '</div>'; }
-function play(g) {
-  if (!g) return; cur = g; var my = ++token;
-  $('b-name').textContent = g.name; $('b-sub').innerHTML = esc(g.tag) + ' · ' + esc(g.repo) + '<span class="lic">' + esc(g.license) + '</span>';
-  tile($('b-tile'), g); $('b-src').href = 'https://github.com/' + g.repo; $('b-src').hidden = false; $('b-reload').disabled = true; $('b-full').disabled = true;
-  $('frame').hidden = true; $('frame').removeAttribute('src'); overlay('<div class="spin"></div><h2>Loading ' + esc(g.name) + '</h2><p>Fetching from GitHub…</p>');
-  store.recent = [g.id].concat(store.recent.filter(function (x) { return x !== g.id; })).slice(0, 6); save();
-  try { history.replaceState(null, '', '#' + g.id); } catch (e) {}
+function handleGridClick(e) {
+  var s = e.target.closest('[data-fav]');
+  if (s) {
+    e.preventDefault();
+    var id = s.dataset.fav;
+    if (store.fav[id]) delete store.fav[id]; else store.fav[id] = 1;
+    save();
+    render();
+    return;
+  }
+  var p = e.target.closest('[data-play]');
+  if (p) {
+    e.preventDefault();
+    var id2 = p.dataset.play;
+    var game = byId(id2);
+    if (!game) return;
+    store.recent = [id2].concat(store.recent.filter(function (x) { return x !== id2; })).slice(0, 6);
+    save();
+    render();
+    launchInAboutBlank(game);
+  }
+}
+
+$('chips').addEventListener('click', function (e) {
+  var b = e.target.closest('button');
+  if (!b) return;
+  cat = b.dataset.c;
+  chips();
   render();
-  var url = base(g) + g.entry, slow;
-  if (navigator.onLine === false) { overlay('<div class="big" style="background:rgba(224,112,122,.14);color:var(--rose)"><i class="fa-solid fa-triangle-exclamation"></i></div><h2>You are offline</h2><p>Connect to the internet and try again.</p><button class="btn pri" id="retry" type="button"><i class="fa-solid fa-rotate-right"></i> Try again</button>'); var rb0 = $('retry'); if (rb0) rb0.onclick = function () { play(g); }; return; }
-  $('frame').onload = function () {
-    if (my !== token) return;
-    clearTimeout(slow); overlay(''); $('frame').hidden = false; $('b-reload').disabled = false; $('b-full').disabled = false;
-    try { $('frame').focus(); } catch (e) {}
-  };
-  $('frame').src = url;
-  slow = setTimeout(function () {
-    if (my !== token || !$('frame').hidden) return;
-    overlay('<div class="spin"></div><h2>Still loading ' + esc(g.name) + '</h2><p>This is taking longer than usual. GitHub or the CDN may be slow, or this network may block it.</p><button class="btn pri" id="retry" type="button"><i class="fa-solid fa-rotate-right"></i> Try again</button>');
-    var rb = $('retry'); if (rb) rb.onclick = function () { play(g); };
-  }, 20000);
-}
-$('b-reload').onclick = function () { if (cur) play(cur); };
-$('b-full').onclick = function () { var w = $('frame-wrap'); if (document.fullscreenElement) document.exitFullscreen(); else if (w.requestFullscreen) w.requestFullscreen().catch(function () {}); };
+});
+$('q').addEventListener('input', render);
+$('grid').addEventListener('click', handleGridClick);
+$('recent-grid').addEventListener('click', handleGridClick);
+$('clear-rec').addEventListener('click', function () {
+  store.recent = [];
+  save();
+  render();
+});
+document.addEventListener('keydown', function (e) {
+  if (e.key === '/' && !/input|textarea/i.test(document.activeElement.tagName)) {
+    e.preventDefault();
+    $('q').focus();
+  }
+});
 
-chips(); render();
-var want = (location.hash || '').slice(1); if (byId(want)) play(byId(want));
-window.__arcade = { GAMES: GAMES, play: play };
+chips();
+render();
+window.__arcade = { GAMES: GAMES, url: url, launch: launchInAboutBlank };
 })();
 </script>
 </body>
