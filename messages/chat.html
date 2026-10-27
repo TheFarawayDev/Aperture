@@ -67,7 +67,7 @@ main{flex:1;width:100%;padding:12px 10px 10px;display:flex;flex-direction:column
 #text{flex:1;min-height:42px;max-height:130px;padding:10px 12px;border-radius:14px;background:var(--inset);border:1px solid var(--hair);outline:none;resize:none;line-height:1.4}
 #text:focus{border-color:rgba(91,143,232,.55);box-shadow:0 0 0 3px rgba(91,143,232,.14)}
 #count{position:absolute;right:76px;bottom:16px;font-size:11px;color:var(--t3);pointer-events:none}
-#empty{flex:1;display:grid;place-items:center;text-align:center;color:var(--t3);padding:20px}#empty i{font-size:34px;color:var(--surface-3);display:block;margin-bottom:10px}
+#empty{flex:1;display:grid;place-items:center;text-align:center;color:var(--t3);padding:20px}
 .banner{margin:0;padding:8px 14px;background:rgba(216,164,75,.1);border-bottom:1px solid rgba(216,164,75,.25);color:#e6c27f;font-size:12.5px}
 .m .rp{border:0;background:transparent;text-align:left;color:var(--t3);font-size:12px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:2px 6px;margin:0 2px 2px;border-left:2px solid var(--surface-3);cursor:pointer;border-radius:0 6px 6px 0}.m .rp:hover{color:#fff;background:var(--surface-2)}.m .rp b{color:var(--a2)}
 .rxs{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}.rx{display:inline-flex;align-items:center;gap:5px;height:24px;padding:0 8px;border-radius:99px;border:1px solid var(--hair-2);background:var(--inset);color:var(--t2);cursor:pointer;font-size:13px}.rx.on{background:rgba(91,143,232,.2);border-color:rgba(91,143,232,.55);color:#fff}.rx span{font-size:11.5px;font-weight:600}
@@ -109,7 +109,7 @@ dialog::backdrop{background:rgba(6,10,14,.6);backdrop-filter:blur(3px)}
 .banner{display:flex;align-items:center;gap:8px;font-size:12px;padding:6px 14px}
 #composer{background:rgba(6,10,14,.12)}#text{border-radius:21px;padding:10px 16px}
 #composer .btn.pri{width:42px;padding:0;border-radius:50%}
-.empty-in{max-width:340px}.empty-in .big{width:68px;height:68px;margin:0 auto 14px;display:grid;place-items:center;border-radius:20px;background:rgba(91,143,232,.12);color:var(--accent);font-size:28px}
+.empty-in{max-width:340px}.empty-in .big i{font-size:28px;color:var(--accent)}.empty-in .big{width:68px;height:68px;margin:0 auto 14px;display:grid;place-items:center;border-radius:20px;background:rgba(91,143,232,.12);color:var(--accent);font-size:28px}
 .empty-in h3{margin:0 0 6px;color:var(--text);font-size:18px}.empty-in p{margin:0 0 16px;font-size:13.5px}.empty-in .acts{justify-content:center;margin:0}
 #toast{display:flex;align-items:center;gap:14px}#toast button{border:0;background:transparent;color:var(--a2);font-weight:700;cursor:pointer;font-size:13.5px}
 .blk-ic{width:52px;height:52px;margin:0 auto 12px;display:grid;place-items:center;border-radius:16px;background:rgba(224,112,122,.14);color:var(--rose);font-size:22px}
@@ -127,6 +127,22 @@ dialog::backdrop{background:rgba(6,10,14,.6);backdrop-filter:blur(3px)}
 .m .who{cursor:pointer}.m .who:hover{text-decoration:underline}
 .tg{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--hair);font-size:13.5px;color:var(--t2)}.tg input{accent-color:var(--accent);width:18px;height:18px}
 .m.mention .bub{box-shadow:0 0 0 2px rgba(216,164,75,.55)}
+dialog{max-height:calc(100dvh - 24px);overflow:auto;overscroll-behavior:contain}
+.dh{position:sticky;top:0;background:var(--surface);z-index:2;padding:16px 18px 10px}
+.btn i,.ibtn i,.tabs i,.lf i{font-size:.95em;line-height:1;flex:none}.btn.sm i{font-size:.9em}
+.sec{margin:0 0 12px;padding:14px;border-radius:16px;background:var(--inset);border:1px solid var(--hair)}.sec:last-child{margin-bottom:0}
+.sec h3{margin:0 0 10px;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--t3);font-weight:700}
+.sec .acts{margin-top:10px}.sec .tg:last-of-type{border-bottom:0}.sec .hint{margin-top:6px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.grid2 .btn{width:100%}@media(max-width:420px){.grid2{grid-template-columns:1fr}}
+.who-row{display:flex;align-items:center;gap:12px}.who-row .av{width:46px;height:46px;border-radius:14px;font-size:19px}.who-row b{display:block;font-size:15px}.who-row span{font-size:12.5px;color:var(--t3)}
+#d-ask .db{text-align:center;padding-top:6px}.ask-ic{width:54px;height:54px;margin:0 auto 12px;display:grid;place-items:center;border-radius:17px;background:rgba(91,143,232,.15);color:var(--accent);font-size:22px}.ask-ic.danger{background:rgba(224,112,122,.15);color:var(--rose)}
+#d-ask p{margin:0;color:var(--t2);font-size:14px}#d-ask .acts{justify-content:center;margin-top:18px}#d-ask .acts .btn{min-width:120px}
+#d-ask{width:min(400px,calc(100vw - 24px))}
+.btn.dangerfill{background:var(--rose);border-color:transparent;color:#1a0b0d}.btn.dangerfill:hover{background:#ea8790;color:#1a0b0d}
+.ph .t b{font-size:15.5px}.ph .ibtn{width:38px;height:38px}
+.m .act{gap:2px}
+.cv{padding:10px 12px}.cv .av{width:42px;height:42px}
+@media(max-width:820px){.m{max-width:90%}#side .sbar .btn{font-size:13px}}
 </style>
 </head>
 <body>
@@ -205,18 +221,18 @@ dialog::backdrop{background:rgba(6,10,14,.6);backdrop-filter:blur(3px)}
 <dialog id="d-info"><div class="dh"><h2 id="i-title">Details</h2><button class="ibtn" data-close type="button" aria-label="Close"><i class="fa-solid fa-xmark"></i></button></div><div class="db" id="i-body"></div></dialog>
 
 <dialog id="d-set"><div class="dh"><h2>Settings</h2><button class="ibtn" data-close type="button" aria-label="Close"><i class="fa-solid fa-xmark"></i></button></div><div class="db">
-  <p style="margin:0 0 6px;color:var(--t2);font-size:14px">Signed in as <b id="s-nick"></b> on this device.</p>
-  <div class="hint" id="s-mode"></div>
-  <div class="lbl" style="margin-top:14px">Alerts</div>
-  <label class="tg"><span>Play a sound for new messages and mentions</span><input type="checkbox" id="s-snd"></label>
-  <label class="tg"><span>Desktop notifications when this tab is in the background</span><input type="checkbox" id="s-dn"></label>
-  <div class="hint" id="s-dnh">Notifications never include message text. Muted chats stay silent.</div>
-  <div class="lbl" style="margin-top:14px">Profile picture</div>
-  <div class="pfp"><div class="av" id="s-pv"></div><div style="flex:1;min-width:0"><input class="inp" id="s-pic" placeholder="Paste an image link (https://…)" maxlength="300" autocomplete="off" spellcheck="false"><div class="row" style="margin-top:8px"><button class="btn sm pri" id="s-picsave" type="button">Save picture</button><button class="btn sm" id="s-picrm" type="button">Remove</button></div></div></div>
-  <div class="hint" id="s-pich">Use a picture that is safe for school and does not show your face or real name. Pictures that break the rules can be removed by administrators.</div>
-  <div class="lbl" style="margin-top:14px">Blocked people</div><div id="s-blocks"></div>
-  <div class="acts"><button class="btn" id="s-out" type="button"><i class="fa-solid fa-right-from-bracket"></i> Sign out of this device</button><button class="btn" id="s-export" type="button"><i class="fa-solid fa-download"></i> Download my data</button><button class="btn" id="s-pw" type="button"><i class="fa-solid fa-key"></i> Change password</button><button class="btn danger" id="s-wipe" type="button"><i class="fa-regular fa-eraser"></i> Delete all my messages</button><button class="btn danger" id="s-del" type="button"><i class="fa-regular fa-trash-can"></i> Delete my nickname</button></div>
-  <div class="hint">Signing out keeps your nickname reserved. Deleting it frees the name and removes your chat list.</div></div></dialog>
+  <div class="sec"><div class="who-row"><div class="av" id="s-av"></div><div><b id="s-nick"></b><span>Signed in on this device</span></div></div><div class="hint ok" id="s-mode" style="margin-top:10px"></div></div>
+  <div class="sec"><h3>Profile picture</h3>
+    <div class="pfp"><div class="av" id="s-pv"></div><div style="flex:1;min-width:0"><input class="inp" id="s-pic" placeholder="Paste an image link (https://…)" maxlength="300" autocomplete="off" spellcheck="false"><div class="row" style="margin-top:8px"><button class="btn sm pri" id="s-picsave" type="button">Save picture</button><button class="btn sm" id="s-picrm" type="button">Remove</button></div></div></div>
+    <div class="hint" id="s-pich">Use a picture that is safe for school and does not show your face or real name. Pictures that break the rules can be removed by administrators.</div></div>
+  <div class="sec"><h3>Alerts</h3>
+    <label class="tg"><span>Play a sound for new messages and mentions</span><input type="checkbox" id="s-snd"></label>
+    <label class="tg"><span>Desktop notifications when this tab is in the background</span><input type="checkbox" id="s-dn"></label>
+    <div class="hint" id="s-dnh">Notifications never include message text. Muted chats stay silent.</div></div>
+  <div class="sec"><h3>Blocked people</h3><div id="s-blocks"></div></div>
+  <div class="sec"><h3>Account</h3><div class="grid2"><button class="btn" id="s-pw" type="button"><i class="fa-solid fa-key"></i> Change password</button><button class="btn" id="s-out" type="button"><i class="fa-solid fa-right-from-bracket"></i> Sign out</button><button class="btn" id="s-export" type="button"><i class="fa-solid fa-download"></i> Download my data</button></div></div>
+  <div class="sec"><h3>Danger zone</h3><div class="grid2"><button class="btn danger" id="s-wipe" type="button"><i class="fa-solid fa-eraser"></i> Delete my messages</button><button class="btn danger" id="s-del" type="button"><i class="fa-regular fa-trash-can"></i> Delete my account</button></div><div class="hint">Signing out keeps your nickname reserved. Deleting your account frees the name and removes your chat list.</div></div>
+</div></dialog>
 
 <dialog id="d-block"><div class="dh"><h2 id="bk-title">Block</h2><button class="ibtn" data-close type="button" aria-label="Close"><i class="fa-solid fa-xmark"></i></button></div><div class="db">
   <div class="blk-ic"><i class="fa-solid fa-ban"></i></div>
@@ -225,6 +241,15 @@ dialog::backdrop{background:rgba(6,10,14,.6);backdrop-filter:blur(3px)}
   <div class="acts" style="justify-content:center"><button class="btn danger" id="bk-yes" type="button"><i class="fa-solid fa-ban"></i> Block</button><button class="btn" data-close type="button">Cancel</button></div>
   <div class="hint">Something wrong? Use the flag on a message to report it to the administrators.</div></div></dialog>
 <dialog id="d-blocked"><div class="dh"><h2>Blocked people</h2><button class="ibtn" data-close type="button" aria-label="Close"><i class="fa-solid fa-xmark"></i></button></div><div class="db" id="bl-body"></div></dialog>
+<dialog id="d-ask"><div class="dh"><h2 id="a-title">Are you sure?</h2><button class="ibtn" data-close type="button" aria-label="Close"><i class="fa-solid fa-xmark"></i></button></div><div class="db">
+  <div class="ask-ic" id="a-ic"><i class="fa-solid fa-circle-question"></i></div><p id="a-text"></p>
+  <div class="acts"><button class="btn" id="a-no" type="button">Cancel</button><button class="btn pri" id="a-yes" type="button">Confirm</button></div></div></dialog>
+<dialog id="d-pw"><div class="dh"><h2>Change password</h2><button class="ibtn" data-close type="button" aria-label="Close"><i class="fa-solid fa-xmark"></i></button></div><div class="db">
+  <label class="lbl" for="pw-old">Current password</label><input class="inp" id="pw-old" type="password" autocomplete="current-password">
+  <label class="lbl" for="pw-new" style="margin-top:12px">New password</label><input class="inp" id="pw-new" type="password" autocomplete="new-password" placeholder="At least 8 characters">
+  <label class="lbl" for="pw-new2" style="margin-top:12px">Confirm new password</label><input class="inp" id="pw-new2" type="password" autocomplete="new-password">
+  <div class="hint err" id="pw-err"></div>
+  <div class="acts"><button class="btn pri" id="pw-go" type="button">Change password</button><button class="btn" data-close type="button">Cancel</button></div></div></dialog>
 <div id="picker" class="picker" hidden></div>
 <dialog id="d-pins"><div class="dh"><h2>Pinned messages</h2><button class="ibtn" data-close type="button" aria-label="Close"><i class="fa-solid fa-xmark"></i></button></div><div class="db" id="p-body"></div></dialog>
 <div id="toast" role="status"></div>
@@ -735,6 +760,20 @@ function idbGet(k) { return idb().then(function (db) { return new Promise(functi
 function idbDel(k) { return idb().then(function (db) { return new Promise(function (res) { var t = db.transaction('k', 'readwrite'); t.objectStore('k').delete(k); t.oncomplete = res; t.onerror = res; }); }).catch(function () {}); }
 
 
+/* ═════════ CONFIRM DIALOG ═════════ */
+function ask(o) {
+  return new Promise(function (res) {
+    var d = $('d-ask'), done = false, yes = $('a-yes');
+    $('a-title').textContent = o.title; $('a-text').textContent = o.text || '';
+    $('a-ic').className = 'ask-ic' + (o.danger ? ' danger' : ''); $('a-ic').innerHTML = '<i class="fa-solid ' + (o.icon || (o.danger ? 'fa-triangle-exclamation' : 'fa-circle-question')) + '"></i>';
+    yes.className = 'btn ' + (o.danger ? 'dangerfill' : 'pri'); yes.textContent = o.ok || 'Confirm';
+    function fin(v) { if (done) return; done = true; d.removeEventListener('close', onc); if (d.open) d.close(); res(v); }
+    function onc() { fin(false); }
+    yes.onclick = function () { fin(true); }; $('a-no').onclick = function () { fin(false); }; d.addEventListener('close', onc);
+    d.showModal(); (o.danger ? $('a-no') : yes).focus();
+  });
+}
+
 /* ═════════ SAFETY FILTERS ═════════ */
 var RESERVED = /^(admin|administrator|mod|moderator|staff|teacher|principal|aperture|faros|support|official|system|school|district|help|security|police)$/;
 var BAD = /(f+u+c+k+|sh[i1]t+|b[i1]tch|a+ss+h[o0]le|cunt|n[i1]gg+[ae3]|fagg?[o0]t|retard|wh[o0]re|slut|d[i1]ck\s?head)/i;
@@ -1136,10 +1175,11 @@ function setCtx(kind, who, text) { var c = $('ctx'); c.hidden = !kind; if (kind)
 function cancelCtx() { replyTo = null; if (editing) { $('text').value = ''; autosize(); } editing = null; setCtx(''); }
 function startReply(k, m) { editing = null; replyTo = { k: k, f: m.f, t: filterText(m._t).slice(0, 80) }; setCtx('reply', m.f, filterText(m._t)); $('text').focus(); }
 function startEdit(k, m) { replyTo = null; editing = k; setCtx('edit', '', m._t); $('text').value = m._t; autosize(); $('text').focus(); }
-function delMsg(k, el) { if (!confirm('Delete this message for everyone?')) return; rt('DELETE', convPath(cur) + '/m/' + k).then(function () { if (el) el.remove(); delete msgData[k]; delete shown[k]; toast('Message deleted'); }).catch(function () { toast('Could not delete the message'); }); }
+function delMsg(k, el) { ask({ title: 'Delete message?', text: 'This removes the message for everyone in the chat.', ok: 'Delete', danger: true, icon: 'fa-trash-can' }).then(function (ok) { if (!ok) return; rt('DELETE', convPath(cur) + '/m/' + k).then(function () { if (el) el.remove(); delete msgData[k]; delete shown[k]; toast('Message deleted'); }).catch(function () { toast('Could not delete the message'); }); }); }
 function reportMsg(k, m, c) {
-  if (!confirm('Report this message from ' + m.f + '? A readable copy is sent to the site administrators.')) return;
+  ask({ title: 'Report this message?', text: 'A readable copy of the message from ' + m.f + ' is sent to the site administrators for review.', ok: 'Send report', danger: true, icon: 'fa-flag' }).then(function (ok) { if (!ok) return;
   rt('PUT', 'reports/' + newKey(), { by: me, from: m.f, conv: c.id, kind: c.kind, mk: k, t: String(m._t).slice(0, 500), ts: SV }).then(function () { toast('Reported. Thank you.'); }).catch(function () { toast('Could not send the report'); });
+  });
 }
 function pinMsg(k, m) { var c = cur; encText(c, filterText(m._t).slice(0, 80)).then(function (e) { return rt('PUT', convPath(c) + '/pins/' + k, { f: m.f, by: me, i: e.i, t: e.t }); }).then(function () { toast('Pinned'); }).catch(function () { toast('Could not pin it'); }); }
 $('b-pins').onclick = function () {
@@ -1308,9 +1348,9 @@ function openInfo() {
             .then(function (e) { return rt('PUT', 'inbox/' + n + '/' + c.id, { k: 'g', n: c.name, ts: SV, pi: e.i, p: e.t, l: me }); });
         }).then(function () { toast('Added'); openInfo(); }).catch(function (e) { hh.className = 'hint err'; hh.textContent = e.status === undefined ? e.message : 'Could not add them.'; });
       };
-      $('i-del').onclick = function () { if (!confirm('Delete this group and all its messages for everyone?')) return; var ps = mem.map(function (n) { return rt('DELETE', 'inbox/' + n + '/' + c.id).catch(function () {}); }); Promise.all(ps).then(function () { return rt('DELETE', 'groups/' + c.id); }).then(function () { $('d-info').close(); closeChat(); refreshInbox(); toast('Group deleted'); }).catch(function () { toast('Could not delete the group'); }); };
+      $('i-del').onclick = function () { ask({ title: 'Delete this group?', text: 'The group and all of its messages are removed for everyone.', ok: 'Delete group', danger: true, icon: 'fa-trash-can' }).then(function (ok) { if (!ok) return; var ps = mem.map(function (n) { return rt('DELETE', 'inbox/' + n + '/' + c.id).catch(function () {}); }); Promise.all(ps).then(function () { return rt('DELETE', 'groups/' + c.id); }).then(function () { $('d-info').close(); closeChat(); refreshInbox(); toast('Group deleted'); }).catch(function () { toast('Could not delete the group'); }); }); };
     }
-    $('i-leave').onclick = function () { if (!confirm('Leave this group?')) return; rt('DELETE', 'groups/' + c.id + '/members/' + me).then(function () { return rt('DELETE', 'inbox/' + me + '/' + c.id); }).then(function () { $('d-info').close(); closeChat(); refreshInbox(); toast('You left the group'); }).catch(function () { toast('Could not leave the group'); }); };
+    $('i-leave').onclick = function () { ask({ title: 'Leave this group?', text: 'You will stop receiving its messages. The owner can add you back.', ok: 'Leave', danger: true, icon: 'fa-right-from-bracket' }).then(function (ok) { if (!ok) return; rt('DELETE', 'groups/' + c.id + '/members/' + me).then(function () { return rt('DELETE', 'inbox/' + me + '/' + c.id); }).then(function () { $('d-info').close(); closeChat(); refreshInbox(); toast('You left the group'); }).catch(function () { toast('Could not leave the group'); }); }); };
   }).catch(function () { body.innerHTML = '<div class="hint err">Could not load the group.</div>'; });
 }
 
@@ -1339,13 +1379,12 @@ $('s-export').onclick = function () {
   }).then(function () { b.disabled = false; });
 };
 $('s-wipe').onclick = function () {
-  if (!confirm('Delete every message you have sent, in all chats? This cannot be undone.')) return;
-  var b = this; b.disabled = true; sweepMine().then(function (n) { toast(n + ' message' + (n === 1 ? '' : 's') + ' deleted'); if (cur) pollMsgs(); }).then(function () { b.disabled = false; });
+  var b = this; ask({ title: 'Delete all your messages?', text: 'Every message you have sent, in every chat, is removed. This cannot be undone.', ok: 'Delete messages', danger: true, icon: 'fa-eraser' }).then(function (ok) { if (!ok) return; b.disabled = true; sweepMine().then(function (n) { toast(n + ' message' + (n === 1 ? '' : 's') + ' deleted'); if (cur) pollMsgs(); }).then(function () { b.disabled = false; }); });
 };
 
 /* ═════════ SETTINGS ═════════ */
 $('b-settings').onclick = function () {
-  $('s-nick').textContent = me;
+  $('s-nick').textContent = me; avatar($('s-av'), me);
   $('s-mode').textContent = 'Your messages are encrypted. Only the people in a chat, and the site administrators who monitor chats, can read them.'; $('s-mode').className = 'hint ok';
   var b = Object.keys(store.blocks || {});
   $('s-blocks').innerHTML = b.length ? b.map(function (n) { return '<div class="mem"><span>' + esc(n) + '</span><button class="btn sm" data-ub="' + esc(n) + '" type="button">Unblock</button></div>'; }).join('') : '<div class="hint">You have not blocked anyone.</div>';
@@ -1365,10 +1404,14 @@ $('s-picsave').onclick = function () {
   im.src = u;
 };
 $('s-picrm').onclick = function () { rt('DELETE', 'nicknames/' + me + '/pic').then(function () { pics[me] = ''; refreshAvatars(); pfpPreview(); $('s-pich').className = 'hint ok'; $('s-pich').textContent = 'Removed.'; }).catch(function () { toast('Could not remove it'); }); };
-$('s-pw').onclick = function () {
-  var cur0 = prompt('Type your current password'); if (!cur0) return;
-  var nw = prompt('Type your new password (at least 8 characters)'); if (!nw) return; if (nw.length < 8) { toast('The new password must be at least 8 characters'); return; }
-  if (nw !== prompt('Type the new password again')) { toast('The passwords do not match'); return; }
+$('s-pw').onclick = function () { ['pw-old', 'pw-new', 'pw-new2'].forEach(function (i) { $(i).value = ''; }); $('pw-err').textContent = ''; $('d-pw').showModal(); $('pw-old').focus(); };
+['pw-old', 'pw-new', 'pw-new2'].forEach(function (i) { $(i).addEventListener('keydown', function (e) { if (e.key === 'Enter') $('pw-go').click(); }); });
+$('pw-go').onclick = function () {
+  var cur0 = $('pw-old').value, nw = $('pw-new').value, err = $('pw-err'), btn = this; err.textContent = '';
+  if (!cur0) { err.textContent = 'Type your current password.'; return; }
+  if (nw.length < 8) { err.textContent = 'The new password must be at least 8 characters.'; return; }
+  if (nw !== $('pw-new2').value) { err.textContent = 'The new passwords do not match.'; return; }
+  btn.disabled = true;
   var blob;
   post(IDT + 'signInWithPassword?key=' + API_KEY, { email: me + MAIL, password: cur0, returnSecureToken: true }).then(applyTokens)
     .then(function () { return rt('GET', 'keys/' + auth.uid); }).then(function (k) { return openPriv(k, cur0); })
@@ -1377,17 +1420,19 @@ $('s-pw').onclick = function () {
     .then(function (raw) { return CS.importKey('pkcs8', raw, EC, true, ['deriveBits']); }).then(function (p) { return sealPriv(p, nw); })
     .then(function (bl) { blob = bl; return post(IDT + 'update?key=' + API_KEY, { idToken: auth.token, password: nw, returnSecureToken: true }); })
     .then(applyTokens).then(function () { return rt('PUT', 'keys/' + auth.uid, blob); })
-    .then(function () { toast('Password changed'); }).catch(function (e) { toast(authMsg(e)); });
+    .then(function () { $('d-pw').close(); toast('Password changed'); }).catch(function (e) { err.textContent = authMsg(e); }).then(function () { btn.disabled = false; });
 };
 $('s-out').onclick = function () { $('d-set').close(); signOut('You signed out.'); };
 $('s-del').onclick = function () {
-  if (!confirm('Delete your account “' + me + '”? Your messages, chat list and nickname are removed, and anyone can take the name.')) return;
+  ask({ title: 'Delete your account?', text: 'Your messages, chat list and the nickname \u201C' + me + '\u201D are removed, and anyone can take the name. This cannot be undone.', ok: 'Delete account', danger: true, icon: 'fa-user-xmark' }).then(function (ok) { if (ok) delAccount(); });
+};
+function delAccount() {
   var n = me, uid = auth.uid;
   sweepMine().catch(function () {}).then(function () { return rt('DELETE', 'inbox/' + n).catch(function () {}); }).then(function () { return rt('DELETE', 'keys/' + uid).catch(function () {}); })
     .then(function () { return rt('DELETE', 'users/' + uid).catch(function () {}); }).then(function () { return rt('DELETE', 'nicknames/' + n); })
     .then(function () { return post(IDT + 'delete?key=' + API_KEY, { idToken: auth.token }).catch(function () {}); })
     .then(function () { $('d-set').close(); store.read = {}; store.blocks = {}; store.mute = {}; signOut('Your account was deleted.'); setMode('up'); }).catch(function () { toast('Could not delete it. Try again.'); });
-};
+}
 document.querySelectorAll('dialog [data-close]').forEach(function (b) { b.onclick = function () { b.closest('dialog').close(); }; });
 document.querySelectorAll('dialog').forEach(function (d) { d.addEventListener('click', function (e) { if (e.target === d) d.close(); }); });
 
