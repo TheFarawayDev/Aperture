@@ -38,8 +38,8 @@ main{flex:1;width:100%;padding:12px 10px 10px;display:flex;flex-direction:column
 .nick{font-size:18px;text-align:center;letter-spacing:.02em}
 
 /* app */
-#app{flex:1;display:grid;grid-template-columns:330px minmax(0,1fr);min-height:0;height:calc(100vh - 88px);overflow:hidden}
-@media(max-width:820px){#app{grid-template-columns:minmax(0,1fr);height:calc(100dvh - 88px)}#app.in-chat #side{display:none}#app:not(.in-chat) #pane{display:none}}
+#app{flex:none;display:grid;grid-template-columns:330px minmax(0,1fr);grid-template-rows:minmax(0,1fr);min-height:0;height:calc(100vh - 88px);height:calc(100dvh - 88px);min-height:320px;overflow:hidden}
+@media(max-width:820px){#app{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr);height:calc(100dvh - 88px)}#app.in-chat #side{display:none}#app:not(.in-chat) #pane{display:none}}
 #side{display:flex;flex-direction:column;min-height:0;border-right:1px solid var(--hair)}
 .me{display:flex;align-items:center;gap:10px;padding:14px 14px 10px}.av{flex:none;width:38px;height:38px;border-radius:12px;display:grid;place-items:center;font-weight:700;font-size:15px;color:#0e1620}
 .me .n{min-width:0;flex:1}.me b{display:block;font-size:14.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.me span{font-size:12px;color:var(--t3)}
@@ -60,13 +60,13 @@ main{flex:1;width:100%;padding:12px 10px 10px;display:flex;flex-direction:column
 .bub{position:relative;padding:8px 12px;border-radius:16px 16px 16px 5px;background:var(--surface-3);white-space:pre-wrap;word-wrap:break-word;overflow-wrap:anywhere;font-size:14.5px}
 .m.me .bub{background:var(--accent);color:#0e1620;border-radius:16px 16px 5px 16px}
 .m .tm{font-size:10.5px;color:var(--t3);margin:2px 5px 0}
-.m .act{display:none;gap:4px;margin:2px 2px 0}.m:hover .act,.m:focus-within .act{display:flex}
+.m .act{display:none;gap:4px;margin:2px 2px 0}
 .m .act button{border:0;background:transparent;color:var(--t3);font-size:11.5px;cursor:pointer;padding:2px 6px;border-radius:6px}.m .act button:hover{background:var(--surface-3);color:#fff}
 .sys{align-self:center;margin:8px 0;color:var(--t3);font-size:12.5px;text-align:center;max-width:90%}
 #composer{display:flex;gap:8px;align-items:flex-end;padding:10px 12px 12px;border-top:1px solid var(--hair)}
 #text{flex:1;min-height:42px;max-height:130px;padding:10px 12px;border-radius:14px;background:var(--inset);border:1px solid var(--hair);outline:none;resize:none;line-height:1.4}
 #text:focus{border-color:rgba(91,143,232,.55);box-shadow:0 0 0 3px rgba(91,143,232,.14)}
-#count{position:absolute;right:76px;bottom:16px;font-size:11px;color:var(--t3);pointer-events:none}
+#count{position:absolute;right:16px;top:-19px;font-size:11px;color:var(--t3);pointer-events:none;background:var(--surface);padding:0 6px;border-radius:6px}
 #empty{flex:1;display:grid;place-items:center;text-align:center;color:var(--t3);padding:20px}
 .banner{margin:0;padding:8px 14px;background:rgba(216,164,75,.1);border-bottom:1px solid rgba(216,164,75,.25);color:#e6c27f;font-size:12.5px}
 .m .rp{border:0;background:transparent;text-align:left;color:var(--t3);font-size:12px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:2px 6px;margin:0 2px 2px;border-left:2px solid var(--surface-3);cursor:pointer;border-radius:0 6px 6px 0}.m .rp:hover{color:#fff;background:var(--surface-2)}.m .rp b{color:var(--a2)}
@@ -108,7 +108,7 @@ dialog::backdrop{background:rgba(6,10,14,.6);backdrop-filter:blur(3px)}
 .m .act button{width:28px;height:26px;font-size:12.5px}.m .act button[data-act="blk"]:hover,.m .act button[data-act="rep"]:hover{color:#f0a0a7}
 .banner{display:flex;align-items:center;gap:8px;font-size:12px;padding:6px 14px}
 #composer{background:rgba(6,10,14,.12)}#text{border-radius:21px;padding:10px 16px}
-#composer .btn.pri{width:42px;padding:0;border-radius:50%}
+#composer .btn.pri{width:60px;padding:0;border-radius:21px;flex:none}
 .empty-in{max-width:340px}.empty-in .big i{font-size:28px;color:var(--accent)}.empty-in .big{width:68px;height:68px;margin:0 auto 14px;display:grid;place-items:center;border-radius:20px;background:rgba(91,143,232,.12);color:var(--accent);font-size:28px}
 .empty-in h3{margin:0 0 6px;color:var(--text);font-size:18px}.empty-in p{margin:0 0 16px;font-size:13.5px}.empty-in .acts{justify-content:center;margin:0}
 #toast{display:flex;align-items:center;gap:14px}#toast button{border:0;background:transparent;color:var(--a2);font-weight:700;cursor:pointer;font-size:13.5px}
@@ -116,7 +116,7 @@ dialog::backdrop{background:rgba(6,10,14,.6);backdrop-filter:blur(3px)}
 #d-block .db{text-align:center}#d-block ul{text-align:left;margin:10px 0 0;padding-left:20px;color:var(--t2);font-size:13.5px}
 .mem .btn.sm{flex:none}
 .av img{width:100%;height:100%;object-fit:cover;border-radius:inherit;display:block}.av.sm{width:18px;height:18px;border-radius:6px;font-size:10px;display:inline-grid;vertical-align:-4px;margin-right:6px}
-#chat{position:relative}.down{position:absolute;right:18px;bottom:104px;width:40px;height:40px;border-radius:50%;border:1px solid var(--hair-2);background:var(--surface-3);color:#fff;cursor:pointer;box-shadow:0 8px 20px -8px rgba(2,5,9,.8);z-index:5}.down:hover{background:var(--accent);color:#0e1620}
+#chat{position:relative;overflow:hidden}#side,#pane{overflow:hidden}.down{position:absolute;right:18px;bottom:104px;width:40px;height:40px;border-radius:50%;border:1px solid var(--hair-2);background:var(--surface-3);color:#fff;cursor:pointer;box-shadow:0 8px 20px -8px rgba(2,5,9,.8);z-index:5}.down:hover{background:var(--accent);color:#0e1620}
 .pfp{display:flex;gap:14px;align-items:center;margin:4px 0 6px}.pfp .av{width:64px;height:64px;border-radius:18px;font-size:26px}
 .lf{display:flex;gap:6px;padding:0 14px 8px;overflow-x:auto}.lf button{flex:none;height:28px;padding:0 12px;border-radius:99px;border:1px solid var(--hair);background:transparent;color:var(--t2);font-size:12.5px;font-weight:600;cursor:pointer}.lf button:hover{background:var(--surface-2)}.lf button.on{background:rgba(91,143,232,.2);border-color:rgba(91,143,232,.5);color:#fff}
 .cv .u.at{background:var(--rose);color:#fff}.cv .star{color:var(--amber);font-size:11px;margin-left:5px}
@@ -143,6 +143,17 @@ dialog{max-height:calc(100dvh - 24px);overflow:auto;overscroll-behavior:contain}
 .m .act{gap:2px}
 .cv{padding:10px 12px}.cv .av{width:42px;height:42px}
 @media(max-width:820px){.m{max-width:90%}#side .sbar .btn{font-size:13px}}
+.m{position:relative}
+.m .act{display:none;position:absolute;top:-17px;z-index:4;margin:0;box-shadow:0 8px 20px -8px rgba(2,5,9,.8)}
+.m:not(.me) .act{left:6px}.m.me .act{right:6px}
+.m:hover .act,.m:focus-within .act,.m.sel .act{display:flex}
+.m.me .rxs{justify-content:flex-end}
+.picker{width:min(320px,calc(100vw - 16px));grid-template-columns:repeat(8,1fr);max-height:min(300px,60vh);overflow-y:auto;overscroll-behavior:contain}
+.picker .q{grid-column:1/-1;display:flex;gap:4px;padding:2px 2px 8px;margin-bottom:4px;border-bottom:1px solid var(--hair)}.picker .q button{flex:1;height:38px;font-size:22px;background:var(--inset);border-radius:10px}
+.ment{max-width:calc(100% - 140px)}
+#msgs{overflow-anchor:auto}
+.cv{contain:layout}
+@media(max-width:560px){.m{max-width:92%}.dh h2{font-size:17px}#d-new,#d-group,#d-set,#d-info,#d-pins,#d-ask,#d-pw,#d-block,#d-blocked{width:calc(100vw - 16px)}}
 </style>
 </head>
 <body>
@@ -1044,18 +1055,19 @@ function renderConvs() {
   var list = Object.keys(convs).map(function (k) { return convs[k]; }).filter(function (c) { return !(c.kind === 'd' && blocks[c.name]) && (!q || c.name.toLowerCase().indexOf(q) >= 0) && (lf === 'all' || (lf === 'un' && unread(c)) || (lf === 'g' && c.kind === 'g') || (lf === 'fav' && fav[c.id])); }).sort(function (a, b) { return (fav[b.id] ? 1 : 0) - (fav[a.id] ? 1 : 0) || b.ts - a.ts; });
   var tot = Object.keys(convs).filter(function (k) { return unread(convs[k]); }).length; document.title = (tot ? '(' + tot + ') ' : '') + 'Messages \u2014 Aperture';
   var box = $('convs');
-  if (!list.length) { box.innerHTML = '<div class="none">' + (q ? 'No chats match \u201C' + esc(q) + '\u201D.' : 'No chats yet.<br>Press <b>New message</b> and type a nickname to start one.') + '</div>'; return; }
-  box.innerHTML = list.map(function (c) {
+  if (!list.length) { box.dataset.sig = ''; box.innerHTML = '<div class="none">' + (q ? 'No chats match \u201C' + esc(q) + '\u201D.' : 'No chats yet.<br>Press <b>New message</b> and type a nickname to start one.') + '</div>'; return; }
+  var html = list.map(function (c) {
     var n = unread(c) ? 1 : 0, pv = c.p ? (c.l === me ? 'You: ' : (c.kind === 'g' && c.l ? c.l + ': ' : '')) + c.p : (c.pi ? '\uD83D\uDD12 Encrypted message' : 'No messages yet');
     return '<div class="cv' + (cur && cur.id === c.id ? ' on' : '') + (n ? ' un' : '') + '" data-id="' + esc(c.id) + '" role="button" tabindex="0"><span class="av" data-av="' + esc(c.name) + '" data-g="' + (c.kind === 'g' ? 1 : 0) + '"></span><span class="t"><b>' + esc(c.name) + (fav[c.id] ? '<i class="fa-solid fa-star star"></i>' : '') + '</b><span>' + esc(pv) + '</span></span>' + (n ? '<span class="u' + (c.at ? ' at' : '') + '">' + (c.at ? '@' : '\u2022') + '</span>' : '') + (c.kind === 'd' ? '<button class="qb" data-blk="' + esc(c.name) + '" type="button" title="Block ' + esc(c.name) + '" aria-label="Block ' + esc(c.name) + '"><i class="fa-solid fa-ban"></i></button>' : '') + '</div>';
   }).join('');
+  if (box.dataset.sig === html + (cur ? cur.id : '')) return; box.dataset.sig = html + (cur ? cur.id : ''); box.innerHTML = html;
   box.querySelectorAll('[data-av]').forEach(function (el) { avatar(el, el.dataset.av, el.dataset.g === '1'); });
 }
 $('convs').addEventListener('click', function (e) { var q = e.target.closest('[data-blk]'); if (q) { e.stopPropagation(); return askBlock(q.dataset.blk); } var b = e.target.closest('.cv'); if (b && convs[b.dataset.id]) openChat(convs[b.dataset.id]); });
 $('convs').addEventListener('keydown', function (e) { if ((e.key === 'Enter' || e.key === ' ') && e.target.classList.contains('cv')) { e.preventDefault(); e.target.click(); } });
 
 /* ═════════ OPEN A CHAT ═════════ */
-var EMOJI = ['👍','❤️','😂','😮','😢','🎉','🔥','✅','🙏','😊','😅','🤔','👏','💯','😎','🥳','😭','😍','🙌','👀','💪','⭐','😴','🤝','🙂','😬','🤣','👋','🍕','📚','✏️','🏆'];
+var EMOJI = ['👍','❤️','😂','😮','😢','🎉','😡','🤯','😇','🤗','😋','🥲','🤞','🫡','🔥','✅','🙏','😊','😅','🤔','👏','💯','😎','🥳','😭','😍','🙌','👀','💪','⭐','😴','🤝','🙂','😬','🤣','👋','🍕','📚','✏️','🏆'];
 function openChat(c) {
   if (cur) drafts[cur.id] = $('text').value;
   cur = { id: c.id, kind: c.kind, name: c.name, owner: c.owner }; lastKey = ''; shown = {}; msgData = {}; replyTo = null; editing = null; searchQ = '';
@@ -1107,7 +1119,7 @@ function pollMsgs(first) {
     return decryptAll(c, j).then(function () { return [j, res[1]]; });
   }).then(function (res) {
     if (!res || cur !== c) return;
-    var j = res[0], keys = Object.keys(j).sort(), box = $('msgs'), atEnd = first || box.scrollHeight - box.scrollTop - box.clientHeight < 90;
+    var j = res[0], keys = Object.keys(j).sort(), box = $('msgs'), atEnd = first || forceEnd || box.scrollHeight - box.scrollTop - box.clientHeight < 90;
     if (first) { box.innerHTML = ''; box.dataset.day = ''; shown = {}; msgData = {}; }
     var minK = keys[0];
     Array.prototype.slice.call(box.querySelectorAll('.m')).forEach(function (el) { if (!j[el.dataset.k] && (!minK || el.dataset.k >= minK)) { el.remove(); delete shown[el.dataset.k]; delete msgData[el.dataset.k]; } });
@@ -1115,7 +1127,7 @@ function pollMsgs(first) {
     keys.forEach(function (k) {
       var m = j[k]; if (!m || !m.t) return; if (blocks[m.f] && m.f !== me) return;
       var ts = typeof m.ts === 'number' ? m.ts : keyTs(k);
-      if (shown[k]) { if (sigOf(msgData[k]) !== sigOf(m)) { var el = box.querySelector('.m[data-k="' + k + '"]'); if (el) el.innerHTML = msgInner(k, m, ts, c); } msgData[k] = m; return; }
+      if (shown[k]) { if (Date.now() - (touch[k] || 0) < 4000) return; if (sigOf(msgData[k]) !== sigOf(m)) { var el = box.querySelector('.m[data-k="' + k + '"]'); if (el) el.innerHTML = msgInner(k, m, ts, c); } msgData[k] = m; return; }
       shown[k] = 1; msgData[k] = m; if (k > lastKey) lastKey = k;
       var day = fmtDay(ts); if (day !== lastDay) { lastDay = day; var d = document.createElement('div'); d.className = 'day'; d.textContent = day; box.appendChild(d); }
       var el2 = document.createElement('div'); el2.className = 'm' + (m.f === me ? ' me' : '') + (m.f !== me && mentionsMe(m._t) ? ' mention' : ''); el2.dataset.k = k; el2.innerHTML = msgInner(k, m, ts, c); box.appendChild(el2);
@@ -1124,7 +1136,7 @@ function pollMsgs(first) {
     if (!box.querySelector('.m')) box.innerHTML = '<div class="sys">' + (c.kind === 'd' ? 'This is the start of your chat with <b>' + esc(c.name) + '</b>. Say hello! Messages are encrypted.' : 'No messages yet. Say hello! Messages are encrypted.') + '</div>';
     else { var sy = box.querySelector('.sys'); if (sy) sy.remove(); }
     if (searchQ) applySearch();
-    if (atEnd) box.scrollTop = box.scrollHeight;
+    if (atEnd) { box.scrollTop = box.scrollHeight; forceEnd = false; }
     var cv = convs[c.id]; if (cv) { store.read[c.id] = Math.max(cv.ts, store.read[c.id] || 0); save(); }
     var ty = res[1] || {}, who = Object.keys(ty).filter(function (n) { return n !== me && !blocks[n] && Date.now() - ty[n] < 6000; });
     $('typing').textContent = who.length ? (who.length === 1 ? who[0] + ' is typing…' : who.length === 2 ? who.join(' and ') + ' are typing…' : 'Several people are typing…') : '';
@@ -1167,7 +1179,10 @@ $('text').addEventListener('keydown', function (e) {
 
 /* message actions */
 $('msgs').addEventListener('click', function (e) {
-  var b = e.target.closest('[data-act]'); if (!b || !cur) return;
+  if (!cur) return;
+  var bub = e.target.closest('.bub');
+  if (bub && !e.target.closest('[data-act]')) { var mm = bub.closest('.m'), was = mm.classList.contains('sel'); $('msgs').querySelectorAll('.m.sel').forEach(function (x) { x.classList.remove('sel'); }); if (!was) mm.classList.add('sel'); return; }
+  var b = e.target.closest('[data-act]'); if (!b) return;
   var el = b.closest('.m'), k = (el && el.dataset.k) || b.dataset.k, act = b.dataset.act, m = msgData[k], c = cur;
   if (act === 'jump') return jumpTo(b.dataset.k);
   if (act === 'mention') { insertMention(b.dataset.n); return; }
@@ -1182,12 +1197,14 @@ $('msgs').addEventListener('click', function (e) {
   if (act === 'pin') return pinMsg(k, m);
   if (act === 'copy') { (navigator.clipboard ? navigator.clipboard.writeText(m._t) : Promise.reject()).then(function () { toast('Copied'); }, function () { toast('Could not copy'); }); return; }
 });
+var touch = {}, forceEnd = false;
 function toggleReaction(k, em) {
+  touch[k] = Date.now();
   var m = msgData[k]; if (!m || !cur) return; var path = convPath(cur) + '/m/' + k + '/r/' + encodeURIComponent(em) + '/' + me;
   m.r = m.r || {}; m.r[em] = m.r[em] || {}; var on = !!m.r[em][me];
   if (on) { delete m.r[em][me]; if (!Object.keys(m.r[em]).length) delete m.r[em]; } else m.r[em][me] = true;
   var el = $('msgs').querySelector('.m[data-k="' + k + '"]'); if (el) el.innerHTML = msgInner(k, m, typeof m.ts === 'number' ? m.ts : keyTs(k), cur);
-  rt(on ? 'DELETE' : 'PUT', path, on ? undefined : true).catch(function () { toast('Could not save the reaction'); pollMsgs(); });
+  rt(on ? 'DELETE' : 'PUT', path, on ? undefined : true).catch(function (e) { delete touch[k]; toast(e && (e.status === 401 || e.status === 403) ? 'Reaction blocked. The database rules need updating.' : 'Could not save the reaction'); pollMsgs(); });
 }
 function setCtx(kind, who, text) { var c = $('ctx'); c.hidden = !kind; if (kind) { c.innerHTML = '<span><i class="fa-solid ' + (kind === 'reply' ? 'fa-reply' : 'fa-pen') + '"></i> ' + (kind === 'reply' ? 'Replying to <b>' + esc(who) + '</b>' : 'Editing your message') + '<em>' + esc(text.slice(0, 80)) + '</em></span><button type="button" id="ctx-x" aria-label="Cancel"><i class="fa-solid fa-xmark"></i></button>'; $('ctx-x').onclick = cancelCtx; } }
 function cancelCtx() { replyTo = null; if (editing) { $('text').value = ''; autosize(); } editing = null; setCtx(''); }
@@ -1219,10 +1236,12 @@ function applySearch() { var any = false; $('msgs').querySelectorAll('.m').forEa
 var pickCb = null;
 function openPicker(anchor, cb) {
   var p = $('picker'); pickCb = cb;
-  p.innerHTML = EMOJI.map(function (e) { return '<button type="button" data-e="' + e + '">' + e + '</button>'; }).join('');
-  p.hidden = false; var r = anchor.getBoundingClientRect(), w = 264, h = p.offsetHeight || 200;
-  p.style.left = Math.max(8, Math.min(window.innerWidth - w - 8, r.left - w + r.width)) + 'px';
-  p.style.top = (r.top - h - 8 > 8 ? r.top - h - 8 : Math.min(window.innerHeight - h - 8, r.bottom + 8)) + 'px';
+  p.innerHTML = '<div class="q">' + EMOJI.slice(0, 6).map(function (e) { return '<button type="button" data-e="' + e + '">' + e + '</button>'; }).join('') + '</div>' + EMOJI.slice(6).map(function (e) { return '<button type="button" data-e="' + e + '">' + e + '</button>'; }).join('');
+  p.hidden = false; p.scrollTop = 0;
+  var r = anchor.getBoundingClientRect(), w = p.offsetWidth, h = p.offsetHeight, vw = window.innerWidth, vh = window.innerHeight;
+  var left = Math.max(8, Math.min(vw - w - 8, r.right - w)), top = r.top - h - 8;
+  if (top < 8) top = Math.min(vh - h - 8, r.bottom + 8);
+  p.style.left = left + 'px'; p.style.top = Math.max(8, top) + 'px';
 }
 $('picker').addEventListener('click', function (e) { var b = e.target.closest('[data-e]'); if (!b) return; $('picker').hidden = true; if (pickCb) pickCb(b.dataset.e); });
 document.addEventListener('mousedown', function (e) { if (!$('picker').hidden && !e.target.closest('#picker') && !e.target.closest('[data-act="react"]') && !e.target.closest('#b-emoji')) $('picker').hidden = true; });
@@ -1250,7 +1269,7 @@ $('composer').addEventListener('submit', function (e) {
     return;
   }
   lastSend = now; sentTimes.push(now);
-  var key = newKey(), rp = replyTo; replyTo = null; setCtx(''); $('text').value = ''; autosize(); sendBtn.disabled = true; clearTypingMark();
+  forceEnd = true; var key = newKey(), rp = replyTo; replyTo = null; setCtx(''); $('text').value = ''; autosize(); sendBtn.disabled = true; clearTypingMark();
   var ats = {}, evr = /(^|[^a-z0-9_])@everyone\b/i.test(text); (text.match(/(^|[^a-z0-9_])@([a-z0-9_]{3,20})\b/g) || []).forEach(function (x) { ats[x.replace(/^[^@]*@/, '')] = 1; });
   var prev = text.length > 40 ? text.slice(0, 37) + '…' : text;
   Promise.all([encText(c, text), encText(c, prev), rp ? encText(c, rp.t) : null]).then(function (r) {
