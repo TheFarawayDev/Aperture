@@ -74,6 +74,7 @@ function $nf() { document.getElementById('nf').hidden = false; }
 document.title = 'Administration';
 document.getElementById('root').hidden = false;
 var DB_URL = 'https://aperture-5c3af-default-rtdb.firebaseio.com', API_KEY = 'AIzaSyCbd2HWWpJoqF0Ted1GQyTylQZX2UHBXAI';
+var DB_ROOT = 'aperture-messages'; // same shared-RTDB root as chat_script.js — keep in sync
 var IDT = 'https://identitytoolkit.googleapis.com/v1/accounts:';
 var $ = function (id) { return document.getElementById(id); };
 var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
@@ -143,7 +144,7 @@ function fresh() {
 function remember() { try { if ($('rem').checked) localStorage.setItem('aperture-adm', JSON.stringify({ e: $('em').value.trim() || (JSON.parse(localStorage.getItem('aperture-adm') || '{}').e || ''), r: rtok })); } catch (e) {} }
 function forget() { try { localStorage.removeItem('aperture-adm'); } catch (e) {} idbDel('adm'); }
 function rt(method, path, body, q) { return fresh().then(function () { return rt0(method, path, body, q); }); }
-function rt0(method, path, body, q) { var o = { method: method }; if (body !== undefined) { o.headers = { 'Content-Type': 'application/json' }; o.body = JSON.stringify(body); } return jf(DB_URL + '/' + path + '.json?auth=' + encodeURIComponent(tok) + '&' + (q || ''), o); }
+function rt0(method, path, body, q) { var o = { method: method }; if (body !== undefined) { o.headers = { 'Content-Type': 'application/json' }; o.body = JSON.stringify(body); } return jf(DB_URL + '/' + DB_ROOT + '/' + path + '.json?auth=' + encodeURIComponent(tok) + '&' + (q || ''), o); }
 var SV = { '.sv': 'timestamp' };
 
 $('go1').onclick = function () {
