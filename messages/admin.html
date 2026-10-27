@@ -50,11 +50,20 @@ dialog{border:1px solid var(--hair-2);border-radius:20px;background:var(--surfac
     <div class="hint err" id="g-err"></div>
   </section>
   <section id="main" hidden>
-    <div class="top"><h1><i class="fa-solid fa-shield-halved"></i> Administration</h1><div class="tabs"><button data-t="rep" class="on">Reports</button><button data-t="chat">Chats</button><button data-t="usr">Users</button></div><button class="btn sm" id="out" type="button">Sign out</button></div>
+    <div class="top"><h1><i class="fa-solid fa-shield-halved"></i> Administration</h1><div class="tabs"><button data-t="rep" class="on">Reports</button><button data-t="chat">Chats</button><button data-t="usr">Users</button></div><button class="btn sm danger" id="reset-db" type="button" title="Wipe all accounts, chats and keys"><i class="fa-solid fa-trash-can"></i> Reset database</button><button class="btn sm" id="out" type="button">Sign out</button></div>
     <div id="st"></div><div class="card" id="view"></div>
   </section>
 </div>
 <dialog id="d-ask"><div class="ask-ic" id="a-ic"><i class="fa-solid fa-circle-question"></i></div><div class="dh"><h2 id="a-title"></h2></div><div class="db"><p id="a-text"></p><div class="acts"><button class="btn" id="a-no" type="button">Cancel</button><button class="btn pri" id="a-yes" type="button">Confirm</button></div></div></dialog>
+<dialog id="d-reset"><div class="ask-ic danger"><i class="fa-solid fa-trash-can"></i></div><div class="dh"><h2>Reset the database?</h2></div><div class="db">
+  <p>This permanently deletes, for every user: nicknames, accounts, profile pictures &amp; keys, every DM and group chat, blocks, bans, and open reports.</p>
+  <p>It does <b>not</b> delete admin accounts or the shared chat encryption key, so admins stay signed in. Everyone else is signed out and has to create a new account.</p>
+  <p><b>This cannot be undone.</b> Only do this right before shipping an update that needs a clean start.</p>
+  <label class="lbl" for="rz-confirm">Type RESET to confirm</label>
+  <input class="inp" id="rz-confirm" autocomplete="off" placeholder="RESET">
+  <div class="hint" id="rz-progress"></div>
+  <div class="acts"><button class="btn" id="rz-no" type="button">Cancel</button><button class="btn dangerfill" id="rz-yes" type="button" disabled>Wipe everything</button></div>
+</div></dialog>
 <div id="toast" role="status"></div>
 </div>
 <script>
@@ -174,6 +183,38 @@ $('go2').onclick = function () {
 };
 function show() { $('gate').hidden = true; $('main').hidden = false; $('kp').value = $('kp2').value = ''; tab('rep'); }
 $('out').onclick = function () { tok = ''; rtok = ''; adminPriv = null; keyCache = {}; forget(); location.reload(); };
+
+/* RESET DATABASE: wipes every user-data collection in one go, so admins can ship an
+   update (like the uid-based identity rework) with a clean slate instead of leaving
+   stale/incompatible data around. Each collection below has a dedicated top-level
+   admin ".write" rule in database.rules.json that only ever permits deleting the whole
+   collection (never writing data to it), and admins/config are deliberately left out of
+   that rule entirely — so this can never lock an admin out or lose the shared escrow key,
+   no matter what gets clicked. Requires typing "RESET" first; there is no quicker path. */
+var RESET_COLLECTIONS = ['reports', 'blocks', 'bans', 'inbox', 'dms', 'groups', 'keys', 'profile', 'nicknames', 'users', 'calls'];
+$('reset-db').onclick = function () {
+  var d = $('d-reset'), inp = $('rz-confirm'), yes = $('rz-yes'), prog = $('rz-progress');
+  inp.value = ''; yes.disabled = true; prog.textContent = ''; prog.className = 'hint';
+  d.showModal(); inp.focus();
+};
+$('rz-confirm').addEventListener('input', function () { $('rz-yes').disabled = this.value !== 'RESET'; });
+$('rz-confirm').addEventListener('keydown', function (e) { if (e.key === 'Enter' && !$('rz-yes').disabled) $('rz-yes').click(); });
+$('rz-no').onclick = function () { $('d-reset').close(); };
+document.getElementById('d-reset').addEventListener('click', function (e) { if (e.target === this) this.close(); });
+$('rz-yes').onclick = function () {
+  var prog = $('rz-progress'), yes = this; yes.disabled = true; $('rz-no').disabled = true; $('rz-confirm').disabled = true;
+  prog.className = 'hint'; prog.textContent = 'Wiping… 0/' + RESET_COLLECTIONS.length;
+  var done = 0, failed = [];
+  RESET_COLLECTIONS.reduce(function (p, name) {
+    return p.then(function () { return rt('DELETE', name).catch(function (e) { failed.push(name + (e && e.status ? ' (' + e.status + ')' : '')); }); })
+      .then(function () { done++; prog.textContent = 'Wiping… ' + done + '/' + RESET_COLLECTIONS.length; });
+  }, Promise.resolve()).then(function () {
+    $('rz-no').disabled = false; $('rz-confirm').disabled = false;
+    if (failed.length) { prog.className = 'hint err'; prog.textContent = 'Could not clear: ' + failed.join(', ') + '. Publish the latest database rules, then try again.'; yes.disabled = $('rz-confirm').value !== 'RESET'; return; }
+    prog.textContent = 'Done. The database is empty.'; toast('Database reset');
+    setTimeout(function () { $('d-reset').close(); keyCache = {}; tab('rep'); }, 900);
+  });
+};
 document.querySelectorAll('.tabs button').forEach(function (b) { b.onclick = function () { tab(b.dataset.t); }; });
 function tab(t) { document.querySelectorAll('.tabs button').forEach(function (b) { b.classList.toggle('on', b.dataset.t === t); }); ({ rep: reports, chat: chats, usr: users })[t](); }
 function fmt(ts) { return ts ? new Date(ts).toLocaleString() : ''; }
@@ -217,15 +258,17 @@ function reports() {
   var v = $('view'); v.innerHTML = '<div class="hint">Loading…</div>'; loadStats();
   rt('GET', 'reports').then(function (r) {
     r = r || {}; var ks = Object.keys(r).sort().reverse();
-    v.innerHTML = '<div class="row sp"><b>' + ks.length + ' open report' + (ks.length === 1 ? '' : 's') + '</b><button class="btn sm" id="rf" type="button">Refresh</button></div>' + (ks.length ? ks.map(function (k) { var x = r[k]; return '<div class="item"><div class="row sp"><span><span class="tag">REPORT</span> <b>' + esc(x.from) + '</b> <span class="meta">reported by ' + esc(x.by) + ' · ' + fmt(x.ts) + '</span></span></div><div class="txt">' + esc(x.t) + '</div><div class="meta">Chat: ' + esc(x.conv) + '</div><div class="row" style="margin-top:10px"><button class="btn sm" data-o="' + esc(x.conv) + '">Open chat</button><button class="btn sm danger" data-d="' + esc(k) + '">Delete message</button><button class="btn sm danger" data-b="' + esc(x.from) + '">Ban ' + esc(x.from) + '</button><button class="btn sm" data-x="' + esc(k) + '">Dismiss</button></div></div>'; }).join('') : '<div class="hint">Nothing to review.</div>');
+    v.innerHTML = '<div class="row sp"><b>' + ks.length + ' open report' + (ks.length === 1 ? '' : 's') + '</b><button class="btn sm" id="rf" type="button">Refresh</button></div>' + (ks.length ? ks.map(function (k) { var x = r[k]; return '<div class="item"><div class="row sp"><span><span class="tag">REPORT</span> <b>' + esc(x.fromNick || x.from) + '</b> <span class="meta">reported by ' + esc(x.byNick || x.by) + ' · ' + fmt(x.ts) + '</span></span></div><div class="txt">' + esc(x.t) + '</div><div class="meta">Chat: ' + esc(x.conv) + '</div><div class="row" style="margin-top:10px"><button class="btn sm" data-o="' + esc(x.conv) + '">Open chat</button><button class="btn sm danger" data-d="' + esc(k) + '">Delete message</button><button class="btn sm danger" data-b="' + esc(x.from) + '" data-bn="' + esc(x.fromNick || x.from) + '">Ban ' + esc(x.fromNick || x.from) + '</button><button class="btn sm" data-x="' + esc(k) + '">Dismiss</button></div></div>'; }).join('') : '<div class="hint">Nothing to review.</div>');
     $('rf').onclick = reports;
     v.querySelectorAll('[data-o]').forEach(function (b) { b.onclick = function () { tab('chat'); openConv(b.dataset.o); }; });
     v.querySelectorAll('[data-x]').forEach(function (b) { b.onclick = function () { rt('DELETE', 'reports/' + b.dataset.x).then(reports).catch(fail('Could not dismiss')); }; });
-    v.querySelectorAll('[data-b]').forEach(function (b) { b.onclick = function () { var n = b.dataset.b; ask({ title: 'Ban ' + n + '?', text: 'They are signed out and can no longer send messages. You can unban them in Users.', ok: 'Ban', danger: true, icon: 'fa-ban' }).then(function (ok) { if (!ok) return; ban(n, true).then(function () { toast(n + ' banned'); b.disabled = true; b.textContent = 'Banned'; }).catch(fail('Could not ban')); }); }; });
-    v.querySelectorAll('[data-d]').forEach(function (b) { b.onclick = function () { var x = r[b.dataset.d]; ask({ title: 'Delete the reported message?', text: 'The message from ' + x.from + ' is removed for everyone in the chat.', ok: 'Delete message', danger: true, icon: 'fa-trash-can' }).then(function (ok) { if (!ok) return; rt('DELETE', basePath(x.conv, kindOf(x.conv)) + '/m/' + x.mk).then(function () { toast('Message deleted'); b.disabled = true; b.textContent = 'Deleted'; }).catch(fail('Could not delete it')); }); }; });
+    v.querySelectorAll('[data-b]').forEach(function (b) { b.onclick = function () { var u = b.dataset.b, n = b.dataset.bn; ask({ title: 'Ban ' + n + '?', text: 'They are signed out and can no longer send messages, even if they change their nickname. You can unban them in Users.', ok: 'Ban', danger: true, icon: 'fa-ban' }).then(function (ok) { if (!ok) return; ban(u, true).then(function () { toast(n + ' banned'); b.disabled = true; b.textContent = 'Banned'; }).catch(fail('Could not ban')); }); }; });
+    v.querySelectorAll('[data-d]').forEach(function (b) { b.onclick = function () { var x = r[b.dataset.d]; ask({ title: 'Delete the reported message?', text: 'The message from ' + (x.fromNick || x.from) + ' is removed for everyone in the chat.', ok: 'Delete message', danger: true, icon: 'fa-trash-can' }).then(function (ok) { if (!ok) return; rt('DELETE', basePath(x.conv, kindOf(x.conv)) + '/m/' + x.mk).then(function () { toast('Message deleted'); b.disabled = true; b.textContent = 'Deleted'; }).catch(fail('Could not delete it')); }); }; });
   }).catch(function () { v.innerHTML = '<div class="hint err">Could not load. Check the database rules and that your account is listed as an admin.</div>'; });
 }
-function ban(n, on) { return rt(on ? 'PUT' : 'DELETE', 'bans/' + n, on ? true : undefined); }
+/* bans are keyed by the permanent Firebase uid (never by nickname), so a student
+   cannot dodge a ban simply by renaming */
+function ban(uid, on) { return rt(on ? 'PUT' : 'DELETE', 'bans/' + uid, on ? true : undefined); }
 
 /* CHATS */
 function chats() {
@@ -252,19 +295,31 @@ function openConv(id) {
 /* USERS */
 function users() {
   var v = $('view'); v.innerHTML = '<div class="row"><input class="inp" id="uf" placeholder="Filter nicknames" style="flex:1"></div><div id="ul" class="hint" style="margin-top:12px">Loading…</div>';
-  Promise.all([rt('GET', 'nicknames', undefined, 'shallow=true'), rt('GET', 'bans')]).then(function (r) {
-    var names = Object.keys(r[0] || {}).sort(), bans = r[1] || {}, pics = {};
+  /* nicknames are just the current name->uid directory; bans/pictures live on the
+     permanent uid, so each row resolves its uid lazily (same lazy-paint pattern the
+     picture lookup used before) */
+  rt('GET', 'nicknames', undefined, 'shallow=true').then(function (r) {
+    var names = Object.keys(r || {}).sort(), uids = {}, bans = {}, pics = {};
     function draw() {
       var q = $('uf').value.trim().toLowerCase(), l = names.filter(function (n) { return !q || n.indexOf(q) >= 0; }).slice(0, 100);
       $('ul').className = '';
-      $('ul').innerHTML = l.length ? l.map(function (n) { var b = bans[n]; return '<div class="item row sp" style="margin-top:6px"><span class="row"><span class="av" data-n="' + esc(n) + '">' + esc(n.charAt(0).toUpperCase()) + '</span><b>' + esc(n) + '</b> ' + (b ? '<span class="tag">BANNED</span>' : '') + '</span><span class="row"><button class="btn sm" data-p="' + esc(n) + '" hidden>Clear picture</button><button class="btn sm ' + (b ? '' : 'danger') + '" data-b="' + esc(n) + '">' + (b ? 'Unban' : 'Ban') + '</button><button class="btn sm danger" data-x="' + esc(n) + '">Remove</button></span></div>'; }).join('') : '<div class="hint">No users.</div>';
-      l.forEach(function (n) { if (pics[n] === undefined) rt('GET', 'nicknames/' + n + '/pic').then(function (p) { pics[n] = p || ''; paint(n); }).catch(function () { pics[n] = ''; }); else paint(n); });
-      $('ul').querySelectorAll('[data-b]').forEach(function (b) { b.onclick = function () { var n = b.dataset.b, on = !bans[n]; ask({ title: (on ? 'Ban ' : 'Unban ') + n + '?', text: on ? 'They can no longer send messages or sign in to Messages.' : 'They can use Messages again.', ok: on ? 'Ban' : 'Unban', danger: on, icon: on ? 'fa-ban' : 'fa-user-check' }).then(function (ok) { if (!ok) return; ban(n, on).then(function () { if (on) bans[n] = true; else delete bans[n]; draw(); toast(on ? n + ' banned' : n + ' unbanned'); }).catch(fail('Failed')); }); }; });
-      $('ul').querySelectorAll('[data-p]').forEach(function (b) { b.onclick = function () { var n = b.dataset.p; ask({ title: 'Clear ' + n + "'s picture?", text: 'Their profile picture is removed. They can set a new one.', ok: 'Clear picture', danger: true, icon: 'fa-image' }).then(function (ok) { if (!ok) return; rt('DELETE', 'nicknames/' + n + '/pic').then(function () { pics[n] = ''; draw(); toast('Picture cleared'); }).catch(fail('Could not clear it')); }); }; });
-      $('ul').querySelectorAll('[data-x]').forEach(function (b) { b.onclick = function () { var n = b.dataset.x; ask({ title: 'Remove ' + n + '?', text: 'Their nickname, chat list and keys are deleted and the name becomes free. Their sign-in stays in Firebase Authentication; delete it there if needed.', ok: 'Remove user', danger: true, icon: 'fa-user-xmark' }).then(function (ok) { if (!ok) return; rt('GET', 'nicknames/' + n + '/u').then(function (u) { return Promise.all([rt('DELETE', 'users/' + u), rt('DELETE', 'keys/' + u)]); }).then(function () { return rt('DELETE', 'inbox/' + n); }).then(function () { return rt('DELETE', 'nicknames/' + n); }).then(function () { names.splice(names.indexOf(n), 1); draw(); toast(n + ' removed'); }).catch(fail('Could not remove the user')); }); }; });
+      $('ul').innerHTML = l.length ? l.map(function (n) { var u = uids[n], b = u ? bans[u] : false; return '<div class="item row sp" style="margin-top:6px"><span class="row"><span class="av" data-n="' + esc(n) + '">' + esc(n.charAt(0).toUpperCase()) + '</span><b>' + esc(n) + '</b> ' + (b ? '<span class="tag">BANNED</span>' : '') + '</span><span class="row"><button class="btn sm" data-p="' + esc(n) + '" hidden>Clear picture</button><button class="btn sm ' + (b ? '' : 'danger') + '" data-b="' + esc(n) + '"' + (u ? '' : ' disabled') + '>' + (b ? 'Unban' : 'Ban') + '</button><button class="btn sm danger" data-x="' + esc(n) + '">Remove</button></span></div>'; }).join('') : '<div class="hint">No users.</div>';
+      l.forEach(function (n) {
+        if (uids[n] !== undefined) { paint(n); return; }
+        rt('GET', 'nicknames/' + n).then(function (v2) {
+          uids[n] = (v2 && v2.u) || '';
+          if (!uids[n]) { draw(); return; }
+          return Promise.all([rt('GET', 'bans/' + uids[n]), rt('GET', 'profile/' + uids[n] + '/pic')]).then(function (rr) { bans[uids[n]] = !!rr[0]; pics[n] = rr[1] || ''; draw(); bind(); });
+        }).catch(function () { uids[n] = uids[n] || ''; });
+      });
+    }
+    function bind() {
+      $('ul').querySelectorAll('[data-b]').forEach(function (b) { b.onclick = function () { var n = b.dataset.b, u = uids[n]; if (!u) return toast('Still looking that user up — try again in a moment.'); var on = !bans[u]; ask({ title: (on ? 'Ban ' : 'Unban ') + n + '?', text: on ? 'They can no longer send messages or sign in to Messages, even if they change their nickname.' : 'They can use Messages again.', ok: on ? 'Ban' : 'Unban', danger: on, icon: on ? 'fa-ban' : 'fa-user-check' }).then(function (ok) { if (!ok) return; ban(u, on).then(function () { if (on) bans[u] = true; else delete bans[u]; draw(); bind(); toast(on ? n + ' banned' : n + ' unbanned'); }).catch(fail('Failed')); }); }; });
+      $('ul').querySelectorAll('[data-p]').forEach(function (b) { b.onclick = function () { var n = b.dataset.p, u = uids[n]; if (!u) return; ask({ title: 'Clear ' + n + "'s picture?", text: 'Their profile picture is removed. They can set a new one.', ok: 'Clear picture', danger: true, icon: 'fa-image' }).then(function (ok) { if (!ok) return; rt('DELETE', 'profile/' + u + '/pic').then(function () { pics[n] = ''; draw(); bind(); toast('Picture cleared'); }).catch(fail('Could not clear it')); }); }; });
+      $('ul').querySelectorAll('[data-x]').forEach(function (b) { b.onclick = function () { var n = b.dataset.x, u = uids[n]; ask({ title: 'Remove ' + n + '?', text: 'Their nickname, chat list and keys are deleted and the name becomes free. Their sign-in stays in Firebase Authentication; delete it there if needed.', ok: 'Remove user', danger: true, icon: 'fa-user-xmark' }).then(function (ok) { if (!ok) return; (u ? Promise.all([rt('DELETE', 'users/' + u), rt('DELETE', 'keys/' + u), rt('DELETE', 'profile/' + u + '/pic'), rt('DELETE', 'profile/' + u + '/pk')]) : Promise.resolve()).then(function () { return rt('DELETE', 'inbox/' + (u || n)); }).then(function () { return rt('DELETE', 'nicknames/' + n); }).then(function () { names.splice(names.indexOf(n), 1); draw(); bind(); toast(n + ' removed'); }).catch(fail('Could not remove the user')); }); }; });
     }
     function paint(n) { var el = $('ul').querySelector('.av[data-n="' + n + '"]'), pb = $('ul').querySelector('[data-p="' + n + '"]'); if (pb) pb.hidden = !pics[n]; if (el && pics[n]) { var im = new Image(); im.className = 'av'; im.referrerPolicy = 'no-referrer'; im.onload = function () { el.replaceWith(im); }; im.src = pics[n]; } }
-    $('uf').oninput = draw; draw();
+    $('uf').oninput = function () { draw(); bind(); }; draw(); bind();
   }).catch(fail('Could not load users'));
 }
 })();

@@ -160,6 +160,21 @@ dialog{max-height:calc(100dvh - 24px);overflow:auto;overscroll-behavior:contain}
 .bub s{opacity:.75}
 .seen-sec{margin:0 0 10px}.seen-sec h4{margin:0 0 6px;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--t3)}
 .mem time{font-size:12px;color:var(--t3);flex:none}
+/* calls */
+.btn.round{width:54px;height:54px;border-radius:50%;padding:0;font-size:18px}
+dialog.ring{width:min(320px,calc(100vw - 24px))}
+.ring-av{background:var(--surface-3);animation:ringPulse 1.4s ease-in-out infinite}
+@keyframes ringPulse{0%,100%{box-shadow:0 0 0 0 rgba(91,143,232,.45)}50%{box-shadow:0 0 0 14px rgba(91,143,232,0)}}
+.call-ov{position:fixed;inset:0;z-index:60;background:#0b0f14;color:#fff;display:flex;flex-direction:column}
+.call-top{display:flex;align-items:center;gap:10px;padding:14px 16px;background:rgba(255,255,255,.04)}.call-top b{font-size:15px}.call-top .hint{margin:0;color:var(--t3)}.call-top #call-dur{margin-left:auto;font-size:13px;color:var(--t3);font-variant-numeric:tabular-nums}
+.call-video-wrap{flex:1;position:relative;display:flex;align-items:center;justify-content:center;background:#05070a;min-height:0}
+#call-remote{width:100%;height:100%;object-fit:contain;background:#000}
+.call-audio-wrap{flex:1;display:flex;align-items:center;justify-content:center;background:radial-gradient(500px 300px at 50% 40%,rgba(91,143,232,.14),transparent 65%),#05070a;min-height:0}
+.call-audio-wrap .av{width:120px;height:120px;border-radius:36px;font-size:46px;animation:ringPulse 2.2s ease-in-out infinite}
+.call-pip{position:absolute;right:14px;bottom:14px;width:110px;height:146px;border-radius:14px;object-fit:cover;background:#111;border:1px solid rgba(255,255,255,.15);box-shadow:0 10px 24px -10px rgba(0,0,0,.7)}
+.call-ctrl{display:flex;justify-content:center;gap:18px;padding:22px 16px calc(22px + env(safe-area-inset-bottom))}
+.call-ctrl .btn{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.14);color:#fff}.call-ctrl .btn:hover{background:rgba(255,255,255,.18)}
+.call-ctrl .btn.on{background:#fff;color:#0e1620}.call-ctrl .btn.danger{background:var(--rose);border-color:transparent;color:#1a0b0d}.call-ctrl .btn.danger:hover{background:#ea8790}
 </style>
 </head>
 <body>
@@ -207,7 +222,7 @@ dialog{max-height:calc(100dvh - 24px);overflow:auto;overscroll-behavior:contain}
     <section id="pane">
       <div id="empty"><div class="empty-in"><div class="big"><i class="fa-regular fa-comments"></i></div><h3>Your messages</h3><p>Pick a chat on the left, or start one by typing someone's nickname.</p><div class="acts"><button class="btn pri sm" type="button" id="e-new"><i class="fa-solid fa-pen-to-square"></i> New message</button><button class="btn sm" type="button" id="e-group"><i class="fa-solid fa-user-group"></i> New group</button></div></div></div>
       <div id="chat" hidden style="display:flex;flex-direction:column;flex:1;min-height:0">
-        <div class="ph"><button class="ibtn back" id="b-back" type="button" aria-label="Back to chats"><i class="fa-solid fa-chevron-left"></i></button><div class="av" id="c-av"></div><div class="t"><b id="c-name"></b><span id="c-sub"></span></div><button class="ibtn" id="b-search" type="button" title="Search this chat" aria-label="Search this chat"><i class="fa-solid fa-magnifying-glass"></i></button><button class="ibtn" id="b-pins" type="button" title="Pinned messages" aria-label="Pinned messages"><i class="fa-solid fa-thumbtack"></i></button><button class="ibtn fav" id="b-fav" type="button" title="Star this chat" aria-label="Star this chat"><i class="fa-regular fa-star"></i></button><button class="ibtn warn" id="b-block" type="button" title="Block this person" aria-label="Block this person"><i class="fa-solid fa-ban"></i></button><button class="ibtn" id="b-info" type="button" title="Chat details" aria-label="Chat details"><i class="fa-solid fa-circle-info"></i></button></div>
+        <div class="ph"><button class="ibtn back" id="b-back" type="button" aria-label="Back to chats"><i class="fa-solid fa-chevron-left"></i></button><div class="av" id="c-av"></div><div class="t"><b id="c-name"></b><span id="c-sub"></span></div><button class="ibtn" id="b-call-a" type="button" title="Voice call" aria-label="Voice call"><i class="fa-solid fa-phone"></i></button><button class="ibtn" id="b-call-v" type="button" title="Video call" aria-label="Video call"><i class="fa-solid fa-video"></i></button><button class="ibtn" id="b-search" type="button" title="Search this chat" aria-label="Search this chat"><i class="fa-solid fa-magnifying-glass"></i></button><button class="ibtn" id="b-pins" type="button" title="Pinned messages" aria-label="Pinned messages"><i class="fa-solid fa-thumbtack"></i></button><button class="ibtn fav" id="b-fav" type="button" title="Star this chat" aria-label="Star this chat"><i class="fa-regular fa-star"></i></button><button class="ibtn warn" id="b-block" type="button" title="Block this person" aria-label="Block this person"><i class="fa-solid fa-ban"></i></button><button class="ibtn" id="b-info" type="button" title="Chat details" aria-label="Chat details"><i class="fa-solid fa-circle-info"></i></button></div>
         <div id="sbar2" class="sbar2" hidden><input class="inp" id="q-chat" placeholder="Search messages in this chat" autocomplete="off" aria-label="Search messages"><span id="q-count"></span></div>
         <p class="banner" id="open-banner"><i class="fa-solid fa-shield-halved"></i> <b>All chats are monitored.</b> Be kind and report anything wrong with the flag on a message. Aperture is not responsible for what users say or do.</p>
         <div id="msgs" aria-live="polite"></div><button class="down" id="b-down" type="button" hidden aria-label="Jump to latest"><i class="fa-solid fa-arrow-down"></i></button>
@@ -239,8 +254,15 @@ dialog{max-height:calc(100dvh - 24px);overflow:auto;overscroll-behavior:contain}
 
 <dialog id="d-set"><div class="dh"><h2>Settings</h2><button class="ibtn" data-close type="button" aria-label="Close"><i class="fa-solid fa-xmark"></i></button></div><div class="db">
   <div class="sec"><div class="who-row"><div class="av" id="s-av"></div><div><b id="s-nick"></b><span>Signed in on this device</span></div></div><div class="hint ok" id="s-mode" style="margin-top:10px"></div></div>
+  <div class="sec"><h3>Nickname</h3>
+    <div class="row"><input class="inp" id="s-newnick" placeholder="new_nickname" maxlength="20" autocomplete="off" autocapitalize="off" spellcheck="false"><button class="btn sm pri" id="s-nickgo" type="button">Change</button></div>
+    <div class="hint" id="s-nickh">Changing your nickname frees your old one for others to take. People can message you by your new nickname right away &mdash; messages you already sent keep showing the name you used at the time.</div></div>
   <div class="sec"><h3>Profile picture</h3>
-    <div class="pfp"><div class="av" id="s-pv"></div><div style="flex:1;min-width:0"><input class="inp" id="s-pic" placeholder="Paste an image link (https://…)" maxlength="300" autocomplete="off" spellcheck="false"><div class="row" style="margin-top:8px"><button class="btn sm pri" id="s-picsave" type="button">Save picture</button><button class="btn sm" id="s-picrm" type="button">Remove</button></div></div></div>
+    <div class="pfp"><div class="av" id="s-pv"></div><div style="flex:1;min-width:0">
+      <div class="row"><button class="btn sm pri" id="s-picup" type="button"><i class="fa-solid fa-upload"></i> Upload a picture</button></div>
+      <input type="file" id="s-picfile" accept="image/*" hidden>
+      <div class="hint" style="margin:8px 0 4px">Or paste an image link instead:</div>
+      <input class="inp" id="s-pic" placeholder="https://…" maxlength="300" autocomplete="off" spellcheck="false"><div class="row" style="margin-top:8px"><button class="btn sm" id="s-picsave" type="button">Save link</button><button class="btn sm" id="s-picrm" type="button">Remove</button></div></div></div>
     <div class="hint" id="s-pich">Use a picture that is safe for school and does not show your face or real name. Pictures that break the rules can be removed by administrators.</div></div>
   <div class="sec"><h3>Alerts</h3>
     <label class="tg"><span>Play a sound for new messages and mentions</span><input type="checkbox" id="s-snd"></label>
@@ -274,6 +296,26 @@ dialog{max-height:calc(100dvh - 24px);overflow:auto;overscroll-behavior:contain}
 <dialog id="d-seen"><div class="dh"><h2>Seen by</h2><button class="ibtn" data-close type="button" aria-label="Close"><i class="fa-solid fa-xmark"></i></button></div><div class="db" id="seen-body"></div></dialog>
 <div id="picker" class="picker" hidden></div>
 <dialog id="d-pins"><div class="dh"><h2>Pinned messages</h2><button class="ibtn" data-close type="button" aria-label="Close"><i class="fa-solid fa-xmark"></i></button></div><div class="db" id="p-body"></div></dialog>
+<dialog id="d-incall" class="ring"><div class="db" style="text-align:center;padding-top:22px">
+  <div class="av ring-av" id="cl-av" style="width:76px;height:76px;border-radius:24px;font-size:28px;margin:0 auto 14px"></div>
+  <h2 id="cl-name" style="margin:0 0 2px"></h2><p class="hint" id="cl-kind" style="margin:0 0 18px"></p>
+  <div class="acts" style="justify-content:center;gap:18px">
+    <button class="btn danger round" id="cl-decline" type="button" aria-label="Decline"><i class="fa-solid fa-phone-slash"></i></button>
+    <button class="btn pri round" id="cl-accept" type="button" aria-label="Accept"><i class="fa-solid fa-phone"></i></button>
+  </div></div></dialog>
+<div id="call-ov" class="call-ov" hidden>
+  <div class="call-top"><div class="av" id="call-av" style="width:28px;height:28px;border-radius:9px;font-size:13px"></div><b id="call-peer"></b><span id="call-status" class="hint"></span><span id="call-dur"></span></div>
+  <div id="call-video-wrap" class="call-video-wrap">
+    <video id="call-remote" autoplay playsinline></video>
+    <video id="call-local" autoplay playsinline muted class="call-pip"></video>
+  </div>
+  <div id="call-audio-wrap" class="call-audio-wrap" hidden><div class="av" id="call-audio-av"></div></div>
+  <div class="call-ctrl">
+    <button class="btn round" id="call-mute" type="button" aria-label="Mute microphone" title="Mute"><i class="fa-solid fa-microphone"></i></button>
+    <button class="btn round danger" id="call-end" type="button" aria-label="End call" title="End call"><i class="fa-solid fa-phone-slash"></i></button>
+    <button class="btn round" id="call-cam" type="button" aria-label="Turn camera off" title="Camera"><i class="fa-solid fa-video"></i></button>
+  </div>
+</div>
 <div id="toast" role="status"></div>
 <script>
 /* ══════════════════════════════════════════════════════════════════
@@ -309,6 +351,13 @@ window.APERTURE = {
       "hidden": true
     },
     {
+      "id": "games",
+      "title": "Games",
+      "path": "games/",
+      "blurb": "Open-source browser games",
+      "hidden": true
+    },
+    {
       "id": "legal",
       "title": "Legal",
       "path": "legal/",
@@ -317,6 +366,17 @@ window.APERTURE = {
     }
   ],
   "pages": [
+    {
+      "id": "arcade",
+      "search": false,
+      "tags": [],
+      "title": "Arcade",
+      "group": "games",
+      "path": "games/arcade",
+      "icon": "fa-gamepad",
+      "blurb": "Open-source browser games.",
+      "keywords": ""
+    },
     {
       "id": "privacy-policy",
       "search": false,
@@ -732,7 +792,7 @@ window.APERTURE = {
 /* ═════════ CONFIG ═════════ */
 var DB_URL = 'https://aperture-5c3af-default-rtdb.firebaseio.com';
 var API_KEY = 'AIzaSyCbd2HWWpJoqF0Ted1GQyTylQZX2UHBXAI';
-var LS = 'aperture-msg-v2', MAIL = '@users.aperture.invalid';
+var LS = 'aperture-msg-v3', MAIL = '@users.aperture.invalid';
 var IDT = 'https://identitytoolkit.googleapis.com/v1/accounts:';
 
 var $ = function (id) { return document.getElementById(id); };
@@ -851,37 +911,65 @@ function authMsg(e) {
 }
 
 /* ═════════ STATE ═════════ */
+/* Identity model: a nickname is a mutable, releasable pointer (nicknames/{nick} -> uid).
+   The Firebase Auth uid (auth.uid) is the permanent identity — every security-sensitive
+   path (bans, blocks, inbox, group membership, message ownership) is keyed by uid, so
+   renaming never breaks an existing chat and never lets anyone dodge a ban. `me` is only
+   ever the DISPLAY nickname; `nickCache`/`uidCache` translate between the two. */
 var me = '', myPriv = null, adminPub = null, convs = {}, cur = null, lastKey = '', shown = {}, blocks = {}, lastSend = 0, sentTimes = [];
 var lf = 'all', pubCache = {}, keyCache = {}, plain = {}, escrowDone = {}, timers = {};
 var msgData = {}, replyTo = null, editing = null, lastTyping = 0, searchQ = '';
 function colorFor(s) { var h = 0; for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0; return 'hsl(' + (h % 360) + ' 55% 68%)'; }
 var pics = {}, picWait = {};
-function okPic(u) { return /^https:\/\/[^\s"'<>]{4,290}$/.test(u); }
-function wantPic(n) { if (pics[n] !== undefined || picWait[n]) return; picWait[n] = 1; rt('GET', 'nicknames/' + n + '/pic').then(function (v) { pics[n] = typeof v === 'string' && okPic(v) ? v : ''; }).catch(function () { pics[n] = ''; }).then(function () { delete picWait[n]; if (pics[n]) refreshAvatars(); }); }
-function avatar(el, name, group) {
-  el.dataset.av = name; el.dataset.g = group ? 1 : 0; el.style.background = colorFor(name);
-  var ini = esc(name.charAt(0).toUpperCase());
-  if (group) { el.innerHTML = '<i class="fa-solid fa-user-group" style="font-size:14px"></i>'; return; }
-  el.textContent = name.charAt(0).toUpperCase();
-  if (pics[name]) { var im = new Image(); im.alt = ''; im.referrerPolicy = 'no-referrer'; im.onload = function () { el.textContent = ''; el.appendChild(im); el.style.background = 'var(--surface-3)'; }; im.src = pics[name]; }
-  else if (pics[name] === undefined && me) wantPic(name);
+/* uid <-> nickname resolution */
+var nickCache = {}, nickWait = {}, uidCache = {};
+function nickOf(uid) {
+  if (!uid) return Promise.resolve('');
+  if (nickCache[uid] !== undefined) return Promise.resolve(nickCache[uid]);
+  return forceNickOf(uid);
 }
-function refreshAvatars() { document.querySelectorAll('[data-av]').forEach(function (el) { avatar(el, el.dataset.av, el.dataset.g === '1'); }); }
+/* bypasses the cache: used wherever a nickname needs to be fresh right now (the
+   conversation list, group member panels, the blocked list) so that someone else's
+   rename shows up promptly instead of sticking to whatever name we first saw them under */
+function forceNickOf(uid) {
+  if (!uid) return Promise.resolve('');
+  return rt('GET', 'users/' + uid).then(function (n) { n = n || ('user-' + uid.slice(0, 6)); nickCache[uid] = n; uidCache[n] = uid; return n; }).catch(function () { return nickCache[uid] !== undefined ? nickCache[uid] : 'user-' + uid.slice(0, 6); });
+}
+function dispName(uid) {
+  if (!uid) return '';
+  if (nickCache[uid] !== undefined) return nickCache[uid];
+  if (!nickWait[uid]) { nickWait[uid] = 1; nickOf(uid).then(function () { delete nickWait[uid]; renderConvs(); if (cur) { refreshAvatars(); $('msgs').querySelectorAll('.rcpt').forEach(function () {}); } }); }
+  return uid.slice(0, 8);
+}
+function dirOf(n) {
+  if (uidCache[n]) return Promise.resolve(uidCache[n]);
+  return rt('GET', 'nicknames/' + n).then(function (v) { if (!v || !v.u) throw new Error('nodir'); uidCache[n] = v.u; nickCache[v.u] = n; return v.u; });
+}
+function okPic(u) { return /^https:\/\/[^\s"'<>]{4,290}$/.test(u) || /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]{10,110000}$/.test(u); }
+function wantPic(uid) { if (!uid || pics[uid] !== undefined || picWait[uid]) return; picWait[uid] = 1; rt('GET', 'profile/' + uid + '/pic').then(function (v) { pics[uid] = typeof v === 'string' && okPic(v) ? v : ''; }).catch(function () { pics[uid] = ''; }).then(function () { delete picWait[uid]; if (pics[uid]) refreshAvatars(); }); }
+function avatar(el, uid, name, group) {
+  el.dataset.au = uid || ''; el.dataset.av = name || ''; el.dataset.g = group ? 1 : 0; el.style.background = colorFor(name || uid || '?');
+  if (group) { el.innerHTML = '<i class="fa-solid fa-user-group" style="font-size:14px"></i>'; return; }
+  el.textContent = (name || '?').charAt(0).toUpperCase();
+  if (uid && pics[uid]) { var im = new Image(); im.alt = ''; im.referrerPolicy = 'no-referrer'; im.onload = function () { el.textContent = ''; el.appendChild(im); el.style.background = 'var(--surface-3)'; }; im.src = pics[uid]; }
+  else if (uid && pics[uid] === undefined && me) wantPic(uid);
+}
+function refreshAvatars() { document.querySelectorAll('[data-av]').forEach(function (el) { avatar(el, el.dataset.au, el.dataset.av, el.dataset.g === '1'); }); }
 function dmId(a, b) { return a < b ? a + '~' + b : b + '~' + a; }
 function convPath(c) { return (c.kind === 'g' ? 'groups/' : 'dms/') + c.id; }
-function peerOf(id) { var p = id.split('~'); return p[0] === me ? p[1] : p[0]; }
+function peerUidOf(id) { var p = id.split('~'); return p[0] === auth.uid ? p[1] : p[0]; }
 function fmtTime(ts) { return new Date(ts).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: !store.h24 }); }
 function fmtDay(ts) { var d = new Date(ts), n = new Date(), y = new Date(Date.now() - 864e5); if (d.toDateString() === n.toDateString()) return 'Today'; if (d.toDateString() === y.toDateString()) return 'Yesterday'; return d.toLocaleDateString([], { month: 'short', day: 'numeric', year: d.getFullYear() === n.getFullYear() ? undefined : 'numeric' }); }
 function keyTs(k) { return parseInt(k.slice(0, 8), 36) || 0; }
 function newKey() { return Date.now().toString(36).padStart(8, '0') + Math.random().toString(36).slice(2, 7); }
 
 /* ═════════ KEYS FOR EACH CHAT ═════════ */
-function pubOf(n) { if (pubCache[n]) return Promise.resolve(pubCache[n]); return rt('GET', 'nicknames/' + n + '/pk').then(function (p) { if (!p) throw new Error('nopk'); pubCache[n] = p; return p; }); }
+function pubOf(uid) { if (pubCache[uid]) return Promise.resolve(pubCache[uid]); return rt('GET', 'profile/' + uid + '/pk').then(function (p) { if (!p) throw new Error('nopk'); pubCache[uid] = p; return p; }); }
 function convKey(c) {
   if (keyCache[c.id]) return keyCache[c.id];
   var p;
-  if (c.kind === 'd') p = pubOf(c.name).then(strToPub).then(function (pub) { return ecdhAes(myPriv, pub, 'aperture-dm:' + c.id, true); });
-  else p = Promise.all([rt('GET', 'groups/' + c.id + '/keys/' + me), rt('GET', 'groups/' + c.id + '/owner')]).then(function (r) {
+  if (c.kind === 'd') p = pubOf(c.peerUid).then(strToPub).then(function (pub) { return ecdhAes(myPriv, pub, 'aperture-dm:' + c.id, true); });
+  else p = Promise.all([rt('GET', 'groups/' + c.id + '/keys/' + auth.uid), rt('GET', 'groups/' + c.id + '/owner')]).then(function (r) {
     if (!r[0] || !r[1]) throw new Error('nokey');
     return pubOf(r[1]).then(function (op) { return unwrapStatic(myPriv, op, r[0]); }).then(function (raw) { return rawToKey(raw, true); });
   });
@@ -892,7 +980,7 @@ function ensureEscrow(c) {
   if (!adminPub || escrowDone[c.id]) return;
   escrowDone[c.id] = 1;
   var path = c.kind === 'd' ? 'dms/' + c.id + '/ak' : 'groups/' + c.id + '/keys/~admin';
-  if (c.kind === 'g' && c.owner !== me) { delete escrowDone[c.id]; return; }
+  if (c.kind === 'g' && c.owner !== auth.uid) { delete escrowDone[c.id]; return; }
   rt('GET', path).then(function (v) { if (v) return; return convKey(c).then(function (k) { return CS.exportKey('raw', k); }).then(function (raw) { return wrapFor(adminPub, raw); }).then(function (w) { return rt('PUT', path, w); }); }).catch(function () { delete escrowDone[c.id]; });
 }
 function encText(c, text) { return convKey(c).then(function (k) { return aesEnc(k, text); }); }
@@ -913,7 +1001,7 @@ $('nick').addEventListener('input', function () { this.value = this.value.toLowe
 ['nick', 'pw', 'pw2'].forEach(function (id) { $(id).addEventListener('keydown', function (e) { if (e.key === 'Enter') $('nick-go').click(); }); });
 function setBusy(b) { $('nick-go').disabled = b; }
 function afterAuth(n, priv) {
-  me = n; myPriv = priv; store.nick = n; save();
+  me = n; myPriv = priv; store.nick = n; save(); nickCache[auth.uid] = n; uidCache[n] = auth.uid;
   return idbPut('priv', priv).catch(function () {}).then(function () { start(); });
 }
 $('nick-go').onclick = function () {
@@ -929,11 +1017,12 @@ $('nick-go').onclick = function () {
     var kp, blob, pubStr;
     post(IDT + 'signUp?key=' + API_KEY, { email: n + MAIL, password: pw, returnSecureToken: true }).then(applyTokens)
       .then(genEC).then(function (k) { kp = k; return Promise.all([sealPriv(k.privateKey, pw), pubToStr(k.publicKey)]); })
-      .then(function (r) { blob = r[0]; pubStr = r[1]; return rt('PUT', 'nicknames/' + n, { u: auth.uid, t: SV, pk: pubStr }); })
+      .then(function (r) { blob = r[0]; pubStr = r[1]; return rt('PUT', 'nicknames/' + n, { u: auth.uid, t: SV }); })
       .then(function () { return rt('PUT', 'users/' + auth.uid, n); })
+      .then(function () { return rt('PUT', 'profile/' + auth.uid + '/pk', pubStr); })
       .then(function () { return rt('PUT', 'keys/' + auth.uid, blob); })
       .then(function () { return openPriv(blob, pw); })
-      .then(function (priv) { store.consent = { v: 2, t: Date.now() }; store.read = {}; store.blocks = {}; pubCache[n] = pubStr; return afterAuth(n, priv); })
+      .then(function (priv) { store.consent = { v: 2, t: Date.now() }; store.read = {}; store.blocks = {}; pubCache[auth.uid] = pubStr; return afterAuth(n, priv); })
       .catch(function (e) { err.textContent = authMsg(e); if (e && e.status === 401 && /noauth/.test(e.message)) err.textContent = 'Could not finish creating the account. Try signing in.'; if (auth.token && !store.nick) { post(IDT + 'delete?key=' + API_KEY, { idToken: auth.token }).catch(function () {}); store.refresh = ''; auth.token = ''; save(); if (e && (e.status === 401 || e.status === 403 || /Permission/i.test(e.message || ''))) err.textContent = 'That nickname is taken, or the database rules blocked the request.'; } })
       .then(function () { setBusy(false); });
   } else {
@@ -949,21 +1038,31 @@ $('nick-go').onclick = function () {
 /* ═════════ START ═════════ */
 function start() {
   $('gate').hidden = true; $('app').hidden = false; $('pw').value = $('pw2').value = '';
-  avatar($('me-av'), me); $('me-n').textContent = me;
+  nickCache[auth.uid] = me; uidCache[me] = auth.uid;
+  avatar($('me-av'), auth.uid, me); $('me-n').textContent = me;
   store.read = store.read || {}; store.blocks = store.blocks || {}; blocks = store.blocks;
-  rt('GET', 'bans/' + me).then(function (b) { if (b) { signOut('This account has been suspended.'); } }).catch(function () {});
+  rt('GET', 'bans/' + auth.uid).then(function (b) { if (b) { signOut('This account has been suspended.'); } }).catch(function () {});
   rt('GET', 'config/adminPub').then(function (p) { adminPub = p || null; }).catch(function () {}).then(function () { return refreshInbox(); }).then(retention);
-  loadBlocks(); wantPic(me);
-  timers.inbox = setInterval(function () { refreshInbox(); }, 4500); openStream();
+  loadBlocks(); wantPic(auth.uid);
+  timers.inbox = setInterval(function () { refreshInbox(); }, 4500); openStream(); openCallStream();
   timers.msgs = setInterval(function () { if (!document.hidden && cur) pollMsgs(); }, 2200);
+  // belt-and-suspenders, same reasoning as the inbox stream above: an incoming call is too
+  // time-sensitive to depend on the EventSource alone, so also poll the ring mailbox. This
+  // has to keep running through 'ringing'/'connecting' too, not just when idle — the caller
+  // is reading THIS SAME mailbox to learn "accepted"/"declined"/"busy", so skipping the poll
+  // whenever callX is set would strand a caller whose EventSource missed that one push,
+  // leaving them stuck on "Calling…" until their own 30s no-answer timeout wrongly hangs up
+  // a call the other side actually answered. Only stop once the call is truly connected,
+  // when the signaling is done and the RTCPeerConnection's own state covers disconnects.
+  timers.calls = setInterval(function () { if (!callX || callX.phase !== 'active') rt('GET', 'calls/' + auth.uid).then(onRing).catch(function () {}); }, 3500);
 }
-function stopTimers() { closeStream(); Object.keys(timers).forEach(function (k) { clearInterval(timers[k]); }); timers = {}; }
-function loadBlocks() { rt('GET', 'blocks/' + me).then(function (b) { b = b || {}; Object.keys(b).forEach(function (k) { store.blocks[k] = 1; }); blocks = store.blocks; save(); renderConvs(); }).catch(function () {}); }
+function stopTimers() { if (callX) hangup('ended'); closeStream(); closeCallStream(); Object.keys(timers).forEach(function (k) { clearInterval(timers[k]); }); timers = {}; }
+function loadBlocks() { rt('GET', 'blocks/' + auth.uid).then(function (b) { b = b || {}; Object.keys(b).forEach(function (u) { store.blocks[u] = 1; }); blocks = store.blocks; save(); renderConvs(); }).catch(function () {}); }
 window.addEventListener('focus', function () { if (me && cur) { readMark[cur.id] = ''; pollMsgs(); } });
 document.addEventListener('visibilitychange', function () { if (!document.hidden && me) { refreshInbox(); if (cur) pollMsgs(); } });
 function signOut(msg) {
-  stopTimers(); me = ''; myPriv = null; cur = null; convs = {}; keyCache = {}; plain = {}; pubCache = {}; escrowDone = {}; pics = {}; drafts = {}; inboxReady = false; seen = {}; document.title = 'Messages \u2014 Aperture';
-  store.nick = ''; store.refresh = ''; store.uid = ''; save(); auth.token = ''; idbDel('priv');
+  stopTimers(); me = ''; myPriv = null; cur = null; convs = {}; keyCache = {}; plain = {}; pubCache = {}; escrowDone = {}; pics = {}; nickCache = {}; uidCache = {}; drafts = {}; inboxReady = false; seen = {}; document.title = 'Messages — Aperture';
+  store.nick = ''; store.refresh = ''; store.uid = ''; save(); auth.token = ''; auth.uid = ''; idbDel('priv');
   $('chat').hidden = true; $('empty').hidden = false; $('app').classList.remove('in-chat'); showGate(msg || '', 'in');
 }
 
@@ -978,35 +1077,40 @@ document.addEventListener('keydown', function (e) {
   else if (e.key === 'Escape' && cur && !document.querySelector('dialog[open]') && $('picker').hidden && $('ment').hidden && !$('text').value && $('ctx').hidden && document.activeElement !== $('q-chat')) closeChat();
 });
 
-/* ═════════ BLOCKING ═════════ */
-function askBlock(n) {
-  if (!n || n === me) return;
-  $('bk-title').textContent = 'Block ' + n + '?';
-  $('bk-text').innerHTML = '<b>' + esc(n) + '</b> will be hidden from you everywhere in Messages.';
-  $('bk-yes').onclick = function () { $('d-block').close(); doBlock(n); };
+/* ═════════ BLOCKING (keyed by permanent uid, never by nickname) ═════════ */
+function askBlock(uid, nick) {
+  if (!uid || uid === auth.uid) return;
+  nick = nick || dispName(uid);
+  $('bk-title').textContent = 'Block ' + nick + '?';
+  $('bk-text').innerHTML = '<b>' + esc(nick) + '</b> will be hidden from you everywhere in Messages.';
+  $('bk-yes').onclick = function () { $('d-block').close(); doBlock(uid, nick); };
   $('d-block').showModal();
 }
-function doBlock(n) {
-  store.blocks[n] = 1; blocks = store.blocks; save();
-  rt('PUT', 'blocks/' + me + '/' + n, true).catch(function () {});
-  if (cur && cur.kind === 'd' && cur.name === n) closeChat();
-  else if (cur) { $('msgs').querySelectorAll('.m').forEach(function (el) { var m = msgData[el.dataset.k]; if (m && m.f === n) el.remove(); }); }
-  renderConvs(); toast(n + ' is blocked', function () { doUnblock(n); });
+function doBlock(uid, nick) {
+  store.blocks[uid] = 1; blocks = store.blocks; save();
+  rt('PUT', 'blocks/' + auth.uid + '/' + uid, true).catch(function () {});
+  if (cur && cur.kind === 'd' && cur.peerUid === uid) closeChat();
+  else if (cur) { $('msgs').querySelectorAll('.m').forEach(function (el) { var m = msgData[el.dataset.k]; if (m && m.fu === uid) el.remove(); }); }
+  renderConvs(); toast((nick || dispName(uid)) + ' is blocked', function () { doUnblock(uid, nick); });
 }
-function doUnblock(n) {
-  delete store.blocks[n]; blocks = store.blocks; save();
-  rt('DELETE', 'blocks/' + me + '/' + n).catch(function () {});
-  renderConvs(); if (cur) { shown = {}; pollMsgs(true); } toast(n + ' is unblocked');
+function doUnblock(uid, nick) {
+  delete store.blocks[uid]; blocks = store.blocks; save();
+  rt('DELETE', 'blocks/' + auth.uid + '/' + uid).catch(function () {});
+  renderConvs(); if (cur) { shown = {}; pollMsgs(true); } toast((nick || dispName(uid)) + ' is unblocked');
 }
 function openBlocked() {
   var b = Object.keys(store.blocks || {}).sort(), box = $('bl-body');
-  box.innerHTML = b.length ? b.map(function (n) { return '<div class="mem"><span class="av" data-av="' + esc(n) + '" style="width:32px;height:32px;border-radius:10px;font-size:13px"></span><span>' + esc(n) + '</span><button class="btn sm" data-ub="' + esc(n) + '" type="button">Unblock</button></div>'; }).join('') : '<div class="hint">You have not blocked anyone.</div>';
-  box.querySelectorAll('[data-av]').forEach(function (el) { avatar(el, el.dataset.av); });
-  box.querySelectorAll('[data-ub]').forEach(function (x) { x.onclick = function () { doUnblock(x.dataset.ub); openBlocked(); }; });
+  box.innerHTML = b.length ? '<div class="hint">Loading…</div>' : '<div class="hint">You have not blocked anyone.</div>';
   $('d-blocked').showModal();
+  if (!b.length) return;
+  Promise.all(b.map(forceNickOf)).then(function () {
+    box.innerHTML = b.map(function (u) { var n = dispName(u); return '<div class="mem"><span class="av" data-au="' + esc(u) + '" data-av="' + esc(n) + '" style="width:32px;height:32px;border-radius:10px;font-size:13px"></span><span>' + esc(n) + '</span><button class="btn sm" data-ub="' + esc(u) + '" type="button">Unblock</button></div>'; }).join('');
+    box.querySelectorAll('[data-av]').forEach(function (el) { avatar(el, el.dataset.au, el.dataset.av); });
+    box.querySelectorAll('[data-ub]').forEach(function (x) { x.onclick = function () { doUnblock(x.dataset.ub); openBlocked(); }; });
+  });
 }
 $('b-blocked').onclick = openBlocked;
-$('b-block').onclick = function () { if (cur && cur.kind === 'd') askBlock(cur.name); };
+$('b-block').onclick = function () { if (cur && cur.kind === 'd') askBlock(cur.peerUid, cur.name); };
 $('e-new').onclick = function () { $('b-new').click(); }; $('e-group').onclick = function () { $('b-group').click(); };
 $('q-list').addEventListener('input', renderConvs);
 
@@ -1017,7 +1121,7 @@ try { if (navigator.serviceWorker) { navigator.serviceWorker.register('sw.js', {
 function openStream() {
   closeStream(); if (!me || !window.EventSource) return;
   ensureAuth().then(function () {
-    es = new EventSource(DB_URL + '/inbox/' + me + '.json?auth=' + encodeURIComponent(auth.token));
+    es = new EventSource(DB_URL + '/inbox/' + auth.uid + '.json?auth=' + encodeURIComponent(auth.token));
     var hit = function () { clearTimeout(esDeb); esDeb = setTimeout(function () { refreshInbox(); }, 200); };
     es.addEventListener('put', hit); es.addEventListener('patch', hit);
     es.addEventListener('auth_revoked', function () { closeStream(); setTimeout(openStream, 1500); });
@@ -1032,10 +1136,10 @@ function beep(n) {
     [0, 1].slice(0, n).forEach(function (i) { var o = actx.createOscillator(), g = actx.createGain(); o.type = 'sine'; o.frequency.value = i ? 1046 : 784; g.gain.setValueAtTime(0.0001, t + i * .16); g.gain.exponentialRampToValueAtTime(.12, t + i * .16 + .02); g.gain.exponentialRampToValueAtTime(.0001, t + i * .16 + .22); o.connect(g); g.connect(actx.destination); o.start(t + i * .16); o.stop(t + i * .16 + .25); }); } catch (e) {}
 }
 function notifyNew(c) {
-  if (blocks[c.name] && c.kind === 'd') return; if (store.mute && store.mute[c.id]) return;
+  if (c.kind === 'd' && blocks[c.peerUid]) return; if (store.mute && store.mute[c.id]) return;
   var away = document.hidden || !document.hasFocus(), viewing = cur && cur.id === c.id && !away; if (viewing) return;
   beep(c.at ? 2 : 1);
-  if (!away) toast(c.at ? c.name + ' mentioned you' : 'New message from ' + (c.kind === 'g' ? c.l + ' in ' + c.name : c.name));
+  if (!away) toast(c.at ? c.name + ' mentioned you' : 'New message from ' + (c.kind === 'g' ? c.lNick + ' in ' + c.name : c.name));
   if (away && store.dn && window.Notification && Notification.permission === 'granted') {
     var body = c.at ? 'You were mentioned' : 'New message', opt = { body: body, tag: c.id, silent: true, renotify: true };
     var direct = function () { try { var nt = new Notification(c.name, opt); nt.onclick = function () { window.focus(); if (convs[c.id]) openChat(convs[c.id]); nt.close(); }; } catch (e) {} };
@@ -1045,52 +1149,63 @@ function notifyNew(c) {
 
 /* ═════════ CONVERSATION LIST ═════════ */
 function refreshInbox() {
-  return rt('GET', 'inbox/' + me).then(function (j) {
-    var old = convs; convs = {}; j = j || {};
-    Object.keys(j).forEach(function (id) {
-      var v = j[id]; if (!v) return; var isG = v.k === 'g';
-      var c = { id: id, kind: isG ? 'g' : 'd', name: isG ? (v.n || 'Group') : peerOf(id), ts: v.ts || 0, p: '', pi: v.pi || '', pc: v.p || '', l: v.l || '', at: !!v.at };
-      if (old[id] && old[id].pi === c.pi && old[id].p) c.p = old[id].p;
-      convs[id] = c;
+  return rt('GET', 'inbox/' + auth.uid).then(function (j) {
+    j = j || {}; var rows = [];
+    Object.keys(j).forEach(function (id) { var v = j[id]; if (!v) return; rows.push({ id: id, v: v, isG: v.k === 'g', pUid: v.k === 'g' ? null : peerUidOf(id) }); });
+    /* refresh every current peer's display nickname (cheap — bounded by inbox size),
+       bypassing the cache so a peer's rename is reflected here right away */
+    var peers = {}; rows.forEach(function (r) { if (r.pUid) peers[r.pUid] = 1; if (!r.isG && r.v.l) peers[r.v.l] = 1; });
+    return Promise.all(Object.keys(peers).map(forceNickOf)).then(function () {
+      var old = convs; convs = {};
+      rows.forEach(function (r) {
+        var v = r.v, id = r.id, isG = r.isG, pUid = r.pUid;
+        var c = { id: id, kind: isG ? 'g' : 'd', peerUid: pUid, name: isG ? (v.n || 'Group') : dispName(pUid), ts: v.ts || 0, p: '', pi: v.pi || '', pc: v.p || '', l: v.l || '', lNick: v.l ? dispName(v.l) : '', at: !!v.at };
+        if (old[id] && old[id].pi === c.pi && old[id].p) c.p = old[id].p;
+        convs[id] = c;
+      });
+      if (cur && !convs[cur.id] && cur.kind === 'g') { closeChat(); toast('That group is no longer available'); }
+      Object.keys(convs).forEach(function (id) { var c = convs[id]; if (inboxReady && old[id] !== undefined || (inboxReady && !old[id] && c.ts > Date.now() - 20000)) { if (c.ts > (seen[id] || 0) && c.l && c.l !== auth.uid) notifyNew(c); } seen[id] = Math.max(seen[id] || 0, c.ts); });
+      inboxReady = true;
+      renderConvs();
+      Object.keys(convs).forEach(function (id) { var c = convs[id]; if (c.pi && !c.p) decText(c, c.pi, c.pc).then(function (x) { c.p = x; renderConvs(); }).catch(function () { c.p = '🔒'; }); });
     });
-    if (cur && !convs[cur.id] && cur.kind === 'g') { closeChat(); toast('That group is no longer available'); }
-    Object.keys(convs).forEach(function (id) { var c = convs[id]; if (inboxReady && old[id] !== undefined || (inboxReady && !old[id] && c.ts > Date.now() - 20000)) { if (c.ts > (seen[id] || 0) && c.l && c.l !== me) notifyNew(c); } seen[id] = Math.max(seen[id] || 0, c.ts); });
-    inboxReady = true;
-    renderConvs();
-    Object.keys(convs).forEach(function (id) { var c = convs[id]; if (c.pi && !c.p) decText(c, c.pi, c.pc).then(function (x) { c.p = x; renderConvs(); }).catch(function () { c.p = '🔒'; }); });
   }).catch(function (e) { if (e && e.message === 'noauth') signOut('Please sign in again.'); });
 }
-function unread(c) { return !(store.mute && store.mute[c.id]) && c.l && c.l !== me && c.ts > (store.read[c.id] || 0) && !(cur && cur.id === c.id); }
+function unread(c) { return !(store.mute && store.mute[c.id]) && c.l && c.l !== auth.uid && c.ts > (store.read[c.id] || 0) && !(cur && cur.id === c.id); }
 function renderConvs() {
   var q = ($('q-list').value || '').trim().toLowerCase(), fav = store.fav || {}, bn = Object.keys(blocks).length;
   $('blk-n').textContent = 'Blocked (' + bn + ')';
-  var list = Object.keys(convs).map(function (k) { return convs[k]; }).filter(function (c) { return !(c.kind === 'd' && blocks[c.name]) && (!q || c.name.toLowerCase().indexOf(q) >= 0) && (lf === 'all' || (lf === 'un' && unread(c)) || (lf === 'g' && c.kind === 'g') || (lf === 'fav' && fav[c.id])); }).sort(function (a, b) { return (fav[b.id] ? 1 : 0) - (fav[a.id] ? 1 : 0) || b.ts - a.ts; });
-  var tot = Object.keys(convs).filter(function (k) { return unread(convs[k]); }).length; document.title = (tot ? '(' + tot + ') ' : '') + 'Messages \u2014 Aperture';
+  var list = Object.keys(convs).map(function (k) { return convs[k]; }).filter(function (c) { return !(c.kind === 'd' && blocks[c.peerUid]) && (!q || c.name.toLowerCase().indexOf(q) >= 0) && (lf === 'all' || (lf === 'un' && unread(c)) || (lf === 'g' && c.kind === 'g') || (lf === 'fav' && fav[c.id])); }).sort(function (a, b) { return (fav[b.id] ? 1 : 0) - (fav[a.id] ? 1 : 0) || b.ts - a.ts; });
+  var tot = Object.keys(convs).filter(function (k) { return unread(convs[k]); }).length; document.title = (tot ? '(' + tot + ') ' : '') + 'Messages — Aperture';
   var box = $('convs');
-  if (!list.length) { box.dataset.sig = ''; box.innerHTML = '<div class="none">' + (q ? 'No chats match \u201C' + esc(q) + '\u201D.' : 'No chats yet.<br>Press <b>New message</b> and type a nickname to start one.') + '</div>'; return; }
+  if (!list.length) { box.dataset.sig = ''; box.innerHTML = '<div class="none">' + (q ? 'No chats match “' + esc(q) + '”.' : 'No chats yet.<br>Press <b>New message</b> and type a nickname to start one.') + '</div>'; return; }
   var html = list.map(function (c) {
-    var n = unread(c) ? 1 : 0, pv = c.p ? (c.l === me ? 'You: ' : (c.kind === 'g' && c.l ? c.l + ': ' : '')) + c.p : (c.pi ? '\uD83D\uDD12 Encrypted message' : 'No messages yet');
-    return '<div class="cv' + (cur && cur.id === c.id ? ' on' : '') + (n ? ' un' : '') + '" data-id="' + esc(c.id) + '" role="button" tabindex="0"><span class="av" data-av="' + esc(c.name) + '" data-g="' + (c.kind === 'g' ? 1 : 0) + '"></span><span class="t"><b>' + esc(c.name) + (fav[c.id] ? '<i class="fa-solid fa-star star"></i>' : '') + '</b><span>' + esc(pv) + '</span></span>' + (n ? '<span class="u' + (c.at ? ' at' : '') + '">' + (c.at ? '@' : '\u2022') + '</span>' : '') + (c.kind === 'd' ? '<button class="qb" data-blk="' + esc(c.name) + '" type="button" title="Block ' + esc(c.name) + '" aria-label="Block ' + esc(c.name) + '"><i class="fa-solid fa-ban"></i></button>' : '') + '</div>';
+    var n = unread(c) ? 1 : 0, pv = c.p ? (c.l === auth.uid ? 'You: ' : (c.kind === 'g' && c.l ? c.lNick + ': ' : '')) + c.p : (c.pi ? '🔒 Encrypted message' : 'No messages yet');
+    return '<div class="cv' + (cur && cur.id === c.id ? ' on' : '') + (n ? ' un' : '') + '" data-id="' + esc(c.id) + '" role="button" tabindex="0"><span class="av" data-au="' + esc(c.peerUid || '') + '" data-av="' + esc(c.name) + '" data-g="' + (c.kind === 'g' ? 1 : 0) + '"></span><span class="t"><b>' + esc(c.name) + (fav[c.id] ? '<i class="fa-solid fa-star star"></i>' : '') + '</b><span>' + esc(pv) + '</span></span>' + (n ? '<span class="u' + (c.at ? ' at' : '') + '">' + (c.at ? '@' : '•') + '</span>' : '') + (c.kind === 'd' ? '<button class="qb" data-blk="' + esc(c.peerUid) + '" data-blkname="' + esc(c.name) + '" type="button" title="Block ' + esc(c.name) + '" aria-label="Block ' + esc(c.name) + '"><i class="fa-solid fa-ban"></i></button>' : '') + '</div>';
   }).join('');
   if (box.dataset.sig === html + (cur ? cur.id : '')) return; box.dataset.sig = html + (cur ? cur.id : ''); box.innerHTML = html;
-  box.querySelectorAll('[data-av]').forEach(function (el) { avatar(el, el.dataset.av, el.dataset.g === '1'); });
+  box.querySelectorAll('[data-av]').forEach(function (el) { avatar(el, el.dataset.au, el.dataset.av, el.dataset.g === '1'); });
 }
-$('convs').addEventListener('click', function (e) { var q = e.target.closest('[data-blk]'); if (q) { e.stopPropagation(); return askBlock(q.dataset.blk); } var b = e.target.closest('.cv'); if (b && convs[b.dataset.id]) openChat(convs[b.dataset.id]); });
+$('convs').addEventListener('click', function (e) { var q = e.target.closest('[data-blk]'); if (q) { e.stopPropagation(); return askBlock(q.dataset.blk, q.dataset.blkname); } var b = e.target.closest('.cv'); if (b && convs[b.dataset.id]) openChat(convs[b.dataset.id]); });
 $('convs').addEventListener('keydown', function (e) { if ((e.key === 'Enter' || e.key === ' ') && e.target.classList.contains('cv')) { e.preventDefault(); e.target.click(); } });
 
 /* ═════════ OPEN A CHAT ═════════ */
 var EMOJI = ['👍','❤️','😂','😮','😢','🎉','😡','🤯','😇','🤗','😋','🥲','🤞','🫡','🔥','✅','🙏','😊','😅','🤔','👏','💯','😎','🥳','😭','😍','🙌','👀','💪','⭐','😴','🤝','🙂','😬','🤣','👋','🍕','📚','✏️','🏆'];
 function openChat(c) {
   if (cur) drafts[cur.id] = $('text').value;
-  cur = { id: c.id, kind: c.kind, name: c.name, owner: c.owner }; lastKey = ''; shown = {}; msgData = {}; replyTo = null; editing = null; searchQ = '';
+  cur = { id: c.id, kind: c.kind, name: c.name, owner: c.owner, peerUid: c.peerUid, members: c.members, memberUids: c.memberUids }; lastKey = ''; shown = {}; msgData = {}; replyTo = null; editing = null; searchQ = '';
   $('ctx').hidden = true; $('typing').textContent = ''; $('sbar2').hidden = true; $('q-chat').value = '';
   $('empty').hidden = true; $('chat').hidden = false; $('app').classList.add('in-chat');
-  $('c-name').textContent = c.name; avatar($('c-av'), c.name, c.kind === 'g');
-  $('c-sub').textContent = c.kind === 'g' ? 'Group' : 'Direct message'; $('b-block').hidden = c.kind !== 'd'; favUi();
+  $('c-name').textContent = c.name; avatar($('c-av'), c.peerUid, c.name, c.kind === 'g');
+  $('c-sub').textContent = c.kind === 'g' ? 'Group' : 'Direct message'; $('b-block').hidden = c.kind !== 'd'; $('b-call-a').hidden = $('b-call-v').hidden = c.kind !== 'd'; favUi();
   $('msgs').innerHTML = '<div class="sys">Loading…</div>'; $('msgs').dataset.day = '';
   if (convs[c.id]) store.read[c.id] = convs[c.id].ts; save(); renderConvs();
   var cc = cur;
-  var pre = c.kind === 'g' ? rt('GET', 'groups/' + c.id).then(function (g) { if (cur === cc && g) { cc.owner = g.owner; cc.members = Object.keys(g.members || {}); $('c-sub').textContent = cc.members.length + ' members'; } }).catch(function () {}) : Promise.resolve();
+  var pre = c.kind === 'g' ? rt('GET', 'groups/' + c.id).then(function (g) {
+    if (cur !== cc || !g) return;
+    cc.owner = g.owner; cc.memberUids = Object.keys(g.members || {});
+    return Promise.all(cc.memberUids.map(forceNickOf)).then(function (nicks) { if (cur === cc) { cc.members = nicks; $('c-sub').textContent = cc.members.length + ' members'; } });
+  }).catch(function () {}) : Promise.resolve();
   pre.then(function () { pollMsgs(true); ensureEscrow(cc); });
   $('text').value = drafts[c.id] || ''; autosize();
   setTimeout(function () { $('text').focus(); }, 60);
@@ -1105,11 +1220,11 @@ function md(h) {
   return h.replace(/`([^`\n]{1,200})`/g, '<code>$1</code>').replace(/\*\*([^*\n]{1,300})\*\*/g, '<b>$1</b>').replace(/(^|[\s(])\*([^*\n]{1,300})\*(?=$|[\s).,!?])/g, '$1<i>$2</i>').replace(/~~([^~\n]{1,300})~~/g, '<s>$1</s>');
 }
 function msgInner(k, m, ts, c) {
-  var mine = m.f === me;
+  var mine = m.fu === auth.uid;
   var rp = m.rp ? '<button type="button" class="rp" data-act="jump" data-k="' + esc(m.rp.k) + '"><i class="fa-solid fa-reply"></i> <b>' + esc(m.rp.f) + '</b> ' + esc(filterText(m.rp._t || '')) + '</button>' : '';
-  var rx = Object.keys(m.r || {}).map(function (e) { var u = Object.keys(m.r[e] || {}); if (!u.length) return ''; var on = u.indexOf(me) >= 0; return '<button type="button" class="rx' + (on ? ' on' : '') + '" data-act="tgl" data-e="' + esc(e) + '" title="' + esc(u.slice(0, 12).join(', ')) + '">' + esc(e) + ' <span>' + u.length + '</span></button>'; }).join('');
+  var rx = Object.keys(m.r || {}).map(function (e) { var u = Object.keys(m.r[e] || {}); if (!u.length) return ''; var on = u.indexOf(auth.uid) >= 0; return '<button type="button" class="rx' + (on ? ' on' : '') + '" data-act="tgl" data-e="' + esc(e) + '" title="' + esc(u.slice(0, 12).map(dispName).join(', ')) + '">' + esc(e) + ' <span>' + u.length + '</span></button>'; }).join('');
   var body = mentionize(md(esc(filterText(m._t || ''))));
-  return (!mine && c.kind === 'g' ? '<span class="who" data-act="mention" data-n="' + esc(m.f) + '"><span class="av sm" data-av="' + esc(m.f) + '" data-g="0"></span>' + esc(m.f) + '</span>' : '') + rp +
+  return (!mine && c.kind === 'g' ? '<span class="who" data-act="mention" data-n="' + esc(m.f) + '"><span class="av sm" data-au="' + esc(m.fu || '') + '" data-av="' + esc(m.f) + '" data-g="0"></span>' + esc(m.f) + '</span>' : '') + rp +
     '<div class="bub">' + body + '</div>' + (rx ? '<div class="rxs">' + rx + '</div>' : '') +
     '<span class="tm" title="' + esc(new Date(ts).toLocaleString()) + '">' + fmtTime(ts) + (m.ed ? ' · edited' : '') + '</span>' +
     '<div class="act"><button type="button" data-act="react" title="React"><i class="fa-regular fa-face-smile"></i></button><button type="button" data-act="reply" title="Reply"><i class="fa-solid fa-reply"></i></button><button type="button" data-act="copy" title="Copy text"><i class="fa-regular fa-copy"></i></button><button type="button" data-act="pin" title="Pin"><i class="fa-solid fa-thumbtack"></i></button>' +
@@ -1141,13 +1256,13 @@ function pollMsgs(first) {
     Array.prototype.slice.call(box.querySelectorAll('.m')).forEach(function (el) { if (!j[el.dataset.k] && (!minK || el.dataset.k >= minK)) { el.remove(); delete shown[el.dataset.k]; delete msgData[el.dataset.k]; } });
     var lastDay = box.dataset.day || '';
     keys.forEach(function (k) {
-      var m = j[k]; if (!m || !m.t) return; if (blocks[m.f] && m.f !== me) return;
+      var m = j[k]; if (!m || !m.t) return; if (blocks[m.fu] && m.fu !== auth.uid) return;
       var ts = typeof m.ts === 'number' ? m.ts : keyTs(k);
       if (shown[k]) { if (Date.now() - (touch[k] || 0) < 4000) return; if (sigOf(msgData[k]) !== sigOf(m)) { var el = box.querySelector('.m[data-k="' + k + '"]'); if (el) el.innerHTML = msgInner(k, m, ts, c); } msgData[k] = m; return; }
       shown[k] = 1; msgData[k] = m; if (k > lastKey) lastKey = k;
       var day = fmtDay(ts); if (day !== lastDay) { lastDay = day; var d = document.createElement('div'); d.className = 'day'; d.textContent = day; box.appendChild(d); }
-      var cont = box.dataset.lf === m.f && day === box.dataset.ld && ts - (+box.dataset.lt || 0) < 300000; box.dataset.lf = m.f; box.dataset.ld = day; box.dataset.lt = ts;
-      var el2 = document.createElement('div'); el2.className = 'm' + (cont ? ' cont' : '') + (m.f === me ? ' me' : '') + (m.f !== me && mentionsMe(m._t) ? ' mention' : ''); el2.dataset.k = k; el2.innerHTML = msgInner(k, m, ts, c); box.appendChild(el2);
+      var cont = box.dataset.lf === m.fu && day === box.dataset.ld && ts - (+box.dataset.lt || 0) < 300000; box.dataset.lf = m.fu; box.dataset.ld = day; box.dataset.lt = ts;
+      var el2 = document.createElement('div'); el2.className = 'm' + (cont ? ' cont' : '') + (m.fu === auth.uid ? ' me' : '') + (m.fu !== auth.uid && mentionsMe(m._t) ? ' mention' : ''); el2.dataset.k = k; el2.innerHTML = msgInner(k, m, ts, c); box.appendChild(el2);
     });
     box.dataset.day = lastDay;
     if (!box.querySelector('.m')) box.innerHTML = '<div class="sys">' + (c.kind === 'd' ? 'This is the start of your chat with <b>' + esc(c.name) + '</b>. Say hello! Messages are encrypted.' : 'No messages yet. Say hello! Messages are encrypted.') + '</div>';
@@ -1156,7 +1271,7 @@ function pollMsgs(first) {
     if (searchQ) applySearch();
     if (atEnd) { box.scrollTop = box.scrollHeight; forceEnd = false; }
     var cv = convs[c.id]; if (cv) { store.read[c.id] = Math.max(cv.ts, store.read[c.id] || 0); save(); }
-    var ty = res[1] || {}, who = Object.keys(ty).filter(function (n) { return n !== me && !blocks[n] && Date.now() - ty[n] < 6000; });
+    var ty = res[1] || {}, who = Object.keys(ty).filter(function (u) { return u !== auth.uid && !blocks[u] && Date.now() - ty[u] < 6000; }).map(dispName);
     $('typing').textContent = who.length ? (who.length === 1 ? who[0] + ' is typing…' : who.length === 2 ? who.join(' and ') + ' are typing…' : 'Several people are typing…') : '';
     renderConvs(); refreshAvatars(); updDown();
   }).catch(function (e) { if (first && cur === c) $('msgs').innerHTML = '<div class="sys">' + (e && e.message === 'nopk' ? 'This person has not set up secure messaging yet.' : 'Could not load messages. Check your connection.') + '</div>'; });
@@ -1166,26 +1281,26 @@ var readMark = {}, lastReads = {};
 function markRead(c, keys) {
   if (store.rr === false || document.hidden || !document.hasFocus()) return;
   var last = keys[keys.length - 1]; if (!last || readMark[c.id] === last) return; readMark[c.id] = last;
-  rt('PUT', convPath(c) + '/read/' + me, { k: last, ts: SV }).catch(function () { delete readMark[c.id]; });
+  rt('PUT', convPath(c) + '/read/' + auth.uid, { k: last, ts: SV }).catch(function () { delete readMark[c.id]; });
 }
 function renderReceipts(c, reads, keys, j) {
   lastReads = reads; var box = $('msgs'); box.querySelectorAll('.rcpt').forEach(function (x) { x.remove(); }); if (store.rr === false) return;
-  var mk = null; for (var i = keys.length - 1; i >= 0; i--) { var m = j[keys[i]]; if (m && m.f === me && shown[keys[i]]) { mk = keys[i]; break; } }
+  var mk = null; for (var i = keys.length - 1; i >= 0; i--) { var m = j[keys[i]]; if (m && m.fu === auth.uid && shown[keys[i]]) { mk = keys[i]; break; } }
   if (!mk) return; var el = box.querySelector('.m[data-k="' + mk + '"]'); if (!el) return;
-  var readers = Object.keys(reads).filter(function (n) { return n !== me && !blocks[n] && reads[n] && reads[n].k >= mk; });
+  var readers = Object.keys(reads).filter(function (u) { return u !== auth.uid && !blocks[u] && reads[u] && reads[u].k >= mk; });
   var b = document.createElement('button'); b.type = 'button'; b.className = 'rcpt' + (c.kind === 'g' ? ' g' : '');
-  if (c.kind === 'd') { var r = reads[c.name]; b.innerHTML = readers.length ? '<i class="fa-solid fa-check-double"></i>Seen ' + fmtTime(r.ts) : '<i class="fa-solid fa-check" style="color:var(--t3)"></i>Sent'; }
-  else { b.dataset.act = 'seen'; b.innerHTML = readers.length ? '<i class="fa-solid fa-check-double"></i>Seen by ' + (readers.length <= 2 ? esc(readers.join(', ')) : readers.length + ' people') : '<i class="fa-solid fa-check" style="color:var(--t3)"></i>Sent'; }
+  if (c.kind === 'd') { var r = reads[c.peerUid]; b.innerHTML = readers.length ? '<i class="fa-solid fa-check-double"></i>Seen ' + fmtTime(r.ts) : '<i class="fa-solid fa-check" style="color:var(--t3)"></i>Sent'; }
+  else { b.dataset.act = 'seen'; b.innerHTML = readers.length ? '<i class="fa-solid fa-check-double"></i>Seen by ' + (readers.length <= 2 ? esc(readers.map(dispName).join(', ')) : readers.length + ' people') : '<i class="fa-solid fa-check" style="color:var(--t3)"></i>Sent'; }
   el.appendChild(b);
 }
 function openSeen() {
-  var c = cur; if (!c || c.kind !== 'g') return; var mem = (c.members || []).filter(function (n) { return n !== me && !blocks[n]; }), box = $('seen-body');
-  var rd = mem.filter(function (n) { return lastReads[n]; }).sort(function (a, b) { return lastReads[b].ts - lastReads[a].ts; });
-  var up = mem.filter(function (n) { return !lastReads[n]; });
-  function row(n, t) { return '<div class="mem"><span class="av" data-av="' + esc(n) + '" style="width:30px;height:30px;border-radius:10px;font-size:13px"></span><span>' + esc(n) + '</span>' + (t ? '<time>' + esc(t) + '</time>' : '') + '</div>'; }
+  var c = cur; if (!c || c.kind !== 'g') return; var mem = (c.memberUids || []).filter(function (u) { return u !== auth.uid && !blocks[u]; }), box = $('seen-body');
+  var rd = mem.filter(function (u) { return lastReads[u]; }).sort(function (a, b) { return lastReads[b].ts - lastReads[a].ts; });
+  var up = mem.filter(function (u) { return !lastReads[u]; });
+  function row(u, t) { var n = dispName(u); return '<div class="mem"><span class="av" data-au="' + esc(u) + '" data-av="' + esc(n) + '" style="width:30px;height:30px;border-radius:10px;font-size:13px"></span><span>' + esc(n) + '</span>' + (t ? '<time>' + esc(t) + '</time>' : '') + '</div>'; }
   box.innerHTML = '<div class="hint" style="margin:0 0 10px">Shows how far each person has read in this chat. People who turn off read receipts do not appear.</div>' +
-    '<div class="seen-sec"><h4>Read (' + rd.length + ')</h4>' + (rd.length ? rd.map(function (n) { return row(n, fmtDay(lastReads[n].ts) + ' ' + fmtTime(lastReads[n].ts)); }).join('') : '<div class="hint">No one yet.</div>') + '</div>' +
-    (up.length ? '<div class="seen-sec"><h4>Not read yet (' + up.length + ')</h4>' + up.map(function (n) { return row(n, ''); }).join('') + '</div>' : '');
+    '<div class="seen-sec"><h4>Read (' + rd.length + ')</h4>' + (rd.length ? rd.map(function (u) { return row(u, fmtDay(lastReads[u].ts) + ' ' + fmtTime(lastReads[u].ts)); }).join('') : '<div class="hint">No one yet.</div>') + '</div>' +
+    (up.length ? '<div class="seen-sec"><h4>Not read yet (' + up.length + ')</h4>' + up.map(function (u) { return row(u, ''); }).join('') + '</div>' : '');
   refreshAvatars(); $('d-seen').showModal();
 }
 function updDown() { var b = $('msgs'); $('b-down').hidden = !cur || b.scrollHeight - b.scrollTop - b.clientHeight < 240; }
@@ -1197,12 +1312,14 @@ function jumpTo(k) { var el = $('msgs').querySelector('.m[data-k="' + k + '"]');
 /* emoji shortcodes: type :fire: */
 var SC = { smile: '😊', grin: '😁', joy: '😂', sob: '😭', cry: '😢', heart: '❤️', thumbsup: '👍', thumbsdown: '👎', fire: '🔥', tada: '🎉', eyes: '👀', '100': '💯', ok: '👌', thinking: '🤔', clap: '👏', pray: '🙏', wave: '👋', sunglasses: '😎', party: '🥳', star: '⭐', check: '✅', x: '❌', laugh: '🤣', wink: '😉', shrug: '🤷', skull: '💀', sleepy: '😴', pizza: '🍕', book: '📚', muscle: '💪' };
 function shortcodes() { var t = $('text'), v = t.value, n = v.replace(/:([a-z0-9]{1,12}):/g, function (m, k) { return SC[k] || m; }); if (n !== v) { var d = n.length - v.length, p = (t.selectionStart || v.length) + d; t.value = n; t.selectionStart = t.selectionEnd = Math.max(0, p); } }
-/* mention autocomplete */
+/* mention autocomplete (purely textual — matched against display nicknames, not uids) */
 var mentSel = 0, mentList = [];
 function insertMention(n) { var t = $('text'), v = t.value, p = t.selectionStart || v.length, m = /@([a-z0-9_]*)$/.exec(v.slice(0, p)); if (m) { t.value = v.slice(0, p - m[0].length) + '@' + n + ' ' + v.slice(p); p = p - m[0].length + n.length + 2; } else { t.value = v.slice(0, p) + (p && !/\s$/.test(v.slice(0, p)) ? ' ' : '') + '@' + n + ' ' + v.slice(p); p = t.value.length; } t.focus(); t.selectionStart = t.selectionEnd = p; autosize(); $('ment').hidden = true; }
 function mentionCandidates(q) {
-  if (!cur) return []; var base = cur.kind === 'g' ? (cur.members || []).filter(function (n) { return n !== me; }) : [cur.name];
-  var l = base.filter(function (n) { return n.indexOf(q) === 0 && !blocks[n]; }).slice(0, 6).map(function (n) { return { n: n }; });
+  if (!cur) return [];
+  var baseN = cur.kind === 'g' ? (cur.members || []) : [cur.name], baseU = cur.kind === 'g' ? (cur.memberUids || []) : [cur.peerUid], l = [];
+  for (var i = 0; i < baseN.length; i++) { var n = baseN[i]; if (n === me) continue; if (n.indexOf(q) === 0 && !blocks[baseU[i]]) l.push({ n: n, u: baseU[i] }); }
+  l = l.slice(0, 6);
   if (cur.kind === 'g' && 'everyone'.indexOf(q) === 0) l.push({ n: 'everyone', d: 'notify all members' });
   return l;
 }
@@ -1211,7 +1328,7 @@ function updMention() {
   if (!m) { box.hidden = true; return; }
   mentList = mentionCandidates(m[2]); if (!mentList.length) { box.hidden = true; return; }
   mentSel = Math.min(mentSel, mentList.length - 1);
-  box.innerHTML = mentList.map(function (c, i) { return '<button type="button" role="option" data-n="' + esc(c.n) + '" class="' + (i === mentSel ? 'on' : '') + '"><span class="av sm" data-av="' + esc(c.n) + '" data-g="0"></span>@' + esc(c.n) + (c.d ? '<small>' + c.d + '</small>' : '') + '</button>'; }).join('');
+  box.innerHTML = mentList.map(function (c, i) { return '<button type="button" role="option" data-n="' + esc(c.n) + '" class="' + (i === mentSel ? 'on' : '') + '"><span class="av sm" data-au="' + esc(c.u || '') + '" data-av="' + esc(c.n) + '" data-g="0"></span>@' + esc(c.n) + (c.d ? '<small>' + c.d + '</small>' : '') + '</button>'; }).join('');
   box.hidden = false; refreshAvatars();
 }
 $('ment').addEventListener('mousedown', function (e) { e.preventDefault(); var b = e.target.closest('button'); if (b) insertMention(b.dataset.n); });
@@ -1242,16 +1359,16 @@ $('msgs').addEventListener('click', function (e) {
   if (act === 'edit') { startEdit(k, m); return; }
   if (act === 'del') return delMsg(k, el);
   if (act === 'rep') return reportMsg(k, m, c);
-  if (act === 'blk') return askBlock(m.f);
+  if (act === 'blk') return askBlock(m.fu, m.f);
   if (act === 'pin') return pinMsg(k, m);
   if (act === 'copy') { (navigator.clipboard ? navigator.clipboard.writeText(m._t) : Promise.reject()).then(function () { toast('Copied'); }, function () { toast('Could not copy'); }); return; }
 });
 var touch = {}, forceEnd = false;
 function toggleReaction(k, em) {
   touch[k] = Date.now();
-  var m = msgData[k]; if (!m || !cur) return; var path = convPath(cur) + '/m/' + k + '/r/' + encodeURIComponent(em) + '/' + me;
-  m.r = m.r || {}; m.r[em] = m.r[em] || {}; var on = !!m.r[em][me];
-  if (on) { delete m.r[em][me]; if (!Object.keys(m.r[em]).length) delete m.r[em]; } else m.r[em][me] = true;
+  var m = msgData[k]; if (!m || !cur) return; var path = convPath(cur) + '/m/' + k + '/r/' + encodeURIComponent(em) + '/' + auth.uid;
+  m.r = m.r || {}; m.r[em] = m.r[em] || {}; var on = !!m.r[em][auth.uid];
+  if (on) { delete m.r[em][auth.uid]; if (!Object.keys(m.r[em]).length) delete m.r[em]; } else m.r[em][auth.uid] = true;
   var el = $('msgs').querySelector('.m[data-k="' + k + '"]'); if (el) el.innerHTML = msgInner(k, m, typeof m.ts === 'number' ? m.ts : keyTs(k), cur);
   rt(on ? 'DELETE' : 'PUT', path, on ? undefined : true).catch(function (e) { delete touch[k]; toast(e && (e.status === 401 || e.status === 403) ? 'Reaction blocked. The database rules need updating.' : 'Could not save the reaction'); pollMsgs(); });
 }
@@ -1262,10 +1379,10 @@ function startEdit(k, m) { replyTo = null; editing = k; setCtx('edit', '', m._t)
 function delMsg(k, el) { ask({ title: 'Delete message?', text: 'This removes the message for everyone in the chat.', ok: 'Delete', danger: true, icon: 'fa-trash-can' }).then(function (ok) { if (!ok) return; rt('DELETE', convPath(cur) + '/m/' + k).then(function () { if (el) el.remove(); delete msgData[k]; delete shown[k]; toast('Message deleted'); }).catch(function () { toast('Could not delete the message'); }); }); }
 function reportMsg(k, m, c) {
   ask({ title: 'Report this message?', text: 'A readable copy of the message from ' + m.f + ' is sent to the site administrators for review.', ok: 'Send report', danger: true, icon: 'fa-flag' }).then(function (ok) { if (!ok) return;
-  rt('PUT', 'reports/' + newKey(), { by: me, from: m.f, conv: c.id, kind: c.kind, mk: k, t: String(m._t).slice(0, 500), ts: SV }).then(function () { toast('Reported. Thank you.'); }).catch(function () { toast('Could not send the report'); });
+  rt('PUT', 'reports/' + newKey(), { by: auth.uid, byNick: me, from: m.fu, fromNick: m.f, conv: c.id, kind: c.kind, mk: k, t: String(m._t).slice(0, 500), ts: SV }).then(function () { toast('Reported. Thank you.'); }).catch(function () { toast('Could not send the report'); });
   });
 }
-function pinMsg(k, m) { var c = cur; encText(c, filterText(m._t).slice(0, 80)).then(function (e) { return rt('PUT', convPath(c) + '/pins/' + k, { f: m.f, by: me, i: e.i, t: e.t }); }).then(function () { toast('Pinned'); }).catch(function () { toast('Could not pin it'); }); }
+function pinMsg(k, m) { var c = cur; encText(c, filterText(m._t).slice(0, 80)).then(function (e) { return rt('PUT', convPath(c) + '/pins/' + k, { f: m.f, by: auth.uid, i: e.i, t: e.t }); }).then(function () { toast('Pinned'); }).catch(function () { toast('Could not pin it'); }); }
 $('b-pins').onclick = function () {
   var c = cur, box = $('p-body'); box.innerHTML = '<div class="hint">Loading…</div>'; $('d-pins').showModal();
   rt('GET', convPath(c) + '/pins').then(function (p) {
@@ -1298,19 +1415,19 @@ $('b-emoji').onclick = function () { openPicker(this, function (em) { var t = $(
 
 /* ═════════ SEND ═════════ */
 function autosize() { var t = $('text'); t.style.height = 'auto'; t.style.height = Math.min(130, t.scrollHeight) + 'px'; }
-function clearTypingMark() { if (cur) rt('DELETE', convPath(cur) + '/typing/' + me).catch(function () {}); lastTyping = 0; }
-$('text').addEventListener('input', function () { shortcodes(); autosize(); var L = this.value.length, ct = $('count'); ct.hidden = L < 400; ct.textContent = L + '/500'; mentSel = 0; updMention(); if (cur && store.ty !== false && this.value && Date.now() - lastTyping > 3000) { lastTyping = Date.now(); rt('PUT', convPath(cur) + '/typing/' + me, Date.now()).catch(function () {}); } });
+function clearTypingMark() { if (cur) rt('DELETE', convPath(cur) + '/typing/' + auth.uid).catch(function () {}); lastTyping = 0; }
+$('text').addEventListener('input', function () { shortcodes(); autosize(); var L = this.value.length, ct = $('count'); ct.hidden = L < 400; ct.textContent = L + '/500'; mentSel = 0; updMention(); if (cur && store.ty !== false && this.value && Date.now() - lastTyping > 3000) { lastTyping = Date.now(); rt('PUT', convPath(cur) + '/typing/' + auth.uid, Date.now()).catch(function () {}); } });
 $('text').addEventListener('keydown', function (e) {
   if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('composer').requestSubmit(); }
   else if (e.key === 'Escape') { if (!$('ctx').hidden) cancelCtx(); }
-  else if (e.key === 'ArrowUp' && !this.value && cur) { var ks = Object.keys(msgData).sort().reverse(), k = ks.filter(function (x) { return msgData[x].f === me; })[0]; if (k) { e.preventDefault(); startEdit(k, msgData[k]); } }
+  else if (e.key === 'ArrowUp' && !this.value && cur) { var ks = Object.keys(msgData).sort().reverse(), k = ks.filter(function (x) { return msgData[x].fu === auth.uid; })[0]; if (k) { e.preventDefault(); startEdit(k, msgData[k]); } }
 });
 $('composer').addEventListener('submit', function (e) {
   e.preventDefault(); var c = cur; if (!c) return;
   var raw = $('text').value.replace(/\s+$/g, '').replace(/^\s+/, ''); if (!raw) return;
   var now = Date.now(); sentTimes = sentTimes.filter(function (t) { return now - t < 60000; });
   if (now - lastSend < 900 || sentTimes.length >= 20) { toast('Slow down a little'); return; }
-  if (c.kind === 'd' && blocks[c.name]) { toast('You blocked this person. Unblock them in chat details to message them.'); return; }
+  if (c.kind === 'd' && blocks[c.peerUid]) { toast('You blocked this person. Unblock them in chat details to message them.'); return; }
   var text = filterText(raw).slice(0, 500), path = convPath(c), sendBtn = $('send'); delete drafts[c.id];
   if (editing) {
     var ek = editing; cancelCtx(); $('text').value = ''; autosize(); sendBtn.disabled = true;
@@ -1322,19 +1439,22 @@ $('composer').addEventListener('submit', function (e) {
   var ats = {}, evr = /(^|[^a-z0-9_])@everyone\b/i.test(text); (text.match(/(^|[^a-z0-9_])@([a-z0-9_]{3,20})\b/g) || []).forEach(function (x) { ats[x.replace(/^[^@]*@/, '')] = 1; });
   var prev = text.length > 40 ? text.slice(0, 37) + '…' : text;
   Promise.all([encText(c, text), encText(c, prev), rp ? encText(c, rp.t) : null]).then(function (r) {
-    var msg = { f: me, ts: SV, i: r[0].i, t: r[0].t, v: 2 };
+    var msg = { f: me, fu: auth.uid, ts: SV, i: r[0].i, t: r[0].t, v: 3 };
     if (rp) msg.rp = { k: rp.k, f: rp.f, i: r[2].i, t: r[2].t };
     return rt('PUT', path + '/m/' + key, msg).then(function () { return r[1]; });
   }).then(function (pv) {
     var upd = {};
     if (c.kind === 'd') {
-      upd['inbox/' + me + '/' + c.id] = { k: 'd', ts: SV, pi: pv.i, p: pv.t, l: me };
-      upd['inbox/' + c.name + '/' + c.id] = { k: 'd', ts: SV, pi: pv.i, p: pv.t, l: me }; if (ats[c.name]) upd['inbox/' + c.name + '/' + c.id].at = true;
+      upd['inbox/' + auth.uid + '/' + c.id] = { k: 'd', ts: SV, pi: pv.i, p: pv.t, l: auth.uid };
+      upd['inbox/' + c.peerUid + '/' + c.id] = { k: 'd', ts: SV, pi: pv.i, p: pv.t, l: auth.uid }; if (ats[c.name]) upd['inbox/' + c.peerUid + '/' + c.id].at = true;
       return rt('PATCH', '', upd);
     }
-    return (c.members ? Promise.resolve(c.members) : rt('GET', 'groups/' + c.id + '/members').then(function (m) { return Object.keys(m || {}); })).then(function (mem) {
-      c.members = mem; mem.forEach(function (n) { var e = { k: 'g', n: c.name, ts: SV, pi: pv.i, p: pv.t, l: me }; if (n !== me && (evr || ats[n])) e.at = true; upd['inbox/' + n + '/' + c.id] = e; });
-      return rt('PATCH', '', upd);
+    return (c.memberUids ? Promise.resolve(c.memberUids) : rt('GET', 'groups/' + c.id + '/members').then(function (m) { return Object.keys(m || {}); })).then(function (memUids) {
+      c.memberUids = memUids;
+      return Promise.all(memUids.map(nickOf)).then(function (nicks) {
+        memUids.forEach(function (u, i) { var e = { k: 'g', n: c.name, ts: SV, pi: pv.i, p: pv.t, l: auth.uid }; if (u !== auth.uid && (evr || ats[nicks[i]])) e.at = true; upd['inbox/' + u + '/' + c.id] = e; });
+        return rt('PATCH', '', upd);
+      });
     });
   }).then(function () { ensureEscrow(c); pollMsgs(); refreshInbox(); })
     .catch(function (err) { toast(err.message === 'nopk' ? 'That person has not finished setting up secure messaging.' : (err.status === 401 || err.status === 403 ? 'Not allowed. You may have been blocked or removed.' : 'Message not sent. Check your connection.')); })
@@ -1346,51 +1466,51 @@ function lookup(n) {
   n = n.toLowerCase().replace(/[^a-z0-9_]/g, '');
   if (!n) return Promise.reject(new Error('Type a nickname.'));
   if (n === me) return Promise.reject(new Error('That is you.'));
-  return rt('GET', 'nicknames/' + n + '/pk').then(function (v) { if (v === null) throw new Error('No one has the nickname “' + n + '”.'); pubCache[n] = v; return n; });
+  return rt('GET', 'nicknames/' + n).then(function (v) { if (!v || !v.u) throw new Error('No one has the nickname “' + n + '”.'); uidCache[n] = v.u; nickCache[v.u] = n; return { nick: n, uid: v.u }; });
 }
 $('b-new').onclick = function () { $('q-nick').value = ''; $('q-h').textContent = ''; $('d-new').showModal(); $('q-nick').focus(); };
 $('q-nick').addEventListener('input', function () { this.value = this.value.toLowerCase().replace(/[^a-z0-9_]/g, ''); });
 $('q-nick').addEventListener('keydown', function (e) { if (e.key === 'Enter') $('q-go').click(); });
 $('q-go').onclick = function () {
   var h = $('q-h'); h.className = 'hint'; h.textContent = 'Looking…';
-  lookup($('q-nick').value).then(function (n) {
-    if (blocks[n]) { delete store.blocks[n]; save(); rt('DELETE', 'blocks/' + me + '/' + n).catch(function () {}); }
-    $('d-new').close(); var id = dmId(me, n);
-    openChat(convs[id] || { id: id, kind: 'd', name: n });
+  lookup($('q-nick').value).then(function (r) {
+    if (blocks[r.uid]) { delete store.blocks[r.uid]; save(); rt('DELETE', 'blocks/' + auth.uid + '/' + r.uid).catch(function () {}); }
+    $('d-new').close(); var id = dmId(auth.uid, r.uid);
+    openChat(convs[id] || { id: id, kind: 'd', name: r.nick, peerUid: r.uid });
   }).catch(function (e) { h.className = 'hint err'; h.textContent = e.status === undefined ? e.message : 'Could not look that up. Try again.'; });
 };
 
 /* ═════════ GROUPS ═════════ */
 var gMembers = [];
 $('b-group').onclick = function () { gMembers = []; $('g-name').value = ''; $('g-nick').value = ''; $('g-h').textContent = ''; renderChips(); $('d-group').showModal(); $('g-name').focus(); };
-function renderChips() { $('g-chips').innerHTML = gMembers.map(function (n, i) { return '<span class="chip">' + esc(n) + '<button type="button" data-i="' + i + '" aria-label="Remove">×</button></span>'; }).join(''); }
+function renderChips() { $('g-chips').innerHTML = gMembers.map(function (x, i) { return '<span class="chip">' + esc(x.nick) + '<button type="button" data-i="' + i + '" aria-label="Remove">×</button></span>'; }).join(''); }
 $('g-chips').addEventListener('click', function (e) { var b = e.target.closest('button'); if (b) { gMembers.splice(+b.dataset.i, 1); renderChips(); } });
 $('g-nick').addEventListener('input', function () { this.value = this.value.toLowerCase().replace(/[^a-z0-9_]/g, ''); });
 $('g-nick').addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); $('g-add').click(); } });
 $('g-add').onclick = function () {
   var h = $('g-h'); h.className = 'hint';
   if (gMembers.length >= 24) { h.className = 'hint err'; h.textContent = 'Groups can have up to 25 people.'; return; }
-  lookup($('g-nick').value).then(function (n) { if (gMembers.indexOf(n) < 0) gMembers.push(n); $('g-nick').value = ''; renderChips(); h.textContent = ''; }).catch(function (e) { h.className = 'hint err'; h.textContent = e.status === undefined ? e.message : 'Could not look that up.'; });
+  lookup($('g-nick').value).then(function (r) { if (gMembers.every(function (x) { return x.uid !== r.uid; })) gMembers.push(r); $('g-nick').value = ''; renderChips(); h.textContent = ''; }).catch(function (e) { h.className = 'hint err'; h.textContent = e.status === undefined ? e.message : 'Could not look that up.'; });
 };
 $('g-make').onclick = function () {
   var name = filterText($('g-name').value.trim()).slice(0, 40), h = $('g-h'); h.className = 'hint err';
   if (name.length < 2) { h.textContent = 'Give the group a name.'; return; }
   if (!gMembers.length) { h.textContent = 'Add at least one person.'; return; }
-  var gid = 'g' + Math.random().toString(36).slice(2, 12) + Date.now().toString(36).slice(-4), mem = {}, upd = {}, keys = {}, b = this;
-  mem[me] = true; gMembers.forEach(function (n) { mem[n] = true; });
+  var gid = 'g' + Math.random().toString(36).slice(2, 12) + Date.now().toString(36).slice(-4), memUids = {}, upd = {}, keys = {}, b = this;
+  memUids[auth.uid] = true; gMembers.forEach(function (x) { memUids[x.uid] = true; });
   b.disabled = true;
   CS.generateKey({ name: 'AES-GCM', length: 256 }, true, ['encrypt', 'decrypt']).then(function (gk) { return CS.exportKey('raw', gk); }).then(function (raw) {
-    var names = Object.keys(mem);
-    return Promise.all(names.map(function (n) { return (n === me ? pubOf(me).catch(function () { return CS.exportKey('jwk', myPriv).catch(function () { return null; }); }) : pubOf(n)).then(function (pk) { return wrapStatic(myPriv, pk, raw); }).then(function (w) { keys[n] = w; }); }))
+    var uids = Object.keys(memUids);
+    return Promise.all(uids.map(function (u) { return pubOf(u).then(function (pk) { return wrapStatic(myPriv, pk, raw); }).then(function (w) { keys[u] = w; }); }))
       .then(function () { return adminPub ? wrapFor(adminPub, raw).then(function (w) { keys['~admin'] = w; }) : null; });
-  }).then(function () { return rt('PUT', 'groups/' + gid, { name: name, owner: me, ts: SV, members: mem, keys: keys }); })
+  }).then(function () { return rt('PUT', 'groups/' + gid, { name: name, owner: auth.uid, ts: SV, members: memUids, keys: keys }); })
     .then(function () {
-      var c = { id: gid, kind: 'g', name: name, owner: me };
+      var c = { id: gid, kind: 'g', name: name, owner: auth.uid };
       return encText(c, 'You created this group').then(function (e) {
-        Object.keys(mem).forEach(function (n) { upd['inbox/' + n + '/' + gid] = { k: 'g', n: name, ts: SV, pi: e.i, p: e.t, l: me }; });
+        Object.keys(memUids).forEach(function (u) { upd['inbox/' + u + '/' + gid] = { k: 'g', n: name, ts: SV, pi: e.i, p: e.t, l: auth.uid }; });
         return rt('PATCH', '', upd);
       });
-    }).then(function () { $('d-group').close(); return refreshInbox(); }).then(function () { openChat({ id: gid, kind: 'g', name: name, owner: me }); toast('Group created'); })
+    }).then(function () { $('d-group').close(); return refreshInbox(); }).then(function () { openChat({ id: gid, kind: 'g', name: name, owner: auth.uid, memberUids: Object.keys(memUids), members: [me].concat(gMembers.map(function (x) { return x.nick; })) }); toast('Group created'); })
     .catch(function (e) { h.textContent = 'Could not create the group. Try again.'; }).then(function () { b.disabled = false; });
 };
 
@@ -1405,45 +1525,232 @@ function addMute(body, c) {
 function openInfo() {
   var c = cur, body = $('i-body'); $('i-title').textContent = c.name;
   if (c.kind === 'd') {
-    var bl = !!blocks[c.name];
+    var bl = !!blocks[c.peerUid];
     body.innerHTML = '<p style="margin:0 0 4px;color:var(--t2);font-size:14px">Direct chat with <b>' + esc(c.name) + '</b>. Messages are encrypted.</p><div class="acts"><button class="btn danger" id="i-block" type="button"><i class="fa-solid fa-ban"></i> ' + (bl ? 'Unblock' : 'Block') + ' ' + esc(c.name) + '</button><button class="btn" id="i-rm" type="button"><i class="fa-regular fa-eye-slash"></i> Remove from my list</button></div><div class="hint">Blocking hides their messages for you and stops them from messaging you in this app.</div>';
-    $('i-block').onclick = function () { $('d-info').close(); if (blocks[c.name]) doUnblock(c.name); else askBlock(c.name); };
-    $('i-rm').onclick = function () { rt('DELETE', 'inbox/' + me + '/' + c.id).then(function () { $('d-info').close(); closeChat(); refreshInbox(); }).catch(function () { toast('Could not remove it'); }); };
+    $('i-block').onclick = function () { $('d-info').close(); if (blocks[c.peerUid]) doUnblock(c.peerUid, c.name); else askBlock(c.peerUid, c.name); };
+    $('i-rm').onclick = function () { rt('DELETE', 'inbox/' + auth.uid + '/' + c.id).then(function () { $('d-info').close(); closeChat(); refreshInbox(); }).catch(function () { toast('Could not remove it'); }); };
     addMute(body, c); $('d-info').showModal(); return;
   }
   body.innerHTML = '<div class="hint">Loading…</div>'; $('d-info').showModal();
   rt('GET', 'groups/' + c.id).then(function (g) {
     if (!g) { body.innerHTML = '<div class="hint err">This group no longer exists.</div>'; return; }
-    var mem = Object.keys(g.members || {}).sort(), owner = g.owner === me; c.members = mem; c.owner = g.owner;
-    body.innerHTML = '<div class="lbl">' + mem.length + ' members</div><div id="i-mem">' + mem.map(function (n) { return '<div class="mem"><span class="av" data-av="' + esc(n) + '" style="width:30px;height:30px;border-radius:10px;font-size:13px"></span><span>' + esc(n) + (n === g.owner ? ' <small style="color:var(--t3)">owner</small>' : n === me ? ' <small style="color:var(--t3)">you</small>' : '') + '</span>' + (owner && n !== me ? '<button class="btn sm danger" data-rm="' + esc(n) + '" type="button">Remove</button>' : '') + '</div>'; }).join('') + '</div>' +
-      (owner ? '<div class="lbl" style="margin-top:14px">Add someone</div><div class="row"><input class="inp" id="i-add" placeholder="nickname" maxlength="20" autocomplete="off" autocapitalize="off"><button class="btn" id="i-addgo" type="button">Add</button></div><div class="hint" id="i-h"></div>' : '') +
-      '<div class="acts"><button class="btn" id="i-leave" type="button"><i class="fa-solid fa-right-from-bracket"></i> Leave group</button>' + (owner ? '<button class="btn danger" id="i-del" type="button"><i class="fa-regular fa-trash-can"></i> Delete group</button>' : '') + '</div>';
-    body.querySelectorAll('[data-av]').forEach(function (el) { avatar(el, el.dataset.av); });
-    addMute(body, c);
-    body.querySelectorAll('[data-rm]').forEach(function (b) { b.onclick = function () { var n = b.dataset.rm; rt('DELETE', 'groups/' + c.id + '/members/' + n).then(function () { return rt('DELETE', 'inbox/' + n + '/' + c.id); }).then(function () { toast(n + ' was removed'); openInfo(); }).catch(function () { toast('Could not remove them'); }); }; });
-    if (owner) {
-      $('i-add').addEventListener('input', function () { this.value = this.value.toLowerCase().replace(/[^a-z0-9_]/g, ''); });
-      $('i-addgo').onclick = function () {
-        var hh = $('i-h'); hh.className = 'hint'; if (mem.length >= 25) { hh.className = 'hint err'; hh.textContent = 'Groups can have up to 25 people.'; return; }
-        lookup($('i-add').value).then(function (n) {
-          if (mem.indexOf(n) >= 0) throw new Error('Already in the group.');
-          return convKey(c).then(function (k) { return CS.exportKey('raw', k); }).then(function (raw) { return wrapStatic(myPriv, pubCache[n], raw); })
-            .then(function (w) { return rt('PUT', 'groups/' + c.id + '/keys/' + n, w); })
-            .then(function () { return rt('PUT', 'groups/' + c.id + '/members/' + n, true); })
-            .then(function () { return encText(c, me + ' added you'); })
-            .then(function (e) { return rt('PUT', 'inbox/' + n + '/' + c.id, { k: 'g', n: c.name, ts: SV, pi: e.i, p: e.t, l: me }); });
-        }).then(function () { toast('Added'); openInfo(); }).catch(function (e) { hh.className = 'hint err'; hh.textContent = e.status === undefined ? e.message : 'Could not add them.'; });
-      };
-      $('i-del').onclick = function () { ask({ title: 'Delete this group?', text: 'The group and all of its messages are removed for everyone.', ok: 'Delete group', danger: true, icon: 'fa-trash-can' }).then(function (ok) { if (!ok) return; var ps = mem.map(function (n) { return rt('DELETE', 'inbox/' + n + '/' + c.id).catch(function () {}); }); Promise.all(ps).then(function () { return rt('DELETE', 'groups/' + c.id); }).then(function () { $('d-info').close(); closeChat(); refreshInbox(); toast('Group deleted'); }).catch(function () { toast('Could not delete the group'); }); }); };
-    }
-    $('i-leave').onclick = function () { ask({ title: 'Leave this group?', text: 'You will stop receiving its messages. The owner can add you back.', ok: 'Leave', danger: true, icon: 'fa-right-from-bracket' }).then(function (ok) { if (!ok) return; rt('DELETE', 'groups/' + c.id + '/members/' + me).then(function () { return rt('DELETE', 'inbox/' + me + '/' + c.id); }).then(function () { $('d-info').close(); closeChat(); refreshInbox(); toast('You left the group'); }).catch(function () { toast('Could not leave the group'); }); }); };
+    var memUids = Object.keys(g.members || {}), owner = g.owner === auth.uid; c.owner = g.owner;
+    return Promise.all(memUids.map(forceNickOf)).then(function (nicks) {
+      var rows = memUids.map(function (u, i) { return { u: u, n: nicks[i] }; }).sort(function (a, b) { return a.n.localeCompare(b.n); });
+      c.memberUids = memUids; c.members = rows.map(function (r) { return r.n; });
+      body.innerHTML = '<div class="lbl">' + rows.length + ' members</div><div id="i-mem">' + rows.map(function (r) { return '<div class="mem"><span class="av" data-au="' + esc(r.u) + '" data-av="' + esc(r.n) + '" style="width:30px;height:30px;border-radius:10px;font-size:13px"></span><span>' + esc(r.n) + (r.u === g.owner ? ' <small style="color:var(--t3)">owner</small>' : r.u === auth.uid ? ' <small style="color:var(--t3)">you</small>' : '') + '</span>' + (owner && r.u !== auth.uid ? '<button class="btn sm danger" data-rm="' + esc(r.u) + '" type="button">Remove</button>' : '') + '</div>'; }).join('') + '</div>' +
+        (owner ? '<div class="lbl" style="margin-top:14px">Add someone</div><div class="row"><input class="inp" id="i-add" placeholder="nickname" maxlength="20" autocomplete="off" autocapitalize="off"><button class="btn" id="i-addgo" type="button">Add</button></div><div class="hint" id="i-h"></div>' : '') +
+        '<div class="acts"><button class="btn" id="i-leave" type="button"><i class="fa-solid fa-right-from-bracket"></i> Leave group</button>' + (owner ? '<button class="btn danger" id="i-del" type="button"><i class="fa-regular fa-trash-can"></i> Delete group</button>' : '') + '</div>';
+      body.querySelectorAll('[data-av]').forEach(function (el) { avatar(el, el.dataset.au, el.dataset.av); });
+      addMute(body, c);
+      body.querySelectorAll('[data-rm]').forEach(function (b) { b.onclick = function () { var u = b.dataset.rm; rt('DELETE', 'groups/' + c.id + '/members/' + u).then(function () { return rt('DELETE', 'inbox/' + u + '/' + c.id); }).then(function () { toast('They were removed'); openInfo(); }).catch(function () { toast('Could not remove them'); }); }; });
+      if (owner) {
+        $('i-add').addEventListener('input', function () { this.value = this.value.toLowerCase().replace(/[^a-z0-9_]/g, ''); });
+        $('i-addgo').onclick = function () {
+          var hh = $('i-h'); hh.className = 'hint'; if (memUids.length >= 25) { hh.className = 'hint err'; hh.textContent = 'Groups can have up to 25 people.'; return; }
+          lookup($('i-add').value).then(function (r) {
+            if (memUids.indexOf(r.uid) >= 0) throw new Error('Already in the group.');
+            return pubOf(r.uid).then(function (pk) { return convKey(c).then(function (k) { return CS.exportKey('raw', k); }).then(function (raw) { return wrapStatic(myPriv, pk, raw); }); })
+              .then(function (w) { return rt('PUT', 'groups/' + c.id + '/keys/' + r.uid, w); })
+              .then(function () { return rt('PUT', 'groups/' + c.id + '/members/' + r.uid, true); })
+              .then(function () { return encText(c, me + ' added you'); })
+              .then(function (e) { return rt('PUT', 'inbox/' + r.uid + '/' + c.id, { k: 'g', n: c.name, ts: SV, pi: e.i, p: e.t, l: auth.uid }); });
+          }).then(function () { toast('Added'); openInfo(); }).catch(function (e) { hh.className = 'hint err'; hh.textContent = e.status === undefined ? e.message : 'Could not add them.'; });
+        };
+        $('i-del').onclick = function () { ask({ title: 'Delete this group?', text: 'The group and all of its messages are removed for everyone.', ok: 'Delete group', danger: true, icon: 'fa-trash-can' }).then(function (ok) { if (!ok) return; var ps = memUids.map(function (u) { return rt('DELETE', 'inbox/' + u + '/' + c.id).catch(function () {}); }); Promise.all(ps).then(function () { return rt('DELETE', 'groups/' + c.id); }).then(function () { $('d-info').close(); closeChat(); refreshInbox(); toast('Group deleted'); }).catch(function () { toast('Could not delete the group'); }); }); };
+      }
+      $('i-leave').onclick = function () { ask({ title: 'Leave this group?', text: 'You will stop receiving its messages. The owner can add you back.', ok: 'Leave', danger: true, icon: 'fa-right-from-bracket' }).then(function (ok) { if (!ok) return; rt('DELETE', 'groups/' + c.id + '/members/' + auth.uid).then(function () { return rt('DELETE', 'inbox/' + auth.uid + '/' + c.id); }).then(function () { $('d-info').close(); closeChat(); refreshInbox(); toast('You left the group'); }).catch(function () { toast('Could not leave the group'); }); }); };
+    });
   }).catch(function () { body.innerHTML = '<div class="hint err">Could not load the group.</div>'; });
 }
+
+/* ═════════ CALLS (1:1 audio/video, DMs only) ═════════
+   STUN-only — there is no TURN relay yet, so a call can fail to connect on strict/symmetric-
+   NAT networks (some school wifi). It works on most home networks and open wifi. Signaling
+   (who's calling, the SDP offer/answer, ICE candidates) rides on Firebase, same as everything
+   else here — no separate server. calls/{uid} is a small "ring" mailbox every signed-in
+   client always listens to; the actual SDP/ICE exchange happens in dms/{id}/call/{cid},
+   reusing the DM's existing read/write access (see database.rules.json). WebRTC's DTLS-SRTP
+   encrypts the actual audio/video on its own; only the call *metadata* here isn't end-to-end
+   encrypted the way chat text is. */
+var ICE_SERVERS = [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }, { urls: 'stun:stun.cloudflare.com:3478' }];
+var callX = null, pendingRing = null, ringTimer = 0, callEs = null, callEsT = 0, roomEs = null, roomPollT = 0;
+function openCallStream() {
+  closeCallStream(); if (!me || !window.EventSource) return;
+  ensureAuth().then(function () {
+    callEs = new EventSource(DB_URL + '/calls/' + auth.uid + '.json?auth=' + encodeURIComponent(auth.token));
+    var hit = function () { rt('GET', 'calls/' + auth.uid).then(onRing).catch(function () {}); };
+    callEs.addEventListener('put', hit); callEs.addEventListener('patch', hit);
+    callEs.addEventListener('auth_revoked', function () { closeCallStream(); setTimeout(openCallStream, 1500); });
+    callEs.onerror = function () { closeCallStream(); clearTimeout(callEsT); callEsT = setTimeout(openCallStream, 15000); };
+    clearTimeout(callEsT); callEsT = setTimeout(openCallStream, 45 * 60000);
+  }).catch(function () {});
+}
+function closeCallStream() { if (callEs) { callEs.close(); callEs = null; } clearTimeout(callEsT); }
+function onRing(sig) {
+  if (callX) {
+    if (!sig) return;
+    if (sig.cid !== callX.cid) { if (sig.state === 'ringing') rt('PUT', 'calls/' + sig.from, { from: auth.uid, convId: sig.convId, cid: sig.cid, type: sig.type, state: 'busy', ts: SV }).catch(function () {}); return; }
+    if (sig.state === 'accepted' && callX.isCaller && callX.phase === 'ringing') { callX.phase = 'connecting'; clearTimeout(callX.ringTimeout); setCallStatus('Connecting…'); }
+    else if (sig.state === 'declined' && callX.isCaller) { toast(callX.peerName + ' declined the call'); endCallLocal(); }
+    else if (sig.state === 'busy' && callX.isCaller) { toast(callX.peerName + ' is already on a call'); endCallLocal(); }
+    else if (sig.state === 'ended') { toast('Call ended'); endCallLocal(); }
+    return;
+  }
+  if (!sig) { if (pendingRing) { $('d-incall').close(); clearTimeout(ringTimer); pendingRing = null; } return; }
+  if (pendingRing && sig.cid === pendingRing.cid && (sig.state === 'ended' || sig.state === 'declined')) { $('d-incall').close(); clearTimeout(ringTimer); pendingRing = null; toast('Missed call'); return; }
+  if (sig.state !== 'ringing') return;
+  if (pendingRing) { rt('PUT', 'calls/' + sig.from, { from: auth.uid, convId: sig.convId, cid: sig.cid, type: sig.type, state: 'busy', ts: SV }).catch(function () {}); return; }
+  if (blocks[sig.from]) { rt('PUT', 'calls/' + sig.from, { from: auth.uid, convId: sig.convId, cid: sig.cid, type: sig.type, state: 'declined', ts: SV }).catch(function () {}); return; }
+  pendingRing = sig; showIncoming(sig);
+}
+function showIncoming(sig) {
+  var name = dispName(sig.from);
+  $('cl-name').textContent = name; avatar($('cl-av'), sig.from, name); $('cl-kind').textContent = sig.type === 'video' ? 'Video call' : 'Voice call';
+  $('d-incall').showModal(); beep(1);
+  clearTimeout(ringTimer);
+  ringTimer = setTimeout(function () { if (pendingRing && pendingRing.cid === sig.cid) { $('d-incall').close(); pendingRing = null; declineRing(sig, 'ended'); toast('Missed call from ' + name); } }, 35000);
+}
+function declineRing(sig, state) { rt('PUT', 'calls/' + sig.from, { from: auth.uid, convId: sig.convId, cid: sig.cid, type: sig.type, state: state || 'declined', ts: SV }).catch(function () {}); }
+$('cl-decline').onclick = function () { var sig = pendingRing; $('d-incall').close(); clearTimeout(ringTimer); pendingRing = null; if (sig) declineRing(sig, 'declined'); };
+$('cl-accept').onclick = function () { var sig = pendingRing; pendingRing = null; if (sig) acceptCall(sig); };
+function buildPC() {
+  var pc = new RTCPeerConnection({ iceServers: ICE_SERVERS }), cx = callX;
+  pc.onicecandidate = function (e) { if (e.candidate && callX === cx) rt('PUT', 'dms/' + cx.convId + '/call/' + cx.cid + '/cand/' + newKey(), { d: JSON.stringify(e.candidate), f: auth.uid }).catch(function () {}); };
+  pc.ontrack = function (e) { $('call-remote').srcObject = e.streams[0]; };
+  pc.onconnectionstatechange = function () {
+    if (callX !== cx) return; var st = pc.connectionState;
+    if (st === 'connected') { clearTimeout(cx.discoTimer); if (cx.phase !== 'active') { cx.phase = 'active'; cx.startedAt = cx.startedAt || Date.now(); startDurTimer(); } setCallStatus(''); }
+    else if (st === 'disconnected') { setCallStatus('Reconnecting…'); clearTimeout(cx.discoTimer); cx.discoTimer = setTimeout(function () { if (callX === cx && pc.connectionState !== 'connected') { toast('Lost connection to ' + cx.peerName); hangup('ended'); } }, 8000); }
+    else if (st === 'failed') { toast('Call connection failed — this can happen on stricter networks without a relay server.'); hangup('ended'); }
+  };
+  cx.pc = pc;
+}
+function placeCall(peerUid, type) {
+  if (callX) { toast('You are already in a call.'); return; }
+  if (!peerUid || peerUid === auth.uid) return;
+  if (blocks[peerUid]) { toast('You have blocked this person.'); return; }
+  var convId = dmId(auth.uid, peerUid), peerName = dispName(peerUid), cid = newKey();
+  navigator.mediaDevices.getUserMedia({ audio: true, video: type === 'video' }).then(function (stream) {
+    callX = { cid: cid, convId: convId, peerUid: peerUid, peerName: peerName, type: type, isCaller: true, phase: 'ringing', localStream: stream, seenCandKeys: {} };
+    showCallOverlay(); setCallStatus('Calling ' + peerName + '…'); buildPC();
+    callX.localStream.getTracks().forEach(function (t) { callX.pc.addTrack(t, callX.localStream); }); attachLocalPreview();
+    return callX.pc.createOffer().then(function (o) { return callX.pc.setLocalDescription(o).then(function () { return o; }); });
+  }).then(function (offer) { return rt('PUT', 'dms/' + callX.convId + '/call/' + callX.cid + '/offer', { d: JSON.stringify(offer), f: auth.uid }); })
+    .then(function () { return rt('PUT', 'calls/' + peerUid, { from: auth.uid, convId: callX.convId, cid: callX.cid, type: type, state: 'ringing', ts: SV }); })
+    .then(function () {
+      openCallRoom();
+      callX.ringTimeout = setTimeout(function () { if (callX && callX.phase === 'ringing') { toast(peerName + ' didn’t answer'); hangup('ended'); } }, 30000);
+    }).catch(function (e) {
+      toast(e && e.name === 'NotAllowedError' ? 'Camera/microphone permission was denied.' : e && e.name === 'NotFoundError' ? 'No camera or microphone was found.' : 'Could not start the call.');
+      if (callX) endCallLocal();
+    });
+}
+function acceptCall(sig) {
+  $('d-incall').close(); clearTimeout(ringTimer);
+  var peerName = dispName(sig.from);
+  navigator.mediaDevices.getUserMedia({ audio: true, video: sig.type === 'video' }).then(function (stream) {
+    callX = { cid: sig.cid, convId: sig.convId, peerUid: sig.from, peerName: peerName, type: sig.type, isCaller: false, phase: 'connecting', localStream: stream, seenCandKeys: {} };
+    showCallOverlay(); setCallStatus('Connecting…'); buildPC();
+    callX.localStream.getTracks().forEach(function (t) { callX.pc.addTrack(t, callX.localStream); }); attachLocalPreview();
+    openCallRoom();
+    return rt('PUT', 'calls/' + sig.from, { from: auth.uid, convId: sig.convId, cid: sig.cid, type: sig.type, state: 'accepted', ts: SV });
+  }).catch(function (e) {
+    toast(e && e.name === 'NotAllowedError' ? 'Camera/microphone permission was denied.' : 'Could not join the call.');
+    if (callX) endCallLocal(); else declineRing(sig, 'ended');
+  });
+}
+function openCallRoom() {
+  closeCallRoom(); if (!callX) return; var cx = callX;
+  // belt-and-suspenders, same as the ring-mailbox poll above: offer/answer/ICE only ever
+  // arrive via this EventSource, so a dropped/buffered SSE connection mid-call (a flaky
+  // network, a proxy that doesn't forward it) would otherwise stall the call forever with
+  // no way to recover. Poll the room too while it's open, so a missed push isn't fatal.
+  roomPollT = setInterval(function () { if (callX === cx) applyRoom(cx); }, 2000);
+  ensureAuth().then(function () {
+    if (callX !== cx) return;
+    roomEs = new EventSource(DB_URL + '/dms/' + cx.convId + '/call/' + cx.cid + '.json?auth=' + encodeURIComponent(auth.token));
+    var hit = function () { applyRoom(cx); };
+    roomEs.addEventListener('put', hit); roomEs.addEventListener('patch', hit);
+    // Only tear down the EventSource itself here, NEVER roomPollT: that poll is the
+    // fallback for exactly this failure, so clearing it from the stream's own onerror
+    // would defeat the whole point (and did, until this was caught by a Playwright test
+    // that found the caller's side never applying the callee's candidates — the stream
+    // errors out ~instantly against a server with no real SSE support, which killed the
+    // poll before the answer/candidates had even arrived).
+    roomEs.onerror = function () { if (roomEs) { roomEs.close(); roomEs = null; } };
+    applyRoom(cx);
+  }).catch(function () {}); }
+function closeCallRoom() { if (roomEs) { roomEs.close(); roomEs = null; } clearInterval(roomPollT); roomPollT = 0; }
+function applyRoom(cx) {
+  rt('GET', 'dms/' + cx.convId + '/call/' + cx.cid).then(function (room) {
+    if (callX !== cx) return; room = room || {}; var pending = [];
+    if (!cx.isCaller && room.offer && room.offer.f !== auth.uid && !cx.haveOffer) {
+      cx.haveOffer = true;
+      pending.push(cx.pc.setRemoteDescription(new RTCSessionDescription(JSON.parse(room.offer.d))).then(function () { return cx.pc.createAnswer(); })
+        .then(function (ans) { return cx.pc.setLocalDescription(ans).then(function () { return ans; }); })
+        .then(function (ans) { return rt('PUT', 'dms/' + cx.convId + '/call/' + cx.cid + '/answer', { d: JSON.stringify(ans), f: auth.uid }); }));
+    }
+    if (cx.isCaller && room.answer && room.answer.f !== auth.uid && !cx.haveAnswer) { cx.haveAnswer = true; pending.push(cx.pc.setRemoteDescription(new RTCSessionDescription(JSON.parse(room.answer.d)))); }
+    Promise.all(pending).then(function () {
+      if (callX !== cx) return;
+      // The offer/answer and the candidates land in Firebase independently, with no
+      // ordering guarantee — a candidate row can show up on a poll/hit before THIS side
+      // has set its remote description (routine for the caller: the callee's candidates
+      // can reach her before her own answer does, since answer-PUT and candidate-PUT are
+      // two separate async calls on the callee's side race each other). addIceCandidate()
+      // throws without a remote description, so don't mark anything "seen" until there is
+      // one — leave unprocessed candidates for the next tick instead of dropping them.
+      if (!cx.pc.remoteDescription) return;
+      var cands = room.cand || {};
+      Object.keys(cands).forEach(function (k) { var c = cands[k]; if (!c || c.f === auth.uid || cx.seenCandKeys[k]) return; cx.seenCandKeys[k] = 1; try { cx.pc.addIceCandidate(new RTCIceCandidate(JSON.parse(c.d))).catch(function () {}); } catch (e) {} });
+    }).catch(function () {});
+  }).catch(function () {});
+}
+function hangup(state) {
+  if (!callX) return; var cx = callX;
+  rt('PUT', 'calls/' + cx.peerUid, { from: auth.uid, convId: cx.convId, cid: cx.cid, type: cx.type, state: state || 'ended', ts: SV }).catch(function () {});
+  rt('DELETE', 'dms/' + cx.convId + '/call/' + cx.cid).catch(function () {});
+  rt('DELETE', 'calls/' + auth.uid).catch(function () {});
+  endCallLocal();
+}
+function endCallLocal() {
+  var cx = callX; callX = null; closeCallRoom();
+  if (cx) { clearTimeout(cx.ringTimeout); clearTimeout(cx.discoTimer); }
+  stopDurTimer();
+  if (cx && cx.pc) { try { cx.pc.close(); } catch (e) {} }
+  if (cx && cx.localStream) cx.localStream.getTracks().forEach(function (t) { try { t.stop(); } catch (e) {} });
+  $('call-remote').srcObject = null; $('call-local').srcObject = null; hideCallOverlay();
+}
+function showCallOverlay() {
+  $('call-ov').hidden = false; $('call-peer').textContent = callX.peerName; avatar($('call-av'), callX.peerUid, callX.peerName);
+  var isVideo = callX.type === 'video';
+  $('call-video-wrap').hidden = !isVideo; $('call-audio-wrap').hidden = isVideo; $('call-cam').hidden = !isVideo;
+  if (!isVideo) avatar($('call-audio-av'), callX.peerUid, callX.peerName);
+  $('call-mute').classList.remove('on'); $('call-mute').innerHTML = '<i class="fa-solid fa-microphone"></i>';
+  $('call-cam').classList.remove('on'); $('call-cam').innerHTML = '<i class="fa-solid fa-video"></i>';
+}
+function hideCallOverlay() { $('call-ov').hidden = true; $('call-status').textContent = ''; $('call-dur').textContent = ''; }
+function setCallStatus(t) { $('call-status').textContent = t; }
+function attachLocalPreview() { $('call-local').srcObject = callX.localStream; $('call-local').muted = true; }
+function startDurTimer() { stopDurTimer(); callX.durInt = setInterval(function () { if (!callX) return; var s = Math.floor((Date.now() - callX.startedAt) / 1000); $('call-dur').textContent = String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); }, 500); }
+function stopDurTimer() { if (callX && callX.durInt) clearInterval(callX.durInt); }
+$('call-end').onclick = function () { hangup('ended'); };
+$('call-mute').onclick = function () {
+  if (!callX) return; var on = $('call-mute').classList.toggle('on');
+  callX.localStream.getAudioTracks().forEach(function (t) { t.enabled = !on; }); $('call-mute').innerHTML = on ? '<i class="fa-solid fa-microphone-slash"></i>' : '<i class="fa-solid fa-microphone"></i>';
+};
+$('call-cam').onclick = function () {
+  if (!callX || callX.type !== 'video') return; var on = $('call-cam').classList.toggle('on');
+  callX.localStream.getVideoTracks().forEach(function (t) { t.enabled = !on; }); $('call-cam').innerHTML = on ? '<i class="fa-solid fa-video-slash"></i>' : '<i class="fa-solid fa-video"></i>';
+};
+$('b-call-a').onclick = function () { if (cur && cur.kind === 'd') placeCall(cur.peerUid, 'audio'); };
+$('b-call-v').onclick = function () { if (cur && cur.kind === 'd') placeCall(cur.peerUid, 'video'); };
 
 /* ═════════ DATA TOOLS (access, delete, 30-day retention) ═════════ */
 function mineIn(c, cutoffKey) {
   var q = 'orderBy=%22%24key%22&limitToLast=1000' + (cutoffKey ? '&endAt=%22' + cutoffKey + '%22' : '');
-  return rt('GET', convPath(c) + '/m', undefined, q).then(function (j) { j = j || {}; return Object.keys(j).filter(function (k) { return j[k] && j[k].f === me; }).map(function (k) { return { k: k, m: j[k] }; }); }).catch(function () { return []; });
+  return rt('GET', convPath(c) + '/m', undefined, q).then(function (j) { j = j || {}; return Object.keys(j).filter(function (k) { return j[k] && j[k].fu === auth.uid; }).map(function (k) { return { k: k, m: j[k] }; }); }).catch(function () { return []; });
 }
 function sweepMine(cutoffKey) {
   var list = Object.keys(convs).map(function (k) { return convs[k]; }), n = 0;
@@ -1460,7 +1767,7 @@ $('s-export').onclick = function () {
   var b = this; b.disabled = true; toast('Collecting your messages…');
   var list = Object.keys(convs).map(function (k) { return convs[k]; });
   Promise.all(list.map(function (c) { return mineIn(c).then(function (arr) { return Promise.all(arr.map(function (x) { return (x.m.i ? decText(c, x.m.i, x.m.t) : Promise.resolve(x.m.t)).catch(function () { return '(could not decrypt)'; }).then(function (t) { return { chat: c.kind === 'g' ? c.name + ' (group)' : 'Direct chat with ' + c.name, sent: new Date(typeof x.m.ts === 'number' ? x.m.ts : keyTs(x.k)).toISOString(), text: t }; }); })); }); })).then(function (parts) {
-    var data = { nickname: me, exported: new Date().toISOString(), blocked: Object.keys(store.blocks || {}), chats: list.map(function (c) { return c.kind === 'g' ? c.name + ' (group)' : c.name; }), messages_you_sent: [].concat.apply([], parts) };
+    var data = { nickname: me, exported: new Date().toISOString(), blocked: Object.keys(store.blocks || {}).map(dispName), chats: list.map(function (c) { return c.kind === 'g' ? c.name + ' (group)' : c.name; }), messages_you_sent: [].concat.apply([], parts) };
     var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })); a.download = 'my-messages-data.json'; document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
   }).then(function () { b.disabled = false; });
 };
@@ -1470,29 +1777,75 @@ $('s-wipe').onclick = function () {
 
 /* ═════════ SETTINGS ═════════ */
 $('b-settings').onclick = function () {
-  $('s-nick').textContent = me; avatar($('s-av'), me);
+  $('s-nick').textContent = me; avatar($('s-av'), auth.uid, me);
   $('s-mode').textContent = 'Your messages are encrypted. Only the people in a chat, and the site administrators who monitor chats, can read them.'; $('s-mode').className = 'hint ok';
   var b = Object.keys(store.blocks || {});
-  $('s-blocks').innerHTML = b.length ? b.map(function (n) { return '<div class="mem"><span>' + esc(n) + '</span><button class="btn sm" data-ub="' + esc(n) + '" type="button">Unblock</button></div>'; }).join('') : '<div class="hint">You have not blocked anyone.</div>';
-  $('s-blocks').querySelectorAll('[data-ub]').forEach(function (x) { x.onclick = function () { doUnblock(x.dataset.ub); $('b-settings').click(); }; });
+  $('s-blocks').innerHTML = b.length ? '<div class="hint">Loading…</div>' : '<div class="hint">You have not blocked anyone.</div>';
+  if (b.length) Promise.all(b.map(forceNickOf)).then(function () {
+    $('s-blocks').innerHTML = b.map(function (u) { var n = dispName(u); return '<div class="mem"><span>' + esc(n) + '</span><button class="btn sm" data-ub="' + esc(u) + '" type="button">Unblock</button></div>'; }).join('');
+    $('s-blocks').querySelectorAll('[data-ub]').forEach(function (x) { x.onclick = function () { doUnblock(x.dataset.ub); $('b-settings').click(); }; });
+  });
   $('s-rr').checked = store.rr !== false; $('s-ty').checked = store.ty !== false; $('s-24').checked = !!store.h24; $('s-snd').checked = store.snd !== false; $('s-dn').checked = !!(store.dn && window.Notification && Notification.permission === 'granted'); $('s-dn').disabled = !window.Notification;
-  pfpPreview(); $('s-pich').className = 'hint'; $('d-set').showModal();
+  pfpPreview(); $('s-pich').className = 'hint'; $('s-newnick').value = ''; $('s-nickh').className = 'hint'; $('s-nickh').textContent = 'Changing your nickname frees your old one for others to take. People can message you by your new nickname right away — messages you already sent keep showing the name you used at the time.'; $('d-set').showModal();
 };
-$('s-rr').onchange = function () { store.rr = this.checked; save(); toast(this.checked ? 'Read receipts are on' : 'Read receipts are off. You will not see others\u2019 either.'); };
+$('s-rr').onchange = function () { store.rr = this.checked; save(); toast(this.checked ? 'Read receipts are on' : 'Read receipts are off. You will not see others’ either.'); };
 $('s-ty').onchange = function () { store.ty = this.checked; save(); };
 $('s-24').onchange = function () { store.h24 = this.checked; save(); if (cur) { shown = {}; pollMsgs(true); } renderConvs(); };
 $('s-snd').onchange = function () { store.snd = this.checked; save(); if (this.checked) beep(1); };
 $('s-dn').onchange = function () { var c = this; if (!c.checked) { store.dn = false; save(); return; } if (!window.Notification) { c.checked = false; return; } Notification.requestPermission().then(function (p) { store.dn = p === 'granted'; c.checked = store.dn; save(); $('s-dnh').textContent = store.dn ? 'Notifications are on. They never include message text.' : 'Your browser blocked notifications. Allow them in the site settings.'; }); };
-function pfpPreview() { avatar($('s-pv'), me); $('s-pic').value = pics[me] || ''; }
+function pfpPreview() { avatar($('s-pv'), auth.uid, me); var p = pics[auth.uid] || ''; $('s-pic').value = p.indexOf('https://') === 0 ? p : ''; }
 $('s-picsave').onclick = function () {
   var u = $('s-pic').value.trim(), h = $('s-pich'); h.className = 'hint';
-  if (!okPic(u)) { h.className = 'hint err'; h.textContent = 'Use a link that starts with https:// and points straight to an image.'; return; }
+  if (!/^https:\/\/[^\s"'<>]{4,290}$/.test(u)) { h.className = 'hint err'; h.textContent = 'Use a link that starts with https:// and points straight to an image.'; return; }
   h.textContent = 'Checking the picture…'; var im = new Image(); im.referrerPolicy = 'no-referrer';
-  im.onload = function () { rt('PUT', 'nicknames/' + me + '/pic', u).then(function () { pics[me] = u; refreshAvatars(); pfpPreview(); h.className = 'hint ok'; h.textContent = 'Saved.'; }).catch(function () { h.className = 'hint err'; h.textContent = 'Could not save it. Try again.'; }); };
+  im.onload = function () { rt('PUT', 'profile/' + auth.uid + '/pic', u).then(function () { pics[auth.uid] = u; refreshAvatars(); pfpPreview(); h.className = 'hint ok'; h.textContent = 'Saved.'; }).catch(function () { h.className = 'hint err'; h.textContent = 'Could not save it. Try again.'; }); };
   im.onerror = function () { h.className = 'hint err'; h.textContent = 'That link did not load as an image.'; };
   im.src = u;
 };
-$('s-picrm').onclick = function () { rt('DELETE', 'nicknames/' + me + '/pic').then(function () { pics[me] = ''; refreshAvatars(); pfpPreview(); $('s-pich').className = 'hint ok'; $('s-pich').textContent = 'Removed.'; }).catch(function () { toast('Could not remove it'); }); };
+$('s-picrm').onclick = function () { rt('DELETE', 'profile/' + auth.uid + '/pic').then(function () { pics[auth.uid] = ''; refreshAvatars(); pfpPreview(); $('s-pich').className = 'hint ok'; $('s-pich').textContent = 'Removed.'; }).catch(function () { toast('Could not remove it'); }); };
+$('s-picup').onclick = function () { $('s-picfile').click(); };
+$('s-picfile').addEventListener('change', function () {
+  var f = this.files && this.files[0]; this.value = ''; if (!f) return;
+  var h = $('s-pich'); h.className = 'hint';
+  if (!/^image\//.test(f.type)) { h.className = 'hint err'; h.textContent = 'Choose an image file.'; return; }
+  if (f.size > 8 * 1024 * 1024) { h.className = 'hint err'; h.textContent = 'That image is too large. Choose one under 8MB.'; return; }
+  h.textContent = 'Processing…';
+  var fr = new FileReader();
+  fr.onload = function () {
+    var im = new Image();
+    im.onload = function () {
+      var S = 160, cv = document.createElement('canvas'); cv.width = S; cv.height = S;
+      var cx = cv.getContext('2d'), side = Math.min(im.width, im.height);
+      cx.drawImage(im, (im.width - side) / 2, (im.height - side) / 2, side, side, 0, 0, S, S);
+      var data = cv.toDataURL('image/jpeg', 0.72);
+      if (data.length > 78000) data = cv.toDataURL('image/jpeg', 0.5);
+      if (data.length > 78000) { h.className = 'hint err'; h.textContent = 'That picture is too complex to shrink enough. Try a simpler image, or paste a link instead.'; return; }
+      rt('PUT', 'profile/' + auth.uid + '/pic', data).then(function () { pics[auth.uid] = data; refreshAvatars(); pfpPreview(); h.className = 'hint ok'; h.textContent = 'Saved.'; }).catch(function () { h.className = 'hint err'; h.textContent = 'Could not save it. Try again.'; });
+    };
+    im.onerror = function () { h.className = 'hint err'; h.textContent = 'Could not read that image.'; };
+    im.src = fr.result;
+  };
+  fr.onerror = function () { h.className = 'hint err'; h.textContent = 'Could not read that file.'; };
+  fr.readAsDataURL(f);
+});
+/* change nickname: claim the new one, repoint users/uid, then release the old one */
+$('s-newnick').addEventListener('input', function () { this.value = this.value.toLowerCase().replace(/[^a-z0-9_]/g, ''); });
+$('s-newnick').addEventListener('keydown', function (e) { if (e.key === 'Enter') $('s-nickgo').click(); });
+$('s-nickgo').onclick = function () {
+  var nn = $('s-newnick').value, h = $('s-nickh'), b = this; h.className = 'hint';
+  if (nn === me) { h.className = 'hint err'; h.textContent = 'That is already your nickname.'; return; }
+  var e1 = validNick(nn); if (e1) { h.className = 'hint err'; h.textContent = e1; return; }
+  var on = me; b.disabled = true; h.textContent = 'Checking…';
+  rt('GET', 'nicknames/' + nn).then(function (v) { if (v) throw { TAKEN: true }; return rt('PUT', 'nicknames/' + nn, { u: auth.uid, t: SV }); })
+    .then(function () { return rt('PUT', 'users/' + auth.uid, nn); })
+    .then(function () {
+      me = nn; store.nick = nn; save(); nickCache[auth.uid] = nn; uidCache[nn] = auth.uid; delete uidCache[on];
+      $('s-nick').textContent = me; $('me-n').textContent = me; $('s-newnick').value = ''; refreshAvatars(); renderConvs();
+      return rt('DELETE', 'nicknames/' + on).catch(function () { h.className = 'hint err'; h.textContent = 'Changed to “' + nn + '”, but releasing your old nickname “' + on + '” did not go through. It may still show as reserved — try Change again to retry releasing it.'; throw { handled: true }; });
+    }).then(function () { h.className = 'hint ok'; h.textContent = 'Your nickname is now “' + me + '”. Your old nickname “' + on + '” is free for others to use.'; })
+    .catch(function (e) { if (e && e.handled) return; h.className = 'hint err'; h.textContent = e && e.TAKEN ? 'That nickname is already taken.' : 'Could not change your nickname. Try again.'; })
+    .then(function () { b.disabled = false; });
+};
 $('s-pw').onclick = function () { ['pw-old', 'pw-new', 'pw-new2'].forEach(function (i) { $(i).value = ''; }); $('pw-err').textContent = ''; $('d-pw').showModal(); $('pw-old').focus(); };
 ['pw-old', 'pw-new', 'pw-new2'].forEach(function (i) { $(i).addEventListener('keydown', function (e) { if (e.key === 'Enter') $('pw-go').click(); }); });
 $('pw-go').onclick = function () {
@@ -1513,11 +1866,12 @@ $('pw-go').onclick = function () {
 };
 $('s-out').onclick = function () { $('d-set').close(); signOut('You signed out.'); };
 $('s-del').onclick = function () {
-  ask({ title: 'Delete your account?', text: 'Your messages, chat list and the nickname \u201C' + me + '\u201D are removed, and anyone can take the name. This cannot be undone.', ok: 'Delete account', danger: true, icon: 'fa-user-xmark' }).then(function (ok) { if (ok) delAccount(); });
+  ask({ title: 'Delete your account?', text: 'Your messages, chat list and the nickname “' + me + '” are removed, and anyone can take the name. This cannot be undone.', ok: 'Delete account', danger: true, icon: 'fa-user-xmark' }).then(function (ok) { if (ok) delAccount(); });
 };
 function delAccount() {
   var n = me, uid = auth.uid;
-  sweepMine().catch(function () {}).then(function () { return rt('DELETE', 'inbox/' + n).catch(function () {}); }).then(function () { return rt('DELETE', 'keys/' + uid).catch(function () {}); })
+  sweepMine().catch(function () {}).then(function () { return rt('DELETE', 'inbox/' + uid).catch(function () {}); }).then(function () { return rt('DELETE', 'keys/' + uid).catch(function () {}); })
+    .then(function () { return rt('DELETE', 'profile/' + uid + '/pic').catch(function () {}); }).then(function () { return rt('DELETE', 'profile/' + uid + '/pk').catch(function () {}); })
     .then(function () { return rt('DELETE', 'users/' + uid).catch(function () {}); }).then(function () { return rt('DELETE', 'nicknames/' + n); })
     .then(function () { return post(IDT + 'delete?key=' + API_KEY, { idToken: auth.token }).catch(function () {}); })
     .then(function () { $('d-set').close(); store.read = {}; store.blocks = {}; store.mute = {}; signOut('Your account was deleted.'); setMode('up'); }).catch(function () { toast('Could not delete it. Try again.'); });
@@ -1534,7 +1888,7 @@ else if (store.nick && store.refresh) {
     return rt('GET', 'users/' + store.uid).then(function (n) { if (n === me) start(); else signOut('Please sign in again.'); });
   }).catch(function (e) { if (e && e.message === 'noauth') { $('nick').value = store.nick || ''; signOut('Please sign in again.'); } else showGate('Could not reach the message service. Check your connection and refresh.', 'in'); });
 } else showGate('', store.nick ? 'in' : 'up');
-window.__msg = { filterText: filterText, validNick: validNick, dmId: dmId };
+window.__msg = { filterText: filterText, validNick: validNick, dmId: dmId, callState: function () { return callX ? { phase: callX.phase, isCaller: callX.isCaller, cid: callX.cid, pcState: callX.pc && callX.pc.connectionState, iceState: callX.pc && callX.pc.iceConnectionState, iceGathering: callX.pc && callX.pc.iceGatheringState } : null; }, pendingRing: function () { return pendingRing; }, pcStats: function () { if (!callX || !callX.pc) return null; return callX.pc.getStats().then(function (stats) { var out = []; stats.forEach(function (r) { out.push(r); }); return out; }); } };
 })();
 </script>
 </body>
