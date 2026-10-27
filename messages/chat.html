@@ -1025,7 +1025,7 @@ function dispName(uid) {
   if (!uid) return '';
   if (nickCache[uid] !== undefined) return nickCache[uid];
   if (!nickWait[uid]) { nickWait[uid] = 1; nickOf(uid).then(function () { delete nickWait[uid]; renderConvs(); if (cur) { refreshAvatars(); $('msgs').querySelectorAll('.rcpt').forEach(function () {}); } }); }
-  return uid.slice(0, 8);
+  return 'user-' + uid.slice(0, 6);
 }
 function dirOf(n) {
   if (uidCache[n]) return Promise.resolve(uidCache[n]);
@@ -1708,10 +1708,11 @@ function openCallStream() {
   }).catch(function () {});
 }
 function closeCallStream() { if (callEs) { callEs.close(); callEs = null; } clearTimeout(callEsT); }
+var ringSeen = {};
 function onRing(sig) {
   if (callX) {
     if (!sig) return;
-    if (sig.cid !== callX.cid) { if (sig.state === 'ringing') rt('PUT', 'calls/' + sig.from, { from: auth.uid, convId: sig.convId, cid: sig.cid, type: sig.type, state: 'busy', ts: SV }).catch(function () {}); return; }
+    if (sig.cid !== callX.cid) { if (sig.state === 'ringing' && !ringSeen[sig.cid]) { ringSeen[sig.cid] = 1; rt('PUT', 'calls/' + sig.from, { from: auth.uid, convId: sig.convId, cid: sig.cid, type: sig.type, state: 'busy', ts: SV }).catch(function () {}); } return; }
     if (sig.state === 'accepted' && callX.isCaller && callX.phase === 'ringing') { callX.phase = 'connecting'; clearTimeout(callX.ringTimeout); clearInterval(callX.ringbackT); setCallStatus('Connecting…'); }
     else if (sig.state === 'declined' && callX.isCaller) { toast(callX.peerName + ' declined the call'); endCallLocal(); }
     else if (sig.state === 'busy' && callX.isCaller) { toast(callX.peerName + ' is already on a call'); endCallLocal(); }
@@ -1721,7 +1722,12 @@ function onRing(sig) {
   if (!sig) { if (pendingRing) { $('d-incall').close(); clearTimeout(ringTimer); clearInterval(ringToneT); pendingRing = null; } return; }
   if (pendingRing && sig.cid === pendingRing.cid && (sig.state === 'ended' || sig.state === 'declined')) { $('d-incall').close(); clearTimeout(ringTimer); clearInterval(ringToneT); pendingRing = null; toast('Missed call'); return; }
   if (sig.state !== 'ringing') return;
-  if (pendingRing) { rt('PUT', 'calls/' + sig.from, { from: auth.uid, convId: sig.convId, cid: sig.cid, type: sig.type, state: 'busy', ts: SV }).catch(function () {}); return; }
+  // The same "ringing" signal is delivered many times (EventSource push + 3.5s poll, and it
+  // stays in our mailbox after we answer). Each cid is only ever handled once, otherwise a
+  // repeat of the SAME call was answered with "busy", which kicked the caller out.
+  if (ringSeen[sig.cid]) return;
+  if (pendingRing) { ringSeen[sig.cid] = 1; rt('PUT', 'calls/' + sig.from, { from: auth.uid, convId: sig.convId, cid: sig.cid, type: sig.type, state: 'busy', ts: SV }).catch(function () {}); return; }
+  ringSeen[sig.cid] = 1;
   if (blocks[sig.from]) { rt('PUT', 'calls/' + sig.from, { from: auth.uid, convId: sig.convId, cid: sig.cid, type: sig.type, state: 'declined', ts: SV }).catch(function () {}); return; }
   // "Only let people I've already messaged call me" (Settings → Privacy): a client-side
   // preference, same tier as the read-receipt/typing toggles — no existing inbox thread
@@ -1732,6 +1738,7 @@ function onRing(sig) {
 }
 function showIncoming(sig) {
   var name = dispName(sig.from);
+  nickOf(sig.from).then(function (n) { if (pendingRing && pendingRing.cid === sig.cid) { $('cl-name').textContent = n; avatar($('cl-av'), sig.from, n); } });
   $('cl-name').textContent = name; avatar($('cl-av'), sig.from, name); $('cl-kind').textContent = sig.type === 'video' ? 'Video call' : 'Voice call';
   $('d-incall').showModal();
   clearInterval(ringToneT); ringtoneTone(); ringToneT = setInterval(ringtoneTone, 2200);
