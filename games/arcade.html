@@ -591,6 +591,7 @@ var GAMES = [
   { id: 'fnaf-ucn',    name: 'Ultimate Custom Night',             repo: 'irv77/hd_fnaf',                 ref: 'main',     dir: 'ucn',   entry: 'index.html', tag: 'Survival', license: 'Proprietary', desc: 'Customize and face off against up to 50 selectable animatronic characters.' },
   { id: 'fnaf-world',  name: 'FNAF World',                        repo: 'irv77/hd_fnaf',                 ref: 'main',     dir: 'w',     entry: 'index.html', tag: 'RPG',      license: 'Proprietary', desc: 'Lead an animatronic party on an animated turn-based RPG adventure through Village and beyond.' }
 ];
+  
 var CDN = 'https://cdn.jsdelivr.net/gh/';
 
 var $ = function (id) { return document.getElementById(id); };
@@ -644,16 +645,19 @@ function play(g) {
   store.recent = [g.id].concat(store.recent.filter(function (x) { return x !== g.id; })).slice(0, 6); save();
   try { history.replaceState(null, '', '#' + g.id); } catch (e) {}
   render();
-  var b = base(g), url = b + g.entry;
-  fetch(url, { method: 'HEAD', cache: 'force-cache' }).then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); }).then(function () {
+  var url = base(g) + g.entry, slow;
+  if (navigator.onLine === false) { overlay('<div class="big" style="background:rgba(224,112,122,.14);color:var(--rose)"><i class="fa-solid fa-triangle-exclamation"></i></div><h2>You are offline</h2><p>Connect to the internet and try again.</p><button class="btn pri" id="retry" type="button"><i class="fa-solid fa-rotate-right"></i> Try again</button>'); var rb0 = $('retry'); if (rb0) rb0.onclick = function () { play(g); }; return; }
+  $('frame').onload = function () {
     if (my !== token) return;
-    $('frame').src = url; $('frame').hidden = false; overlay(''); $('b-reload').disabled = false; $('b-full').disabled = false;
-    $('frame').onload = function () { try { $('frame').focus(); } catch (e) {} };
-  }).catch(function (e) {
-    if (my !== token) return;
-    overlay('<div class="big" style="background:rgba(224,112,122,.14);color:var(--rose)"><i class="fa-solid fa-triangle-exclamation"></i></div><h2>Could not load ' + esc(g.name) + '</h2><p>' + (navigator.onLine === false ? 'You appear to be offline.' : 'GitHub or the CDN did not respond, or this network blocks it.') + '</p><button class="btn pri" id="retry" type="button"><i class="fa-solid fa-rotate-right"></i> Try again</button>');
+    clearTimeout(slow); overlay(''); $('frame').hidden = false; $('b-reload').disabled = false; $('b-full').disabled = false;
+    try { $('frame').focus(); } catch (e) {}
+  };
+  $('frame').src = url;
+  slow = setTimeout(function () {
+    if (my !== token || !$('frame').hidden) return;
+    overlay('<div class="spin"></div><h2>Still loading ' + esc(g.name) + '</h2><p>This is taking longer than usual. GitHub or the CDN may be slow, or this network may block it.</p><button class="btn pri" id="retry" type="button"><i class="fa-solid fa-rotate-right"></i> Try again</button>');
     var rb = $('retry'); if (rb) rb.onclick = function () { play(g); };
-  });
+  }, 12000);
 }
 $('b-reload').onclick = function () { if (cur) play(cur); };
 $('b-full').onclick = function () { var w = $('frame-wrap'); if (document.fullscreenElement) document.exitFullscreen(); else if (w.requestFullscreen) w.requestFullscreen().catch(function () {}); };
