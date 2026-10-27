@@ -83,7 +83,7 @@ footer{padding:14px 12px 22px;text-align:center;color:var(--t3);font-size:12px}f
       <button class="ibtn" id="b-full" type="button" title="Fullscreen" aria-label="Fullscreen" disabled><i class="fa-solid fa-expand"></i></button>
     </div>
     <div id="frame-wrap">
-      <iframe id="frame" title="Game" hidden sandbox="allow-scripts allow-same-origin allow-pointer-lock allow-forms allow-popups" allow="fullscreen; gamepad; autoplay" referrerpolicy="no-referrer"></iframe>
+      <iframe id="frame" title="Game" hidden sandbox="allow-scripts allow-same-origin allow-pointer-lock allow-forms allow-popups allow-downloads allow-modals" allow="fullscreen; gamepad; autoplay" referrerpolicy="no-referrer"></iframe>
       <div class="ov" id="ov"><div><div class="big"><i class="fa-solid fa-gamepad"></i></div><h2>Choose a game</h2><p>Pick one from the list. Games load straight from their GitHub projects when you open them.</p></div></div>
     </div>
   </section>
@@ -575,23 +575,14 @@ window.APERTURE = {
      entry = the page to open (usually index.html)
    Only add games you have the right to use. */
 var GAMES = [
-  { id: '2048',        name: '2048',                              repo: 'gabrielecirulli/2048',          ref: 'master',   dir: '',      entry: 'index.html', tag: 'Puzzle',   license: 'MIT',        desc: 'Slide tiles and combine them to reach 2048.' },
-  { id: 'hextris',     name: 'Hextris',                           repo: 'Hextris/hextris',               ref: 'gh-pages', dir: '',      entry: 'index.html', tag: 'Arcade',   license: 'GPL-3.0',    desc: 'Fast-paced puzzle with a spinning hexagon.' },
-  { id: 'clumsy-bird', name: 'Clumsy Bird',                       repo: 'ellisonleao/clumsy-bird',       ref: 'master',   dir: '',      entry: 'index.html', tag: 'Arcade',   license: 'GPL-3.0',    desc: 'A flappy-style bird game built with melonJS.' },
-  { id: 'adarkroom',   name: 'A Dark Room',                       repo: 'doublespeakgames/adarkroom',    ref: 'main',     dir: '',      entry: 'index.html', tag: 'Strategy', license: 'MPL-2.0',    desc: 'A minimalist text adventure that grows as you play.' },
-  { id: 'tetris',      name: 'Tetris',                            repo: 'jakesgordon/javascript-tetris', ref: 'master',   dir: '',      entry: 'index.html', tag: 'Puzzle',   license: 'MIT',        desc: 'A classic falling-block puzzle game.' },
-  { id: 'pacman',      name: 'Pac-Man',                           repo: 'daleharvey/pacman',             ref: 'master',   dir: '',      entry: 'index.html', tag: 'Arcade',   license: 'WTFPL',      desc: 'A JavaScript remake of the arcade classic.' },
-  { id: 'racer',       name: 'Racer',                             repo: 'jakesgordon/javascript-racer',  ref: 'master',   dir: '',      entry: 'index.html', tag: 'Arcade',   license: 'MIT',        desc: 'A pseudo-3D racing game built with canvas.' },
-  { id: 'fnaf1',       name: "Five Nights at Freddy's",           repo: 'irv77/hd_fnaf',                 ref: 'main',     dir: '1',     entry: 'index.html', tag: 'Horror',   license: 'Proprietary', desc: 'Survive five night shifts monitoring security cameras at Freddy Fazbear\'s Pizza.' },
-  { id: 'fnaf2',       name: "Five Nights at Freddy's 2",         repo: 'irv77/hd_fnaf',                 ref: 'main',     dir: '2',     entry: 'index.html', tag: 'Horror',   license: 'Proprietary', desc: 'Defend against new and retro animatronics with a Freddy mask and flashlight.' },
-  { id: 'fnaf3',       name: "Five Nights at Freddy's 3",         repo: 'irv77/hd_fnaf',                 ref: 'main',     dir: '3',     entry: 'index.html', tag: 'Horror',   license: 'Proprietary', desc: 'Manage ventilation, audio, and camera systems to survive Springtrap at Fazbear\'s Fright.' },
-  { id: 'fnaf4',       name: "Five Nights at Freddy's 4",         repo: 'irv77/hd_fnaf',                 ref: 'main',     dir: '4',     entry: 'index.html', tag: 'Horror',   license: 'Proprietary', desc: 'Listen for breathing and defend your bedroom doors and closet against nightmare animatronics.' },
-  { id: 'fnaf-sl',     name: "Five Nights at Freddy's: Sister Location", repo: 'irv77/hd_fnaf',           ref: 'main',     dir: 'sl',    entry: 'index.html', tag: 'Horror',   license: 'Proprietary', desc: 'Navigate maintenance rooms and perform nightly tasks across Circus Baby\'s Entertainment and Rental.' },
-  { id: 'fnaf-ps',     name: "Freddy Fazbear's Pizzeria Simulator", repo: 'irv77/hd_fnaf',               ref: 'main',     dir: 'ps',    entry: 'index.html', tag: 'Simulation', license: 'Proprietary', desc: 'Design your own restaurant by day and salvage rogue animatronics by night.' },
-  { id: 'fnaf-ucn',    name: 'Ultimate Custom Night',             repo: 'irv77/hd_fnaf',                 ref: 'main',     dir: 'ucn',   entry: 'index.html', tag: 'Survival', license: 'Proprietary', desc: 'Customize and face off against up to 50 selectable animatronic characters.' },
-  { id: 'fnaf-world',  name: 'FNAF World',                        repo: 'irv77/hd_fnaf',                 ref: 'main',     dir: 'w',     entry: 'index.html', tag: 'RPG',      license: 'Proprietary', desc: 'Lead an animatronic party on an animated turn-based RPG adventure through Village and beyond.' }
+  { id: '2048',        name: '2048',         repo: 'gabrielecirulli/2048',  ref: 'master',   dir: '', entry: 'index.html', tag: 'Puzzle',  license: 'MIT',     desc: 'Slide tiles and combine them to reach 2048.' },
+  { id: 'hextris',     name: 'Hextris',      repo: 'Hextris/hextris',       ref: 'gh-pages', dir: '', entry: 'index.html', tag: 'Arcade',  license: 'GPL-3.0', desc: 'Fast-paced puzzle with a spinning hexagon.' },
+  { id: 'clumsy-bird', name: 'Clumsy Bird',  repo: 'ellisonleao/clumsy-bird', ref: 'master', dir: '', entry: 'index.html', tag: 'Arcade',  license: 'GPL-3.0', desc: 'A flappy-style bird game built with melonJS.' },
+  { id: 'adarkroom',   name: 'A Dark Room',  repo: 'doublespeakgames/adarkroom', ref: 'main', dir: '', entry: 'index.html', tag: 'Strategy', license: 'MPL-2.0', desc: 'A minimalist text adventure that grows as you play.' },
+  { id: 'tetris',      name: 'Tetris',       repo: 'jakesgordon/javascript-tetris', ref: 'master', dir: '', entry: 'index.html', tag: 'Puzzle', license: 'MIT', desc: 'A classic falling-block puzzle game.' },
+  { id: 'pacman',      name: 'Pac-Man',      repo: 'daleharvey/pacman', ref: 'master', dir: '', entry: 'index.html', tag: 'Arcade', license: 'WTFPL', desc: 'A JavaScript remake of the arcade classic.' },
+  { id: 'racer',       name: 'Racer',        repo: 'jakesgordon/javascript-racer', ref: 'master', dir: '', entry: 'index.html', tag: 'Arcade', license: 'MIT', desc: 'A pseudo-3D racing game built with canvas.' }
 ];
-  
 var CDN = 'https://cdn.jsdelivr.net/gh/';
 
 var $ = function (id) { return document.getElementById(id); };
@@ -657,7 +648,7 @@ function play(g) {
     if (my !== token || !$('frame').hidden) return;
     overlay('<div class="spin"></div><h2>Still loading ' + esc(g.name) + '</h2><p>This is taking longer than usual. GitHub or the CDN may be slow, or this network may block it.</p><button class="btn pri" id="retry" type="button"><i class="fa-solid fa-rotate-right"></i> Try again</button>');
     var rb = $('retry'); if (rb) rb.onclick = function () { play(g); };
-  }, 12000);
+  }, 20000);
 }
 $('b-reload').onclick = function () { if (cur) play(cur); };
 $('b-full').onclick = function () { var w = $('frame-wrap'); if (document.fullscreenElement) document.exitFullscreen(); else if (w.requestFullscreen) w.requestFullscreen().catch(function () {}); };
