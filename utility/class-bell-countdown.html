@@ -1974,114 +1974,105 @@ kbd { font: 600 10px var(--font-sans); padding: 2px 6px; border-radius: 5px; bac
         });
 
         /* ══════════════════════════════════════════════════════════════════
-           LUNCH MENUS — OCTOBER 2026 through Dec 4, 2026
-           From the official CHS & Freshman Center October and November PDFs.
-           Older (August/September) menus have been removed.
+           LUNCH MENUS — AUGUST 2026 + SEPTEMBER 2026 (through Oct 2)
+           September entries re-parsed from the official CHS & Freshman PDFs.
            ══════════════════════════════════════════════════════════════════ */
         var MENU_CHS = {
-            // ── October ──
-            '2026-10-01': { entrees: ['Chicken Nuggets', 'Bosco Stick', 'Roasted Chicken Hot Wings', 'Soup & Salad Bar'], sides: ['Baked Potato W/ Toppings', 'Broccoli W/ Cheese Sauce', 'Rosy Applesauce', 'Homemade Yeast Roll W/ Margarine & Jelly', 'Milk'] },
-            '2026-10-02': { entrees: ['Tangerine Chicken', 'Corn Dog', 'Teriyaki Dumplings', 'Soup & Salad Bar'], sides: ['Brown Rice', 'Oriental Salad', 'Kyoto Vegetable Blend', 'Sweetened Strawberries', 'Fortune Cookie', 'Milk'] },
-            '2026-10-05': { entrees: ['Breaded Pork Sandwich', 'Chick Filay Sandwich W/ Chick Filay Sauce', 'Bosco Sticks W/ Pizza Sauce', 'Soup & Salad Bar'], sides: ['Seasoned Criss-Cut Fries', 'Romaine Salad W/ Dressing', 'Fresh Grape Tomatoes', 'Chilled Peaches', 'Milk'] },
-            '2026-10-06': { entrees: ['Sausage Links W/ Pancakes', 'Pizza Crunchers', 'Tater Tot Bowl', 'Soup & Salad Bar'], sides: ['Tater Tots', 'Seasoned Corn', 'Fresh Banana', '100% Fruit Juice', 'Milk'] },
-            '2026-10-07': { entrees: ['Chicken Smackers'], sides: ['Garlic Texas Toast', 'Romaine Salad W/ Assorted Dressings', 'California Blend Vegetables', 'Chilled Fruit', 'Milk'], note: 'PSAT Testing Day — 10th & 11th grades only.' },
-            '2026-10-08': { entrees: ['Grilled Hamburger', 'Sriracha Chicken', 'Chicken Corn Dog', 'Soup & Salad Bar'], sides: ['Onion Rings', 'Baked Beans', 'Mixed Berries', 'Milk'] },
-            '2026-10-09': { entrees: ['Homemade Mac & Cheese', 'Popcorn Chicken', 'Roasted Chicken Hot Wings', 'Soup & Salad Bar'], sides: ['Homemade Yeast Roll W/ Margarine & Jelly', 'Honey Ginger Carrots', 'Paco Blend', 'Chilled Applesauce', 'Milk'] },
-            '2026-10-12': { noSchool: 'Fall Break' },
-            '2026-10-13': { noSchool: 'Fall Break' },
-            '2026-10-14': { noSchool: 'Fall Break' },
-            '2026-10-15': { noSchool: 'Fall Break' },
-            '2026-10-16': { noSchool: 'Fall Break' },
-            '2026-10-19': { entrees: ['Asian Noodle Bowl', 'Penne Pasta W/ Queso Sauce', 'Teriyaki Chicken W/ Rice', 'Cheesy Garlic French Bread', 'Soup & Salad Bar'], sides: ['Steamed Fresh Broccoli', 'Petite Carrots W/ Dip', 'Chilled Pineapple', 'Chilled Mandarin Oranges', 'Milk'] },
-            '2026-10-20': { entrees: ['Sausage Egg & Cheese Muffin', 'Chicken Tenders', 'Mini Corn Dogs', 'Soup & Salad Bar'], sides: ['Crispy Cube Potatoes', 'Mixed Vegetables', 'Fresh Apple Slices', '100% Fruit Juice', 'Churro Bites', 'Milk'], note: 'Great Apple Crunch Day!' },
-            '2026-10-21': { entrees: ['Pulled Pork Sandwich', 'Roasted Chicken Hot Wings', 'Detroit Style Cheese Pizza', 'Walking Taco', 'Soup & Salad Bar'], sides: ['Refried Beans', 'Romaine & Grape Tomato Salad W/ Dressing', 'Fresh Red Grapes & Strawberries', 'Garlic Breadstick', 'Milk'] },
-            '2026-10-22': { entrees: ['Hot & Spicy Chicken Sandwich', 'Chicken & Noodles', 'Charger Fried Chicken', 'Garlic Breadstick', 'Stuffed Crust Sausage Pizza', 'Soup & Salad Bar'], sides: ['Mashed Potatoes W/ Gravy', 'Homemade Broccoli Salad', 'Chilled Fruit Cocktail W/ Cherries or Grapes', 'Milk'] },
-            '2026-10-23': { entrees: ['Pepperoni French Bread', 'Taco Max Snacks', 'Italian Grilled Cheese W/ Pizza Sauce', 'Shrimp Poppers', 'Soup & Salad Bar'], sides: ['Buffalo Cauliflower Bites', 'Grape Tomatoes W/ Dip', 'Chilled Pears', 'Banana Bread', 'Milk'] },
-            '2026-10-26': { entrees: ['Dill Nuggets', 'Italian Spaghetti', 'Cheesy Breadstick', 'Soup & Salad Bar'], sides: ['Garlic Breadstick', 'Seasoned Green Beans', 'Cucumber & Grape Tomatoes W/ Veggie Dip', 'Warm Cinnamon Apples', 'Milk'] },
-            '2026-10-27': { entrees: ['Soft Taco', 'Fiestada Pizza', 'Beefy Cheesy Nachos', 'Soup & Salad Bar'], sides: ['Mexican Street Corn', 'Vegetarian Salsa Salad', 'Baked Tostito Scoops', 'Fresh Watermelon', 'Milk'] },
-            '2026-10-28': { entrees: ['Mozzarella Breadstick W/ Pizza Sauce', 'Hot Dog', 'Ham & Cheese Pocket', 'Chicken Quesadilla', 'Soup & Salad Bar'], sides: ['Roasted Brussel Sprouts W/ Bacon', 'Baby Carrots W/ Dip', 'Chilled Peaches', 'Wacky Cake', 'Milk'] },
-            '2026-10-29': { entrees: ['Chicken Nuggets', 'Bosco Stick', 'Roasted Chicken Hot Wings', 'Soup & Salad Bar'], sides: ['Baked Potato W/ Toppings', 'Broccoli W/ Cheese Sauce', 'Rosy Applesauce', 'Homemade Yeast Roll W/ Margarine & Jelly', 'Milk'] },
-            '2026-10-30': { entrees: ['Tangerine Chicken', 'Corn Dog', 'Teriyaki Dumplings', 'Soup & Salad Bar'], sides: ['Brown Rice', 'Oriental Salad', 'Kyoto Vegetable Blend', 'BOO-Berry Fruit', 'Fortune Cookie', 'Milk'] },
-            // ── November ──
-            '2026-11-02': { entrees: ['Breaded Pork Sandwich', 'Chick Filay Sandwich W/ Chick Filay Sauce', 'Bosco Sticks W/ Pizza Sauce', 'Salad Bar'], sides: ['Seasoned Criss-Cut Fries', 'Romaine Salad W/ Dressing', 'Fresh Grape Tomatoes', 'Chilled Peaches', 'Milk'] },
-            '2026-11-03': { entrees: ['Sausage Links W/ Pancakes', 'Pizza Crunchers', 'Tater Tot Bowl', 'Salad Bar'], sides: ['Tater Tots', 'Seasoned Corn', 'Fresh Banana', '100% Fruit Juice', 'Milk'] },
-            '2026-11-04': { noSchool: 'Parent/Teacher Conference' },
-            '2026-11-05': { entrees: ['Grilled Hamburger', 'Sriracha Chicken', 'Chicken Corn Dog', 'Salad Bar'], sides: ['Onion Rings', 'Baked Beans', 'Mixed Berries', 'Milk'] },
-            '2026-11-06': { entrees: ['Homemade Macaroni & Cheese', 'Popcorn Chicken', 'Roasted Chicken Hot Wings', 'Salad Bar'], sides: ['Homemade Yeast Roll W/ Margarine & Jelly', 'Baby Carrots & Grape Tomatoes W/ Dip', 'Paco Blend', 'Chilled Applesauce', 'Milk'] },
-            '2026-11-09': { entrees: ['Asian Noodle Bowl', 'Rotini Pasta W/ Queso Sauce', 'Teriyaki Chicken W/ Rice', 'Cheesy Garlic French Bread', 'Salad Bar'], sides: ['Steamed Fresh Broccoli', 'Petite Carrots W/ Dip', 'Chilled Pineapple', 'Chilled Mandarin Oranges', 'Milk'] },
-            '2026-11-10': { entrees: ['Sausage Egg & Cheese Muffin', 'Chicken Tenders', 'Mini Corn Dogs', 'Salad Bar'], sides: ['Crispy Cube Potatoes', 'Mixed Vegetables', 'Apple Slices', '100% Fruit Juice', 'Churro Bites', 'Milk'] },
-            '2026-11-11': { entrees: ['Pulled Pork Sandwich', 'Roasted Chicken Hot Wings', 'Detroit Style Cheese Pizza', 'Walking Taco', 'Salad Bar'], sides: ['Refried Beans', 'Romaine & Grape Tomato Salad W/ Dressing', 'Fresh Red Grapes & Strawberries', 'Garlic Breadstick', 'Milk'] },
-            '2026-11-12': { entrees: ['Hot & Spicy Chicken Sandwich', 'Chicken & Noodles', 'Garlic Breadstick', 'Charger Fried Chicken', 'Stuffed Crust Sausage Pizza', 'Salad Bar'], sides: ['Mashed Potatoes W/ Gravy', 'Homemade Broccoli Salad', 'Chilled Fruit Cocktail W/ Cherries or Grapes', 'Milk'] },
-            '2026-11-13': { entrees: ['Pepperoni French Bread', 'Taco Max Snacks', 'Italian Grilled Cheese W/ Pizza Sauce', 'Shrimp Poppers', 'Salad Bar'], sides: ['Buffalo Cauliflower Bites', 'Grape Tomatoes W/ Dip', 'Chilled Pears', 'Raisin Batter Bread', 'Milk'] },
-            '2026-11-16': { entrees: ['Dill Nuggets', 'Italian Spaghetti', 'Cheesy Breadstick', 'Salad Bar'], sides: ['Garlic Breadstick', 'Seasoned Green Beans', 'Cucumber & Grape Tomatoes W/ Veggie Dip', 'Warm Cinnamon Apples', 'Milk'] },
-            '2026-11-17': { entrees: ['Soft Taco', 'Fiestada Pizza', 'Beefy Cheesy Nachos', 'Salad Bar'], sides: ['Mexican Street Corn', 'Cowboy Beans', 'Baked Tostito Scoops', 'Fresh Watermelon', 'Milk'] },
-            '2026-11-18': { entrees: ['Mozzarella Breadstick W/ Pizza Sauce', 'Hot Dog', 'Ham & Cheese Pocket', 'Chicken Quesadilla', 'Salad Bar'], sides: ['Roasted Brussel Sprouts W/ Bacon', 'Baby Carrots W/ Dip', 'Chilled Peaches', 'Milk'] },
-            '2026-11-19': { entrees: ['Chicken Nuggets W/ Fresh Baked Yeast Roll', 'Bosco Sticks', 'Chicken Drummie W/ Fresh Baked Yeast Roll', 'Salad Bar'], sides: ['Mashed Potatoes W/ Chicken Gravy', 'Baby Carrots & Cucumber Coins W/ Dip', 'Sweetened Strawberries', 'Pumpkin Cake Roll', 'Milk'], note: 'Thanksgiving Feast' },
-            '2026-11-20': { entrees: ['Tangerine Chicken', 'Corn Dog', 'Teriyaki Dumplings', 'Salad Bar'], sides: ['Brown Rice', 'Oriental Salad', 'Kyoto Vegetable Blend', 'Rosy Applesauce', 'Fortune Cookie', 'Milk'] },
-            '2026-11-23': { entrees: ['Breaded Pork Sandwich', 'Chick Filay Sandwich W/ Chick Filay Sauce', 'Bosco Sticks W/ Pizza Sauce', 'Salad Bar'], sides: ['Seasoned Criss-Cut Fries', 'Romaine Salad W/ Dressing', 'Fresh Grape Tomatoes', 'Chilled Peaches', 'Milk'] },
-            '2026-11-24': { entrees: ['Sausage Links W/ Pancakes', 'Pizza Crunchers', 'Tater Tot Bowl', 'Salad Bar'], sides: ['Choice of Vegetable', 'Choice of Fruit', '100% Fruit Juice', 'Milk'] },
-            '2026-11-25': { noSchool: 'Thanksgiving Break' },
-            '2026-11-26': { noSchool: 'Thanksgiving Break' },
-            '2026-11-27': { noSchool: 'Thanksgiving Break' },
-            '2026-11-30': { entrees: ['Asian Noodle Bowl', 'Rotini Pasta W/ Queso Sauce', 'Teriyaki Chicken W/ Rice', 'Cheesy Garlic French Bread', 'Salad Bar'], sides: ['Steamed Broccoli', 'Petite Carrots W/ Dip', 'Chilled Pineapple', 'Chilled Mandarin Oranges', 'Milk'] },
-            // ── December ──
-            '2026-12-01': { entrees: ['Sausage Egg & Cheese Muffin', 'Chicken Tenders', 'Mini Corn Dogs', 'Salad Bar'], sides: ['Crispy Cube Potatoes', 'Mixed Vegetables', 'Apple Slices', '100% Fruit Juice', 'Churro Bites', 'Milk'] },
-            '2026-12-02': { entrees: ['Pulled Pork Sandwich', 'Roasted Chicken Hot Wings', 'Detroit Style Cheese Pizza', 'Walking Taco', 'Salad Bar'], sides: ['Refried Beans', 'Romaine & Grape Tomato Salad W/ Dressing', 'Fresh Red Grapes & Strawberries', 'Garlic Breadstick', 'Milk'] },
-            '2026-12-03': { entrees: ['Hot & Spicy Chicken Sandwich', 'Chicken & Noodles', 'Garlic Breadstick', 'Charger Fried Chicken', 'Stuffed Crust Sausage Pizza', 'Salad Bar'], sides: ['Mashed Potatoes W/ Gravy', 'Homemade Broccoli Salad', 'Chilled Fruit Cocktail W/ Cherries or Grapes', 'Milk'] },
-            '2026-12-04': { entrees: ['Pepperoni French Bread', 'Taco Max Snacks', 'Italian Grilled Cheese W/ Pizza Sauce', 'Shrimp Poppers', 'Salad Bar'], sides: ['Buffalo Cauliflower Bites', 'Grape Tomatoes W/ Dip', 'Chilled Pears', 'Banana Bread', 'Milk'] }
+            // ── August ──
+            '2026-08-05': { entrees: ['Buffalo Chicken Melt', 'Chicken Smackers', 'Beefy Cheesy Ravioli', 'Soup & Salad Bar'], sides: ['Garlic Texas Toast', 'Seasoned Green Beans', 'California Blend Vegetables', 'Chilled Fruit', 'Sunshine Bar', 'Milk'] },
+            '2026-08-06': { entrees: ['Grilled Hamburger', 'Sriracha Chicken', 'Chicken Corn Dog', 'Soup & Salad Bar'], sides: ['Onion Rings', 'Baked Beans', 'Mixed Berries', 'Milk'] },
+            '2026-08-07': { entrees: ['Homemade Mac & Cheese', 'Popcorn Chicken', 'Roasted Chicken Hot Wings', 'Soup & Salad Bar'], sides: ['Homemade Yeast Roll W/ Margarine & Jelly', 'Baby Carrots & Grape Tomatoes w/ Dip', 'Paco Blend', 'Chilled Applesauce', 'Milk'] },
+            '2026-08-10': { entrees: ['Asian Noodle Bowl', 'Penne Pasta W/ Queso Sauce', 'Teriyaki Chicken with Rice', 'Cheesy Garlic French Bread', 'Soup & Salad Bar'], sides: ['Steamed Fresh Broccoli', 'Petite Carrots with Dip', 'Chilled Pineapple', 'Chilled Mandarin Oranges', 'Milk'] },
+            '2026-08-11': { entrees: ['Sausage Egg & Cheese Muffin', 'Chicken Tenders', 'Mini Corn Dogs', 'Soup & Salad Bar'], sides: ['Crispy Cube Potatoes', 'Mixed Vegetables', 'Apple Slices', '100% Fruit Juice', 'Churro Bites', 'Milk'] },
+            '2026-08-12': { entrees: ['Pulled Pork Sandwich', 'Roasted Chicken Hot Wings', 'Detroit Style Cheese Pizza', 'Walking Taco', 'Soup & Salad Bar'], sides: ['Refried Beans', 'Romaine & Grape Tomato Salad w/ Dressing', 'Fresh Red Grapes & Strawberries', 'Garlic Breadstick', 'Milk'] },
+            '2026-08-13': { entrees: ['Hot & Spicy Chicken Sandwich', 'Chicken & Noodles', 'Charger Fried Chicken', 'Stuffed Crust Sausage Pizza', 'Soup & Salad Bar'], sides: ['Mashed Potatoes W/ Gravy', 'Homemade Broccoli Salad', 'Chilled Fruit Cocktail w/ Cherries/Grapes', 'Poppyseed Bread', 'Milk'] },
+            '2026-08-14': { entrees: ['Pepperoni French Bread', 'Taco Max Snacks', 'Italian Grilled Cheese W/ Pizza Sauce', 'Shrimp Poppers', 'Soup & Salad Bar'], sides: ['Buffalo Cauliflower Bites', 'Grape Tomatoes with Dip', 'Chilled Pears', 'Milk'] },
+            '2026-08-17': { entrees: ['Dill Nuggets', 'Italian Spaghetti', 'Cheesy Breadstick', 'Soup & Salad Bar'], sides: ['Garlic Breadstick', 'Seasoned Green Beans', 'Cucumber & Grape Tomatoes w/ Veggie Dip', 'Warm Cinnamon Apples', 'Milk'] },
+            '2026-08-18': { entrees: ['Soft Taco', 'Fiestada Pizza', 'Beefy Cheesy Nachos', 'Soup & Salad Bar'], sides: ['Mexicali Corn', 'Cowboy Beans', 'Baked Tostito Scoops', 'Fresh Watermelon', 'Milk'] },
+            '2026-08-19': { entrees: ['Mozzarella Breadstick W/ Pizza Sauce', 'Hot Dog', 'Ham & Cheese Pocket', 'Chicken Quesadilla', 'Soup & Salad Bar'], sides: ['Roasted Brussel Sprouts W/ Bacon', 'Baby Carrots with Dip', 'Chilled Peaches', 'Wacky Cake', 'Milk'] },
+            '2026-08-20': { entrees: ['Chicken Nuggets', 'Bosco Stick', 'Roasted Chicken Hot Wings', 'Soup & Salad Bar'], sides: ['Baked Potato W/ Toppings', 'Broccoli with Cheese Sauce', 'Rosy Applesauce', 'Milk'] },
+            '2026-08-21': { entrees: ['Tangerine Chicken', 'Corn Dog', 'Teriyaki Dumplings', 'Soup & Salad Bar'], sides: ['Brown Rice', 'Oriental Salad', 'Kyoto Vegetable Blend', 'Sweetened Strawberries', 'Fortune Cookie', 'Milk'] },
+            '2026-08-24': { entrees: ['Breaded Pork Sandwich', 'Chick Filay Sandwich W/ Chick Filay Sauce', 'Bosco Sticks W/ Pizza Sauce', 'Soup & Salad Bar'], sides: ['Seasoned Criss-Cut Fries', 'Romaine Salad W/ Dressing', 'Fresh Grape Tomatoes', 'Chilled Peaches', 'Milk'] },
+            '2026-08-25': { entrees: ['Sausage Links W/ Pancakes', 'Pizza Crunchers', 'Tater Tot Bowl', 'Soup & Salad Bar'], sides: ['Tater Tots', 'Seasoned Corn', 'Fresh Banana', '100% Fruit Juice', 'Milk'] },
+            '2026-08-26': { entrees: ['Buffalo Chicken Melt', 'Chicken Smackers', 'Beefy Cheesy Ravioli', 'Soup & Salad Bar'], sides: ['Garlic Texas Toast', 'Romaine Salad W/ Assorted Dressings', 'California Blend Vegetables', 'Chilled Fruit', 'Sunshine Bar', 'Milk'] },
+            '2026-08-27': { entrees: ['Grilled Hamburger', 'Sriracha Chicken', 'Chicken Corn Dog', 'Soup & Salad Bar'], sides: ['Onion Rings', 'Baked Beans', 'Mixed Berries', 'Milk'] },
+            '2026-08-28': { entrees: ['Homemade Mac & Cheese', 'Popcorn Chicken', 'Roasted Chicken Hot Wings', 'Soup & Salad Bar'], sides: ['Homemade Yeast Roll W/ Margarine & Jelly', 'Honey Ginger Carrots', 'Paco Blend', 'Chilled Applesauce', 'Milk'] },
+            '2026-08-31': { entrees: ['Asian Noodle Bowl', 'Penne Pasta W/ Queso Sauce', 'Teriyaki Chicken with Rice', 'Cheesy Garlic French Bread', 'Soup & Salad Bar'], sides: ['Steamed Fresh Broccoli', 'Petite Carrots with Dip', 'Chilled Pineapple', 'Chilled Mandarin Oranges', 'Milk'] },
+
+            // ── September (from CHS September 2026 PDF) ──
+            '2026-09-01': { entrees: ['Sausage Egg & Cheese Muffin', 'Chicken Tenders', 'Mini Corn Dogs', 'Soup & Salad Bar'], sides: ['Crispy Cube Potatoes', 'Mixed Vegetables', 'Apple Slices', '100% Fruit Juice', 'Churro Bites', 'Milk'] },
+            '2026-09-02': { entrees: ['Pulled Pork Sandwich', 'Roasted Chicken Hot Wings', 'Detroit Style Cheese Pizza', 'Walking Taco', 'Soup & Salad Bar'], sides: ['Refried Beans', 'Romaine & Grape Tomato Salad w/ Dressing', 'Fresh Red Grapes & Strawberries', 'Garlic Breadstick', 'Milk'] },
+            '2026-09-03': { entrees: ['Hot & Spicy Chicken Sandwich', 'Chicken & Noodles', 'Charger Fried Chicken', 'Stuffed Crust Sausage Pizza', 'Soup & Salad Bar'], sides: ['Mashed Potatoes W/ Gravy', 'Homemade Broccoli Salad', 'Chilled Fruit Cocktail w/ Cherries or Grapes', 'Raisin Batter Bread', 'Milk'] },
+            '2026-09-04': { entrees: ['Pepperoni French Bread', 'Taco Max Snacks', 'Italian Grilled Cheese W/ Pizza Sauce', 'Shrimp Poppers', 'Soup & Salad Bar'], sides: ['Buffalo Cauliflower Bites', 'Grape Tomatoes with Dip', 'Chilled Pears', 'Milk'] },
+            '2026-09-07': { noSchool: 'Labor Day' },
+            '2026-09-08': { entrees: ['Soft Taco', 'Fiestada Pizza', 'Beefy Cheesy Nachos', 'Soup & Salad Bar'], sides: ['Mexicali Corn', 'Vegetarian Salsa Salad', 'Baked Tostito Scoops', 'Fresh Watermelon', 'Milk'] },
+            '2026-09-09': { entrees: ['Mozzarella Breadstick W/ Pizza Sauce', 'Hot Dog', 'Ham & Cheese Pocket', 'Chicken Quesadilla', 'Soup & Salad Bar'], sides: ['Roasted Brussel Sprouts W/ Bacon', 'Baby Carrots with Dip', 'Chilled Peaches', 'Wacky Cake', 'Milk'] },
+            '2026-09-10': { entrees: ['Chicken Nuggets', 'Bosco Stick', 'Roasted Chicken Hot Wings', 'Soup & Salad Bar'], sides: ['Baked Potato W/ Toppings', 'Broccoli with Cheese Sauce', 'Rosy Applesauce', 'Milk'] },
+            '2026-09-11': { entrees: ['Tangerine Chicken', 'Corn Dog', 'Teriyaki Dumplings', 'Soup & Salad Bar'], sides: ['Brown Rice', 'Oriental Salad', 'Kyoto Vegetable Blend', 'Sweetened Strawberries', 'Fortune Cookie', 'Milk'] },
+            '2026-09-14': { entrees: ['Breaded Pork Sandwich', 'Chick Filay Sandwich W/ Chick Filay Sauce', 'Bosco Sticks W/ Pizza Sauce', 'Soup & Salad Bar'], sides: ['Seasoned Criss-Cut Fries', 'Romaine Salad W/ Dressing', 'Fresh Grape Tomatoes', 'Chilled Peaches', 'Milk'] },
+            '2026-09-15': { entrees: ['Sausage Links W/ Pancakes', 'Pizza Crunchers', 'Tater Tot Bowl', 'Soup & Salad Bar'], sides: ['Tater Tots', 'Seasoned Corn', 'Fresh Banana', '100% Fruit Juice', 'Milk'] },
+            '2026-09-16': { noSchool: 'No School' },
+            '2026-09-17': { entrees: ['Grilled Hamburger', 'Sriracha Chicken', 'Chicken Corn Dog', 'Soup & Salad Bar'], sides: ['Onion Rings', 'Baked Beans', 'Mixed Berries', 'Milk'] },
+            '2026-09-18': { entrees: ['Homemade Mac & Cheese', 'Popcorn Chicken', 'Roasted Chicken Hot Wings', 'Soup & Salad Bar'], sides: ['Homemade Yeast Roll W/ Margarine & Jelly', 'Baby Carrots & Grape Tomatoes w/ Dip', 'Paco Blend', 'Chilled Applesauce', 'Milk'] },
+            '2026-09-21': { entrees: ['Asian Noodle Bowl', 'Penne Pasta W/ Queso Sauce', 'Teriyaki Chicken with Rice', 'Cheesy Garlic French Bread', 'Soup & Salad Bar'], sides: ['Steamed Fresh Broccoli', 'Petite Carrots with Dip', 'Chilled Pineapple', 'Chilled Mandarin Oranges', 'Milk'] },
+            '2026-09-22': { entrees: ['Sausage Egg & Cheese Muffin', 'Chicken Tenders', 'Mini Corn Dogs', 'Soup & Salad Bar'], sides: ['Crispy Cube Potatoes', 'Mixed Vegetables', 'Orchard Fresh Apple Slices', '100% Fruit Juice', 'Churro Bites', 'Milk'] },
+            '2026-09-23': { entrees: ['Pulled Pork Sandwich', 'Roasted Chicken Hot Wings', 'Detroit Style Cheese Pizza', 'Walking Taco', 'Soup & Salad Bar'], sides: ['Refried Beans', 'Romaine & Grape Tomato Salad w/ Dressing', 'Fresh Red Grapes & Strawberries', 'Garlic Breadstick', 'Milk'] },
+            '2026-09-24': { entrees: ['Hot & Spicy Chicken Sandwich', 'Chicken & Noodles', 'Charger Fried Chicken', 'Stuffed Crust Sausage Pizza', 'Soup & Salad Bar'], sides: ['Mashed Potatoes W/ Gravy', 'Homemade Broccoli Salad', 'Chilled Fruit Cocktail w/ Cherries or Grapes', 'Milk'] },
+            '2026-09-25': { entrees: ['Pepperoni French Bread', 'Taco Max Snacks', 'Italian Grilled Cheese W/ Pizza Sauce', 'Shrimp Poppers', 'Soup & Salad Bar'], sides: ['Buffalo Cauliflower Bites', 'Grape Tomatoes with Dip', 'Chilled Pears', 'Banana Bread', 'Milk'] },
+            '2026-09-28': { entrees: ['Dill Nuggets', 'Italian Spaghetti', 'Cheesy Breadstick', 'Soup & Salad Bar'], sides: ['Garlic Breadstick', 'Seasoned Green Beans', 'Cucumber & Grape Tomatoes w/ Veggie Dip', 'Warm Cinnamon Apples', 'Milk'] },
+            '2026-09-29': { entrees: ['Soft Taco', 'Fiestada Pizza', 'Beefy Cheesy Nachos', 'Soup & Salad Bar'], sides: ['Mexican Street Corn', 'Cowboy Beans', 'Baked Tostito Scoops', 'Fresh Watermelon', 'Milk'] },
+            '2026-09-30': { entrees: ['Mozzarella Breadstick W/ Pizza Sauce', 'Hot Dog', 'Ham & Cheese Pocket', 'Chicken Quesadilla', 'Soup & Salad Bar'], sides: ['Roasted Brussel Sprouts W/ Bacon', 'Baby Carrots with Dip', 'Chilled Peaches', 'Wacky Cake', 'Milk'] },
+            '2026-10-01': { entrees: ['Chicken Nuggets', 'Bosco Stick', 'Roasted Chicken Hot Wings', 'Soup & Salad Bar'], sides: ['Baked Potato W/ Toppings', 'Broccoli with Cheese Sauce', 'Rosy Applesauce', 'Homemade Yeast Roll W/ Margarine & Jelly', 'Milk'] },
+            '2026-10-02': { entrees: ['Tangerine Chicken', 'Corn Dog', 'Teriyaki Dumplings', 'Soup & Salad Bar'], sides: ['Brown Rice', 'Oriental Salad', 'Kyoto Vegetable Blend', 'Sweetened Strawberries', 'Fortune Cookie', 'Milk'] }
         };
 
         var MENU_FRESH = {
-            // ── October ──
+            // ── August ──
+            '2026-08-05': { entrees: ['Breaded Pork Sandwich', 'Bosco Sticks W/ Pizza Sauce'], sides: ['Fresh Veggies with Dip', 'Cinnamon Applesauce', 'Milk'] },
+            '2026-08-06': { entrees: ['Pepperoni Pizza Rippers', 'Chicken Tenders'], sides: ['Broccoli Salad', 'Smiley Potatoes', 'Sweetened Strawberries', 'Sunshine Bar', 'Milk'] },
+            '2026-08-07': { entrees: ['Chicken Smackers W/ Slice of Bread', 'Ham & Cheese Stuffer'], sides: ['Mashed Potatoes', 'Carrots & Cucumbers w/ Veggie Dip', 'Chilled Pears', 'Milk'] },
+            '2026-08-10': { entrees: ['Taco Max Snacks', 'Cheeseburger'], sides: ['Seasoned Green Beans', 'Onion Rings', 'Fresh Red Apple Slices w/ Vanilla Yogurt Dip', 'Milk'] },
+            '2026-08-11': { entrees: ['Sausage Links W/ Maple Waffle', 'Chicken Bites W/ Maple Waffle'], sides: ['Crispy Cubes', 'Fresh Red Grapes', '100% Fruit Juice', 'Milk'] },
+            '2026-08-12': { entrees: ['Pizza Crunchers', 'Cheesy Dog'], sides: ['Baked Beans', 'Fresh Steamed Broccoli', 'Whole Grain Cheez-Its', 'Chilled Peaches', 'Milk'] },
+            '2026-08-13': { entrees: ['Pork & Vegetable Egg Rolls', 'Tangerine Chicken W/ Chow Mein Noodles'], sides: ['Brown Rice', 'Kyoto Blend Vegetables', 'Chilled Pineapple-Mandarin', 'Milk'] },
+            '2026-08-14': { entrees: ['Sriracha Boneless Chicken Bites', 'Walking Taco W/ Lettuce & Tomato'], sides: ['Seasoned Corn', 'Fresh Petite Banana', 'Poppyseed Bread', 'Milk'] },
+            '2026-08-17': { entrees: ['Cheeseburger', 'Breaded Chicken Sandwich'], sides: ['Dill Pickle Spear', 'Seasoned Corn', 'Seasoned Crinkle Fries', 'Chilled Fresh Fruit', 'Milk'] },
+            '2026-08-18': { entrees: ['Roasted Chicken Wings', 'Cheesy Italian Pull-Aparts'], sides: ['Mashed Potatoes W/ Chicken Gravy', 'Baby Carrots & Cucumber Coins w/ Dip', 'Chilled Fruit Cocktail', 'Churro Bites', 'Milk'] },
+            '2026-08-19': { entrees: ['Buffalo Chicken Melt', 'Mini Chicken Corn Dogs'], sides: ['Roasted Brussel Sprouts', 'Seasoned Green Beans', 'Blushing Pears', 'Baked Chips', 'Milk'] },
+            '2026-08-20': { entrees: ['Cheese Pizza', 'Taco Salad'], sides: ['Refried Beans', 'Romaine Salad W/ Dressing', 'Chilled Applesauce', 'Milk'] },
+            '2026-08-21': { entrees: ['BBQ Rib Sandwich', 'Mozzarella Breadstick Bites W/ Pizza Sauce'], sides: ['Baked Potato W/ Toppings', 'Broccoli with Cheese Sauce', 'Chilled Fruit', 'Milk'] },
+            '2026-08-24': { entrees: ['Taco Max Snacks', 'Walking Taco'], sides: ['Spanish Rice', 'Mexican Street Corn', 'Shredded Lettuce, Diced Tomatoes & Salsa', 'Chilled Fruit', 'Milk'] },
+            '2026-08-25': { entrees: ['Pepperoni French Bread', 'Chili Dog / Hot Dog'], sides: ['Baked Beans', 'Tater Tots', 'Chilled Peaches', 'Frozen Treat', 'Milk'] },
+            '2026-08-26': { entrees: ['Pizza Crunchers', 'Chicken Smackers W/ Slice of Bread'], sides: ['Seasoned Green Beans', 'Romaine & Tomato Salad w/ Dressing', 'Warm Cinnamon Apples', 'Milk'] },
+            '2026-08-27': { entrees: ['Teriyaki Beef Dippers', 'Honey Sriracha Chicken'], sides: ['Honey Ginger Carrots', 'Brown Rice', 'Pineapple Mandarin Salad', 'Fortune Cookie', 'Milk'] },
+            '2026-08-28': { entrees: ['Meatballs W/ Marinara Sauce', 'Chicken Queso W/ Parmesan Noodles'], sides: ['Fresh Steamed Broccoli', 'Fresh Apple Slices w/ Vanilla Yogurt Dip', 'Milk'] },
+            '2026-08-31': { entrees: ['Buffalo Chicken Pizza', 'Italian Grilled Cheese W/ Pizza Sauce'], sides: ['Seasoned Green Beans', 'Romaine Salad W/ Dressing', 'Rosy Applesauce', 'Milk'] },
+
+            // ── September (from Freshman Center September 2026 PDF) ──
+            '2026-09-01': { entrees: ['Detroit Style Pizza', 'BBQ Pulled Pork Sandwich'], sides: ['Curly Fries', 'Baked Beans', 'Chilled Fruit', 'Milk'] },
+            '2026-09-02': { entrees: ['Hot Honey Chicken Bites', 'Pancakes W/ Sausage Links'], sides: ['Crispy Cube Potatoes', '100% Fruit Juice', 'Milk'] },
+            '2026-09-03': { entrees: ['Chicken Tenders', 'Italian Pasta'], sides: ['Garlic Toast', 'Caesar Salad', 'California Blend', 'Chilled Fruit', 'Milk'] },
+            '2026-09-04': { entrees: ['Spicy Chicken Sandwich', 'Bosco Sticks W/ Pizza Sauce'], sides: ['Baby Carrots & Grape Tomatoes w/ Dip', 'Fresh Banana', 'Milk'] },
+            '2026-09-07': { noSchool: 'Labor Day' },
+            '2026-09-08': { entrees: ['Pepperoni French Bread', 'Beef Soft Taco'], sides: ['Refried Beans', 'Romaine Salad W/ Dressing', 'Cinnamon Applesauce', 'Milk'] },
+            '2026-09-09': { entrees: ['Pizza Crunchers', 'Mini Corn Dogs'], sides: ['Roasted Cauliflower', 'Vegetarian Salsa Salad', 'Fresh Watermelon Wedge', 'Baked Scoops', 'Milk'] },
+            '2026-09-10': { entrees: ['Roasted Chicken Wings', 'General Tso’s Chicken'], sides: ['Fried Rice', 'Fresh Steamed Broccoli', 'Chilled Pineapple Tidbits', 'Wacky Cake', 'Milk'] },
+            '2026-09-11': { entrees: ['Dill Chicken Bites', 'Chicken Drumstick'], sides: ['Homemade Yeast Roll W/ Margarine & Jelly', 'Mashed Potatoes W/ Chicken Gravy', 'Fresh Veggies with Dip', 'Fresh Grapes', 'Chilled Fruit Juice', 'Milk'] },
+            '2026-09-14': { entrees: ['Cheese Pizza', 'Chicken Quesadilla'], sides: ['Refried Beans', 'Seasoned Corn', 'Chilled Fruit', 'Milk'] },
+            '2026-09-15': { entrees: ['Mini Chicken Corn Dogs', 'Chick Filay Sandwich W/ Chick Filay Sauce'], sides: ['Romaine Salad W/ Dressing', 'Waffle Fries', 'Chilled Peaches', 'Milk'] },
+            '2026-09-16': { noSchool: 'No School' },
+            '2026-09-17': { entrees: ['Pepperoni Pizza Rippers', 'Chicken Tenders'], sides: ['Broccoli Salad', 'Smiley Potatoes', 'Sweetened Strawberries', 'Cheddar Cheese Goldfish', 'Milk'] },
+            '2026-09-18': { entrees: ['Chicken Smackers W/ Slice of Bread', 'Ham & Cheese Stuffer'], sides: ['Mashed Potatoes', 'Carrots & Cucumbers w/ Veggie Dip', 'Chilled Pears', 'Milk'] },
+            '2026-09-21': { entrees: ['Taco Max Snacks', 'Cheeseburger'], sides: ['Romaine & Tomato Salad w/ Dressing', 'Onion Rings', 'Orchard Fresh Apple Slices w/ Vanilla Yogurt Dip', 'Milk'] },
+            '2026-09-22': { entrees: ['Sausage Links', 'Chicken Bites'], sides: ['Maple Waffle', 'Crispy Cubes', 'Fresh Red Grapes', 'Orange Medley Juice', 'Milk'] },
+            '2026-09-23': { entrees: ['Pizza Crunchers', 'Cheesy Dog'], sides: ['Baked Beans', 'Fresh Steamed Broccoli', 'Whole Grain Cheez-Its', 'Chilled Peaches', 'Milk'] },
+            '2026-09-24': { entrees: ['Chicken & Vegetable Egg Rolls', 'Tangerine Chicken W/ Chow Mein Noodles'], sides: ['Brown Rice', 'Kyoto Blend Vegetables', 'Chilled Pineapple-Mandarin', 'Milk'] },
+            '2026-09-25': { entrees: ['Sriracha Boneless Chicken Bites W/ Doritos', 'Walking Taco'], sides: ['Shredded Lettuce & Diced Tomatoes', 'Seasoned Corn', 'Fresh Petite Banana', 'Chilled Fruit', 'Banana Bread', 'Milk'] },
+            '2026-09-28': { entrees: ['Cheeseburger', 'Breaded Chicken Sandwich'], sides: ['Dill Pickle Spear', 'Seasoned Corn', 'Seasoned Crinkle Fries', 'Orchard Fresh Apple Slices', 'Milk'] },
+            '2026-09-29': { entrees: ['Roasted Chicken Wings W/ Slice of Bread & Margarine', 'Cheesy Italian Pull-Aparts'], sides: ['Mashed Potatoes W/ Chicken Gravy', 'Baby Carrots & Cucumber Coins w/ Dip', 'Chilled Fruit Cocktail', 'Churro Bites', 'Milk'] },
+            '2026-09-30': { entrees: ['Buffalo Chicken Melt', 'Mini Chicken Corn Dogs'], sides: ['Roasted Brussel Sprouts', 'Seasoned Green Beans', 'Blushing Pears', 'Baked Chips', 'Milk'] },
             '2026-10-01': { entrees: ['Cheese Pizza', 'Taco Salad'], sides: ['Refried Beans', 'Romaine Salad W/ Dressing', 'Chilled Applesauce', 'Milk'] },
-            '2026-10-02': { entrees: ['BBQ Rib Sandwich', 'Mozzarella Breadstick Bites W/ Pizza Sauce'], sides: ['Baked Potato W/ Toppings', 'Broccoli W/ Cheese Sauce', 'Chilled Fruit', 'Milk'] },
-            '2026-10-05': { entrees: ['Taco Max Snacks', 'Walking Taco'], sides: ['Spanish Rice', 'Mexican Street Corn', 'Shredded Lettuce, Diced Tomatoes & Salsa', 'Chilled Fruit', 'Milk'] },
-            '2026-10-06': { entrees: ['Pepperoni French Bread', 'Chili Dog / Hot Dog'], sides: ['Baked Beans', 'Tater Tots', 'Chilled Fruit', 'Frozen Treat', 'Milk'] },
-            '2026-10-07': { entrees: [], sides: [], note: 'PSAT Testing Day — sophomores and juniors only. No menu is printed for this day.' },
-            '2026-10-08': { entrees: ['Teriyaki Beef Dippers', 'Honey Sriracha Chicken'], sides: ['Honey Ginger Carrots', 'Brown Rice', 'Pineapple Mandarin Salad', 'Scooby Stix', 'Milk'] },
-            '2026-10-09': { entrees: ['Meatballs W/ Marinara Sauce', 'Chicken Queso W/ Parmesan Noodles'], sides: ['Fresh Steamed Broccoli', 'Fresh Apple Slices W/ Vanilla Yogurt Dip', 'Milk'], note: 'Great Apple Crunch Day!' },
-            '2026-10-12': { noSchool: 'Fall Break' },
-            '2026-10-13': { noSchool: 'Fall Break' },
-            '2026-10-14': { noSchool: 'Fall Break' },
-            '2026-10-15': { noSchool: 'Fall Break' },
-            '2026-10-16': { noSchool: 'Fall Break' },
-            '2026-10-19': { entrees: ['Buffalo Chicken Pizza', 'Italian Grilled Cheese W/ Warm Pizza Sauce'], sides: ['Seasoned Green Beans', 'Seasoned Corn', 'Rosy Applesauce', 'Milk'] },
-            '2026-10-20': { entrees: ['Detroit Style Pizza', 'BBQ Pulled Pork Sandwich'], sides: ['Curly Fries', 'Baked Beans', 'Chilled Fruit', 'Milk'] },
-            '2026-10-21': { entrees: ['Hot Honey Chicken Bites', 'Pancakes W/ Sausage Links'], sides: ['Crispy Cube Potatoes', 'Orange Medley Juice', 'Chilled Fruit', 'Milk'] },
-            '2026-10-22': { entrees: ['Chicken Tenders', 'Italian Pasta'], sides: ['Garlic Toast', 'Caesar Salad', 'California Blend', 'Chilled Fruit', 'Milk'] },
-            '2026-10-23': { entrees: ['Spicy Chicken Sandwich', 'Bosco Sticks W/ Pizza Sauce'], sides: ['Baby Carrots & Grape Tomatoes W/ Dip', 'Fresh Banana', 'Chilled Fruit', 'Milk'] },
-            '2026-10-26': { entrees: ['Cheeseburger', 'Homemade Mac & Cheese'], sides: ['Seasoned Green Beans', 'Onion Rings', 'Red Pepper & Carrots W/ Vegetable Dip', 'Chilled Fruit', 'Milk'] },
-            '2026-10-27': { entrees: ['Pepperoni French Bread', 'Beef Soft Taco'], sides: ['Refried Beans', 'Romaine Salad W/ Dressing', 'Warm Cinnamon Apples', 'Churro Bites', 'Milk'] },
-            '2026-10-28': { entrees: ['Pizza Crunchers', 'Mini Corn Dogs'], sides: ['Roasted Cauliflower', 'Vegetarian Salsa Salad', 'Fresh Watermelon Wedge', 'Baked Scoops', 'Milk'] },
-            '2026-10-29': { entrees: ['Roasted Chicken Wings', 'General Tso’s Chicken'], sides: ['Fried Rice', 'Fresh Steamed Broccoli', 'Chilled Pineapple Tidbits', 'Wacky Cake', 'Milk'] },
-            '2026-10-30': { entrees: ['Dill Chicken Bites', 'Chicken Drumstick'], sides: ['Homemade Yeast Roll W/ Margarine & Jelly', 'Mashed Potatoes W/ Chicken Gravy', 'Fresh Veggies W/ Dip', 'BOO-Berry Fruit', 'Milk'] },
-            // ── November ──
-            '2026-11-02': { entrees: ['Cheese Pizza', 'Chicken Quesadilla'], sides: ['Refried Beans', 'Seasoned Corn', 'Chilled Fruit', 'Milk'] },
-            '2026-11-03': { entrees: ['Mini Chicken Corn Dogs', 'Chick Filay Sandwich W/ Chick Filay Sauce'], sides: ['Romaine Salad W/ Dressing', 'Waffle Fries', 'Chilled Peaches', 'Milk'] },
-            '2026-11-04': { noSchool: 'Parent/Teacher Conference' },
-            '2026-11-05': { entrees: ['Pepperoni Pizza Rippers', 'Chicken Tenders'], sides: ['Broccoli Salad', 'Smiley Potatoes', 'Sweetened Strawberries', 'Cheddar Cheese Goldfish', 'Milk'] },
-            '2026-11-06': { entrees: ['Chicken Smackers W/ Slice of Bread', 'Ham & Cheese Stuffer'], sides: ['Mashed Potatoes', 'Carrots & Cucumbers W/ Veggie Dip', 'Chilled Pears', 'Milk'] },
-            '2026-11-09': { entrees: ['Taco Max Snacks', 'Cheeseburger'], sides: ['Romaine & Tomato Salad W/ Dressing', 'Onion Rings', 'Fresh Red Apple Slices W/ Vanilla Yogurt Dip', 'Milk'] },
-            '2026-11-10': { entrees: ['Sausage Links', 'Chicken Bites'], sides: ['Maple Waffle', 'Crispy Cubes', 'Fresh Red Grapes', 'Orange Medley Juice', 'Milk'] },
-            '2026-11-11': { entrees: ['Pizza Crunchers', 'Cheesy Dog'], sides: ['Baked Beans', 'Fresh Steamed Broccoli', 'Whole Grain Cheez-Its', 'Chilled Peaches', 'Milk'] },
-            '2026-11-12': { entrees: ['Chicken & Vegetable Egg Rolls', 'Tangerine Chicken W/ Chow Mein Noodles'], sides: ['Brown Rice', 'Kyoto Blend Vegetables', 'Chilled Pineapple-Mandarin', 'Milk'] },
-            '2026-11-13': { entrees: ['Sriracha Boneless Chicken Bites W/ Doritos', 'Walking Taco'], sides: ['Shredded Lettuce & Diced Tomatoes', 'Seasoned Corn', 'Fresh Petite Banana', 'Chilled Fruit', 'Raisin Batter Bread', 'Milk'] },
-            '2026-11-16': { entrees: ['Cheeseburger', 'Breaded Chicken Sandwich'], sides: ['Dill Pickle Spear', 'Seasoned Corn', 'Seasoned Crinkle Fries', 'Chilled Fresh Fruit', 'Milk'] },
-            '2026-11-17': { entrees: ['Cheese Pizza', 'Taco Salad'], sides: ['Refried Beans', 'Romaine Salad W/ Dressing', 'Chilled Applesauce', 'Milk'] },
-            '2026-11-18': { entrees: ['Buffalo Chicken Melt', 'Mini Chicken Corn Dogs'], sides: ['Roasted Brussel Sprouts', 'Seasoned Green Beans', 'Blushing Pears', 'Baked Chips', 'Milk'] },
-            '2026-11-19': { entrees: ['Chicken Drummie', 'Cheesy Italian Pull-Aparts'], sides: ['Fresh Baked Yeast Roll', 'Mashed Potatoes W/ Chicken Gravy', 'Baby Carrots & Cucumber Coins W/ Dip', 'Sweetened Strawberries', 'Pumpkin Cake Roll', 'Milk'], note: 'Thanksgiving Feast' },
-            '2026-11-20': { entrees: ['BBQ Rib Sandwich', 'Mozzarella Breadstick Bites W/ Pizza Sauce'], sides: ['Baked Potato W/ Toppings', 'Broccoli W/ Cheese Sauce', 'Chilled Fruit', 'Milk'] },
-            '2026-11-23': { entrees: ['Taco Max Snacks', 'Walking Taco'], sides: ['Spanish Rice', 'Mexican Street Corn', 'Shredded Lettuce, Diced Tomatoes & Salsa', 'Chilled Fruit', 'Milk'] },
-            '2026-11-24': { entrees: ['Pepperoni French Bread', 'Chili Dog / Hot Dog'], sides: ['Choice of Vegetable', 'Chilled Fruit', 'Frozen Fruit Slushie', 'Milk'] },
-            '2026-11-25': { noSchool: 'Thanksgiving Break' },
-            '2026-11-26': { noSchool: 'Thanksgiving Break' },
-            '2026-11-27': { noSchool: 'Thanksgiving Break' },
-            '2026-11-30': { entrees: ['Buffalo Chicken Pizza', 'Italian Grilled Cheese W/ Warm Pizza Sauce'], sides: ['Seasoned Green Beans', 'Hot Vegetable', 'Rosy Applesauce', 'Milk'] },
-            // ── December ──
-            '2026-12-01': { entrees: ['Detroit Style Pizza', 'BBQ Pulled Pork Sandwich'], sides: ['Curly Fries', 'Baked Beans', 'Chilled Fruit', 'Milk'] },
-            '2026-12-02': { entrees: ['Hot Honey Chicken Bites', 'Pancakes W/ Sausage Links'], sides: ['Crispy Cube Potatoes', 'Orange Medley Juice', 'Chilled Fruit', 'Milk'] },
-            '2026-12-03': { entrees: ['Chicken Tenders', 'Italian Pasta'], sides: ['Garlic Toast', 'Caesar Salad', 'California Blend', 'Chilled Fruit', 'Milk'] },
-            '2026-12-04': { entrees: ['Spicy Chicken Sandwich', 'Bosco Sticks W/ Pizza Sauce'], sides: ['Baby Carrots & Grape Tomatoes W/ Dip', 'Fresh Banana', 'Chilled Fruit', 'Milk'] }
+            '2026-10-02': { entrees: ['BBQ Rib Sandwich', 'Mozzarella Breadstick Bites W/ Pizza Sauce'], sides: ['Baked Potato W/ Toppings', 'Broccoli W/ Cheese Sauce', 'Chilled Fruit', 'Milk'] }
         };
 
         // Daily extras printed at the bottom of each PDF
@@ -2123,11 +2114,11 @@ kbd { font: 600 10px var(--font-sans); padding: 2px 6px; border-radius: 5px; bac
             var html = '';
             if (data.note) html += `<div class="bg-amber-500/10 border border-amber-500/30 p-2.5 rounded-lg text-amber-300 text-xs mb-3"><i class="fa-solid fa-circle-info mr-1"></i> ${data.note}</div>`;
             
-            if (data.entrees && data.entrees.length) html += '<div class="text-[10px] font-mono text-brand-accent uppercase tracking-wider font-semibold mb-1">Entrees</div>';
-            (data.entrees || []).forEach(i => { html += `<div class="bg-brand-bg border-l-2 border-brand-accent border-brand-border/60 p-2 rounded-r-lg text-xs text-white mb-1.5">${i}</div>`; });
+            html += '<div class="text-[10px] font-mono text-brand-accent uppercase tracking-wider font-semibold mb-1">Entrees</div>';
+            data.entrees.forEach(i => { html += `<div class="bg-brand-bg border-l-2 border-brand-accent border-brand-border/60 p-2 rounded-r-lg text-xs text-white mb-1.5">${i}</div>`; });
             
-            if (data.sides && data.sides.length) html += '<div class="text-[10px] font-mono text-brand-accent uppercase tracking-wider font-semibold mt-3 mb-1">Sides & Drinks</div>';
-            (data.sides || []).forEach(i => { html += `<div class="bg-brand-bg border border-brand-border/60 p-2 rounded-lg text-xs text-slate-100 mb-1">${i}</div>`; });
+            html += '<div class="text-[10px] font-mono text-brand-accent uppercase tracking-wider font-semibold mt-3 mb-1">Sides & Drinks</div>';
+            data.sides.forEach(i => { html += `<div class="bg-brand-bg border border-brand-border/60 p-2 rounded-lg text-xs text-slate-100 mb-1">${i}</div>`; });
 
             html += `<div class="mt-3 pt-2 border-t border-brand-border/40 text-[10px] font-mono text-slate-100 leading-relaxed">${MENU_DAILY_NOTE[grade] || ''}<br>${MENU_PRICES[grade] || ''}</div>`;
             return html;
@@ -2984,7 +2975,70 @@ window.APERTURE = {
     'input:not([type=checkbox]):not([type=radio]):not([type=range]),textarea{min-height:42px}' +
     '.ap-crumbs a{padding:10px 8px}' +
   '}';
+  /* ── liquid motion layer (shared by every page; mirrors the Messages design) ── */
+  css += [
+    ':root{--spring:cubic-bezier(.34,1.56,.64,1);--ease-out:cubic-bezier(.22,1,.36,1)}',
+    '@view-transition{navigation:auto}',
+    '::view-transition-old(root){animation:apVo .26s cubic-bezier(.5,0,.9,.4) both}',
+    '::view-transition-new(root){animation:apVi .55s var(--ease-out) both}',
+    '@keyframes apVo{to{opacity:0;transform:translateY(-10px) scale(.992);filter:blur(5px)}}',
+    '@keyframes apVi{from{opacity:0;transform:translateY(16px) scale(.992);filter:blur(5px)}}',
+    '@keyframes apRise{from{opacity:0;transform:translateY(16px) scale(.985)}to{opacity:1;transform:none}}',
+    '@keyframes apPop{from{opacity:0;transform:translateY(12px) scale(.94)}to{opacity:1;transform:none}}',
+    '@keyframes apRip{to{transform:scale(1);opacity:0}}',
+    '@keyframes apDlg{from{opacity:0;transform:translateY(24px) scale(.92)}to{opacity:1;transform:none}}',
+    '@keyframes apDlgx{to{opacity:0;transform:translateY(10px) scale(.96)}}',
+    '@keyframes apBd{from{opacity:0}to{opacity:1}}',
+    '@keyframes apDrift1{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(9vw,7vh) scale(1.18)}66%{transform:translate(-6vw,12vh) scale(.92)}}',
+    '@keyframes apDrift2{0%,100%{transform:translate(0,0) scale(1)}40%{transform:translate(-10vw,-8vh) scale(1.12)}70%{transform:translate(5vw,-14vh) scale(.9)}}',
+    '@keyframes apDrift3{0%,100%{transform:translate(0,0) scale(.9)}50%{transform:translate(8vw,-10vh) scale(1.2)}}',
+    /* drifting colour behind everything */
+    '.ap-liquid{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;mix-blend-mode:screen}',
+    '.ap-liquid i{position:absolute;border-radius:50%;filter:blur(70px);opacity:.2;will-change:transform}',
+    '.ap-liquid i:nth-child(1){width:46vmax;height:46vmax;left:-14vmax;top:-18vmax;background:#5b8fe8;animation:apDrift1 26s ease-in-out infinite}',
+    '.ap-liquid i:nth-child(2){width:38vmax;height:38vmax;right:-12vmax;bottom:-14vmax;background:#7b61ff;opacity:.16;animation:apDrift2 32s ease-in-out infinite}',
+    '.ap-liquid i:nth-child(3){width:26vmax;height:26vmax;left:38%;top:42%;background:#37c8b4;opacity:.09;animation:apDrift3 38s ease-in-out infinite}',
+    '@media(max-width:640px){.ap-liquid i{filter:blur(48px)}}',
+    /* page + list entrances */
+    'main>*,.wrap>*{animation:apRise .75s var(--ease-out) backwards}',
+    'main>*:nth-child(2),.wrap>*:nth-child(2){animation-delay:.07s}main>*:nth-child(3),.wrap>*:nth-child(3){animation-delay:.14s}main>*:nth-child(4),.wrap>*:nth-child(4){animation-delay:.21s}main>*:nth-child(n+5),.wrap>*:nth-child(n+5){animation-delay:.28s}',
+    '.gc,.tool,.dir-row,.prow,.tool-card{animation:apPop .55s var(--spring) backwards}',
+    '.gc:nth-child(2),.tool:nth-child(2),.dir-row:nth-child(2),.prow:nth-child(2){animation-delay:.04s}.gc:nth-child(3),.tool:nth-child(3),.dir-row:nth-child(3),.prow:nth-child(3){animation-delay:.08s}.gc:nth-child(4),.tool:nth-child(4),.dir-row:nth-child(4),.prow:nth-child(4){animation-delay:.12s}.gc:nth-child(n+5),.tool:nth-child(n+5),.dir-row:nth-child(n+5),.prow:nth-child(n+5){animation-delay:.16s}',
+    /* springy controls */
+    '.btn,.ibtn,.pill,.ap-btn,.home,.chip,.tabs button,.filter-tab,.link-btn,.st,.chips button,.gc,.tool,.dir-row,.prow{transition:transform .35s var(--spring),background-color .25s var(--ease-out),border-color .25s,color .2s,box-shadow .3s var(--ease-out),opacity .2s}',
+    '.btn,.pill,.ap-btn{position:relative;overflow:hidden}',
+    '.ap-rip{position:absolute;border-radius:50%;background:rgba(255,255,255,.32);transform:scale(0);animation:apRip .6s var(--ease-out) forwards;pointer-events:none}',
+    '@media(hover:hover){.btn:not(:disabled):hover,.pill:hover,.ap-btn:hover,.home:hover{transform:translateY(-1px)}.gc:hover,.tool:hover,.prow:hover{transform:translateY(-3px);box-shadow:0 14px 30px -16px rgba(2,5,9,.85)}.dir-row:hover{transform:translateX(3px)}.btn.pri:not(:disabled):hover,.pill.is-primary:hover{box-shadow:0 8px 22px -8px rgba(91,143,232,.7)}}',
+    '.btn:not(:disabled):active,.ibtn:active,.pill:active,.ap-btn:active,.home:active,.chip:active,.filter-tab:active,.st:active{transform:scale(.94);transition-duration:.12s}.gc:active,.tool:active,.dir-row:active,.prow:active{transform:scale(.98);transition-duration:.12s}',
+    '.inp:focus,input:focus,select:focus,textarea:focus{transition:border-color .2s,box-shadow .35s var(--ease-out)}',
+    /* dialogs & toasts */
+    'dialog[open]{animation:apDlg .42s var(--spring)}dialog[open]::backdrop{animation:apBd .3s ease-out}dialog.ap-closing{animation:apDlgx .2s ease-in forwards}',
+    '.ap-pop{animation:apDlg .4s var(--spring)}',
+    '@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}.ap-liquid{display:none}::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none!important}}'
+  ].join('');
+
+  var reduce = function () { return window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches; };
   var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
+  /* ── liquid motion: background blobs, ripple, animated dialog close ── */
+  if (!document.querySelector('.ap-liquid') && !document.documentElement.hasAttribute('data-no-liquid')) {
+    var lq = document.createElement('div'); lq.className = 'ap-liquid'; lq.setAttribute('aria-hidden', 'true'); lq.innerHTML = '<i></i><i></i><i></i>';
+    (document.body || document.documentElement).insertBefore(lq, (document.body || document.documentElement).firstChild);
+  }
+  document.addEventListener('pointerdown', function (e) {
+    var b = e.target.closest && e.target.closest('.btn,.pill,.ap-btn'); if (!b || b.disabled || reduce()) return;
+    if (b.classList.contains('rip-off')) return;
+    var r = b.getBoundingClientRect(), d = Math.max(r.width, r.height) * 2, i = document.createElement('i');
+    i.className = 'ap-rip'; i.style.cssText = 'width:' + d + 'px;height:' + d + 'px;left:' + (e.clientX - r.left - d / 2) + 'px;top:' + (e.clientY - r.top - d / 2) + 'px';
+    b.appendChild(i); setTimeout(function () { i.remove(); }, 650);
+  }, { passive: true });
+  if (window.HTMLDialogElement && !HTMLDialogElement.prototype.__apLiquid) {
+    var oc = HTMLDialogElement.prototype.close; HTMLDialogElement.prototype.__apLiquid = 1;
+    HTMLDialogElement.prototype.close = function (v) {
+      var d = this; if (!d.open || d.classList.contains('closing') || d.classList.contains('ap-closing') || reduce()) return oc.call(d, v);
+      d.classList.add('ap-closing'); setTimeout(function () { d.classList.remove('ap-closing'); oc.call(d, v); }, 190);
+    };
+  }
+
 
   /* ── Back (up one part) ── */
   document.querySelectorAll('[data-aperture-back]').forEach(function (a) {

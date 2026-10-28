@@ -124,6 +124,13 @@ window.APERTURE = {
       "hidden": true
     },
     {
+      "id": "games",
+      "title": "Games",
+      "path": "games/",
+      "blurb": "Open-source browser games",
+      "hidden": true
+    },
+    {
       "id": "legal",
       "title": "Legal",
       "path": "legal/",
@@ -132,6 +139,17 @@ window.APERTURE = {
     }
   ],
   "pages": [
+    {
+      "id": "arcade",
+      "search": false,
+      "tags": [],
+      "title": "Arcade",
+      "group": "games",
+      "path": "games/arcade",
+      "icon": "fa-gamepad",
+      "blurb": "Open-source browser games.",
+      "keywords": ""
+    },
     {
       "id": "privacy-policy",
       "search": false,
@@ -454,8 +472,83 @@ window.APERTURE = {
   '.ap-crumbs a{color:#b4c0cf;text-decoration:none;padding:5px 8px;border-radius:9px}.ap-crumbs a:hover{background:#283340;color:#fff}' +
   '.ap-crumbs b{color:#fff;font-weight:600;padding:5px 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}' +
   '.ap-crumbs i{font-style:normal;opacity:.5}' +
-  '@media (max-width:640px){.ap-pop{position:fixed;left:12px;right:12px;top:80px;width:auto}}';
+  '@media (max-width:640px){.ap-pop{position:fixed;left:12px;right:12px;top:80px;width:auto}}' +
+  /* ── shared mobile polish (all pages) ── */
+  'html{-webkit-text-size-adjust:100%;text-size-adjust:100%}' +
+  'a,button,select,summary,label,[role=button]{-webkit-tap-highlight-color:rgba(91,143,232,.18);touch-action:manipulation}' +
+  'body{padding-bottom:env(safe-area-inset-bottom)}' +
+  '@media (max-width:640px){html,body{max-width:100%;overflow-x:clip}input,select,textarea{font-size:max(16px,1em)}}' +
+  '@media (pointer:coarse){' +
+    '.ap-btn,.ap-item{min-height:44px}' +
+    'a[data-lg]{display:inline-block;padding:11px 8px;margin:-6px -2px}' +
+    'button:not(.ibtn),select,[role=button],summary,a.btn,a.pill{min-height:40px}' +
+    'input:not([type=checkbox]):not([type=radio]):not([type=range]),textarea{min-height:42px}' +
+    '.ap-crumbs a{padding:10px 8px}' +
+  '}';
+  /* ── liquid motion layer (shared by every page; mirrors the Messages design) ── */
+  css += [
+    ':root{--spring:cubic-bezier(.34,1.56,.64,1);--ease-out:cubic-bezier(.22,1,.36,1)}',
+    '@view-transition{navigation:auto}',
+    '::view-transition-old(root){animation:apVo .26s cubic-bezier(.5,0,.9,.4) both}',
+    '::view-transition-new(root){animation:apVi .55s var(--ease-out) both}',
+    '@keyframes apVo{to{opacity:0;transform:translateY(-10px) scale(.992);filter:blur(5px)}}',
+    '@keyframes apVi{from{opacity:0;transform:translateY(16px) scale(.992);filter:blur(5px)}}',
+    '@keyframes apRise{from{opacity:0;transform:translateY(16px) scale(.985)}to{opacity:1;transform:none}}',
+    '@keyframes apPop{from{opacity:0;transform:translateY(12px) scale(.94)}to{opacity:1;transform:none}}',
+    '@keyframes apRip{to{transform:scale(1);opacity:0}}',
+    '@keyframes apDlg{from{opacity:0;transform:translateY(24px) scale(.92)}to{opacity:1;transform:none}}',
+    '@keyframes apDlgx{to{opacity:0;transform:translateY(10px) scale(.96)}}',
+    '@keyframes apBd{from{opacity:0}to{opacity:1}}',
+    '@keyframes apDrift1{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(9vw,7vh) scale(1.18)}66%{transform:translate(-6vw,12vh) scale(.92)}}',
+    '@keyframes apDrift2{0%,100%{transform:translate(0,0) scale(1)}40%{transform:translate(-10vw,-8vh) scale(1.12)}70%{transform:translate(5vw,-14vh) scale(.9)}}',
+    '@keyframes apDrift3{0%,100%{transform:translate(0,0) scale(.9)}50%{transform:translate(8vw,-10vh) scale(1.2)}}',
+    /* drifting colour behind everything */
+    '.ap-liquid{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;mix-blend-mode:screen}',
+    '.ap-liquid i{position:absolute;border-radius:50%;filter:blur(70px);opacity:.2;will-change:transform}',
+    '.ap-liquid i:nth-child(1){width:46vmax;height:46vmax;left:-14vmax;top:-18vmax;background:#5b8fe8;animation:apDrift1 26s ease-in-out infinite}',
+    '.ap-liquid i:nth-child(2){width:38vmax;height:38vmax;right:-12vmax;bottom:-14vmax;background:#7b61ff;opacity:.16;animation:apDrift2 32s ease-in-out infinite}',
+    '.ap-liquid i:nth-child(3){width:26vmax;height:26vmax;left:38%;top:42%;background:#37c8b4;opacity:.09;animation:apDrift3 38s ease-in-out infinite}',
+    '@media(max-width:640px){.ap-liquid i{filter:blur(48px)}}',
+    /* page + list entrances */
+    'main>*,.wrap>*{animation:apRise .75s var(--ease-out) backwards}',
+    'main>*:nth-child(2),.wrap>*:nth-child(2){animation-delay:.07s}main>*:nth-child(3),.wrap>*:nth-child(3){animation-delay:.14s}main>*:nth-child(4),.wrap>*:nth-child(4){animation-delay:.21s}main>*:nth-child(n+5),.wrap>*:nth-child(n+5){animation-delay:.28s}',
+    '.gc,.tool,.dir-row,.prow,.tool-card{animation:apPop .55s var(--spring) backwards}',
+    '.gc:nth-child(2),.tool:nth-child(2),.dir-row:nth-child(2),.prow:nth-child(2){animation-delay:.04s}.gc:nth-child(3),.tool:nth-child(3),.dir-row:nth-child(3),.prow:nth-child(3){animation-delay:.08s}.gc:nth-child(4),.tool:nth-child(4),.dir-row:nth-child(4),.prow:nth-child(4){animation-delay:.12s}.gc:nth-child(n+5),.tool:nth-child(n+5),.dir-row:nth-child(n+5),.prow:nth-child(n+5){animation-delay:.16s}',
+    /* springy controls */
+    '.btn,.ibtn,.pill,.ap-btn,.home,.chip,.tabs button,.filter-tab,.link-btn,.st,.chips button,.gc,.tool,.dir-row,.prow{transition:transform .35s var(--spring),background-color .25s var(--ease-out),border-color .25s,color .2s,box-shadow .3s var(--ease-out),opacity .2s}',
+    '.btn,.pill,.ap-btn{position:relative;overflow:hidden}',
+    '.ap-rip{position:absolute;border-radius:50%;background:rgba(255,255,255,.32);transform:scale(0);animation:apRip .6s var(--ease-out) forwards;pointer-events:none}',
+    '@media(hover:hover){.btn:not(:disabled):hover,.pill:hover,.ap-btn:hover,.home:hover{transform:translateY(-1px)}.gc:hover,.tool:hover,.prow:hover{transform:translateY(-3px);box-shadow:0 14px 30px -16px rgba(2,5,9,.85)}.dir-row:hover{transform:translateX(3px)}.btn.pri:not(:disabled):hover,.pill.is-primary:hover{box-shadow:0 8px 22px -8px rgba(91,143,232,.7)}}',
+    '.btn:not(:disabled):active,.ibtn:active,.pill:active,.ap-btn:active,.home:active,.chip:active,.filter-tab:active,.st:active{transform:scale(.94);transition-duration:.12s}.gc:active,.tool:active,.dir-row:active,.prow:active{transform:scale(.98);transition-duration:.12s}',
+    '.inp:focus,input:focus,select:focus,textarea:focus{transition:border-color .2s,box-shadow .35s var(--ease-out)}',
+    /* dialogs & toasts */
+    'dialog[open]{animation:apDlg .42s var(--spring)}dialog[open]::backdrop{animation:apBd .3s ease-out}dialog.ap-closing{animation:apDlgx .2s ease-in forwards}',
+    '.ap-pop{animation:apDlg .4s var(--spring)}',
+    '@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}.ap-liquid{display:none}::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none!important}}'
+  ].join('');
+
+  var reduce = function () { return window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches; };
   var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
+  /* ── liquid motion: background blobs, ripple, animated dialog close ── */
+  if (!document.querySelector('.ap-liquid') && !document.documentElement.hasAttribute('data-no-liquid')) {
+    var lq = document.createElement('div'); lq.className = 'ap-liquid'; lq.setAttribute('aria-hidden', 'true'); lq.innerHTML = '<i></i><i></i><i></i>';
+    (document.body || document.documentElement).insertBefore(lq, (document.body || document.documentElement).firstChild);
+  }
+  document.addEventListener('pointerdown', function (e) {
+    var b = e.target.closest && e.target.closest('.btn,.pill,.ap-btn'); if (!b || b.disabled || reduce()) return;
+    if (b.classList.contains('rip-off')) return;
+    var r = b.getBoundingClientRect(), d = Math.max(r.width, r.height) * 2, i = document.createElement('i');
+    i.className = 'ap-rip'; i.style.cssText = 'width:' + d + 'px;height:' + d + 'px;left:' + (e.clientX - r.left - d / 2) + 'px;top:' + (e.clientY - r.top - d / 2) + 'px';
+    b.appendChild(i); setTimeout(function () { i.remove(); }, 650);
+  }, { passive: true });
+  if (window.HTMLDialogElement && !HTMLDialogElement.prototype.__apLiquid) {
+    var oc = HTMLDialogElement.prototype.close; HTMLDialogElement.prototype.__apLiquid = 1;
+    HTMLDialogElement.prototype.close = function (v) {
+      var d = this; if (!d.open || d.classList.contains('closing') || d.classList.contains('ap-closing') || reduce()) return oc.call(d, v);
+      d.classList.add('ap-closing'); setTimeout(function () { d.classList.remove('ap-closing'); oc.call(d, v); }, 190);
+    };
+  }
+
 
   /* ── Back (up one part) ── */
   document.querySelectorAll('[data-aperture-back]').forEach(function (a) {
