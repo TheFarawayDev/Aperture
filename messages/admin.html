@@ -55,6 +55,30 @@ dialog[open]{animation:dlg .42s var(--spring)}dialog[open]::backdrop{animation:b
 textarea.inp{height:auto;padding:10px 12px;min-height:84px;resize:vertical}
 .rn{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:99px;font-size:10.5px;font-weight:700;background:rgba(216,164,75,.22);color:#e8c57f}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+/* ── admin layout ── */
+.wrap{max-width:1180px;padding:16px 16px 70px}
+.top{display:flex;flex-wrap:wrap;align-items:center;gap:10px 8px;margin-bottom:16px}
+.top h1{order:1;flex:1;min-width:0;font-size:22px;white-space:nowrap}
+.top>.btn{order:2}
+.top .tabs{order:3;flex:1 0 100%;width:100%;display:flex;flex-wrap:wrap;gap:4px;padding:5px;border-radius:16px}
+.top .tabs button{flex:1 1 auto;height:36px;white-space:nowrap}
+#main .card{padding:clamp(14px,2.5vw,24px)}
+.stats{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.item.row.sp,.row.sp{gap:10px}
+.msg .h{flex-wrap:wrap}
+@media(max-width:700px){
+  .wrap{padding:10px 10px 60px}.top h1{font-size:18px}
+  .top .tabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity}.top .tabs::-webkit-scrollbar{display:none}
+  .top .tabs button{flex:none;scroll-snap-align:start}
+  .top>.btn{height:34px}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .item.row.sp{flex-direction:column;align-items:stretch}.item.row.sp>.row{justify-content:flex-start}
+  #view .row.sp>.row{width:100%}
+  #view .row>.inp,#view .row>select.inp{flex:1 1 100%!important;width:100%!important}
+  dialog{width:calc(100vw - 16px)!important}
+  .btn.sm{height:36px}
+}
 </style>
 </head>
 <body>
@@ -387,13 +411,13 @@ function openConv(id, limit) {
   function load(quiet) {
     return Promise.all([convKey(id, kind), rt('GET', basePath(id, kind) + '/m', undefined, 'orderBy=%22%24key%22&limitToLast=' + limit)]).then(function (r) {
       var key = r[0], j = r[1] || {}, ks = Object.keys(j).sort();
-      return Promise.all(ks.map(function (k) { return aesDec(key, j[k].i, j[k].t).catch(function () { return '(could not decrypt)'; }); })).then(function (txt) {
-        data = ks.map(function (k, n) { var m = j[k]; return { k: k, f: m.f, ts: typeof m.ts === 'number' ? m.ts : keyTs(k), ed: m.ed, txt: txt[n] }; });
+      return Promise.all(ks.map(function (k) { if (j[k] && j[k].sys) return ''; if (!j[k] || typeof j[k].t !== 'string' || typeof j[k].i !== 'string') return '(damaged message)'; return aesDec(key, j[k].i, j[k].t).catch(function () { return '(could not decrypt)'; }); })).then(function (txt) {
+        data = ks.map(function (k, n) { var m = j[k]; return { k: k, f: m.f, ts: typeof m.ts === 'number' ? m.ts : keyTs(k), ed: m.ed, txt: m.sys ? '[Aperture team notice] ' + m.t : txt[n] }; });
         var sel = $('mp'), cv = sel.value, ppl = []; data.forEach(function (m) { if (ppl.indexOf(m.f) < 0) ppl.push(m.f); });
         sel.innerHTML = '<option value="">Everyone</option>' + ppl.map(function (n) { return '<option value="' + esc(n) + '">' + esc(n) + '</option>'; }).join(''); sel.value = ppl.indexOf(cv) >= 0 ? cv : '';
         var st = window.scrollY; render(); if (quiet) window.scrollTo(0, st);
       });
-    }).catch(function (e) { $('mm').className = 'hint err'; $('mm').textContent = e.message === 'nokey' ? 'No admin key is stored for this chat yet. It is added the next time a member opens it after the admin key exists.' : 'Could not read this chat.'; });
+    }).catch(function (e) { delete keyCache[id]; var why = e && (e.name === 'OperationError' || e.name === 'InvalidCharacterError') ? 'This chat was locked with an older admin key, so your current key cannot open it. This happens for chats made before the admin key was reset or replaced, and they cannot be recovered. Chats created from now on open normally.' : e && e.status === 401 ? 'Permission denied. Publish the latest database rules, then sign out and back in.' : !adminPriv ? 'The admin key is locked. Sign out and sign in again, entering the key passphrase.' : e && e.message && e.message !== 'nokey' ? 'Reason: ' + String(e.message).slice(0, 120) : ''; $('mm').className = 'hint err'; $('mm').textContent = e && e.message === 'nokey' ? 'No admin key is stored for this chat yet. It is added the next time a member opens it after the admin key exists.' : 'Could not read this chat. ' + why; });
   }
   $('rl').onclick = function () { load(true); toast('Refreshed'); };
   $('ms').oninput = render; $('mp').onchange = render;
