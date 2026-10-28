@@ -79,6 +79,56 @@ textarea.inp{height:auto;padding:10px 12px;min-height:84px;resize:vertical}
   dialog{width:calc(100vw - 16px)!important}
   .btn.sm{height:36px}
 }
+
+dialog .db:focus,dialog .db:focus-visible,dialog:focus,dialog:focus-visible{outline:none}
+.item.row.sp>.row:first-child,.item.row.sp>span.row:first-child{align-items:flex-start;gap:12px}
+.item .av{margin-top:1px}
+@media(max-width:700px){.item.row.sp>.row:last-child{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%}.item.row.sp>.row:last-child .btn{width:100%;padding:0 6px}}
+/* ── polish pass: dialogs, switches, overflow, radii ── */
+html,body{overflow-x:hidden}
+*{min-width:0}
+.wrap,.card,.item,.msg,.row,.stat,.chips,.chip,#view,#st{min-width:0;max-width:100%}
+.item,.msg p,.meta,.hint,#ci,.chip,.stat,b{overflow-wrap:anywhere}
+.item{border-radius:14px}.item.row{align-items:center}
+.item .row,.item.row>span{min-width:0}
+.btn{flex-shrink:0;max-width:100%}.btn.sm{border-radius:10px}
+.inp,select.inp,textarea.inp{border-radius:12px;max-width:100%}
+select.inp{appearance:none;-webkit-appearance:none;padding:0 34px 0 12px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%238795a8' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;cursor:pointer}
+select.inp option{background:#212a34;color:#e8edf3}
+input[type=checkbox]{appearance:none;-webkit-appearance:none;flex:none;width:42px;height:24px;border-radius:99px;background:var(--surface-3);border:1px solid var(--hair-2);position:relative;cursor:pointer;margin:0;transition:background-color .25s var(--ease-out,ease),border-color .25s}
+input[type=checkbox]::after{content:'';position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#c9d4e2;box-shadow:0 1px 3px rgba(0,0,0,.4);transition:transform .35s var(--spring,ease)}
+input[type=checkbox]:checked{background:var(--accent);border-color:transparent}input[type=checkbox]:checked::after{transform:translateX(18px);background:#fff}
+input[type=checkbox]:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+label.hint.row{cursor:pointer;user-select:none}
+.tg2{padding:11px 0}.tg2:last-of-type{border-bottom:0}.tg2>span{flex:1;min-width:0}
+dialog{max-height:calc(100vh - 24px);max-height:calc(100dvh - 24px);overflow:hidden;border-radius:22px;padding:0}
+dialog[open]{display:flex;flex-direction:column}
+dialog .dh{flex:none;padding:20px 22px 6px}
+dialog .db{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:8px 22px 20px}
+dialog>.acts{flex:none;margin:0!important;padding:14px 22px 18px;border-top:1px solid var(--hair);background:var(--surface);justify-content:flex-end}
+#d-manage{width:min(580px,calc(100vw - 20px))!important}
+#d-manage .db{max-height:none!important}
+#d-ask .db,#d-reason .db{overflow:visible}
+#d-ask,#d-reason{max-width:min(440px,calc(100vw - 20px))}
+dialog::backdrop{background:rgba(5,8,12,.62);backdrop-filter:blur(3px)}
+#d-manage .acts .btn{min-width:96px}
+.chips{gap:6px}.chip{border-radius:99px;line-height:1.6}
+.tag{border-radius:99px}
+.msg{border-radius:0}
+.top{align-items:center}
+.tabs{border-radius:16px}.tabs button{border-radius:11px}
+#st:empty{display:none}
+.stat{border-radius:16px}
+.badge{border-radius:99px}
+#toast{max-width:min(92vw,460px);text-align:center}
+pre,code{white-space:pre-wrap;overflow-wrap:anywhere}
+@media(max-width:700px){
+  dialog .dh{padding:16px 16px 4px}dialog .db{padding:6px 16px 16px}dialog>.acts{padding:12px 16px 14px}
+  #d-manage{width:calc(100vw - 16px)!important}
+  .top .tabs button{height:38px}
+  .acts{flex-wrap:wrap}.acts .btn{flex:1 1 120px}
+  .item.row.sp .btn{flex:1 1 auto}
+}
 </style>
 </head>
 <body>
