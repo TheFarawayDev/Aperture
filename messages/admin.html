@@ -50,11 +50,15 @@ dialog{border:1px solid var(--hair-2);border-radius:20px;background:var(--surfac
     <div class="hint err" id="g-err"></div>
   </section>
   <section id="main" hidden>
-    <div class="top"><h1><i class="fa-solid fa-shield-halved"></i> Administration</h1><div class="tabs"><button data-t="rep" class="on">Reports</button><button data-t="chat">Chats</button><button data-t="usr">Users</button></div><button class="btn sm danger" id="reset-db" type="button" title="Wipe all accounts, chats and keys"><i class="fa-solid fa-trash-can"></i> Reset database</button><button class="btn sm" id="out" type="button">Sign out</button></div>
+    <div class="top"><h1><i class="fa-solid fa-shield-halved"></i> Administration</h1><div class="tabs"><button data-t="ov" class="on">Overview</button><button data-t="rep">Reports</button><button data-t="chat">Chats</button><button data-t="usr">Users</button><button data-t="nm">Names</button><button data-t="ban">Banned</button></div><button class="btn sm danger" id="reset-db" type="button" title="Wipe all accounts, chats and keys"><i class="fa-solid fa-trash-can"></i> Reset database</button><button class="btn sm" id="out" type="button">Sign out</button></div>
     <div id="st"></div><div class="card" id="view"></div>
   </section>
 </div>
 <dialog id="d-ask"><div class="ask-ic" id="a-ic"><i class="fa-solid fa-circle-question"></i></div><div class="dh"><h2 id="a-title"></h2></div><div class="db"><p id="a-text"></p><div class="acts"><button class="btn" id="a-no" type="button">Cancel</button><button class="btn pri" id="a-yes" type="button">Confirm</button></div></div></dialog>
+<dialog id="d-reason"><div class="ask-ic danger" id="r-ic"><i class="fa-solid fa-user-pen"></i></div><div class="dh" style="text-align:center"><h2 id="r-title"></h2></div><div class="db"><p id="r-text" style="text-align:center"></p>
+  <label class="lbl" for="r-sel">Reason (the user sees this)</label><select class="inp" id="r-sel"><option>Your nickname looks like a real name</option><option>Your nickname is inappropriate</option><option>Your nickname impersonates someone</option><option value="">Other (write below)</option></select>
+  <input class="inp" id="r-note" placeholder="Optional note" maxlength="120" style="margin-top:8px">
+  <div class="acts"><button class="btn" id="r-no" type="button">Cancel</button><button class="btn dangerfill" id="r-yes" type="button">Confirm</button></div></div></dialog>
 <dialog id="d-reset"><div class="ask-ic danger"><i class="fa-solid fa-trash-can"></i></div><div class="dh"><h2>Reset the database?</h2></div><div class="db">
   <p>This permanently deletes, for every user: nicknames, accounts, profile pictures &amp; keys, every DM and group chat, blocks, bans, and open reports.</p>
   <p>It does <b>not</b> delete admin accounts or the shared chat encryption key, so admins stay signed in. Everyone else is signed out and has to create a new account.</p>
@@ -182,7 +186,7 @@ $('go2').onclick = function () {
   } else run = openPriv(keyBlob, p).then(function (pr) { adminPriv = pr; });
   run.then(function () { if ($('rem').checked) idbPut('adm', adminPriv).catch(function () {}); }).then(show).catch(function () { err.textContent = keyBlob ? 'Wrong passphrase.' : 'Could not create the key.'; }).then(function () { b.disabled = false; });
 };
-function show() { $('gate').hidden = true; $('main').hidden = false; $('kp').value = $('kp2').value = ''; tab('rep'); }
+function show() { $('gate').hidden = true; $('main').hidden = false; $('kp').value = $('kp2').value = ''; tab('ov'); }
 $('out').onclick = function () { tok = ''; rtok = ''; adminPriv = null; keyCache = {}; forget(); location.reload(); };
 
 /* RESET DATABASE: wipes every user-data collection in one go, so admins can ship an
@@ -192,7 +196,7 @@ $('out').onclick = function () { tok = ''; rtok = ''; adminPriv = null; keyCache
    collection (never writing data to it), and admins/config are deliberately left out of
    that rule entirely — so this can never lock an admin out or lose the shared escrow key,
    no matter what gets clicked. Requires typing "RESET" first; there is no quicker path. */
-var RESET_COLLECTIONS = ['reports', 'blocks', 'bans', 'inbox', 'dms', 'groups', 'keys', 'profile', 'nicknames', 'users', 'calls'];
+var RESET_COLLECTIONS = ['reports', 'blocks', 'bans', 'inbox', 'dms', 'groups', 'keys', 'profile', 'nicknames', 'users', 'calls', 'forcename', 'nameok'];
 $('reset-db').onclick = function () {
   var d = $('d-reset'), inp = $('rz-confirm'), yes = $('rz-yes'), prog = $('rz-progress');
   inp.value = ''; yes.disabled = true; prog.textContent = ''; prog.className = 'hint';
@@ -217,7 +221,7 @@ $('rz-yes').onclick = function () {
   });
 };
 document.querySelectorAll('.tabs button').forEach(function (b) { b.onclick = function () { tab(b.dataset.t); }; });
-function tab(t) { document.querySelectorAll('.tabs button').forEach(function (b) { b.classList.toggle('on', b.dataset.t === t); }); ({ rep: reports, chat: chats, usr: users })[t](); }
+function tab(t) { document.querySelectorAll('.tabs button').forEach(function (b) { b.classList.toggle('on', b.dataset.t === t); }); clearInterval(chatT); loadStats(); ({ ov: overview, rep: reports, chat: chats, usr: users, nm: namesTab, ban: bansTab })[t](); }
 function fmt(ts) { return ts ? new Date(ts).toLocaleString() : ''; }
 function keyTs(k) { return parseInt(k.slice(0, 8), 36) || 0; }
 
@@ -256,7 +260,7 @@ function loadStats() {
   }).catch(function () {});
 }
 function reports() {
-  var v = $('view'); v.innerHTML = '<div class="hint">Loading…</div>'; loadStats();
+  var v = $('view'); v.innerHTML = '<div class="hint">Loading…</div>';
   rt('GET', 'reports').then(function (r) {
     r = r || {}; var ks = Object.keys(r).sort().reverse();
     v.innerHTML = '<div class="row sp"><b>' + ks.length + ' open report' + (ks.length === 1 ? '' : 's') + '</b><button class="btn sm" id="rf" type="button">Refresh</button></div>' + (ks.length ? ks.map(function (k) { var x = r[k]; return '<div class="item"><div class="row sp"><span><span class="tag">REPORT</span> <b>' + esc(x.fromNick || x.from) + '</b> <span class="meta">reported by ' + esc(x.byNick || x.by) + ' · ' + fmt(x.ts) + '</span></span></div><div class="txt">' + esc(x.t) + '</div><div class="meta">Chat: ' + esc(x.conv) + '</div><div class="row" style="margin-top:10px"><button class="btn sm" data-o="' + esc(x.conv) + '">Open chat</button><button class="btn sm danger" data-d="' + esc(k) + '">Delete message</button><button class="btn sm danger" data-b="' + esc(x.from) + '" data-bn="' + esc(x.fromNick || x.from) + '">Ban ' + esc(x.fromNick || x.from) + '</button><button class="btn sm" data-x="' + esc(k) + '">Dismiss</button></div></div>'; }).join('') : '<div class="hint">Nothing to review.</div>');
@@ -271,57 +275,236 @@ function reports() {
    cannot dodge a ban simply by renaming */
 function ban(uid, on) { return rt(on ? 'PUT' : 'DELETE', 'bans/' + uid, on ? true : undefined); }
 
+/* ═════════ NAMES (so nobody has to read raw ids) ═════════ */
+var nameV = {}, nameP = {}, chatT = 0, chatPre = '', metaC = null;
+function nameOf(u) { if (nameP[u]) return nameP[u]; nameP[u] = rt('GET', 'users/' + u).then(function (n) { return (nameV[u] = (typeof n === 'string' && n) ? n : 'user ' + u.slice(0, 5)); }).catch(function () { return (nameV[u] = 'user ' + u.slice(0, 5)); }); return nameP[u]; }
+function pool(items, n, fn) {
+  var i = 0, act = 0, res = [];
+  return new Promise(function (done) {
+    if (!items.length) return done(res);
+    function nx() { while (act < n && i < items.length) { (function (k) { act++; Promise.resolve().then(function () { return fn(items[k], k); }).then(function (r) { res[k] = r; }, function () {}).then(function () { act--; if (i >= items.length && act === 0) done(res); else nx(); }); })(i++); } }
+    nx();
+  });
+}
+function ago(ts) { if (!ts) return 'no messages'; var s = (Date.now() - ts) / 1000; if (s < 60) return 'just now'; if (s < 3600) return Math.floor(s / 60) + ' min ago'; if (s < 86400) return Math.floor(s / 3600) + ' h ago'; return Math.floor(s / 86400) + ' d ago'; }
+function dayOf(ts) { return new Date(ts).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }); }
+function dl(name, text) { var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type: 'text/plain' })); a.download = name; document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500); }
+/* every chat with a readable title, who is in it, and when it was last active (cached for 2 minutes) */
+function chatMeta(force, prog) {
+  if (!force && metaC && Date.now() - metaC.at < 120000) return Promise.resolve(metaC.list);
+  return Promise.all([rt('GET', 'dms', undefined, 'shallow=true'), rt('GET', 'groups', undefined, 'shallow=true')]).then(function (r) {
+    var all = Object.keys(r[0] || {}).map(function (k) { return { id: k, kind: 'd' }; }).concat(Object.keys(r[1] || {}).map(function (k) { return { id: k, kind: 'g' }; })), n = 0;
+    return pool(all, 8, function (c) {
+      var jobs = [rt('GET', basePath(c.id, c.kind) + '/m', undefined, 'orderBy=%22%24key%22&limitToLast=1').then(function (m) { var k = m && Object.keys(m)[0]; c.ts = k ? (typeof m[k].ts === 'number' ? m[k].ts : keyTs(k)) : 0; c.last = k ? m[k].f : ''; }).catch(function () { c.ts = 0; })];
+      if (c.kind === 'd') { c.uids = c.id.split('~'); jobs.push(Promise.all(c.uids.map(nameOf)).then(function (ns) { c.names = ns; c.title = ns.join(' ↔ '); })); }
+      else jobs.push(Promise.all([rt('GET', 'groups/' + c.id + '/name'), rt('GET', 'groups/' + c.id + '/members', undefined, 'shallow=true')]).then(function (x) { c.title = x[0] || 'Group'; c.uids = Object.keys(x[1] || {}); c.names = []; }));
+      return Promise.all(jobs).then(function () { if (prog) prog(++n, all.length); });
+    }).then(function () { all.forEach(function (c) { c.title = c.title || c.id; }); metaC = { at: Date.now(), list: all }; return all; });
+  });
+}
+function chatRow(c) {
+  return '<div class="item row sp" style="margin-top:6px"><span class="row" style="min-width:0;flex-wrap:nowrap"><i class="fa-solid ' + (c.kind === 'd' ? 'fa-user' : 'fa-user-group') + '" style="color:var(--t3)"></i><span style="min-width:0"><b>' + esc(c.title) + '</b><br><span class="meta">' + (c.kind === 'd' ? 'Direct message' : 'Group · ' + (c.uids || []).length + ' members') + ' · ' + (c.ts ? 'last message ' + ago(c.ts) + (c.last ? ' from ' + esc(c.last) : '') : 'no messages') + '</span></span></span><button class="btn sm" data-o="' + esc(c.id) + '">Open</button></div>';
+}
+
+/* OVERVIEW */
+function overview() {
+  var v = $('view'); v.innerHTML = '<div class="hint">Loading…</div>';
+  Promise.all([rt('GET', 'nicknames'), rt('GET', 'reports'), rt('GET', 'bans', undefined, 'shallow=true'), chatMeta(false)]).then(function (r) {
+    var nn = r[0] || {}, reps = r[1] || {}, bans = Object.keys(r[2] || {}), list = r[3], names = Object.keys(nn), wk = Date.now() - 7 * 864e5, day = Date.now() - 864e5;
+    var newest = names.filter(function (n) { return typeof nn[n].t === 'number'; }).sort(function (a, b) { return nn[b].t - nn[a].t; }).slice(0, 8);
+    var recent = list.filter(function (c) { return c.ts; }).sort(function (a, b) { return b.ts - a.ts; }).slice(0, 8), rk = Object.keys(reps).sort().reverse().slice(0, 5);
+    function card(n, l) { return '<div class="stat"><b>' + n + '</b><span>' + l + '</span></div>'; }
+    v.innerHTML = '<div class="row sp"><b>Overview</b><button class="btn sm" id="ovr" type="button"><i class="fa-solid fa-rotate"></i> Refresh</button></div><div class="stats" style="margin-top:10px">' +
+      card(names.length, 'Users') + card(names.filter(function (n) { return nn[n].t > wk; }).length, 'New this week') + card(list.filter(function (c) { return c.ts > day; }).length, 'Chats active today') + card(list.filter(function (c) { return c.kind === 'd'; }).length, 'Direct chats') + card(list.filter(function (c) { return c.kind === 'g'; }).length, 'Groups') + card(Object.keys(reps).length, 'Open reports') + card(bans.length, 'Banned') + '</div>' +
+      '<h4 style="margin:16px 0 4px">Needs attention</h4>' + (rk.length ? rk.map(function (k) { var x = reps[k]; return '<div class="item row sp" style="margin-top:6px"><span><span class="tag">REPORT</span> <b>' + esc(x.fromNick || x.from) + '</b> <span class="meta">reported by ' + esc(x.byNick || x.by) + '</span></span><button class="btn sm" data-go="rep">Review</button></div>'; }).join('') : '<div class="hint">Nothing waiting. No open reports.</div>') +
+      '<h4 style="margin:16px 0 4px">Recent chats</h4>' + (recent.length ? recent.map(chatRow).join('') : '<div class="hint">No messages yet.</div>') +
+      '<h4 style="margin:16px 0 4px">Newest users</h4>' + (newest.length ? newest.map(function (n) { return '<div class="item row sp" style="margin-top:6px"><span><b>' + esc(n) + '</b> <span class="meta">joined ' + esc(fmt(nn[n].t)) + '</span></span><button class="btn sm" data-uc="' + esc(n) + '">Chats</button></div>'; }).join('') : '<div class="hint">No signup times recorded.</div>');
+    $('ovr').onclick = function () { metaC = null; overview(); };
+    v.querySelectorAll('[data-o]').forEach(function (b) { b.onclick = function () { tab('chat'); openConv(b.dataset.o); }; });
+    v.querySelectorAll('[data-go]').forEach(function (b) { b.onclick = function () { tab(b.dataset.go); }; });
+    v.querySelectorAll('[data-uc]').forEach(function (b) { b.onclick = function () { chatPre = b.dataset.uc; tab('chat'); }; });
+  }).catch(function () { v.innerHTML = '<div class="hint err">Could not load. Check the database rules and that your account is listed as an admin.</div>'; });
+}
+
 /* CHATS */
 function chats() {
-  var v = $('view'); v.innerHTML = '<div class="row"><input class="inp" id="cf" placeholder="Filter by nickname or group id" style="flex:1"><button class="btn sm" id="cr" type="button">Refresh</button></div><div id="cl" class="hint" style="margin-top:12px">Loading…</div><div id="cv"></div>';
-  Promise.all([rt('GET', 'dms', undefined, 'shallow=true'), rt('GET', 'groups', undefined, 'shallow=true')]).then(function (r) {
-    var all = Object.keys(r[0] || {}).map(function (k) { return { id: k, kind: 'd' }; }).concat(Object.keys(r[1] || {}).map(function (k) { return { id: k, kind: 'g' }; }));
-    function draw() { var q = $('cf').value.trim().toLowerCase(); var l = all.filter(function (c) { return !q || c.id.toLowerCase().indexOf(q) >= 0; }).slice(0, 200); $('cl').innerHTML = l.length ? l.map(function (c) { return '<div class="item row sp" style="margin-top:6px"><span>' + (c.kind === 'd' ? '<i class="fa-solid fa-user"></i> ' : '<i class="fa-solid fa-user-group"></i> ') + esc(c.id) + '</span><button class="btn sm" data-c="' + esc(c.id) + '">Open</button></div>'; }).join('') : 'No chats found.'; $('cl').querySelectorAll('[data-c]').forEach(function (b) { b.onclick = function () { openConv(b.dataset.c); }; }); }
-    $('cf').oninput = draw; $('cr').onclick = chats; draw();
-  }).catch(function () { $('cl').textContent = 'Could not load chats.'; $('cl').className = 'hint err'; });
+  var v = $('view'), pre = chatPre; chatPre = '';
+  v.innerHTML = '<div class="row"><input class="inp" id="cf" placeholder="Search by person or group name" style="flex:1;min-width:180px" value="' + esc(pre) + '"><select class="inp" id="ck" style="width:auto"><option value="">All chats</option><option value="d">Direct messages</option><option value="g">Groups</option></select><select class="inp" id="cs" style="width:auto"><option value="r">Most recent</option><option value="n">Name A–Z</option></select><button class="btn sm" id="cr" type="button"><i class="fa-solid fa-rotate"></i> Refresh</button></div><div id="cl" class="hint" style="margin-top:12px">Loading…</div>';
+  var all = [];
+  function draw() {
+    var q = $('cf').value.trim().toLowerCase(), k = $('ck').value, s = $('cs').value;
+    var l = all.filter(function (c) { return (!k || c.kind === k) && (!q || c.title.toLowerCase().indexOf(q) >= 0 || c.id.toLowerCase().indexOf(q) >= 0); });
+    l.sort(s === 'n' ? function (a, b) { return a.title.toLowerCase() < b.title.toLowerCase() ? -1 : 1; } : function (a, b) { return (b.ts || 0) - (a.ts || 0); });
+    $('cl').className = ''; $('cl').innerHTML = '<div class="hint" style="margin:0 0 4px">' + l.length + ' chat' + (l.length === 1 ? '' : 's') + (l.length > 200 ? ' (showing 200)' : '') + '</div>' + (l.length ? l.slice(0, 200).map(chatRow).join('') : '<div class="hint">No chats match.</div>');
+    $('cl').querySelectorAll('[data-o]').forEach(function (b) { b.onclick = function () { openConv(b.dataset.o); }; });
+  }
+  chatMeta(false, function (n, t) { var e = $('cl'); if (e && e.className === 'hint') e.textContent = 'Loading chats… ' + n + '/' + t; }).then(function (l) { all = l; $('cf').oninput = $('ck').onchange = $('cs').onchange = draw; $('cr').onclick = function () { metaC = null; chats(); }; draw(); })
+    .catch(function () { $('cl').textContent = 'Could not load chats.'; $('cl').className = 'hint err'; });
 }
-function openConv(id) {
-  var kind = kindOf(id), v = $('view'); v.innerHTML = '<div class="row sp"><b>' + esc(id) + '</b><span class="row"><button class="btn sm danger" id="dc" type="button"><i class="fa-regular fa-trash-can"></i> Delete chat</button><button class="btn sm" id="bk" type="button">Back</button></span></div><div id="mm" class="hint">Loading…</div>';
+function openConv(id, limit) {
+  limit = limit || 300; clearInterval(chatT); var kind = kindOf(id), v = $('view'), data = [], info = null;
+  v.innerHTML = '<div class="row sp"><b id="ct" style="font-size:16px">Loading…</b><span class="row"><button class="btn sm" id="rl" type="button"><i class="fa-solid fa-rotate"></i> Refresh</button><button class="btn sm" id="ex" type="button"><i class="fa-solid fa-download"></i> Export</button><button class="btn sm danger" id="dc" type="button"><i class="fa-regular fa-trash-can"></i> Delete chat</button><button class="btn sm" id="bk" type="button">Back</button></span></div><div id="ci" class="hint"></div>' +
+    '<div class="row" style="margin-top:10px"><input class="inp" id="ms" placeholder="Search in this chat" style="flex:1;min-width:160px"><select class="inp" id="mp" style="width:auto"><option value="">Everyone</option></select><label class="hint row" style="margin:0;gap:6px"><input type="checkbox" id="al"> Auto-refresh</label></div><div id="bd-w" class="row" style="margin-top:8px" hidden></div><div id="mm" class="hint">Loading…</div>';
   $('bk').onclick = function () { tab('chat'); };
-  $('dc').onclick = function () { ask({ title: 'Delete this entire chat?', text: 'Every message, pin and key in ' + id + ' is removed for everyone. This cannot be undone.', ok: 'Delete chat', danger: true, icon: 'fa-trash-can' }).then(function (ok) { if (!ok) return; rt('DELETE', basePath(id, kind)).then(function () { toast('Chat deleted'); tab('chat'); }).catch(fail('Could not delete the chat')); }); };
-  Promise.all([convKey(id, kind), rt('GET', basePath(id, kind) + '/m', undefined, 'orderBy=%22%24key%22&limitToLast=300')]).then(function (r) {
-    var key = r[0], j = r[1] || {}, ks = Object.keys(j).sort();
-    return Promise.all(ks.map(function (k) { return aesDec(key, j[k].i, j[k].t).catch(function () { return '(could not decrypt)'; }); })).then(function (txt) {
-      $('mm').className = ''; $('mm').innerHTML = ks.length ? ks.map(function (k, n) { var m = j[k]; return '<div class="msg"><div class="h"><b>' + esc(m.f) + '</b>' + fmt(typeof m.ts === 'number' ? m.ts : keyTs(k)) + (m.ed ? ' · edited' : '') + '<button class="btn sm danger" data-k="' + esc(k) + '">Delete</button></div><p>' + esc(txt[n]) + '</p></div>'; }).join('') : '<div class="hint">No messages.</div>';
-      $('mm').querySelectorAll('[data-k]').forEach(function (b) { b.onclick = function () { ask({ title: 'Delete this message?', text: 'It is removed for everyone in the chat.', ok: 'Delete', danger: true, icon: 'fa-trash-can' }).then(function (ok) { if (!ok) return; rt('DELETE', basePath(id, kind) + '/m/' + b.dataset.k).then(function () { b.closest('.msg').remove(); toast('Message deleted'); }).catch(fail('Could not delete it')); }); }; });
-    });
-  }).catch(function (e) { $('mm').className = 'hint err'; $('mm').textContent = e.message === 'nokey' ? 'No admin key is stored for this chat yet. It is added the next time a member opens it after the admin key exists.' : 'Could not read this chat.'; });
+  var titleP = kind === 'd' ? Promise.all(id.split('~').map(nameOf)).then(function (n) { return { title: n.join(' ↔ '), names: n, uids: id.split('~') }; })
+    : Promise.all([rt('GET', 'groups/' + id + '/name'), rt('GET', 'groups/' + id + '/members', undefined, 'shallow=true'), rt('GET', 'groups/' + id + '/owner')]).then(function (x) { var u = Object.keys(x[1] || {}); return Promise.all(u.map(nameOf)).then(function (n) { return { title: x[0] || 'Group', names: n, uids: u, owner: x[2] }; }); });
+  titleP.then(function (t) {
+    info = t; $('ct').textContent = t.title;
+    $('ci').innerHTML = (kind === 'g' ? 'Group · ' + t.uids.length + ' members: ' + t.names.map(function (n, i) { return esc(n) + (t.uids[i] === t.owner ? ' (owner)' : ''); }).join(', ') : 'Direct message') + ' <span style="opacity:.6">· id ' + esc(id) + '</span>';
+    $('dc').onclick = function () { ask({ title: 'Delete this entire chat?', text: 'Every message, pin and key in ' + t.title + ' is removed for everyone. This cannot be undone.', ok: 'Delete chat', danger: true, icon: 'fa-trash-can' }).then(function (ok) { if (!ok) return; rt('DELETE', basePath(id, kind)).then(function () { metaC = null; toast('Chat deleted'); tab('chat'); }).catch(fail('Could not delete the chat')); }); };
+  });
+  function render() {
+    var q = $('ms').value.trim().toLowerCase(), p = $('mp').value, l = data.filter(function (m) { return (!p || m.f === p) && (!q || m.txt.toLowerCase().indexOf(q) >= 0); }), day = '';
+    var bw = $('bd-w'); bw.hidden = !p || !l.length; if (p) bw.innerHTML = '<button class="btn sm danger" id="bd" type="button"><i class="fa-regular fa-trash-can"></i> Delete all ' + l.length + ' shown from ' + esc(p) + '</button>';
+    $('mm').className = ''; $('mm').innerHTML = '<div class="hint" style="margin:6px 0 0">' + (l.length === data.length ? data.length + ' message' + (data.length === 1 ? '' : 's') : 'Showing ' + l.length + ' of ' + data.length) + '</div>' + (data.length >= limit ? '<div style="margin:8px 0"><button class="btn sm" id="mo" type="button">Load older messages</button></div>' : '') +
+      (l.length ? l.map(function (m) { var d = dayOf(m.ts), sep = d !== day ? '<div class="hint" style="margin:14px 0 2px;text-align:center">' + esc(d) + '</div>' : ''; day = d; return sep + '<div class="msg"><div class="h"><b>' + esc(m.f) + '</b>' + esc(fmt(m.ts)) + (m.ed ? ' · edited' : '') + '<button class="btn sm danger" data-k="' + esc(m.k) + '">Delete</button></div><p>' + esc(m.txt) + '</p></div>'; }).join('') : '<div class="hint">No messages' + (q || p ? ' match.' : '.') + '</div>');
+    if ($('mo')) $('mo').onclick = function () { openConv(id, limit + 400); };
+    if ($('bd')) $('bd').onclick = function () { ask({ title: 'Delete ' + l.length + ' messages?', text: 'Every message shown from ' + p + ' is removed for everyone in the chat.', ok: 'Delete all', danger: true, icon: 'fa-trash-can' }).then(function (ok) { if (!ok) return; var o = {}; l.forEach(function (m) { o[m.k] = null; }); rt('PATCH', basePath(id, kind) + '/m', o).then(function () { data = data.filter(function (m) { return !o.hasOwnProperty(m.k); }); render(); toast('Messages deleted'); }).catch(fail('Could not delete them')); }); };
+    $('mm').querySelectorAll('[data-k]').forEach(function (b) { b.onclick = function () { ask({ title: 'Delete this message?', text: 'It is removed for everyone in the chat.', ok: 'Delete', danger: true, icon: 'fa-trash-can' }).then(function (ok) { if (!ok) return; rt('DELETE', basePath(id, kind) + '/m/' + b.dataset.k).then(function () { data = data.filter(function (m) { return m.k !== b.dataset.k; }); render(); toast('Message deleted'); }).catch(fail('Could not delete it')); }); }; });
+  }
+  function load(quiet) {
+    return Promise.all([convKey(id, kind), rt('GET', basePath(id, kind) + '/m', undefined, 'orderBy=%22%24key%22&limitToLast=' + limit)]).then(function (r) {
+      var key = r[0], j = r[1] || {}, ks = Object.keys(j).sort();
+      return Promise.all(ks.map(function (k) { return aesDec(key, j[k].i, j[k].t).catch(function () { return '(could not decrypt)'; }); })).then(function (txt) {
+        data = ks.map(function (k, n) { var m = j[k]; return { k: k, f: m.f, ts: typeof m.ts === 'number' ? m.ts : keyTs(k), ed: m.ed, txt: txt[n] }; });
+        var sel = $('mp'), cv = sel.value, ppl = []; data.forEach(function (m) { if (ppl.indexOf(m.f) < 0) ppl.push(m.f); });
+        sel.innerHTML = '<option value="">Everyone</option>' + ppl.map(function (n) { return '<option value="' + esc(n) + '">' + esc(n) + '</option>'; }).join(''); sel.value = ppl.indexOf(cv) >= 0 ? cv : '';
+        var st = window.scrollY; render(); if (quiet) window.scrollTo(0, st);
+      });
+    }).catch(function (e) { $('mm').className = 'hint err'; $('mm').textContent = e.message === 'nokey' ? 'No admin key is stored for this chat yet. It is added the next time a member opens it after the admin key exists.' : 'Could not read this chat.'; });
+  }
+  $('rl').onclick = function () { load(true); toast('Refreshed'); };
+  $('ms').oninput = render; $('mp').onchange = render;
+  $('al').onchange = function () { clearInterval(chatT); if (this.checked) chatT = setInterval(function () { if (!$('mm') || !$('al')) { clearInterval(chatT); return; } load(true); }, 8000); };
+  $('ex').onclick = function () { if (!data.length) return toast('Nothing to export.'); dl(((info && info.title) || id).replace(/[^a-z0-9 _-]/gi, '_') + ' - chat export.txt', (info ? info.title : id) + '\nExported ' + new Date().toLocaleString() + '\n\n' + data.map(function (m) { return '[' + fmt(m.ts) + '] ' + m.f + ': ' + m.txt; }).join('\n')); };
+  load(false);
 }
 
 /* USERS */
 function users() {
-  var v = $('view'); v.innerHTML = '<div class="row"><input class="inp" id="uf" placeholder="Filter nicknames" style="flex:1"></div><div id="ul" class="hint" style="margin-top:12px">Loading…</div>';
-  /* nicknames are just the current name->uid directory; bans/pictures live on the
-     permanent uid, so each row resolves its uid lazily (same lazy-paint pattern the
-     picture lookup used before) */
-  rt('GET', 'nicknames', undefined, 'shallow=true').then(function (r) {
-    var names = Object.keys(r || {}).sort(), uids = {}, bans = {}, pics = {};
+  var v = $('view'); v.innerHTML = '<div class="row"><input class="inp" id="uf" placeholder="Filter nicknames" style="flex:1;min-width:160px"><select class="inp" id="us" style="width:auto"><option value="a">Name A–Z</option><option value="n">Newest first</option><option value="b">Banned first</option></select></div><div id="ul" class="hint" style="margin-top:12px">Loading…</div>';
+  Promise.all([rt('GET', 'nicknames'), rt('GET', 'bans', undefined, 'shallow=true')]).then(function (r) {
+    var nn = r[0] || {}, bans = r[1] || {}, pics = {};
+    function uidOf(n) { return nn[n] && nn[n].u; }
     function draw() {
-      var q = $('uf').value.trim().toLowerCase(), l = names.filter(function (n) { return !q || n.indexOf(q) >= 0; }).slice(0, 100);
-      $('ul').className = '';
-      $('ul').innerHTML = l.length ? l.map(function (n) { var u = uids[n], b = u ? bans[u] : false; return '<div class="item row sp" style="margin-top:6px"><span class="row"><span class="av" data-n="' + esc(n) + '">' + esc(n.charAt(0).toUpperCase()) + '</span><b>' + esc(n) + '</b> ' + (b ? '<span class="tag">BANNED</span>' : '') + '</span><span class="row"><button class="btn sm" data-p="' + esc(n) + '" hidden>Clear picture</button><button class="btn sm ' + (b ? '' : 'danger') + '" data-b="' + esc(n) + '"' + (u ? '' : ' disabled') + '>' + (b ? 'Unban' : 'Ban') + '</button><button class="btn sm danger" data-x="' + esc(n) + '">Remove</button></span></div>'; }).join('') : '<div class="hint">No users.</div>';
-      l.forEach(function (n) {
-        if (uids[n] !== undefined) { paint(n); return; }
-        rt('GET', 'nicknames/' + n).then(function (v2) {
-          uids[n] = (v2 && v2.u) || '';
-          if (!uids[n]) { draw(); return; }
-          return Promise.all([rt('GET', 'bans/' + uids[n]), rt('GET', 'profile/' + uids[n] + '/pic')]).then(function (rr) { bans[uids[n]] = !!rr[0]; pics[n] = rr[1] || ''; draw(); bind(); });
-        }).catch(function () { uids[n] = uids[n] || ''; });
-      });
+      var q = $('uf').value.trim().toLowerCase(), s = $('us').value, l = Object.keys(nn).filter(function (n) { return !q || n.indexOf(q) >= 0; });
+      l.sort(function (a, b) { if (s === 'n') return (nn[b].t || 0) - (nn[a].t || 0); if (s === 'b') return (bans[uidOf(b)] ? 1 : 0) - (bans[uidOf(a)] ? 1 : 0) || (a < b ? -1 : 1); return a < b ? -1 : 1; });
+      var shown = l.slice(0, 120);
+      $('ul').className = ''; $('ul').innerHTML = '<div class="hint" style="margin:0 0 4px">' + l.length + ' user' + (l.length === 1 ? '' : 's') + (l.length > 120 ? ' (showing 120 — use the filter)' : '') + '</div>' + (shown.length ? shown.map(function (n) { var u = uidOf(n), b = bans[u]; return '<div class="item row sp" style="margin-top:6px"><span class="row" style="flex-wrap:nowrap;min-width:0"><span class="av" data-n="' + esc(n) + '">' + esc(n.charAt(0).toUpperCase()) + '</span><span style="min-width:0"><b>' + esc(n) + '</b> ' + (b ? '<span class="tag">BANNED</span>' : '') + '<br><span class="meta">' + (nn[n].t ? 'joined ' + esc(fmt(nn[n].t)) : 'joined date unknown') + '</span></span></span><span class="row"><button class="btn sm" data-c="' + esc(n) + '">Chats</button><button class="btn sm" data-p="' + esc(n) + '" hidden>Clear picture</button><button class="btn sm" data-fr="' + esc(n) + '">Rename</button><button class="btn sm ' + (b ? '' : 'danger') + '" data-b="' + esc(n) + '">' + (b ? 'Unban' : 'Ban') + '</button><button class="btn sm danger" data-kk="' + esc(n) + '">Kick</button><button class="btn sm danger" data-x="' + esc(n) + '">Remove</button></span></div>'; }).join('') : '<div class="hint">No users.</div>');
+      bind(); pool(shown, 6, function (n) { var u = uidOf(n); if (!u) return; return (pics[n] !== undefined ? Promise.resolve(pics[n]) : rt('GET', 'profile/' + u + '/pic').then(function (p) { return (pics[n] = p || ''); })).then(function () { paint(n); }); });
     }
     function bind() {
-      $('ul').querySelectorAll('[data-b]').forEach(function (b) { b.onclick = function () { var n = b.dataset.b, u = uids[n]; if (!u) return toast('Still looking that user up — try again in a moment.'); var on = !bans[u]; ask({ title: (on ? 'Ban ' : 'Unban ') + n + '?', text: on ? 'They can no longer send messages or sign in to Messages, even if they change their nickname.' : 'They can use Messages again.', ok: on ? 'Ban' : 'Unban', danger: on, icon: on ? 'fa-ban' : 'fa-user-check' }).then(function (ok) { if (!ok) return; ban(u, on).then(function () { if (on) bans[u] = true; else delete bans[u]; draw(); bind(); toast(on ? n + ' banned' : n + ' unbanned'); }).catch(fail('Failed')); }); }; });
-      $('ul').querySelectorAll('[data-p]').forEach(function (b) { b.onclick = function () { var n = b.dataset.p, u = uids[n]; if (!u) return; ask({ title: 'Clear ' + n + "'s picture?", text: 'Their profile picture is removed. They can set a new one.', ok: 'Clear picture', danger: true, icon: 'fa-image' }).then(function (ok) { if (!ok) return; rt('DELETE', 'profile/' + u + '/pic').then(function () { pics[n] = ''; draw(); bind(); toast('Picture cleared'); }).catch(fail('Could not clear it')); }); }; });
-      $('ul').querySelectorAll('[data-x]').forEach(function (b) { b.onclick = function () { var n = b.dataset.x, u = uids[n]; ask({ title: 'Remove ' + n + '?', text: 'Their nickname, chat list and keys are deleted and the name becomes free. Their sign-in stays in Firebase Authentication; delete it there if needed.', ok: 'Remove user', danger: true, icon: 'fa-user-xmark' }).then(function (ok) { if (!ok) return; (u ? Promise.all([rt('DELETE', 'users/' + u), rt('DELETE', 'keys/' + u), rt('DELETE', 'profile/' + u + '/pic'), rt('DELETE', 'profile/' + u + '/pk')]) : Promise.resolve()).then(function () { return rt('DELETE', 'inbox/' + (u || n)); }).then(function () { return rt('DELETE', 'nicknames/' + n); }).then(function () { names.splice(names.indexOf(n), 1); draw(); bind(); toast(n + ' removed'); }).catch(fail('Could not remove the user')); }); }; });
+      var ul = $('ul');
+      ul.querySelectorAll('[data-c]').forEach(function (b) { b.onclick = function () { chatPre = b.dataset.c; tab('chat'); }; });
+      ul.querySelectorAll('[data-fr]').forEach(function (b) { b.onclick = function () { var n = b.dataset.fr, u = uidOf(n); if (u) doRename(n, u); }; });
+      ul.querySelectorAll('[data-kk]').forEach(function (b) { b.onclick = function () { var n = b.dataset.kk, u = uidOf(n); if (u) doKick(n, u).then(function (d) { if (d) { delete nn[n]; draw(); loadStats(); } }); }; });
+      ul.querySelectorAll('[data-b]').forEach(function (b) { b.onclick = function () { var n = b.dataset.b, u = uidOf(n), on = !bans[u]; if (!u) return; ask({ title: (on ? 'Ban ' : 'Unban ') + n + '?', text: on ? 'They can no longer send messages or sign in to Messages, even if they change their nickname.' : 'They can use Messages again.', ok: on ? 'Ban' : 'Unban', danger: on, icon: on ? 'fa-ban' : 'fa-user-check' }).then(function (ok) { if (!ok) return; ban(u, on).then(function () { if (on) bans[u] = true; else delete bans[u]; draw(); loadStats(); toast(on ? n + ' banned' : n + ' unbanned'); }).catch(fail('Failed')); }); }; });
+      ul.querySelectorAll('[data-p]').forEach(function (b) { b.onclick = function () { var n = b.dataset.p, u = uidOf(n); if (!u) return; ask({ title: 'Clear ' + n + "'s picture?", text: 'Their profile picture is removed. They can set a new one.', ok: 'Clear picture', danger: true, icon: 'fa-image' }).then(function (ok) { if (!ok) return; rt('DELETE', 'profile/' + u + '/pic').then(function () { pics[n] = ''; draw(); toast('Picture cleared'); }).catch(fail('Could not clear it')); }); }; });
+      ul.querySelectorAll('[data-x]').forEach(function (b) { b.onclick = function () { var n = b.dataset.x, u = uidOf(n); ask({ title: 'Remove ' + n + '?', text: 'Their nickname, chat list and keys are deleted and the name becomes free. Their sign-in stays in Firebase Authentication; delete it there if needed.', ok: 'Remove user', danger: true, icon: 'fa-user-xmark' }).then(function (ok) { if (!ok) return; (u ? Promise.all([rt('DELETE', 'users/' + u), rt('DELETE', 'keys/' + u), rt('DELETE', 'profile/' + u + '/pic'), rt('DELETE', 'profile/' + u + '/pk')]) : Promise.resolve()).then(function () { return rt('DELETE', 'inbox/' + (u || n)); }).then(function () { return rt('DELETE', 'nicknames/' + n); }).then(function () { delete nn[n]; metaC = null; draw(); loadStats(); toast(n + ' removed'); }).catch(fail('Could not remove the user')); }); }; });
     }
     function paint(n) { var el = $('ul').querySelector('.av[data-n="' + n + '"]'), pb = $('ul').querySelector('[data-p="' + n + '"]'); if (pb) pb.hidden = !pics[n]; if (el && pics[n]) { var im = new Image(); im.className = 'av'; im.referrerPolicy = 'no-referrer'; im.onload = function () { el.replaceWith(im); }; im.src = pics[n]; } }
-    $('uf').oninput = function () { draw(); bind(); }; draw(); bind();
+    $('uf').oninput = draw; $('us').onchange = draw; draw();
   }).catch(fail('Could not load users'));
+}
+
+
+/* ═════════ NAME CHECKS: detection, forced renames, kicks ═════════ */
+/* Real-name detector. A nickname is scored by how much it looks like a person's name (a common first name, a first
+   name + surname, a first name + initial, with or without digits / underscores / look-alike characters). It is a
+   heuristic: it only ever flags, an admin decides. Scores: 80+ high, 55+ likely, 30+ possible. */
+var NK = (function () {
+  var FIRST = ('james john robert michael william david richard joseph thomas charles chris christopher daniel matthew anthony mark donald steven paul andrew joshua kenneth kevin brian george timothy ronald edward jason jeffrey ryan jacob gary nicholas eric jonathan stephen larry justin scott brandon benjamin samuel gregory alexander frank patrick raymond jack dennis jerry tyler aaron jose adam nathan henry douglas zachary peter kyle noah ethan jeremy walter christian keith roger terry austin sean gerald carl harold dylan arthur lawrence jordan jesse bryan billy bruce gabriel joe logan albert willie alan eugene russell vincent philip bobby johnny bradley juan luis carlos diego mateo liam mason oliver elijah lucas levi isaac owen wyatt caleb hunter eli connor landon jaxon colton cole carter luke jayden dominic brayden gavin evan blake chase tristan xavier ian cameron trevor devin shane cody colin garrett miles max leo sebastian julian nolan elliot ezra mary patricia jennifer linda elizabeth barbara susan jessica sarah karen lisa nancy betty margaret sandra ashley kimberly emily donna michelle carol amanda dorothy melissa deborah stephanie rebecca sharon laura cynthia kathleen amy angela shirley anna brenda pamela emma nicole helen samantha katherine christine debra rachel carolyn janet catherine maria heather diane olivia julie joyce victoria kelly christina lauren joan evelyn judith megan cheryl andrea hannah martha jacqueline frances gloria ann teresa kathryn sara janice jean alice madison doris abigail julia judy grace denise amber marilyn beverly danielle theresa sophia marie diana brittany natalie isabella charlotte rose alexis kayla lily zoe chloe mia ava harper ella aria layla riley nora scarlett penelope hazel violet aurora savannah audrey brooklyn bella claire skylar lucy paisley everly anna caroline nova genesis emilia kennedy maya willow kinsley naomi aaliyah elena sarah ariana allison gabriella alice madelyn cora ruby eva serenity autumn adeline hailey gianna valentina isla eliana quinn nevaeh ivy sadie piper lydia alexa josephine emery julia delilah arianna vivian kaylee sophie brielle madeline peyton rylee clara hadley melanie mackenzie reagan adalynn liliana aubree jade katie kaitlyn bailey mikayla jasmine destiny alyssa morgan jenna tiffany erica courtney vanessa kristen monica lindsey crystal paige tara cassandra brooke kendall taylor jordan avery cameron skyler dakota hayden parker sydney reese kai ryder jayce jaden jamal marcus malik darius terrance devon tyrone andre deandre jalen tre trey cj aj jt dj ty ashton brady brody bryce cade chad corey craig dale dean derek drew dustin dwayne earl elias ellis felix fred grant greg gus hank ivan jake jared jay jeff jim joel jon josh kirk lance lee leon lewis lloyd mason maxwell mitchell neil nick noel omar oscar owen pedro rafael ray reid rick rob rod roy ryker sam seth shawn spencer stan stuart tanner todd tom tony troy wade warren wayne wesley will zane').split(/\s+/);
+  var LAST = ('smith johnson williams brown jones garcia miller davis rodriguez martinez hernandez lopez gonzalez wilson anderson thomas taylor moore jackson martin lee perez thompson white harris sanchez clark ramirez lewis robinson walker young allen king wright scott torres nguyen hill flores green adams nelson baker hall rivera campbell mitchell carter roberts gomez phillips evans turner diaz parker cruz edwards collins reyes stewart morris morales murphy cook rogers gutierrez ortiz morgan cooper peterson bailey reed kelly howard ramos kim cox ward richardson watson brooks chavez wood james bennett gray mendoza ruiz hughes price alvarez castillo sanders patel myers long ross foster jimenez powell jenkins perry russell sullivan bell coleman butler henderson barnes gonzales fisher vasquez simmons romero jordan patterson alexander hamilton graham reynolds griffin wallace moreno west cole hayes bryant herrera gibson ellis tran medina aguilar stevens murray ford castro marshall owens harrison fernandez mcdonald woods washington kennedy wells vargas henry chen freeman webb tucker guzman burns crawford olson simpson porter hunter gordon mendez silva shaw snyder mason dixon munoz hunt hicks holmes palmer wagner black robertson boyd rose stone salazar fox warren mills meyer rice schmidt garza daniels ferguson nichols stephens soto weaver ryan gardner payne grant dunn kelley spencer hawkins arnold pierce vazquez hansen peters santos hart bradley knight elliott cunningham duncan armstrong hudson carroll lane riley andrews alvarado ray delgado berry perkins hoffman johnston matthews pena richards contreras willis carpenter lawrence sandoval guerrero george chapman rios estrada ortega watkins greene nunez wheeler valdez harper burke larson santiago maldonado morrison franklin carlson austin dominguez carr lawson jacobs obrien lynch singh vega bishop montgomery oliver jensen harvey williamson gilbert dean sims espinoza howell li wong reid hanson le mccoy garrett burton fuller wang weber welch rojas lucas marquez fields park yang little banks padilla day walsh bowman schultz luna fowler mejia davidson acosta brewer may holland juarez newman pearson curtis cortez douglas schneider joseph barrett navarro figueroa keller avila wade molina stanley hopkins campos barnett bates chambers caldwell beck lambert miranda byrd craig ayala lowe frazier powers neal leonard gregory carrillo sutton fleming rhodes shelton schwartz norris jennings watts duran walters cohen mcdaniel moran parks steele vaughn becker holt deleon barker terry hale leon hail benson haynes horton miles lyons pham graves bush thornton wolfe warner cabrera mckinney mann zimmerman dawson lara fletcher page mccarthy love robles cervantes solis erickson reeves chang klein salinas fuentes baldwin daniel simon velasquez hardy higgins aguirre lin cummings chandler sharp barber bowen ochoa dennis robbins liu ramsey francis griffith paul blair oconnor cardenas pacheco cross calderon quinn moss swanson chan rivas khan rodgers serrano fitzgerald rosales stevenson christensen manning gill curry mclaughlin harmon mcgee gross doyle garner newton burgess reilly goodwin wilkins lowery').split(/\s+/);
+  // names that are also everyday words/nicknames: alone they are weak evidence
+  var WORDS = ('will mark grace faith hope rose ivy hunter river jack bill rob art joy dawn eve summer autumn rain sky amber jade ruby lily violet hazel willow nova genesis destiny harper skyler dakota parker reese ryder blake chase cole max miles dean drew grant page love may day sims little long white black green brown gray young king wood stone fox bush hill hall ford lane wells west ray lee fisher cook baker hunt king knight carter porter mason taylor bishop rice cross frank gus hank tre ty cj aj dj jt jay jim joe kai leo sam tom ian eli ann sara joan jean').split(/\s+/);
+  var F = {}, L = {}, W = {}; FIRST.forEach(function (x) { F[x] = 1; }); LAST.forEach(function (x) { L[x] = 1; }); WORDS.forEach(function (x) { W[x] = 1; });
+  function leet(s) { return s.replace(/0/g, 'o').replace(/1/g, 'i').replace(/3/g, 'e').replace(/4/g, 'a').replace(/5/g, 's').replace(/7/g, 't').replace(/8/g, 'b'); }
+  function scan(nick) {
+    var n = String(nick || '').toLowerCase(), best = 0, why = '';
+    function hit(sc, t) { if (sc > best) { best = sc; why = t; } }
+    var tail = (/\d+$/.exec(n) || [''])[0], year = /^(19|20)\d{2}$|^\d{2}$/.test(tail), base = n.replace(/\d+$/, '');
+    [base, leet(base)].forEach(function (b) {
+      var parts = b.split(/_+/).filter(Boolean);
+      if (parts.length >= 2) {
+        for (var i = 0; i + 1 < parts.length; i++) {
+          var a = parts[i], c = parts[i + 1];
+          if (F[a] && L[c] && c.length >= 3) hit(92, 'first name “' + a + '” + surname “' + c + '”');
+          else if (L[a] && F[c] && a.length >= 4) hit(80, 'surname “' + a + '” + first name “' + c + '”');
+          else if (F[a] && a.length >= 3 && c.length === 1) hit(78, 'first name “' + a + '” + initial “' + c + '”');
+          else if (a.length === 1 && L[c] && c.length >= 4) hit(70, 'initial “' + a + '” + surname “' + c + '”');
+          else if (F[a] && F[c] && !W[a] && !W[c] && a.length >= 4 && c.length >= 4) hit(40, 'two common first names');
+        }
+      }
+      var s = parts.join('');
+      if (parts.length === 1 || best < 55) {
+        if (F[s]) hit(W[s] ? 24 : s.length <= 3 ? 28 : 42, 'is a common first name (“' + s + '”)');
+        if (L[s] && s.length >= 5 && !W[s]) hit(32, 'is a common surname (“' + s + '”)');
+        for (var k = 1; k <= s.length - 1; k++) {
+          var a2 = s.slice(0, k), c2 = s.slice(k);
+          if (a2.length < 2) { if (L[c2] && c2.length >= 5 && !W[c2]) hit(66, 'initial “' + a2 + '” + surname “' + c2 + '”'); }
+          else if (F[a2] && L[c2] && c2.length >= 3 && a2.length >= 3) hit(W[a2] && W[c2] ? 62 : 88, 'first name “' + a2 + '” + surname “' + c2 + '”');
+          else if (L[a2] && F[c2] && a2.length >= 4 && c2.length >= 3) hit(66, 'surname “' + a2 + '” + first name “' + c2 + '”');
+          else if (F[a2] && a2.length >= 3 && c2.length === 1 && !F[s]) hit(66, 'first name “' + a2 + '” + initial “' + c2 + '”');
+          else if (a2.length === 1 && L[c2] && c2.length >= 5 && !W[c2]) hit(66, 'initial “' + a2 + '” + surname “' + c2 + '”');
+        }
+      }
+    });
+    if (tail) { if (best >= 55) best = Math.min(99, best + 3); else if (best >= 40 && year) { best = Math.max(best, 52); why += ' + a year/number'; } }
+    return { score: best, level: best >= 80 ? 'high' : best >= 55 ? 'likely' : best >= 30 ? 'possible' : '', why: why };
+  }
+  return { scan: scan };
+})();
+
+var namesLvl = 'likely';
+function askReason(title, text, ok, kick) {
+  return new Promise(function (res) {
+    var d = $('d-reason'), done = false; $('r-title').textContent = title; $('r-text').textContent = text; $('r-yes').textContent = ok; $('r-sel').value = $('r-sel').options[0].value; $('r-note').value = '';
+    $('r-ic').innerHTML = '<i class="fa-solid ' + (kick ? 'fa-user-slash' : 'fa-user-pen') + '"></i>';
+    function fin(v) { if (done) return; done = true; d.removeEventListener('close', onc); if (d.open) d.close(); res(v); } function onc() { fin(null); }
+    $('r-yes').onclick = function () { var t = ($('r-sel').value + (($('r-sel').value && $('r-note').value) ? ' — ' : '') + $('r-note').value.trim()).trim(); fin(t || 'Please change your nickname'); }; $('r-no').onclick = function () { fin(null); }; d.addEventListener('close', onc); d.showModal();
+  });
+}
+function forceRename(n, u, reason) { return rt('PUT', 'forcename/' + u, { r: reason, t: SV }); }
+/* kick: suspend the account (with the reason shown at sign-in) and take the nickname off the directory */
+function kickUser(n, u, reason) {
+  return rt('PUT', 'bans/' + u, { r: reason, t: SV, n: n }).then(function () { return Promise.all([rt('DELETE', 'forcename/' + u), rt('DELETE', 'nicknames/' + n), rt('DELETE', 'users/' + u)]); });
+}
+function doRename(n, u) { return askReason('Force ' + n + ' to change their nickname?', 'They can not use Messages until they pick a new nickname. Their account and chats are kept.', 'Force change', false).then(function (r) { if (!r) return false; return forceRename(n, u, r).then(function () { toast(n + ' must change their nickname'); return true; }).catch(function (e) { fail('Could not set it')(e); return false; }); }); }
+function doKick(n, u) { return askReason('Kick ' + n + '?', 'The account is suspended and signed out. Their nickname is removed from the directory and shows as a generic name in old chats.', 'Kick', true).then(function (r) { if (!r) return false; return kickUser(n, u, r).then(function () { metaC = null; toast(n + ' was kicked'); return true; }).catch(function (e) { fail('Could not kick')(e); return false; }); }); }
+function namesTab() {
+  var v = $('view'); v.innerHTML = '<div class="hint">Scanning nicknames…</div>';
+  Promise.all([rt('GET', 'nicknames'), rt('GET', 'nameok', undefined, 'shallow=true'), rt('GET', 'forcename', undefined, 'shallow=true'), rt('GET', 'bans', undefined, 'shallow=true')]).then(function (r) {
+    var nn = r[0] || {}, ok = r[1] || {}, fn = r[2] || {}, bans = r[3] || {}, min = namesLvl === 'high' ? 80 : namesLvl === 'all' ? 30 : 55;
+    var rows = Object.keys(nn).map(function (n) { return { n: n, u: nn[n].u, s: NK.scan(n) }; }).filter(function (x) { return x.s.score >= min && !ok[x.n] && !bans[x.u]; }).sort(function (a, b) { return b.s.score - a.s.score; });
+    var bulk = rows.filter(function (x) { return x.s.score >= 80 && !fn[x.u]; });
+    v.innerHTML = '<div class="row sp"><b>Possible real names</b><span class="row"><select class="inp" id="nl" style="width:auto"><option value="high">High confidence only</option><option value="likely">High + likely</option><option value="all">Include possible</option></select><button class="btn sm" id="nr" type="button"><i class="fa-solid fa-rotate"></i> Rescan</button></span></div>' +
+      '<p class="hint" style="margin:6px 0 10px">Scans every nickname for a common first name, first name + surname, first name + initial, with numbers or look-alike characters (j0hn_sm1th). It only suggests: nothing happens until you choose. ' + Object.keys(nn).length + ' nicknames scanned.</p>' +
+      '<div class="row" style="margin-bottom:8px"><input class="inp" id="nt" placeholder="Test any nickname…" style="flex:1;min-width:160px"><span class="hint" id="nto" style="margin:0"></span></div>' +
+      (bulk.length ? '<div style="margin:0 0 8px"><button class="btn sm danger" id="nb" type="button"><i class="fa-solid fa-user-pen"></i> Force a new nickname for all ' + bulk.length + ' high-confidence</button></div>' : '') +
+      (rows.length ? rows.slice(0, 150).map(function (x) { var c = x.s.level === 'high' ? 'rgba(224,112,122,.2);color:#f0a0a7' : x.s.level === 'likely' ? 'rgba(216,164,75,.2);color:#e8c57f' : 'rgba(135,149,168,.2);color:#b4c0cf'; return '<div class="item row sp" style="margin-top:6px"><span style="min-width:0"><b>' + esc(x.n) + '</b> <span class="tag" style="background:' + c + '">' + esc(x.s.level || 'low') + ' · ' + x.s.score + '</span>' + (fn[x.u] ? ' <span class="tag" style="background:rgba(91,143,232,.2);color:#8fb3f5">RENAME PENDING</span>' : '') + '<br><span class="meta">' + esc(x.s.why) + '</span></span><span class="row">' + (fn[x.u] ? '<button class="btn sm" data-cn="' + esc(x.u) + '">Cancel request</button>' : '<button class="btn sm" data-fr="' + esc(x.n) + '">Force rename</button>') + '<button class="btn sm danger" data-kk="' + esc(x.n) + '">Kick</button><button class="btn sm" data-ok="' + esc(x.n) + '">Looks fine</button></span></div>'; }).join('') : '<div class="hint" style="margin-top:10px">Nothing flagged at this level.</div>');
+    $('nl').value = namesLvl; $('nl').onchange = function () { namesLvl = this.value; namesTab(); }; $('nr').onclick = namesTab;
+    $('nt').oninput = function () { var q = this.value.trim().toLowerCase().replace(/[^a-z0-9_]/g, ''), o = $('nto'); if (!q) { o.textContent = ''; return; } var s = NK.scan(q); o.textContent = s.score + ' · ' + (s.level || 'not flagged') + (s.why ? ' — ' + s.why : ''); };
+    function uidOf(n) { return nn[n] && nn[n].u; }
+    v.querySelectorAll('[data-fr]').forEach(function (b) { b.onclick = function () { doRename(b.dataset.fr, uidOf(b.dataset.fr)).then(function (d) { if (d) namesTab(); }); }; });
+    v.querySelectorAll('[data-kk]').forEach(function (b) { b.onclick = function () { doKick(b.dataset.kk, uidOf(b.dataset.kk)).then(function (d) { if (d) namesTab(); }); }; });
+    v.querySelectorAll('[data-ok]').forEach(function (b) { b.onclick = function () { rt('PUT', 'nameok/' + b.dataset.ok, true).then(function () { toast('Marked as fine'); namesTab(); }).catch(fail('Could not save')); }; });
+    v.querySelectorAll('[data-cn]').forEach(function (b) { b.onclick = function () { rt('DELETE', 'forcename/' + b.dataset.cn).then(function () { toast('Request cancelled'); namesTab(); }).catch(fail('Could not cancel')); }; });
+    if ($('nb')) $('nb').onclick = function () { askReason('Force ' + bulk.length + ' people to change nickname?', 'Everyone listed as high confidence must pick a new nickname before they can use Messages again.', 'Force all', false).then(function (reason) { if (!reason) return; Promise.all(bulk.map(function (x) { return forceRename(x.n, x.u, reason); })).then(function () { toast(bulk.length + ' people must change their nickname'); namesTab(); }).catch(fail('Could not set them all')); }); };
+  }).catch(fail('Could not scan nicknames'));
+}
+
+/* BANNED */
+function bansTab() {
+  var v = $('view'); v.innerHTML = '<div class="hint">Loading…</div>';
+  rt('GET', 'bans').then(function (r) {
+    r = r || {}; var us = Object.keys(r);
+    return Promise.all(us.map(function (u) { return (r[u] && r[u].n) ? Promise.resolve(r[u].n) : nameOf(u); })).then(function (ns) {
+      v.innerHTML = '<div class="row sp"><b>' + us.length + ' banned user' + (us.length === 1 ? '' : 's') + '</b><button class="btn sm" id="br" type="button"><i class="fa-solid fa-rotate"></i> Refresh</button></div>' + (us.length ? us.map(function (u, i) { return '<div class="item row sp" style="margin-top:6px"><span><span class="tag">BANNED</span> <b>' + esc(ns[i]) + '</b>' + (r[u] && r[u].r ? '<br><span class="meta">' + esc(r[u].r) + (r[u].t ? ' · ' + esc(fmt(r[u].t)) : '') + '</span>' : '') + '</span><span class="row"><button class="btn sm" data-c="' + esc(ns[i]) + '">Chats</button><button class="btn sm" data-u="' + esc(u) + '" data-n="' + esc(ns[i]) + '">Unban</button></span></div>'; }).join('') : '<div class="hint" style="margin-top:10px">Nobody is banned.</div>');
+      $('br').onclick = bansTab;
+      v.querySelectorAll('[data-c]').forEach(function (b) { b.onclick = function () { chatPre = b.dataset.c; tab('chat'); }; });
+      v.querySelectorAll('[data-u]').forEach(function (b) { b.onclick = function () { ask({ title: 'Unban ' + b.dataset.n + '?', text: 'They can use Messages again.', ok: 'Unban', icon: 'fa-user-check' }).then(function (ok) { if (!ok) return; ban(b.dataset.u, false).then(function () { toast(b.dataset.n + ' unbanned'); bansTab(); loadStats(); }).catch(fail('Failed')); }); }; });
+    });
+  }).catch(function () { v.innerHTML = '<div class="hint err">Could not load bans.</div>'; });
 }
 })();
 </script>

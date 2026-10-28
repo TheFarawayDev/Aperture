@@ -453,6 +453,12 @@ dialog.ring{width:min(320px,calc(100vw - 24px))}
 <dialog id="d-ask"><div class="dh"><h2 id="a-title">Are you sure?</h2><button class="ibtn" data-close type="button" aria-label="Close"><i class="fa-solid fa-xmark"></i></button></div><div class="db">
   <div class="ask-ic" id="a-ic"><i class="fa-solid fa-circle-question"></i></div><p id="a-text"></p>
   <div class="acts"><button class="btn" id="a-no" type="button">Cancel</button><button class="btn pri" id="a-yes" type="button">Confirm</button></div></div></dialog>
+<dialog id="d-force"><div class="dh"><h2>Please change your nickname</h2></div><div class="db">
+  <p id="f-why" style="margin:0 0 6px"></p>
+  <div class="hint">Pick a nickname that is not your real name. You keep your account, chats and friends. Until you change it you can not use Messages.</div>
+  <label class="lbl" for="f-nick" style="margin-top:12px">New nickname</label><input class="inp" id="f-nick" placeholder="new_nickname" maxlength="20" autocomplete="off" autocapitalize="off" spellcheck="false">
+  <div class="hint" id="f-h"></div>
+  <div class="acts"><button class="btn pri" id="f-go" type="button">Change nickname</button></div></div></dialog>
 <dialog id="d-pw"><div class="dh"><h2>Change password</h2><button class="ibtn" data-close type="button" aria-label="Close"><i class="fa-solid fa-xmark"></i></button></div><div class="db">
   <label class="lbl" for="pw-old">Current password</label><input class="inp" id="pw-old" type="password" autocomplete="current-password">
   <label class="lbl" for="pw-new" style="margin-top:12px">New password</label><input class="inp" id="pw-new" type="password" autocomplete="new-password" placeholder="At least 8 characters">
@@ -1087,10 +1093,57 @@ function filterText(t) {
     .replace(/(?:\+?1[\s.-]?)?\(?\b\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}\b/g, '[number removed]')
     .replace(new RegExp(BAD.source, 'gi'), function (m) { return new Array(m.length + 1).join('*'); });
 }
+/* Real-name detector. A nickname is scored by how much it looks like a person's name (a common first name, a first
+   name + surname, a first name + initial, with or without digits / underscores / look-alike characters). It is a
+   heuristic: it only ever flags, an admin decides. Scores: 80+ high, 55+ likely, 30+ possible. */
+var NK = (function () {
+  var FIRST = ('james john robert michael william david richard joseph thomas charles chris christopher daniel matthew anthony mark donald steven paul andrew joshua kenneth kevin brian george timothy ronald edward jason jeffrey ryan jacob gary nicholas eric jonathan stephen larry justin scott brandon benjamin samuel gregory alexander frank patrick raymond jack dennis jerry tyler aaron jose adam nathan henry douglas zachary peter kyle noah ethan jeremy walter christian keith roger terry austin sean gerald carl harold dylan arthur lawrence jordan jesse bryan billy bruce gabriel joe logan albert willie alan eugene russell vincent philip bobby johnny bradley juan luis carlos diego mateo liam mason oliver elijah lucas levi isaac owen wyatt caleb hunter eli connor landon jaxon colton cole carter luke jayden dominic brayden gavin evan blake chase tristan xavier ian cameron trevor devin shane cody colin garrett miles max leo sebastian julian nolan elliot ezra mary patricia jennifer linda elizabeth barbara susan jessica sarah karen lisa nancy betty margaret sandra ashley kimberly emily donna michelle carol amanda dorothy melissa deborah stephanie rebecca sharon laura cynthia kathleen amy angela shirley anna brenda pamela emma nicole helen samantha katherine christine debra rachel carolyn janet catherine maria heather diane olivia julie joyce victoria kelly christina lauren joan evelyn judith megan cheryl andrea hannah martha jacqueline frances gloria ann teresa kathryn sara janice jean alice madison doris abigail julia judy grace denise amber marilyn beverly danielle theresa sophia marie diana brittany natalie isabella charlotte rose alexis kayla lily zoe chloe mia ava harper ella aria layla riley nora scarlett penelope hazel violet aurora savannah audrey brooklyn bella claire skylar lucy paisley everly anna caroline nova genesis emilia kennedy maya willow kinsley naomi aaliyah elena sarah ariana allison gabriella alice madelyn cora ruby eva serenity autumn adeline hailey gianna valentina isla eliana quinn nevaeh ivy sadie piper lydia alexa josephine emery julia delilah arianna vivian kaylee sophie brielle madeline peyton rylee clara hadley melanie mackenzie reagan adalynn liliana aubree jade katie kaitlyn bailey mikayla jasmine destiny alyssa morgan jenna tiffany erica courtney vanessa kristen monica lindsey crystal paige tara cassandra brooke kendall taylor jordan avery cameron skyler dakota hayden parker sydney reese kai ryder jayce jaden jamal marcus malik darius terrance devon tyrone andre deandre jalen tre trey cj aj jt dj ty ashton brady brody bryce cade chad corey craig dale dean derek drew dustin dwayne earl elias ellis felix fred grant greg gus hank ivan jake jared jay jeff jim joel jon josh kirk lance lee leon lewis lloyd mason maxwell mitchell neil nick noel omar oscar owen pedro rafael ray reid rick rob rod roy ryker sam seth shawn spencer stan stuart tanner todd tom tony troy wade warren wayne wesley will zane').split(/\s+/);
+  var LAST = ('smith johnson williams brown jones garcia miller davis rodriguez martinez hernandez lopez gonzalez wilson anderson thomas taylor moore jackson martin lee perez thompson white harris sanchez clark ramirez lewis robinson walker young allen king wright scott torres nguyen hill flores green adams nelson baker hall rivera campbell mitchell carter roberts gomez phillips evans turner diaz parker cruz edwards collins reyes stewart morris morales murphy cook rogers gutierrez ortiz morgan cooper peterson bailey reed kelly howard ramos kim cox ward richardson watson brooks chavez wood james bennett gray mendoza ruiz hughes price alvarez castillo sanders patel myers long ross foster jimenez powell jenkins perry russell sullivan bell coleman butler henderson barnes gonzales fisher vasquez simmons romero jordan patterson alexander hamilton graham reynolds griffin wallace moreno west cole hayes bryant herrera gibson ellis tran medina aguilar stevens murray ford castro marshall owens harrison fernandez mcdonald woods washington kennedy wells vargas henry chen freeman webb tucker guzman burns crawford olson simpson porter hunter gordon mendez silva shaw snyder mason dixon munoz hunt hicks holmes palmer wagner black robertson boyd rose stone salazar fox warren mills meyer rice schmidt garza daniels ferguson nichols stephens soto weaver ryan gardner payne grant dunn kelley spencer hawkins arnold pierce vazquez hansen peters santos hart bradley knight elliott cunningham duncan armstrong hudson carroll lane riley andrews alvarado ray delgado berry perkins hoffman johnston matthews pena richards contreras willis carpenter lawrence sandoval guerrero george chapman rios estrada ortega watkins greene nunez wheeler valdez harper burke larson santiago maldonado morrison franklin carlson austin dominguez carr lawson jacobs obrien lynch singh vega bishop montgomery oliver jensen harvey williamson gilbert dean sims espinoza howell li wong reid hanson le mccoy garrett burton fuller wang weber welch rojas lucas marquez fields park yang little banks padilla day walsh bowman schultz luna fowler mejia davidson acosta brewer may holland juarez newman pearson curtis cortez douglas schneider joseph barrett navarro figueroa keller avila wade molina stanley hopkins campos barnett bates chambers caldwell beck lambert miranda byrd craig ayala lowe frazier powers neal leonard gregory carrillo sutton fleming rhodes shelton schwartz norris jennings watts duran walters cohen mcdaniel moran parks steele vaughn becker holt deleon barker terry hale leon hail benson haynes horton miles lyons pham graves bush thornton wolfe warner cabrera mckinney mann zimmerman dawson lara fletcher page mccarthy love robles cervantes solis erickson reeves chang klein salinas fuentes baldwin daniel simon velasquez hardy higgins aguirre lin cummings chandler sharp barber bowen ochoa dennis robbins liu ramsey francis griffith paul blair oconnor cardenas pacheco cross calderon quinn moss swanson chan rivas khan rodgers serrano fitzgerald rosales stevenson christensen manning gill curry mclaughlin harmon mcgee gross doyle garner newton burgess reilly goodwin wilkins lowery').split(/\s+/);
+  // names that are also everyday words/nicknames: alone they are weak evidence
+  var WORDS = ('will mark grace faith hope rose ivy hunter river jack bill rob art joy dawn eve summer autumn rain sky amber jade ruby lily violet hazel willow nova genesis destiny harper skyler dakota parker reese ryder blake chase cole max miles dean drew grant page love may day sims little long white black green brown gray young king wood stone fox bush hill hall ford lane wells west ray lee fisher cook baker hunt king knight carter porter mason taylor bishop rice cross frank gus hank tre ty cj aj dj jt jay jim joe kai leo sam tom ian eli ann sara joan jean').split(/\s+/);
+  var F = {}, L = {}, W = {}; FIRST.forEach(function (x) { F[x] = 1; }); LAST.forEach(function (x) { L[x] = 1; }); WORDS.forEach(function (x) { W[x] = 1; });
+  function leet(s) { return s.replace(/0/g, 'o').replace(/1/g, 'i').replace(/3/g, 'e').replace(/4/g, 'a').replace(/5/g, 's').replace(/7/g, 't').replace(/8/g, 'b'); }
+  function scan(nick) {
+    var n = String(nick || '').toLowerCase(), best = 0, why = '';
+    function hit(sc, t) { if (sc > best) { best = sc; why = t; } }
+    var tail = (/\d+$/.exec(n) || [''])[0], year = /^(19|20)\d{2}$|^\d{2}$/.test(tail), base = n.replace(/\d+$/, '');
+    [base, leet(base)].forEach(function (b) {
+      var parts = b.split(/_+/).filter(Boolean);
+      if (parts.length >= 2) {
+        for (var i = 0; i + 1 < parts.length; i++) {
+          var a = parts[i], c = parts[i + 1];
+          if (F[a] && L[c] && c.length >= 3) hit(92, 'first name “' + a + '” + surname “' + c + '”');
+          else if (L[a] && F[c] && a.length >= 4) hit(80, 'surname “' + a + '” + first name “' + c + '”');
+          else if (F[a] && a.length >= 3 && c.length === 1) hit(78, 'first name “' + a + '” + initial “' + c + '”');
+          else if (a.length === 1 && L[c] && c.length >= 4) hit(70, 'initial “' + a + '” + surname “' + c + '”');
+          else if (F[a] && F[c] && !W[a] && !W[c] && a.length >= 4 && c.length >= 4) hit(40, 'two common first names');
+        }
+      }
+      var s = parts.join('');
+      if (parts.length === 1 || best < 55) {
+        if (F[s]) hit(W[s] ? 24 : s.length <= 3 ? 28 : 42, 'is a common first name (“' + s + '”)');
+        if (L[s] && s.length >= 5 && !W[s]) hit(32, 'is a common surname (“' + s + '”)');
+        for (var k = 1; k <= s.length - 1; k++) {
+          var a2 = s.slice(0, k), c2 = s.slice(k);
+          if (a2.length < 2) { if (L[c2] && c2.length >= 5 && !W[c2]) hit(66, 'initial “' + a2 + '” + surname “' + c2 + '”'); }
+          else if (F[a2] && L[c2] && c2.length >= 3 && a2.length >= 3) hit(W[a2] && W[c2] ? 62 : 88, 'first name “' + a2 + '” + surname “' + c2 + '”');
+          else if (L[a2] && F[c2] && a2.length >= 4 && c2.length >= 3) hit(66, 'surname “' + a2 + '” + first name “' + c2 + '”');
+          else if (F[a2] && a2.length >= 3 && c2.length === 1 && !F[s]) hit(66, 'first name “' + a2 + '” + initial “' + c2 + '”');
+          else if (a2.length === 1 && L[c2] && c2.length >= 5 && !W[c2]) hit(66, 'initial “' + a2 + '” + surname “' + c2 + '”');
+        }
+      }
+    });
+    if (tail) { if (best >= 55) best = Math.min(99, best + 3); else if (best >= 40 && year) { best = Math.max(best, 52); why += ' + a year/number'; } }
+    return { score: best, level: best >= 80 ? 'high' : best >= 55 ? 'likely' : best >= 30 ? 'possible' : '', why: why };
+  }
+  return { scan: scan };
+})();
+
 function validNick(n) {
   if (!/^[a-z0-9_]{3,20}$/.test(n)) return 'Use 3 to 20 letters, numbers or underscores.';
   if (RESERVED.test(n)) return 'That nickname is reserved.';
   if (BAD.test(n.replace(/_/g, '')) || /^\d+$/.test(n)) return 'Please pick a different nickname.';
+  if (NK.scan(n).level === 'high') return 'That looks like a real name. Pick a nickname that is not your name.';
   return '';
 }
 
@@ -1275,7 +1328,7 @@ function start() {
   nickCache[auth.uid] = me; uidCache[me] = auth.uid;
   avatar($('me-av'), auth.uid, me); $('me-n').textContent = me;
   store.read = store.read || {}; store.blocks = store.blocks || {}; blocks = store.blocks;
-  rt('GET', 'bans/' + auth.uid).then(function (b) { if (b) { signOut('This account has been suspended.'); } }).catch(function () {});
+  checkStatus(); timers.status = setInterval(checkStatus, 30000);
   rt('GET', 'config/adminPub').then(function (p) { adminPub = p || null; }).catch(function () {}).then(function () { return refreshInbox(); }).then(retention);
   loadBlocks(); wantPic(auth.uid);
   timers.inbox = setInterval(function () { refreshInbox(); }, 4500); openStream(); openCallStream();
@@ -1290,6 +1343,40 @@ function start() {
   // when the signaling is done and the RTCPeerConnection's own state covers disconnects.
   timers.calls = setInterval(function () { if (!callX || callX.phase !== 'active') rt('GET', 'calls/' + auth.uid).then(onRing).catch(function () {}); }, 3500);
 }
+/* an admin can suspend an account, or require a new nickname (for example when it is someone's real name) */
+var forcePending = false;
+function checkStatus() {
+  if (!auth.uid || !me) return;
+  rt('GET', 'bans/' + auth.uid).then(function (b) {
+    if (b) { signOut(b && b.r ? 'This account was removed: ' + b.r + '. You can make a new account with a nickname that is not your real name.' : 'This account has been suspended.'); return; }
+    return rt('GET', 'forcename/' + auth.uid).then(showForce);
+  }).catch(function () {});
+}
+function showForce(f) {
+  var d = $('d-force'); forcePending = !!f; if (!f) { if (d.open) d.close(); return; }
+  $('f-why').textContent = 'An administrator asked you to change your nickname' + (f.r ? ': ' + f.r : '.');
+  if (!d.open) { $('f-nick').value = ''; $('f-h').textContent = ''; $('f-h').className = 'hint'; d.showModal(); }
+}
+$('d-force').addEventListener('cancel', function (e) { e.preventDefault(); });
+$('d-force').addEventListener('close', function () { if (forcePending && me) setTimeout(function () { try { $('d-force').showModal(); } catch (e) {} }, 0); });
+$('f-nick').addEventListener('input', function () { this.value = this.value.toLowerCase().replace(/[^a-z0-9_]/g, ''); });
+$('f-nick').addEventListener('keydown', function (e) { if (e.key === 'Enter') $('f-go').click(); });
+$('f-go').onclick = function () {
+  var nn = $('f-nick').value, h = $('f-h'), b = this; h.className = 'hint';
+  if (nn === me) { h.className = 'hint err'; h.textContent = 'Pick a different nickname.'; return; }
+  var e1 = validNick(nn); if (e1) { h.className = 'hint err'; h.textContent = e1; return; }
+  var on = me; b.disabled = true; h.textContent = 'Checking…';
+  rt('GET', 'nicknames/' + nn).then(function (v) { if (v) throw { TAKEN: true }; return rt('PUT', 'nicknames/' + nn, { u: auth.uid, t: SV }); })
+    .then(function () { return rt('PUT', 'users/' + auth.uid, nn); })
+    .then(function () {
+      me = nn; store.nick = nn; save(); nickCache[auth.uid] = nn; uidCache[nn] = auth.uid; delete uidCache[on];
+      $('s-nick').textContent = me; $('me-n').textContent = me; refreshAvatars(); renderConvs();
+      return rt('DELETE', 'nicknames/' + on).catch(function () {});
+    }).then(function () { return rt('DELETE', 'forcename/' + auth.uid); })
+    .then(function () { forcePending = false; $('d-force').close(); toast('Your nickname is now “' + me + '”'); })
+    .catch(function (e) { h.className = 'hint err'; h.textContent = e && e.TAKEN ? 'That nickname is already taken.' : 'Could not change your nickname. Try again.'; })
+    .then(function () { b.disabled = false; });
+};
 function stopTimers() { if (callX) hangup('ended'); closeStream(); closeCallStream(); Object.keys(timers).forEach(function (k) { clearInterval(timers[k]); }); timers = {}; }
 function loadBlocks() { rt('GET', 'blocks/' + auth.uid).then(function (b) { b = b || {}; Object.keys(b).forEach(function (u) { store.blocks[u] = 1; }); blocks = store.blocks; save(); renderConvs(); }).catch(function () {}); }
 window.addEventListener('focus', function () { if (me && cur) { readMark[cur.id] = ''; pollMsgs(); } });
