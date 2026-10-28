@@ -36,6 +36,25 @@ dialog{border:1px solid var(--hair-2);border-radius:20px;background:var(--surfac
 .badge{display:inline-block;min-width:18px;padding:0 6px;margin-left:6px;border-radius:99px;background:var(--rose);color:#fff;font-size:11px;font-weight:700;line-height:18px;text-align:center}
 .av{width:32px;height:32px;border-radius:10px;object-fit:cover;background:var(--surface-3);flex:none;display:inline-grid;place-items:center;font-weight:700;color:#0e1620;overflow:hidden}
 .btn i{font-size:.9em}.msg .h .btn{margin-left:auto}
+
+/* wide sign-in + liquid motion */
+#gate{max-width:560px;margin:7vh auto 0;padding:clamp(22px,4vw,36px)}#gate h1{font-size:24px;margin-bottom:6px}#gate .inp{height:46px}
+.wrap{max-width:1100px}
+@media(max-width:640px){.wrap{padding:10px 10px 50px}#gate{margin:3vh auto 0;max-width:none}.tabs{max-width:100%;overflow-x:auto}.tabs button{flex:none}}
+:root{--spring:cubic-bezier(.34,1.56,.64,1);--ease-out:cubic-bezier(.22,1,.36,1)}
+.btn,.tabs button,.item{transition:transform .35s var(--spring),background-color .25s var(--ease-out),border-color .25s,box-shadow .3s var(--ease-out),opacity .2s}
+.btn:not(:disabled):hover{transform:translateY(-1px)}.btn:not(:disabled):active{transform:scale(.94);transition-duration:.12s}
+.btn{position:relative;overflow:hidden}.btn .rip{position:absolute;border-radius:50%;background:rgba(255,255,255,.3);transform:scale(0);animation:rip .6s var(--ease-out) forwards;pointer-events:none}@keyframes rip{to{transform:scale(1);opacity:0}}
+dialog[open]{animation:dlg .42s var(--spring)}dialog[open]::backdrop{animation:bd .3s ease-out}dialog.closing{animation:dlgx .2s ease-in forwards}
+@keyframes dlg{from{opacity:0;transform:translateY(24px) scale(.92)}to{opacity:1;transform:none}}@keyframes dlgx{to{opacity:0;transform:translateY(10px) scale(.96)}}@keyframes bd{from{opacity:0}to{opacity:1}}
+#gate,#main .card{animation:cardin .55s var(--ease-out) both}@keyframes cardin{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+#view>*{animation:vin .4s var(--ease-out) both}@keyframes vin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+#toast{transition:transform .5s var(--spring),opacity .25s}
+.tg2{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--hair)}.tg2 small{display:block;color:var(--t3)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}.chip{padding:2px 9px;border-radius:99px;background:var(--inset);border:1px solid var(--hair);font-size:12px}.chip.bad{background:rgba(224,112,122,.15);border-color:rgba(224,112,122,.4);color:#f0a0a7}
+textarea.inp{height:auto;padding:10px 12px;min-height:84px;resize:vertical}
+.rn{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:99px;font-size:10.5px;font-weight:700;background:rgba(216,164,75,.22);color:#e8c57f}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 </style>
 </head>
 <body>
@@ -50,11 +69,13 @@ dialog{border:1px solid var(--hair-2);border-radius:20px;background:var(--surfac
     <div class="hint err" id="g-err"></div>
   </section>
   <section id="main" hidden>
-    <div class="top"><h1><i class="fa-solid fa-shield-halved"></i> Administration</h1><div class="tabs"><button data-t="ov" class="on">Overview</button><button data-t="rep">Reports</button><button data-t="chat">Chats</button><button data-t="usr">Users</button><button data-t="call">Calls</button><button data-t="sd">Shutdown</button><button data-t="nm">Names</button><button data-t="ban">Banned</button></div><button class="btn sm danger" id="reset-db" type="button" title="Wipe all accounts, chats and keys"><i class="fa-solid fa-trash-can"></i> Reset database</button><button class="btn sm" id="out" type="button">Sign out</button></div>
+    <div class="top"><h1><i class="fa-solid fa-shield-halved"></i> Administration</h1><div class="tabs"><button data-t="ov" class="on">Overview</button><button data-t="rep">Reports</button><button data-t="chat">Chats</button><button data-t="usr">Users</button><button data-t="call">Calls</button><button data-t="sd">Shutdown</button><button data-t="snd">Send</button><button data-t="flt">Filter</button><button data-t="dev">Devices</button><button data-t="log">Log</button><button data-t="nm">Names</button><button data-t="ban">Banned</button></div><button class="btn sm danger" id="reset-db" type="button" title="Wipe all accounts, chats and keys"><i class="fa-solid fa-trash-can"></i> Reset database</button><button class="btn sm" id="out" type="button">Sign out</button></div>
     <div id="st"></div><div class="card" id="view"></div>
   </section>
 </div>
 <dialog id="d-ask"><div class="ask-ic" id="a-ic"><i class="fa-solid fa-circle-question"></i></div><div class="dh"><h2 id="a-title"></h2></div><div class="db"><p id="a-text"></p><div class="acts"><button class="btn" id="a-no" type="button">Cancel</button><button class="btn pri" id="a-yes" type="button">Confirm</button></div></div></dialog>
+<dialog id="d-manage" style="width:min(560px,calc(100vw - 24px))"><div class="dh"><h2 id="mg-t">Manage user</h2><div class="hint" id="mg-s" style="margin:2px 0 0"></div></div><div class="db" id="mg-b" style="max-height:70vh;overflow:auto"></div>
+  <div class="acts" style="margin:0 0 16px"><button class="btn" id="mg-x" type="button">Close</button></div></dialog>
 <dialog id="d-reason"><div class="ask-ic danger" id="r-ic"><i class="fa-solid fa-user-pen"></i></div><div class="dh" style="text-align:center"><h2 id="r-title"></h2></div><div class="db"><p id="r-text" style="text-align:center"></p>
   <label class="lbl" for="r-sel">Reason (the user sees this)</label><select class="inp" id="r-sel"><option>Your nickname looks like a real name</option><option>Your nickname is inappropriate</option><option>Your nickname impersonates someone</option><option value="">Other (write below)</option></select>
   <input class="inp" id="r-note" placeholder="Optional note" maxlength="120" style="margin-top:8px">
@@ -221,7 +242,7 @@ $('rz-yes').onclick = function () {
   });
 };
 document.querySelectorAll('.tabs button').forEach(function (b) { b.onclick = function () { tab(b.dataset.t); }; });
-function tab(t) { document.querySelectorAll('.tabs button').forEach(function (b) { b.classList.toggle('on', b.dataset.t === t); }); clearInterval(chatT); loadStats(); ({ ov: overview, rep: reports, chat: chats, usr: users, nm: namesTab, call: callsTab, sd: shutTab, ban: bansTab })[t](); }
+function tab(t) { document.querySelectorAll('.tabs button').forEach(function (b) { b.classList.toggle('on', b.dataset.t === t); }); clearInterval(chatT); loadStats(); ({ ov: overview, rep: reports, chat: chats, usr: users, nm: namesTab, call: callsTab, sd: shutTab, ban: bansTab, snd: sendTab, flt: filterTab, dev: devTab, log: logTab })[t](); }
 function fmt(ts) { return ts ? new Date(ts).toLocaleString() : ''; }
 function keyTs(k) { return parseInt(k.slice(0, 8), 36) || 0; }
 
@@ -343,7 +364,7 @@ function chats() {
 }
 function openConv(id, limit) {
   limit = limit || 300; clearInterval(chatT); var kind = kindOf(id), v = $('view'), data = [], info = null;
-  v.innerHTML = '<div class="row sp"><b id="ct" style="font-size:16px">Loading…</b><span class="row"><button class="btn sm" id="rl" type="button"><i class="fa-solid fa-rotate"></i> Refresh</button><button class="btn sm" id="ex" type="button"><i class="fa-solid fa-download"></i> Export</button><button class="btn sm danger" id="dc" type="button"><i class="fa-regular fa-trash-can"></i> Delete chat</button><button class="btn sm" id="bk" type="button">Back</button></span></div><div id="ci" class="hint"></div>' +
+  v.innerHTML = '<div class="row sp"><b id="ct" style="font-size:16px">Loading…</b><span class="row"><button class="btn sm" id="rl" type="button"><i class="fa-solid fa-rotate"></i> Refresh</button><button class="btn sm" id="ex" type="button"><i class="fa-solid fa-download"></i> Export</button><button class="btn sm" id="pn" type="button"><i class="fa-solid fa-bullhorn"></i> Post notice</button><button class="btn sm danger" id="dc" type="button"><i class="fa-regular fa-trash-can"></i> Delete chat</button><button class="btn sm" id="bk" type="button">Back</button></span></div><div id="ci" class="hint"></div>' +
     '<div class="row" style="margin-top:10px"><input class="inp" id="ms" placeholder="Search in this chat" style="flex:1;min-width:160px"><select class="inp" id="mp" style="width:auto"><option value="">Everyone</option></select><label class="hint row" style="margin:0;gap:6px"><input type="checkbox" id="al"> Auto-refresh</label></div><div id="bd-w" class="row" style="margin-top:8px" hidden></div><div id="mm" class="hint">Loading…</div>';
   $('bk').onclick = function () { tab('chat'); };
   var titleP = kind === 'd' ? Promise.all(id.split('~').map(nameOf)).then(function (n) { return { title: n.join(' ↔ '), names: n, uids: id.split('~') }; })
@@ -351,6 +372,7 @@ function openConv(id, limit) {
   titleP.then(function (t) {
     info = t; $('ct').textContent = t.title;
     $('ci').innerHTML = (kind === 'g' ? 'Group · ' + t.uids.length + ' members: ' + t.names.map(function (n, i) { return esc(n) + (t.uids[i] === t.owner ? ' (owner)' : ''); }).join(', ') : 'Direct message') + ' <span style="opacity:.6">· id ' + esc(id) + '</span>';
+    $('pn').onclick = function () { noticeDlg('Post a notice in ' + t.title, 'Everyone in this chat sees it as a message from the Aperture team.', function (txt, lv) { var k = newKey(); return rt('PUT', basePath(id, kind) + '/m/' + k, { f: 'Aperture team', fu: uid, t: txt, i: '0000000000000000', ts: SV, sys: true, lv: lv === 'info' ? 'info' : 'warn' }).then(function () { aud('chat-notice', t.title + ': ' + txt.slice(0, 120)); toast('Notice posted'); openConv(id, limit); }); }); };
     $('dc').onclick = function () { ask({ title: 'Delete this entire chat?', text: 'Every message, pin and key in ' + t.title + ' is removed for everyone. This cannot be undone.', ok: 'Delete chat', danger: true, icon: 'fa-trash-can' }).then(function (ok) { if (!ok) return; rt('DELETE', basePath(id, kind)).then(function () { metaC = null; toast('Chat deleted'); tab('chat'); }).catch(fail('Could not delete the chat')); }); };
   });
   function render() {
@@ -390,11 +412,12 @@ function users() {
       var q = $('uf').value.trim().toLowerCase(), s = $('us').value, l = Object.keys(nn).filter(function (n) { return !q || n.indexOf(q) >= 0; });
       l.sort(function (a, b) { if (s === 'n') return (nn[b].t || 0) - (nn[a].t || 0); if (s === 'b') return (bans[uidOf(b)] ? 1 : 0) - (bans[uidOf(a)] ? 1 : 0) || (a < b ? -1 : 1); return a < b ? -1 : 1; });
       var shown = l.slice(0, 120);
-      $('ul').className = ''; $('ul').innerHTML = '<div class="hint" style="margin:0 0 4px">' + l.length + ' user' + (l.length === 1 ? '' : 's') + (l.length > 120 ? ' (showing 120 — use the filter)' : '') + '</div>' + (shown.length ? shown.map(function (n) { var u = uidOf(n), b = bans[u]; return '<div class="item row sp" style="margin-top:6px"><span class="row" style="flex-wrap:nowrap;min-width:0"><span class="av" data-n="' + esc(n) + '">' + esc(n.charAt(0).toUpperCase()) + '</span><span style="min-width:0"><b>' + esc(n) + '</b> ' + (b ? '<span class="tag">BANNED</span>' : '') + '<br><span class="meta">' + (nn[n].t ? 'joined ' + esc(fmt(nn[n].t)) : 'joined date unknown') + '</span></span></span><span class="row"><button class="btn sm" data-c="' + esc(n) + '">Chats</button><button class="btn sm" data-p="' + esc(n) + '" hidden>Clear picture</button><button class="btn sm" data-fr="' + esc(n) + '">Rename</button><button class="btn sm ' + (b ? '' : 'danger') + '" data-b="' + esc(n) + '">' + (b ? 'Unban' : 'Ban') + '</button><button class="btn sm danger" data-kk="' + esc(n) + '">Kick</button><button class="btn sm danger" data-x="' + esc(n) + '">Remove</button></span></div>'; }).join('') : '<div class="hint">No users.</div>');
+      $('ul').className = ''; $('ul').innerHTML = '<div class="hint" style="margin:0 0 4px">' + l.length + ' user' + (l.length === 1 ? '' : 's') + (l.length > 120 ? ' (showing 120 — use the filter)' : '') + '</div>' + (shown.length ? shown.map(function (n) { var u = uidOf(n), b = bans[u]; return '<div class="item row sp" style="margin-top:6px"><span class="row" style="flex-wrap:nowrap;min-width:0"><span class="av" data-n="' + esc(n) + '">' + esc(n.charAt(0).toUpperCase()) + '</span><span style="min-width:0"><b>' + esc(n) + '</b> ' + (b ? '<span class="tag">BANNED</span>' : '') + '<br><span class="meta">' + (nn[n].t ? 'joined ' + esc(fmt(nn[n].t)) : 'joined date unknown') + '</span></span></span><span class="row"><button class="btn sm pri" data-mg="' + esc(n) + '">Manage</button><button class="btn sm" data-c="' + esc(n) + '">Chats</button><button class="btn sm" data-p="' + esc(n) + '" hidden>Clear picture</button><button class="btn sm" data-fr="' + esc(n) + '">Rename</button><button class="btn sm ' + (b ? '' : 'danger') + '" data-b="' + esc(n) + '">' + (b ? 'Unban' : 'Ban') + '</button><button class="btn sm danger" data-kk="' + esc(n) + '">Kick</button><button class="btn sm danger" data-x="' + esc(n) + '">Remove</button></span></div>'; }).join('') : '<div class="hint">No users.</div>');
       bind(); pool(shown, 6, function (n) { var u = uidOf(n); if (!u) return; return (pics[n] !== undefined ? Promise.resolve(pics[n]) : rt('GET', 'profile/' + u + '/pic').then(function (p) { return (pics[n] = p || ''); })).then(function () { paint(n); }); });
     }
     function bind() {
       var ul = $('ul');
+      ul.querySelectorAll('[data-mg]').forEach(function (b) { var sc = NK.scan(b.dataset.mg); if (sc.level === 'high' || sc.level === 'likely') { var nb = b.closest('.item').querySelector('b'); if (nb && !nb.nextElementSibling || nb && !nb.parentNode.querySelector('.rn')) nb.insertAdjacentHTML('afterend', '<span class="rn" title="' + esc(sc.why) + '">real name?</span>'); } b.onclick = function () { var n = b.dataset.mg; manage(n, uidOf(n)); }; });
       ul.querySelectorAll('[data-c]').forEach(function (b) { b.onclick = function () { chatPre = b.dataset.c; tab('chat'); }; });
       ul.querySelectorAll('[data-fr]').forEach(function (b) { b.onclick = function () { var n = b.dataset.fr, u = uidOf(n); if (u) doRename(n, u); }; });
       ul.querySelectorAll('[data-kk]').forEach(function (b) { b.onclick = function () { var n = b.dataset.kk, u = uidOf(n); if (u) doKick(n, u).then(function (d) { if (d) { delete nn[n]; draw(); loadStats(); } }); }; });
@@ -540,6 +563,114 @@ function bansTab() {
       v.querySelectorAll('[data-u]').forEach(function (b) { b.onclick = function () { ask({ title: 'Unban ' + b.dataset.n + '?', text: 'They can use Messages again.', ok: 'Unban', icon: 'fa-user-check' }).then(function (ok) { if (!ok) return; ban(b.dataset.u, false).then(function () { toast(b.dataset.n + ' unbanned'); bansTab(); loadStats(); }).catch(fail('Failed')); }); }; });
     });
   }).catch(function () { v.innerHTML = '<div class="hint err">Could not load bans.</div>'; });
+}
+
+/* ═════════ ADMIN CONTROLS: restrictions, warnings, notices, devices, filter, audit ═════════ */
+function newKey() { return Date.now().toString(36).padStart(8, '0') + Math.random().toString(36).slice(2, 7); }
+function aud(a, d) { return rt('PUT', 'audit/' + newKey(), { a: a, d: String(d || '').slice(0, 580), by: uid, ts: SV }).catch(function () {}); }
+(function () {
+  document.addEventListener('pointerdown', function (e) { var b = e.target.closest && e.target.closest('.btn'); if (!b || b.disabled) return; var r = b.getBoundingClientRect(), d = Math.max(r.width, r.height) * 2, i = document.createElement('i'); i.className = 'rip'; i.style.cssText = 'width:' + d + 'px;height:' + d + 'px;left:' + (e.clientX - r.left - d / 2) + 'px;top:' + (e.clientY - r.top - d / 2) + 'px'; b.appendChild(i); setTimeout(function () { i.remove(); }, 650); }, { passive: true });
+  var oc = HTMLDialogElement.prototype.close; HTMLDialogElement.prototype.close = function (v) { var d = this; if (!d.open || d.classList.contains('closing')) return oc.call(d, v); d.classList.add('closing'); setTimeout(function () { d.classList.remove('closing'); oc.call(d, v); }, 190); };
+})();
+function noticeDlg(title, sub, send) {
+  var d = $('d-manage'); $('mg-t').textContent = title; $('mg-s').textContent = sub;
+  $('mg-b').innerHTML = '<label class="lbl" for="nz-t">Message</label><textarea class="inp" id="nz-t" maxlength="600" placeholder="Write the message"></textarea><label class="lbl" for="nz-l">Style</label><select class="inp" id="nz-l"><option value="info">Information</option><option value="warn" selected>Warning</option><option value="final">Final warning (users only)</option></select><div class="acts"><button class="btn pri" id="nz-go" type="button"><i class="fa-solid fa-paper-plane"></i> Send</button></div>';
+  $('nz-go').onclick = function () { var t = $('nz-t').value.trim(); if (t.length < 3) { toast('Write a message first'); return; } $('nz-go').disabled = true; Promise.resolve(send(t, $('nz-l').value)).then(function () { d.close(); }).catch(function (e) { $('nz-go').disabled = false; fail('Could not send')(e); }); };
+  $('mg-x').onclick = function () { d.close(); }; if (!d.open) d.showModal(); $('nz-t').focus();
+}
+function sendNotice(u, n, txt, lv) { return rt('PUT', 'notices/' + u + '/' + newKey(), { t: txt, l: lv, ts: SV, by: 'Aperture team' }).then(function () { return aud('notice', n + ' [' + lv + ']: ' + txt.slice(0, 120)); }); }
+function manage(n, u) {
+  if (!u) { toast('Unknown user'); return; }
+  var d = $('d-manage'); $('mg-t').textContent = n; $('mg-s').textContent = 'Restrictions, warnings and devices';
+  $('mg-b').innerHTML = '<div class="hint">Loading…</div>'; $('mg-x').onclick = function () { d.close(); }; if (!d.open) d.showModal();
+  Promise.all([rt('GET', 'perms/' + u), rt('GET', 'warns/' + u), rt('GET', 'devices/' + u), rt('GET', 'bans/' + u), rt('GET', 'consent/' + u)]).then(function (r) {
+    var P = r[0] || {}, W = r[1] || {}, D = r[2], banned = !!r[3], C = r[4], wk = Object.keys(W).sort().reverse(), h = '';
+    function tg(k, a, b) { return '<div class="tg2"><span>' + a + '<small>' + b + '</small></span><input type="checkbox" data-pm="' + k + '"' + (P[k] ? ' checked' : '') + '></div>'; }
+    h += '<div class="row" style="gap:6px">' + (banned ? '<span class="tag">Banned</span>' : '<span class="chip">Active</span>') + '<span class="chip' + (wk.length ? ' bad' : '') + '">' + wk.length + ' warning' + (wk.length === 1 ? '' : 's') + '</span>' + (C ? '<span class="chip">Accepted rules ' + esc(new Date(C.ts || 0).toLocaleDateString()) + '</span>' : '<span class="chip">No rules record</span>') + '</div>';
+    h += '<label class="lbl">What this user can do</label>' + tg('nosend', 'Cannot send messages', 'They can still read') + tg('nocall', 'Cannot start or join calls', '') + tg('nogroup', 'Cannot create groups', '') + tg('nopic', 'Cannot change profile picture', ''); h += '<div class="tg2"><span>Can post in Announcements<small>Gives them the pinned channel’s composer</small></span><input type="checkbox" data-pm="announce"' + (P.announce ? ' checked' : '') + '></div>';
+    h += '<div class="tg2"><span>Slow mode<small>Seconds between messages</small></span><select class="inp" id="mg-slow" style="width:auto;height:36px">' + [0, 5, 10, 30, 60, 300].map(function (x) { return '<option value="' + x + '"' + ((+P.slow || 0) === x ? ' selected' : '') + '>' + (x ? x + ' s' : 'Off') + '</option>'; }).join('') + '</select></div>';
+    h += '<div class="acts" style="justify-content:flex-end;margin-top:10px"><button class="btn pri" id="mg-save" type="button">Save restrictions</button></div>';
+    h += '<label class="lbl" style="margin-top:16px">Warn or message this user</label><textarea class="inp" id="mg-msg" maxlength="600" placeholder="They see this the next time Messages is open, and must press “I understand”"></textarea><div class="row" style="margin-top:8px"><select class="inp" id="mg-lv" style="width:auto"><option value="info">Message</option><option value="warn" selected>Warning (counts)</option><option value="final">Final warning (counts)</option></select><button class="btn" id="mg-send" type="button">Send</button></div>';
+    if (wk.length) h += '<div class="hint" style="margin-top:10px">Warning history</div>' + wk.slice(0, 8).map(function (k) { return '<div class="msg"><div class="h"><b>' + esc(new Date(W[k].ts || 0).toLocaleString()) + '</b><button class="btn sm" data-wd="' + esc(k) + '">Remove</button></div><p>' + esc(W[k].r || '') + '</p></div>'; }).join('');
+    h += '<label class="lbl" style="margin-top:16px">Device</label><div id="mg-dev" class="hint">' + (D ? 'Loading…' : 'No device record yet (the user has not opened Messages since device tracking started).') + '</div>';
+    h += '<div class="hint" style="margin-top:14px">Account ban: ' + (banned ? 'this account is banned.' : 'not banned.') + ' <button class="btn sm ' + (banned ? '' : 'danger') + '" id="mg-ban" type="button">' + (banned ? 'Unban account' : 'Ban account') + '</button></div>';
+    $('mg-b').innerHTML = h;
+    $('mg-save').onclick = function () {
+      var o = { by: uid, ts: SV }, any = false; $('mg-b').querySelectorAll('[data-pm]').forEach(function (c) { if (c.checked) { o[c.dataset.pm] = true; any = true; } }); var sl = +$('mg-slow').value; if (sl) { o.slow = sl; any = true; }
+      (any ? rt('PUT', 'perms/' + u, o) : rt('DELETE', 'perms/' + u)).then(function () { aud('perms', n + ': ' + (any ? Object.keys(o).filter(function (k) { return k !== 'by' && k !== 'ts'; }).map(function (k) { return k + (k === 'slow' ? '=' + o[k] : ''); }).join(', ') : 'all restrictions cleared')); toast('Saved'); }).catch(fail('Could not save'));
+    };
+    $('mg-send').onclick = function () {
+      var t = $('mg-msg').value.trim(), lv = $('mg-lv').value; if (t.length < 3) { toast('Write a message first'); return; }
+      sendNotice(u, n, t, lv).then(function () { return lv === 'info' ? 0 : rt('PUT', 'warns/' + u + '/' + newKey(), { r: t.slice(0, 280), ts: SV, by: uid }); }).then(function () { toast('Sent'); manage(n, u); }).catch(fail('Could not send'));
+    };
+    $('mg-b').querySelectorAll('[data-wd]').forEach(function (b) { b.onclick = function () { rt('DELETE', 'warns/' + u + '/' + b.dataset.wd).then(function () { aud('warning-removed', n); manage(n, u); }).catch(fail('Could not remove')); }; });
+    $('mg-ban').onclick = function () { ask({ title: (banned ? 'Unban ' : 'Ban ') + n + '?', text: banned ? 'They can use Messages again.' : 'They can no longer send messages or sign in.', ok: banned ? 'Unban' : 'Ban', danger: !banned, icon: 'fa-user-slash' }).then(function (ok) { if (ok) ban(u, !banned).then(function () { aud(banned ? 'unban' : 'ban', n); toast(banned ? 'Unbanned' : 'Banned'); manage(n, u); }).catch(fail('Could not change the ban')); }); };
+    if (D) devPanel(n, u, D);
+  }).catch(fail('Could not load the user'));
+}
+function devPanel(n, u, D) {
+  var box = $('mg-dev');
+  Promise.all([rt('GET', 'devidx/' + D.id), rt('GET', 'fpidx/' + D.fp), rt('GET', 'devbans/' + D.id), rt('GET', 'fpbans/' + D.fp)]).then(function (r) {
+    var same = Object.keys(r[0] || {}).filter(function (x) { return x !== u; }), fpAll = Object.keys(r[1] || {}).filter(function (x) { return x !== u && same.indexOf(x) < 0; });
+    return Promise.all(same.concat(fpAll).map(nameOf)).then(function (ns) {
+      var sn = ns.slice(0, same.length), fn = ns.slice(same.length), h = '<div>' + esc(String(D.ua || '').slice(0, 90)) + '<br><span class="meta">Device ' + esc(D.id.slice(0, 8)) + '… · fingerprint ' + esc(D.fp) + ' · last seen ' + esc(new Date(D.ts || 0).toLocaleString()) + '</span></div>';
+      h += '<div class="chips">' + (sn.length ? sn.map(function (x) { return '<span class="chip bad">Same device: ' + esc(x) + '</span>'; }).join('') : '<span class="chip">No other accounts on this device</span>') + fn.map(function (x) { return '<span class="chip">Similar device: ' + esc(x) + '</span>'; }).join('') + '</div>';
+      h += '<div class="row" style="margin-top:10px">' + (r[2] ? '<button class="btn sm" id="dv-un" type="button">Unban this device</button>' : '<button class="btn sm danger" id="dv-b" type="button">Ban this device</button>') + (r[3] ? '<button class="btn sm" id="fp-un" type="button">Remove fingerprint ban</button>' : '<button class="btn sm danger" id="fp-b" type="button">Ban fingerprint</button>') + '</div>';
+      h += '<div class="hint">A device ban stops this browser. It can be dodged by clearing site data or using another browser. A fingerprint ban also catches that, but identical school computers can share a fingerprint, so it may block other students. Check “Similar device” first.</div>';
+      box.className = ''; box.innerHTML = h;
+      function setB(path, on, what) { ask({ title: (on ? 'Ban ' : 'Unban ') + what + '?', text: on ? 'Anyone using it is blocked from Messages and signed out.' : 'It can be used again.', ok: on ? 'Ban' : 'Unban', danger: on, icon: 'fa-ban' }).then(function (ok) { if (!ok) return; (on ? rt('PUT', path, { t: Date.now(), r: 'Breaking the rules', u: u }) : rt('DELETE', path)).then(function () { aud(on ? 'device-ban' : 'device-unban', n + ' ' + what); toast(on ? 'Banned' : 'Unbanned'); manage(n, u); }).catch(fail('Could not change it')); }); }
+      if ($('dv-b')) $('dv-b').onclick = function () { setB('devbans/' + D.id, true, 'this device'); }; if ($('dv-un')) $('dv-un').onclick = function () { setB('devbans/' + D.id, false, 'this device'); };
+      if ($('fp-b')) $('fp-b').onclick = function () { setB('fpbans/' + D.fp, true, 'this fingerprint'); }; if ($('fp-un')) $('fp-un').onclick = function () { setB('fpbans/' + D.fp, false, 'this fingerprint'); };
+    });
+  }).catch(function () { box.textContent = 'Could not load device info.'; });
+}
+function sendTab() {
+  var v = $('view');
+  v.innerHTML = '<b style="font-size:16px">Announcement to everyone</b><div class="hint">Shows as a banner at the top of Messages until each person dismisses it.</div><textarea class="inp" id="bc-t" maxlength="380" placeholder="Announcement text" style="margin-top:8px"></textarea><div class="row" style="margin-top:8px"><select class="inp" id="bc-l" style="width:auto"><option value="info">Information</option><option value="warn">Warning</option></select><select class="inp" id="bc-u" style="width:auto"><option value="0">Until I clear it</option><option value="3600000">1 hour</option><option value="86400000">1 day</option><option value="604800000">1 week</option></select><button class="btn pri" id="bc-go" type="button"><i class="fa-solid fa-bullhorn"></i> Publish</button><button class="btn" id="bc-clr" type="button">Clear</button></div><div class="hint" id="bc-cur"></div>' +
+    '<hr style="border:0;border-top:1px solid var(--hair);margin:20px 0"><b style="font-size:16px">Announcements channel</b><div class="hint">Pinned at the top of everyone’s chat list. Give a person posting rights from Manage on the Users tab.</div><textarea class="inp" id="an-t" maxlength="900" placeholder="Post as the Aperture team" style="margin-top:8px"></textarea><div class="row" style="margin-top:8px"><button class="btn pri" id="an-go" type="button">Post</button></div><div id="an-l"></div>' +
+    '<hr style="border:0;border-top:1px solid var(--hair);margin:20px 0"><b style="font-size:16px">Message one user</b><div class="hint">Pops up for them with an “I understand” button. For a counted warning, use Manage on the Users tab.</div><div class="row" style="margin-top:8px"><input class="inp" id="mu-n" placeholder="Nickname" style="flex:1;min-width:160px"><button class="btn" id="mu-go" type="button">Write message</button></div>' +
+    '<hr style="border:0;border-top:1px solid var(--hair);margin:20px 0"><b style="font-size:16px">Post in a chat</b><div class="hint">Open any chat on the Chats tab and press “Post notice”. It appears for everyone in that chat as a message from the Aperture team.</div>';
+  rt('GET', 'config/broadcast').then(function (b) { $('bc-cur').textContent = b && b.t ? 'Live now: “' + b.t + '”' : 'No announcement is live.'; }).catch(function () {});
+  function anList() { rt('GET', 'announce/m', undefined, 'orderBy=%22%24key%22&limitToLast=15').then(function (d) { var ks = Object.keys(d || {}).sort().reverse(); $('an-l').innerHTML = ks.map(function (k) { return '<div class="msg"><div class="h"><b>' + esc(d[k].f) + '</b>' + esc(new Date(typeof d[k].ts === 'number' ? d[k].ts : 0).toLocaleString()) + '<button class="btn sm danger" data-an="' + esc(k) + '">Delete</button></div><p>' + esc(d[k].t) + '</p></div>'; }).join(''); $('an-l').querySelectorAll('[data-an]').forEach(function (b) { b.onclick = function () { rt('DELETE', 'announce/m/' + b.dataset.an).then(function () { aud('announcement-delete', ''); anList(); }).catch(fail('Could not delete')); }; }); }).catch(function () {}); }
+  anList(); $('an-go').onclick = function () { var t = $('an-t').value.trim(); if (t.length < 3) { toast('Write the announcement first'); return; } rt('PUT', 'announce/m/' + newKey(), { f: 'Aperture team', fu: uid, t: t, ts: SV }).then(function () { aud('announcement', t.slice(0, 120)); $('an-t').value = ''; toast('Posted'); anList(); }).catch(fail('Could not post')); };
+  $('bc-go').onclick = function () { var t = $('bc-t').value.trim(), du = +$('bc-u').value; if (t.length < 3) { toast('Write the announcement first'); return; } rt('PUT', 'config/broadcast', { id: newKey(), t: t, l: $('bc-l').value, ts: SV, until: du ? Date.now() + du : null }).then(function () { aud('broadcast', t.slice(0, 120)); toast('Published'); sendTab(); }).catch(fail('Could not publish')); };
+  $('bc-clr').onclick = function () { rt('DELETE', 'config/broadcast').then(function () { aud('broadcast-clear', ''); toast('Cleared'); sendTab(); }).catch(fail('Could not clear')); };
+  $('mu-go').onclick = function () { var n = $('mu-n').value.trim().toLowerCase(); if (!n) return; rt('GET', 'nicknames/' + encodeURIComponent(n)).then(function (x) { if (!x || !x.u) { toast('No user called ' + n); return; } noticeDlg('Message ' + n, 'They see it the next time Messages is open.', function (t, lv) { return sendNotice(x.u, n, t, lv === 'final' ? 'final' : lv).then(function () { toast('Sent'); }); }); }).catch(fail('Could not look the user up')); };
+}
+function filterTab() {
+  var v = $('view'); v.innerHTML = '<div class="hint">Loading…</div>';
+  rt('GET', 'config/filter').then(function (f) {
+    var B = ((f && f.block) || []).slice(), A = ((f && f.allow) || []).slice();
+    function draw() {
+      v.innerHTML = '<b style="font-size:16px">Word filter</b><div class="hint">Aperture already blocks common swear words, slurs and look-alike spellings (f*ck, sh1t, f u c k). Add your own here. Changes reach users within a minute or so of their next sign-in or refresh.</div>' +
+        '<label class="lbl">Always block (also inside longer words)</label><div class="row"><input class="inp" id="fb-i" placeholder="word" style="flex:1;min-width:140px"><button class="btn" id="fb-a" type="button">Add</button></div><div class="chips">' + (B.length ? B.map(function (w, i) { return '<span class="chip bad">' + esc(w) + ' <a href="#" data-rb="' + i + '" style="color:inherit">✕</a></span>'; }).join('') : '<span class="chip">None</span>') + '</div>' +
+        '<label class="lbl" style="margin-top:16px">Always allow (never blocked)</label><div class="row"><input class="inp" id="fa-i" placeholder="word" style="flex:1;min-width:140px"><button class="btn" id="fa-a" type="button">Add</button></div><div class="chips">' + (A.length ? A.map(function (w, i) { return '<span class="chip">' + esc(w) + ' <a href="#" data-ra="' + i + '" style="color:inherit">✕</a></span>'; }).join('') : '<span class="chip">None</span>') + '</div>';
+      function add(arr, id) { var w = $(id).value.trim().toLowerCase().replace(/[^a-z0-9À-ɏ]/g, ''); if (w.length < 2 || w.length > 30) { toast('Enter one word (2 to 30 letters)'); return; } if (arr.indexOf(w) < 0) arr.push(w); save(); }
+      function save() { rt('PUT', 'config/filter', { block: B.slice(0, 300), allow: A.slice(0, 300), ts: SV }).then(function () { aud('filter', 'block ' + B.length + ', allow ' + A.length); draw(); toast('Saved'); }).catch(fail('Could not save the filter')); }
+      $('fb-a').onclick = function () { add(B, 'fb-i'); }; $('fa-a').onclick = function () { add(A, 'fa-i'); };
+      v.querySelectorAll('[data-rb]').forEach(function (a) { a.onclick = function (e) { e.preventDefault(); B.splice(+a.dataset.rb, 1); save(); }; }); v.querySelectorAll('[data-ra]').forEach(function (a) { a.onclick = function (e) { e.preventDefault(); A.splice(+a.dataset.ra, 1); save(); }; });
+    }
+    draw();
+  }).catch(fail('Could not load the filter'));
+}
+function devTab() {
+  var v = $('view'); v.innerHTML = '<div class="hint">Loading…</div>';
+  Promise.all([rt('GET', 'devbans'), rt('GET', 'fpbans')]).then(function (r) {
+    var D = r[0] || {}, F = r[1] || {}, rows = Object.keys(D).map(function (k) { return { p: 'devbans/' + k, k: k, t: 'Device', b: D[k] }; }).concat(Object.keys(F).map(function (k) { return { p: 'fpbans/' + k, k: k, t: 'Fingerprint', b: F[k] }; }));
+    return Promise.all(rows.map(function (x) { return x.b.u ? nameOf(x.b.u) : ''; })).then(function (ns) {
+      v.innerHTML = '<div class="row sp"><b>' + rows.length + ' banned device' + (rows.length === 1 ? '' : 's') + '</b><button class="btn sm" id="dr" type="button"><i class="fa-solid fa-rotate"></i> Refresh</button></div><div class="hint">Ban a device from a user’s Manage window on the Users tab.</div>' + rows.map(function (x, i) { return '<div class="item row sp"><span><b>' + x.t + '</b> ' + esc(x.k.slice(0, 12)) + '<br><span class="meta">' + (ns[i] ? 'Banned for ' + esc(ns[i]) + ' · ' : '') + esc(new Date(x.b.t || 0).toLocaleString()) + (x.b.r ? ' · ' + esc(x.b.r) : '') + '</span></span><button class="btn sm" data-u="' + i + '">Unban</button></div>'; }).join('');
+      $('dr').onclick = devTab; v.querySelectorAll('[data-u]').forEach(function (b) { b.onclick = function () { var x = rows[+b.dataset.u]; rt('DELETE', x.p).then(function () { aud('device-unban', x.t + ' ' + x.k.slice(0, 8)); toast('Unbanned'); devTab(); }).catch(fail('Could not unban')); }; });
+    });
+  }).catch(fail('Could not load device bans'));
+}
+function logTab() {
+  var v = $('view'); v.innerHTML = '<div class="hint">Loading…</div>';
+  rt('GET', 'audit', undefined, 'orderBy=%22%24key%22&limitToLast=200').then(function (a) {
+    var ks = Object.keys(a || {}).sort().reverse(); return Promise.all(ks.map(function (k) { return nameOf(a[k].by); })).then(function (ns) {
+      v.innerHTML = '<div class="row sp"><b>Admin action log</b><button class="btn sm" id="lr" type="button"><i class="fa-solid fa-rotate"></i> Refresh</button></div><div class="hint">The last 200 actions taken from this page. Entries cannot be edited or removed.</div>' + (ks.length ? ks.map(function (k, i) { var x = a[k]; return '<div class="msg"><div class="h"><b>' + esc(x.a) + '</b>' + esc(new Date(x.ts || 0).toLocaleString()) + ' · ' + esc(ns[i]) + '</div><p>' + esc(x.d || '') + '</p></div>'; }).join('') : '<div class="hint">Nothing recorded yet.</div>');
+      $('lr').onclick = logTab;
+    });
+  }).catch(fail('Could not load the log'));
 }
 })();
 </script>

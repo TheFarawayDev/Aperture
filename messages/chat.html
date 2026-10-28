@@ -41,6 +41,107 @@ main{flex:1;width:100%;padding:12px 10px 10px;display:flex;flex-direction:column
 .rules{margin:16px 0 0;padding:12px 14px;text-align:left;border-radius:14px;background:var(--inset);border:1px solid var(--hair);color:var(--t3);font-size:12.5px}.rules b{color:var(--t2)}.rules ul{margin:6px 0 0;padding-left:18px}
 .nick{font-size:18px;text-align:center;letter-spacing:.02em}
 
+
+/* ── wider sign-in / sign-up ── */
+#gate{max-width:920px;padding:0;display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);text-align:left;overflow:hidden;margin:clamp(8px,5vh,56px) auto}
+#gate .g-side{position:relative;overflow:hidden;padding:clamp(24px,4vw,40px);display:flex;flex-direction:column;justify-content:center;background:linear-gradient(160deg,rgba(91,143,232,.2),rgba(123,97,255,.08) 55%,transparent);border-right:1px solid var(--hair)}
+#gate .g-side>*:not(.g-blobs){position:relative;z-index:1}
+#gate .mark{margin:0 0 16px;width:60px;height:60px;font-size:25px}
+#gate h1{font-size:clamp(26px,3.2vw,34px)}
+#gate .g-form{padding:clamp(24px,4vw,40px);display:flex;flex-direction:column;justify-content:center;text-align:left}
+#gate .nick{text-align:left;font-size:17px}#gate .inp{height:46px}
+#gate .g-form .btn.pri{height:48px;font-size:15px}
+#gate .g-side .notice,#gate .g-side .rules{margin-top:14px}
+.g-blobs i{position:absolute;border-radius:50%;filter:blur(38px);opacity:.55;animation:blob 14s ease-in-out infinite}
+.g-blobs i:nth-child(1){width:220px;height:220px;background:#5b8fe8;top:-60px;left:-50px}
+.g-blobs i:nth-child(2){width:180px;height:180px;background:#7b61ff;bottom:-40px;right:-30px;animation-delay:-5s}
+.g-blobs i:nth-child(3){width:140px;height:140px;background:#37c8b4;top:45%;left:35%;animation-delay:-9s;opacity:.3}
+@keyframes blob{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(40px,30px) scale(1.15)}66%{transform:translate(-30px,50px) scale(.92)}}
+@media(max-width:760px){
+  #gate{grid-template-columns:1fr;max-width:640px;margin:0 auto;border-radius:20px}
+  #gate .g-side{order:2;border-right:0;border-top:1px solid var(--hair);padding:20px}
+  #gate .g-side>.mark,#gate .g-side>h1,#gate .g-side>p{display:none}
+  #gate .g-form{padding:22px 18px}
+  #gate .g-form::before{content:'Messages';display:block;font-size:26px;font-weight:700;letter-spacing:-.02em;margin-bottom:4px}
+  main{padding:8px 8px 10px}
+}
+
+@media(max-width:760px){
+  .hdr{background:#1b232c!important}
+  .hdr-wrap{padding:6px 8px 0;background:linear-gradient(var(--bg,#161c23) 70%,transparent)}
+  #gate{background:var(--surface);border-radius:18px;margin:6px 0 14px;width:100%}
+  #gate .g-side{background:var(--surface);padding:16px 14px}#gate .g-blobs{display:none}
+  #gate .g-form{padding:20px 16px}
+  #gate .consent{margin:10px 0 4px}
+  #gate .notice{background:rgba(216,164,75,.12);border:1px solid rgba(216,164,75,.35);color:#e8d3a6}
+  #gate .notice *{color:inherit}
+  .bc-bar{max-width:94vw}
+}
+
+/* ── sidebar header redesign ── */
+#side .me{margin:12px 12px 10px;padding:14px 12px 14px 18px;gap:14px;border-radius:18px;background:linear-gradient(135deg,rgba(91,143,232,.14),rgba(123,97,255,.07));border:1px solid var(--hair)}
+#side .me .av{width:46px;height:46px;border-radius:14px;font-size:18px;margin:2px}
+#side .me .n b{font-size:16px;letter-spacing:-.01em}#side .me .n span{display:block;margin-top:2px;font-size:12.5px}
+#side .me .ibtn{width:38px;height:38px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid var(--hair)}#side .me .ibtn:hover{background:rgba(255,255,255,.1)}
+#side .sbar{padding:0 12px 12px;gap:10px}#side .sbar .btn{height:42px;border-radius:13px;font-size:13.5px;padding:0 10px}
+#side .sbar .btn:not(.pri){background:var(--surface-2);border-color:var(--hair-2)}
+#side .lf{margin:0 12px 10px;padding:4px;gap:2px;border-radius:14px;background:var(--inset);border:1px solid var(--hair);overflow:visible}
+#side .lf button{flex:1;height:32px;padding:0 6px;border:0;border-radius:10px;font-size:12.5px}
+#side .lf button.on{background:var(--surface-3,#30404f);color:#fff;box-shadow:0 2px 8px -2px rgba(0,0,0,.5)}
+#side .fsearch{margin:0 12px 10px}#side .fsearch .inp{height:40px}
+/* ── chat switch: drop away, then a bubble grows out of the panel ── */
+#pane{position:relative}
+#pane.drop>*{animation:dropaway .22s cubic-bezier(.5,0,.9,.4) forwards}
+@keyframes dropaway{to{opacity:0;transform:translateY(46px) scale(.9);filter:blur(3px)}}
+#pane.bubble{animation:bubble .62s cubic-bezier(.22,1,.36,1) both}
+@keyframes bubble{from{clip-path:circle(0px at var(--ox,0px) var(--oy,50%))}to{clip-path:circle(var(--or,1600px) at var(--ox,0px) var(--oy,50%))}}
+#pane.bubble>*{animation:bubblein .6s cubic-bezier(.34,1.4,.64,1) both}
+@keyframes bubblein{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:none}}
+
+/* ── announcements channel ── */
+.ann-row{display:flex;align-items:center;gap:12px;margin:0 12px 8px;padding:10px 12px;border-radius:14px;cursor:pointer;background:linear-gradient(135deg,rgba(216,164,75,.16),rgba(216,164,75,.05));border:1px solid rgba(216,164,75,.4);width:calc(100% - 24px);text-align:left;color:inherit}
+.ann-row:hover{background:linear-gradient(135deg,rgba(216,164,75,.24),rgba(216,164,75,.08))}.ann-row .ai{flex:none;width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:rgba(216,164,75,.25);color:#e8c57f;font-size:16px}
+.ann-row .at2{min-width:0;flex:1}.ann-row b{display:flex;align-items:center;gap:6px;font-size:14px}.ann-row small{display:block;color:var(--t3);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ann-row .dot{min-width:20px;height:20px;border-radius:99px;background:#e8c57f;color:#2a1d05;font-size:11.5px;font-weight:800;display:grid;place-items:center;padding:0 6px}
+#ann{display:flex;flex-direction:column;flex:1;min-height:0}#ann[hidden]{display:none}
+#ann .ph .ai{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:rgba(216,164,75,.25);color:#e8c57f}
+#ann-list{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
+.ann-m{max-width:640px;width:100%;align-self:center;background:var(--surface-2);border:1px solid var(--hair);border-left:3px solid #e8c57f;border-radius:14px;padding:11px 14px;animation:msgin .45s var(--spring) both}
+.ann-m .h{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t3);margin-bottom:4px}.ann-m .h b{color:var(--text);font-size:13.5px}.ann-m .h .x{margin-left:auto;background:transparent;border:0;color:var(--t3);cursor:pointer}
+.ann-m p{margin:0;white-space:pre-wrap;word-break:break-word;font-size:14.5px;line-height:1.5}
+#ann-form{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--hair)}#ann-form textarea{flex:1;min-height:42px;max-height:120px;resize:none;padding:10px 12px;height:auto}
+#ann-ro{padding:12px 16px;text-align:center;color:var(--t3);font-size:13px;border-top:1px solid var(--hair)}
+/* ── liquid motion ── */
+:root{--spring:cubic-bezier(.34,1.56,.64,1);--ease-out:cubic-bezier(.22,1,.36,1)}
+.btn,.ibtn,.home,.tabs button,.chip,.conv,.row{transition:transform .35s var(--spring),background-color .25s var(--ease-out),border-color .25s,box-shadow .3s var(--ease-out),opacity .2s}
+.btn:not(:disabled):hover,.home:hover{transform:translateY(-1px)}
+.btn:not(:disabled):active,.ibtn:active,.home:active{transform:scale(.94);transition-duration:.12s}
+.btn.pri:not(:disabled):hover{box-shadow:0 8px 22px -8px rgba(91,143,232,.7)}
+.btn{position:relative;overflow:hidden}
+.btn .rip{position:absolute;border-radius:50%;background:rgba(255,255,255,.35);transform:scale(0);animation:rip .6s var(--ease-out) forwards;pointer-events:none}
+@keyframes rip{to{transform:scale(1);opacity:0}}
+dialog[open]{animation:dlg .42s var(--spring)}dialog[open]::backdrop{animation:bd .3s ease-out}
+dialog.closing{animation:dlgx .2s ease-in forwards}
+@keyframes dlg{from{opacity:0;transform:translateY(24px) scale(.92)}to{opacity:1;transform:none}}
+@keyframes dlgx{to{opacity:0;transform:translateY(10px) scale(.96)}}
+@keyframes bd{from{opacity:0}to{opacity:1}}
+.m{animation:msgin .45s var(--spring) both}
+.m.sysm{animation-name:msgin2}
+@keyframes msgin{from{opacity:0;transform:translateY(14px) scale(.94)}to{opacity:1;transform:none}}
+@keyframes msgin2{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:none}}
+#msgs.noanim .m{animation:none}
+.card#gate,#app{animation:cardin .6s var(--ease-out) both}
+@keyframes cardin{from{opacity:0;transform:translateY(18px) scale(.985)}to{opacity:1;transform:none}}
+
+@keyframes paneswap{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:none}}
+.tabs{position:relative}
+.tabs button.on{transition:background-color .35s var(--ease-out),color .25s}
+.inp:focus{transition:border-color .2s,box-shadow .35s var(--ease-out)}
+.toast{animation:toastin .5s var(--spring) both}
+@keyframes toastin{from{opacity:0;transform:translate(-50%,20px) scale(.9)}to{opacity:1;transform:translate(-50%,0)}}
+.bc-bar{animation:bcin .55s var(--spring) both}@keyframes bcin{from{opacity:0;transform:translate(-50%,-20px) scale(.95)}to{opacity:1;transform:translate(-50%,0)}}
+.av{transition:transform .4s var(--spring)}.av:hover{transform:scale(1.08) rotate(-3deg)}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 /* app */
 #app{flex:none;display:grid;grid-template-columns:330px minmax(0,1fr);grid-template-rows:minmax(0,1fr);min-height:0;height:calc(100vh - 88px);height:calc(100dvh - 88px);min-height:320px;overflow:hidden}
 @media(max-width:820px){#app{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr);height:calc(100dvh - 88px)}#app.in-chat #side{display:none}#app:not(.in-chat) #pane{display:none}}
@@ -357,6 +458,17 @@ dialog.ring{width:min(320px,calc(100vw - 24px))}
 .st-menu[hidden]{display:none}.st-menu button{display:flex;gap:10px;align-items:flex-start;width:100%;text-align:left;background:transparent;border:0;color:inherit;padding:9px 10px;border-radius:10px;cursor:pointer;font:inherit}
 .st-menu button:hover,.st-menu button.on{background:rgba(127,127,127,.14)}.st-menu .d{flex:none;width:12px;height:12px;border-radius:50%;margin-top:4px;position:relative}
 .st-menu b{display:block;font-size:14px}.st-menu small{display:block;color:var(--t3);font-size:12px;margin-top:1px}
+
+/* ── admin controls: notices, chat notices, real-name strip, broadcast ── */
+.bc-bar{position:fixed;top:10px;left:50%;transform:translateX(-50%);z-index:75;max-width:min(580px,92vw);display:flex;gap:10px;align-items:flex-start;background:var(--surface-2,#1a212b);border:1px solid var(--line,rgba(255,255,255,.14));border-left:4px solid #5b8fe8;border-radius:14px;padding:10px 12px;box-shadow:0 18px 40px -14px rgba(0,0,0,.55);font-size:14px}
+.bc-bar[hidden]{display:none}.bc-bar.warn{border-left-color:#e0707a}.bc-bar b{display:block;margin-bottom:2px}.bc-bar .x{margin-left:auto;background:transparent;border:0;color:inherit;cursor:pointer;font-size:16px;opacity:.7}
+.m.sysm{align-self:center;max-width:94%;width:auto}.m.sysm .bub.sysb{background:rgba(91,143,232,.13);border:1px solid rgba(91,143,232,.4);color:inherit;border-radius:14px;max-width:560px}
+.m.sysm .bub.sysb.warn{background:rgba(224,112,122,.13);border-color:rgba(224,112,122,.45)}.m.sysm .bub.sysb b{display:flex;align-items:center;gap:7px;font-size:12px;letter-spacing:.05em;text-transform:uppercase;margin-bottom:3px;opacity:.85}
+.rn-strip{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:rgba(216,164,75,.14);border-bottom:1px solid rgba(216,164,75,.4);padding:8px 14px;font-size:13px}.rn-strip[hidden]{display:none}
+.rn-strip span{flex:1;min-width:200px}.rn-strip i.fa-triangle-exclamation{color:#e8c57f}
+.rn-tag{display:inline-block;font-size:10.5px;font-weight:700;background:rgba(216,164,75,.25);color:#e8c57f;border-radius:99px;padding:1px 7px;margin-left:6px;vertical-align:middle}
+.stand{display:flex;flex-direction:column;gap:6px}.stand .w{border:1px solid var(--line,rgba(255,255,255,.12));border-radius:12px;padding:8px 10px;font-size:13px}.stand .w.warn{border-color:rgba(224,112,122,.5)}
+.rules-list{margin:6px 0 0;padding-left:18px;font-size:13px;line-height:1.55;color:var(--t2,inherit)}
 .btn.round.off{opacity:.5}
 #cover{position:fixed;inset:0;width:100vw;height:100vh;max-width:none;max-height:none;margin:0;border:0;padding:0;background:#fff;cursor:default}#cover::backdrop{background:#fff}
 .call-pip{transform:scaleX(-1);touch-action:none;cursor:grab}.call-pip.rear{transform:none}
@@ -381,9 +493,17 @@ dialog.ring{width:min(320px,calc(100vw - 24px))}
 <main>
   <!-- ── pick a nickname ── -->
   <section id="gate" class="card" hidden>
+<div class="g-side"><div class="g-blobs" aria-hidden="true"><i></i><i></i><i></i></div>
     <div class="mark"><i class="fa-solid fa-comments"></i></div>
     <h1>Messages</h1>
     <p id="gate-lead">Pick a nickname and a password. People find and message you by your nickname, so you never have to share your real name.</p>
+    <div class="notice"><i class="fa-solid fa-eye"></i><div><b>All chats are monitored.</b> Messages are encrypted, and site administrators can review any chat. Reported messages are always looked at. If anything bad happens while using Messages, Aperture and Faros Technologies Inc. are not responsible. Every message can be reported with the flag button.</div></div>
+    <div class="rules"><b>Be safe and kind</b>
+      <ul><li>Do not use your real name, school, address or phone number in your nickname or messages.</li><li>Only text is allowed. Links, emails and phone numbers are removed.</li><li>You can block anyone or report a message at any time.</li><li>Messages you send are deleted after 30 days. Only people 13 and older may use Messages.</li></ul>
+    </div>
+  
+</div>
+<div class="g-form">
     <div class="tabs" role="tablist"><button type="button" class="on" data-mode="up" role="tab">Create account</button><button type="button" data-mode="in" role="tab">Sign in</button></div>
     <label class="lbl" for="nick" style="text-align:left">Nickname</label>
     <input class="inp nick" id="nick" maxlength="20" placeholder="e.g. blue_falcon" autocomplete="username" autocapitalize="off" spellcheck="false">
@@ -393,31 +513,36 @@ dialog.ring{width:min(320px,calc(100vw - 24px))}
     <div id="pw2-wrap"><label class="lbl" for="pw2" style="text-align:left;margin-top:12px">Confirm password</label>
     <input class="inp" id="pw2" type="password" maxlength="100" placeholder="Type it again" autocomplete="new-password">
     <div class="hint" id="pw-h">Write your password down somewhere safe. There is no email, so a lost password cannot be reset, and your old messages cannot be read without it.</div></div>
-    </div>
     <label class="consent" id="consent-wrap"><input type="checkbox" id="consent"><span>I am <b>13 or older</b>, I understand that <b>all chats are monitored</b> and that Aperture is not responsible for what users say or do, and I agree to the <a href="../legal/terms-of-use" data-lg target="_blank" rel="noopener">Terms</a> and <a href="../legal/privacy-policy" data-lg target="_blank" rel="noopener">Privacy Policy</a>.</span></label>
     <button class="btn pri" id="nick-go" type="button" style="width:100%;margin-top:6px">Create account</button>
     <div class="hint err" id="gate-err" style="margin-top:10px"></div>
-    <div class="notice"><i class="fa-solid fa-eye"></i><div><b>All chats are monitored.</b> Messages are encrypted, and site administrators can review any chat. Reported messages are always looked at. If anything bad happens while using Messages, Aperture and Faros Technologies Inc. are not responsible. Every message can be reported with the flag button.</div></div>
-    <div class="rules"><b>Be safe and kind</b>
-      <ul><li>Do not use your real name, school, address or phone number in your nickname or messages.</li><li>Only text is allowed. Links, emails and phone numbers are removed.</li><li>You can block anyone or report a message at any time.</li><li>Messages you send are deleted after 30 days. Only people 13 and older may use Messages.</li></ul>
-    </div>
-  </section>
+</div>
+</section>
 
   <!-- ── chat ── -->
-  <section id="app" class="card" hidden>
+  <div id="bc-bar" class="bc-bar" hidden role="status"></div>
+<section id="app" class="card" hidden>
     <aside id="side">
       <div class="me"><div class="av" id="me-av"></div><div class="n"><b id="me-n"></b><span>Your nickname</span></div>
         <button class="ibtn" id="b-settings" type="button" title="Settings" aria-label="Settings"><i class="fa-solid fa-gear"></i></button></div>
       <div class="sbar"><button class="btn pri sm" id="b-new" type="button"><i class="fa-solid fa-pen-to-square"></i> New message</button><button class="btn sm" id="b-group" type="button"><i class="fa-solid fa-user-group"></i> New group</button></div>
       <div class="lf" id="lf"><button type="button" class="on" data-f="all">All</button><button type="button" data-f="un">Unread</button><button type="button" data-f="g">Groups</button><button type="button" data-f="fav">Starred</button></div>
       <div class="fsearch"><i class="fa-solid fa-magnifying-glass"></i><input class="inp" id="q-list" placeholder="Search chats" autocomplete="off" aria-label="Search chats"></div>
+      <button type="button" class="ann-row" id="ann-row"><span class="ai"><i class="fa-solid fa-bullhorn"></i></span><span class="at2"><b>Announcements <i class="fa-solid fa-thumbtack" style="font-size:11px;opacity:.6"></i></b><small id="ann-last">Official news from the team</small></span><span class="dot" id="ann-dot" hidden></span></button>
       <div id="convs"></div>
       <div class="side-foot"><button type="button" id="b-readall" title="Mark all chats as read"><i class="fa-solid fa-check-double"></i> Mark all read</button><button type="button" id="b-blocked"><i class="fa-solid fa-ban"></i> <span id="blk-n">Blocked (0)</span></button></div>
     </aside>
     <section id="pane">
       <div id="empty"><div class="empty-in"><div class="big"><i class="fa-regular fa-comments"></i></div><h3>Your messages</h3><p>Pick a chat on the left, or start one by typing someone's nickname.</p><div class="acts"><button class="btn pri sm" type="button" id="e-new"><i class="fa-solid fa-pen-to-square"></i> New message</button><button class="btn sm" type="button" id="e-group"><i class="fa-solid fa-user-group"></i> New group</button></div></div></div>
+      <div id="ann" hidden>
+        <div class="ph"><button class="ibtn back" id="ann-back" type="button" aria-label="Back to chats"><i class="fa-solid fa-chevron-left"></i></button><span class="ai"><i class="fa-solid fa-bullhorn"></i></span><div class="t"><b>Announcements</b><span>Everyone can read. Only approved people can post.</span></div></div>
+        <div id="ann-list" aria-live="polite"></div>
+        <form id="ann-form" hidden><textarea class="inp" id="ann-text" maxlength="900" placeholder="Write an announcement for everyone" rows="1"></textarea><button class="btn pri" type="submit"><i class="fa-solid fa-bullhorn"></i> Post</button></form>
+        <div id="ann-ro" hidden>Only people an administrator has approved can post here.</div>
+      </div>
       <div id="chat" hidden style="display:flex;flex-direction:column;flex:1;min-height:0">
         <div class="ph"><button class="ibtn back" id="b-back" type="button" aria-label="Back to chats"><i class="fa-solid fa-chevron-left"></i></button><div class="av" id="c-av"></div><div class="t"><b id="c-name"></b><span id="c-sub"></span></div><button class="ibtn" id="b-call-a" type="button" title="Voice call" aria-label="Voice call"><i class="fa-solid fa-phone"></i></button><button class="ibtn" id="b-call-v" type="button" title="Video call" aria-label="Video call"><i class="fa-solid fa-video"></i></button><button class="ibtn more-btn" id="b-more" type="button" title="More" aria-label="More options" aria-expanded="false"><i class="fa-solid fa-ellipsis"></i></button><div class="phx"><button class="ibtn" id="b-search" type="button" title="Search this chat" aria-label="Search this chat"><i class="fa-solid fa-magnifying-glass"></i></button><button class="ibtn" id="b-pins" type="button" title="Pinned messages" aria-label="Pinned messages"><i class="fa-solid fa-thumbtack"></i></button><button class="ibtn fav" id="b-fav" type="button" title="Star this chat" aria-label="Star this chat"><i class="fa-regular fa-star"></i></button><button class="ibtn warn" id="b-block" type="button" title="Block this person" aria-label="Block this person"><i class="fa-solid fa-ban"></i></button><button class="ibtn" id="b-info" type="button" title="Chat details" aria-label="Chat details"><i class="fa-solid fa-circle-info"></i></button></div></div>
+        <div id="rn-strip" class="rn-strip" hidden></div>
         <div id="sbar2" class="sbar2" hidden><input class="inp" id="q-chat" placeholder="Search messages in this chat" autocomplete="off" aria-label="Search messages"><span id="q-count"></span></div>
         <p class="banner" id="open-banner"><i class="fa-solid fa-shield-halved"></i> <b>All chats are monitored.</b> Be kind and report anything wrong with the flag on a message. Aperture is not responsible for what users say or do.</p>
         <div id="gc-bar" class="gc-bar" hidden><div class="gc-st" id="gc-stack"></div><div class="gc-t"><b id="gc-t1"></b><span id="gc-t2"></span></div><button class="btn sm" id="gc-joinv" type="button" title="Join with video" aria-label="Join with video"><i class="fa-solid fa-video"></i></button><button class="btn pri sm" id="gc-join" type="button">Join</button></div>
@@ -466,14 +591,23 @@ dialog.ring{width:min(320px,calc(100vw - 24px))}
   <div class="sec"><h3>Alerts</h3>
     <label class="tg"><span>Play a sound for new messages and mentions</span><input type="checkbox" id="s-snd"></label>
     <label class="tg"><span>Desktop notifications when this tab is in the background</span><input type="checkbox" id="s-dn"></label>
+    <label class="tg"><span>Message alerts</span><select id="s-nm" class="inp" style="width:auto;height:36px;padding:0 10px"><option value="all">Every new message</option><option value="mentions">Only @mentions</option><option value="off">None</option></select></label>
+    <label class="tg"><span>Ring, pop up and flash this tab when someone calls me</span><input type="checkbox" id="s-ncall"></label>
+    <label class="tg"><span>Hide names in notifications (they just say "Aperture")</span><input type="checkbox" id="s-nhide"></label>
+    <div class="row" style="margin:8px 0"><button class="btn sm" id="s-ntest" type="button"><i class="fa-regular fa-bell"></i> Send a test notification</button></div>
     <div class="hint" id="s-dnh">Notifications never include message text. Muted chats stay silent.</div></div>
   <div class="sec"><h3>Calls</h3>
     <label class="tg"><span>Video quality</span><select id="s-cq" class="inp" style="width:auto;height:36px;padding:0 10px"><option value="auto">Auto (recommended)</option><option value="low">Data saver</option><option value="high">High quality</option></select></label>
     <label class="tg"><span>Noise cancellation</span><select id="s-nc" class="inp" style="width:auto;height:36px;padding:0 10px"><option value="standard">Standard</option><option value="strong">Strong (voice only)</option><option value="off">Off</option></select></label>
     <div class="hint">Strong adds a voice-focused filter and noise gate on top of your browser's noise suppression. It applies to the next call; during a call, the sparkle button turns it on and off.</div>
     <label class="tg"><span>Join calls with mic muted and camera off</span><input type="checkbox" id="s-qj"></label>
-    <label class="tg"><span>Do not disturb (silently ignore incoming calls)</span><input type="checkbox" id="s-dnd"></label>
+    <label class="tg"><span>Do not disturb (no sounds or pop-ups, and callers are told you are busy)</span><input type="checkbox" id="s-dnd"></label>
     <div class="hint">Quality also lowers itself during a call when the connection gets weak, and comes back when it improves.</div></div>
+  <div class="sec"><h3>Account standing</h3><div class="stand" id="s-stand"><div class="hint">Loading…</div></div></div>
+  <div class="sec"><h3>Rules and responsibility</h3>
+    <div class="hint">You are responsible for what you send from your account. Please:</div>
+    <ul class="rules-list"><li>Use a nickname, never your real name, and never share anyone's real name, address, phone number or school details.</li><li>Be kind. Bullying, threats, hate and sexual content are not allowed.</li><li>Do not pretend to be someone else, and do not share your password.</li><li>Report problems with the Report button instead of replying in anger.</li></ul>
+    <div class="hint" style="margin-top:8px">Chats are encrypted, but the site administrators can review them, especially after a report. The word filter hides swearing and removes links, emails and phone numbers. Breaking the rules leads to a warning, then limits on your account (such as no calls or no sending), then a ban that can cover your device. Administrators keep a record of the actions they take.</div></div>
   <div class="sec"><h3>Privacy and display</h3>
     <label class="tg"><span>Send read receipts (show others when I have read their messages)</span><input type="checkbox" id="s-rr"></label>
     <label class="tg"><span>Show others when I am typing</span><input type="checkbox" id="s-ty"></label>
@@ -504,6 +638,18 @@ dialog.ring{width:min(320px,calc(100vw - 24px))}
   <label class="lbl" for="f-nick" style="margin-top:12px">New nickname</label><input class="inp" id="f-nick" placeholder="new_nickname" maxlength="20" autocomplete="off" autocapitalize="off" spellcheck="false">
   <div class="hint" id="f-h"></div>
   <div class="acts"><button class="btn pri" id="f-go" type="button">Change nickname</button></div></div></dialog>
+<dialog id="d-notice"><div class="db" style="text-align:center;padding-top:22px">
+  <div class="ask-ic" id="nt-ic" style="margin:0 auto 10px"><i class="fa-solid fa-shield-halved"></i></div>
+  <h2 id="nt-h" style="margin:0 0 8px">Message from the Aperture team</h2><p id="nt-t" style="margin:0 0 14px;white-space:pre-wrap;text-align:left"></p>
+  <div class="hint" id="nt-m" style="margin-bottom:12px"></div>
+  <div class="acts" style="justify-content:center"><button class="btn pri" id="nt-ok" type="button">I understand</button></div></div></dialog>
+<dialog id="d-report"><div class="dh"><h2>Report this message</h2><button class="ibtn" data-close type="button" aria-label="Close"><i class="fa-solid fa-xmark"></i></button></div><div class="db">
+  <p id="rp-who" style="margin:0 0 8px"></p>
+  <label class="lbl" for="rp-why">What is wrong?</label><select class="inp" id="rp-why"><option>Bullying or harassment</option><option>Inappropriate content</option><option>Real name or personal information</option><option>Threat or safety concern</option><option>Spam</option><option>Something else</option></select>
+  <input class="inp" id="rp-note" maxlength="140" placeholder="Optional note for the admins" style="margin-top:8px">
+  <label class="tg" style="margin-top:8px"><span>Include the 3 messages before it, so admins see the context</span><input type="checkbox" id="rp-ctx" checked></label>
+  <div class="hint">Administrators review reports. If someone is in danger, tell a trusted adult right away.</div>
+  <div class="acts"><button class="btn" id="rp-no" type="button">Cancel</button><button class="btn dangerfill" id="rp-yes" type="button">Send report</button></div></div></dialog>
 <dialog id="d-pw"><div class="dh"><h2>Change password</h2><button class="ibtn" data-close type="button" aria-label="Close"><i class="fa-solid fa-xmark"></i></button></div><div class="db">
   <label class="lbl" for="pw-old">Current password</label><input class="inp" id="pw-old" type="password" autocomplete="current-password">
   <label class="lbl" for="pw-new" style="margin-top:12px">New password</label><input class="inp" id="pw-new" type="password" autocomplete="new-password" placeholder="At least 8 characters">
@@ -515,7 +661,7 @@ dialog.ring{width:min(320px,calc(100vw - 24px))}
 <dialog id="d-pins"><div class="dh"><h2>Pinned messages</h2><button class="ibtn" data-close type="button" aria-label="Close"><i class="fa-solid fa-xmark"></i></button></div><div class="db" id="p-body"></div></dialog>
 <dialog id="d-incall" class="ring"><div class="db" style="text-align:center;padding-top:22px">
   <div class="av ring-av" id="cl-av" style="width:76px;height:76px;border-radius:24px;font-size:28px;margin:0 auto 14px"></div>
-  <h2 id="cl-name" style="margin:0 0 2px"></h2><p class="hint" id="cl-kind" style="margin:0 0 18px"></p>
+  <h2 id="cl-name" style="margin:0 0 2px"></h2><p class="hint" id="cl-kind" style="margin:0 0 18px"></p><p class="hint" id="cl-hint" style="margin:-8px 0 14px;font-size:12px" hidden></p>
   <div class="acts" style="justify-content:center;gap:18px">
     <button class="btn danger round" id="cl-decline" type="button" aria-label="Decline"><i class="fa-solid fa-phone-slash"></i></button>
     <button class="btn pri round" id="cl-accept" type="button" aria-label="Accept"><i class="fa-solid fa-phone"></i></button>
@@ -1138,14 +1284,90 @@ function ask(o) {
 
 /* ═════════ SAFETY FILTERS ═════════ */
 var RESERVED = /^(admin|administrator|mod|moderator|staff|teacher|principal|aperture|faros|support|official|system|school|district|help|security|police)$/;
-var BAD = /(f+u+c+k+|sh[i1]t+|b[i1]tch|a+ss+h[o0]le|cunt|n[i1]gg+[ae3]|fagg?[o0]t|retard|wh[o0]re|slut|d[i1]ck\s?head)/i;
+/* ═════════ SWEAR FILTER ═════════
+   Normalises look-alike letters, spaced-out letters (f u c k, f.u.c.k) and stretched words, then checks every word
+   against a strong list (also caught inside longer words) and a whole-word list (so "class" and "hello" are safe).
+   An admin can add or allow words from Admin > Filter (config/filter). */
+var PF = (function () {
+  var STRONG = ['fuck', 'fuk', 'fck', 'fvck', 'phuck', 'fuq', 'fux', 'shit', 'shyt', 'sh1t', 'bitch', 'biatch', 'btch', 'cunt', 'nigger', 'nigga', 'nigg', 'niger', 'faggot', 'fagot', 'fag', 'retard', 'whore', 'pussy', 'pussie', 'asshole', 'arsehole', 'motherfuck', 'mofo', 'dickhead', 'cocksuck', 'dipshit', 'jackass', 'dumbass', 'smartass', 'badass', 'fatass', 'blowjob', 'handjob', 'cumshot', 'wanker', 'twat', 'bollock', 'bullshit', 'horseshit', 'chickenshit', 'goddamn', 'sonofabitch', 'dyke', 'kike', 'spic', 'chink', 'gook', 'tranny', 'coon', 'wetback', 'beaner', 'cracker', 'paki', 'raghead', 'towelhead', 'porn', 'horny', 'cumming', 'jizz', 'dildo', 'vagina', 'penis', 'boner', 'masturbat', 'orgasm', 'nudes', 'sexting', 'rapist', 'molest'];
+  var WEAK = ['ass', 'asses', 'arse', 'damn', 'damned', 'dammit', 'goddam', 'hell', 'crap', 'crappy', 'piss', 'pissed', 'pissy', 'dick', 'dicks', 'cock', 'cocks', 'tit', 'tits', 'titty', 'titties', 'boob', 'boobs', 'prick', 'slut', 'sluts', 'slutty', 'hoe', 'hoes', 'thot', 'douche', 'douchebag', 'bastard', 'bastards', 'wtf', 'stfu', 'gtfo', 'lmfao', 'omfg', 'fml', 'milf', 'sex', 'sexy', 'cum', 'cums', 'anal', 'anus', 'butt', 'butthole', 'turd', 'wank', 'bloody', 'bugger', 'screw', 'screwed', 'suck', 'sucks', 'sucker', 'idiot', 'idiots', 'moron', 'morons', 'stupid', 'dumb', 'loser', 'losers', 'creep', 'freak', 'gay', 'lesbo', 'homo', 'tard', 'negro', 'nazi', 'hitler', 'kys', 'kms'];
+  /* words that contain a strong word but are fine */
+  var SAFE = ['scunthorpe', 'shiitake', 'shitake', 'mishit', 'cockpit', 'cocktail', 'peacock', 'hancock', 'woodcock', 'babycock', 'cockatoo', 'cockatiel', 'dickens', 'dickinson', 'dickson', 'moby', 'assassin', 'assess', 'assign', 'assist', 'assume', 'assure', 'assault', 'assemble', 'assembly', 'assert', 'asset', 'associate', 'class', 'classic', 'pass', 'passage', 'passion', 'passenger', 'passport', 'password', 'mass', 'massive', 'glass', 'grass', 'brass', 'bass', 'lass', 'compass', 'embassy', 'bassoon', 'harass', 'cassette', 'cassie', 'hassle', 'massage', 'sassy', 'tassel', 'vassal', 'cocoa', 'pussycat', 'pussywillow', 'analysis', 'analyst', 'analog', 'analyze', 'canal', 'banal', 'penistone', 'spice', 'speci', 'special', 'specific', 'conspic', 'suspicious', 'racket', 'crackers', 'firecracker', 'nutcracker', 'cracker', 'dykes', 'shell', 'hello', 'shellfish', 'cumber', 'cucumber', 'document', 'circumstance', 'accumulate', 'cumulative', 'cumin', 'scum', 'butter', 'butterfly', 'button', 'buttress', 'buttery', 'sextant', 'sextet', 'essex', 'sussex', 'middlesex', 'sexton', 'sexual', 'unisex', 'titan', 'titanic', 'titanium', 'title', 'titled', 'tithe', 'constitution', 'competition', 'repetition', 'petition', 'attitude', 'gratitude', 'altitude', 'latitude', 'multitude', 'fag', 'fagin', 'gaye', 'gayle', 'gaylord', 'homogenous', 'homework', 'homo sapiens', 'homophone', 'homonym', 'homestead', 'screwdriver', 'chinchilla', 'chinese', 'china', 'chinook', 'coonhound', 'raccoon', 'tycoon', 'cocoon', 'moonshine', 'spicy', 'spick', 'spiced', 'hoed', 'hoedown', 'shoe', 'shoes', 'horror', 'whoever', 'whole', 'whom', 'whose', 'who', 'wholesome', 'dumbbell', 'numb', 'thumb', 'dumbo', 'kikes', 'bikes', 'kiker', 'porno graphy', 'pornography', 'rapist', 'therapist', 'grapist', 'molest', 'cuntry', 'twatter', 'penistone', 'arsenal', 'parse', 'sparse', 'arsenic', 'hitler', 'bloody mary'];
+  /* the real words above that are safe are matched whole; "hitler", "rapist" etc. stay in the lists on purpose */
+  var SAFE_SET = {}; SAFE.forEach(function (w) { SAFE_SET[w] = 1; }); ['hitler', 'rapist', 'molest', 'fag', 'twatter', 'cuntry', 'bloody mary', 'porno graphy', 'homo sapiens', 'who', 'whole', 'whom', 'whose', 'whoever', 'shoe', 'shoes'].forEach(function (w) { delete SAFE_SET[w]; });
+  ['who', 'whole', 'whom', 'whose', 'whoever', 'shoe', 'shoes', 'hello', 'shell'].forEach(function (w) { SAFE_SET[w] = 1; });
+  var MAP = { '@': 'a', '4': 'a', '^': 'a', '8': 'b', '(': 'c', '<': 'c', '3': 'e', '€': 'e', '6': 'g', '9': 'g', '#': 'h', '1': 'i', '!': 'i', '|': 'i', '0': 'o', '$': 's', '5': 's', '7': 't', '+': 't', 'а': 'a', 'е': 'e', 'о': 'o', 'с': 'c', 'р': 'p', 'х': 'x', 'у': 'y', 'і': 'i', 'ѕ': 's', 'ј': 'j', 'к': 'k', 'м': 'm', 'н': 'h', 'т': 't', 'в': 'b', 'ß': 'ss', 'ø': 'o', 'æ': 'ae', 'ł': 'l' };
+  var cfg = { block: {}, allow: {} };
+  function setConfig(c) { cfg = { block: {}, allow: {} }; ((c && c.block) || []).forEach(function (w) { cfg.block[String(w).toLowerCase()] = 1; }); ((c && c.allow) || []).forEach(function (w) { cfg.allow[String(w).toLowerCase()] = 1; }); }
+  function norm(ch) {
+    var l = ch.toLowerCase(); if (MAP[l]) return MAP[l];
+    var d = l.normalize ? l.normalize('NFD').replace(/[̀-ͯ]/g, '') : l; return MAP[d] || d;
+  }
+  function squeeze(w) { return w.replace(/(.)\1+/g, '$1'); }
+  /* turn text into tokens: [{n: normalised letters, a: start, b: end}] where a run of single letters ("f u c k") is one token */
+  function tokens(t) {
+    var out = [], i = 0, L = t.length;
+    function isL(c) { return /[A-Za-z0-9@$!|#^()<+€*À-ɏЀ-ӿ]/.test(c); }
+    var raw = []; while (i < L) { if (isL(t[i])) { var s = i; while (i < L && isL(t[i])) i++; raw.push({ s: s, e: i }); } else i++; }
+    // join "f u c k" / "f.u.c.k" / "f-u-c-k": consecutive one-character pieces separated by a single separator
+    var j = 0; while (j < raw.length) {
+      var a = raw[j]; if (a.e - a.s === 1 && /[A-Za-z@$!|]/.test(t[a.s])) {
+        var k = j, s2 = a.s; while (k + 1 < raw.length && raw[k + 1].e - raw[k + 1].s === 1 && raw[k + 1].s - raw[k].e <= 2 && /^[\s.\-_*,'"`~]{1,2}$/.test(t.slice(raw[k].e, raw[k + 1].s))) k++;
+        if (k - j >= 2) { out.push({ s: s2, e: raw[k].e, join: true }); j = k + 1; continue; }
+      }
+      out.push({ s: a.s, e: a.e }); j++;
+    }
+    out.forEach(function (o) { var seg = t.slice(o.s, o.e), n = '', w = ''; for (var q = 0; q < seg.length; q++) { if (o.join && !isL(seg[q])) continue; if (seg[q] === '*') { w += '*'; continue; } var x = norm(seg[q]); n += x; w += x; } o.n = n.replace(/[^a-z0-9]/g, function (c) { return /[0-9]/.test(c) ? c : ''; }); o.w = w.replace(/[^a-z0-9*]/g, ''); });
+    return out;
+  }
+  function inList(list, w) { return list.indexOf(w) >= 0; }
+  function strongSpans(n) {
+    var out = [], forms = [[n, 0], [squeeze(n), 1]];
+    forms.forEach(function (f) {
+      var str = f[0], sq = f[1], words = STRONG.slice(); for (var b in cfg.block) if (b.length >= 4) words.push(b);
+      words.forEach(function (w) { var ww = sq ? squeeze(w) : w, p = str.indexOf(ww); while (p >= 0) { out.push([p, p + ww.length, sq]); p = str.indexOf(ww, p + 1); } });
+    }); return out;
+  }
+  function covered(n, sp) {
+    var str = sp[2] ? squeeze(n) : n;
+    for (var s in SAFE_SET) { var ss = sp[2] ? squeeze(s) : s; if (ss.length < 3) continue; var p = str.indexOf(ss); while (p >= 0) { if (p <= sp[0] && p + ss.length >= sp[1]) return true; p = str.indexOf(ss, p + 1); } }
+    return false;
+  }
+  function strongHit(n) { var sp = strongSpans(n); for (var i = 0; i < sp.length; i++) if (!covered(n, sp[i])) return true; return false; }
+  function weakHit(n) {
+    var sq = squeeze(n), forms = [n, sq]; ['s', 'es', 'ed', 'ing', 'er', 'y', 'in'].forEach(function (suf) { if (n.length > suf.length + 2 && n.slice(-suf.length) === suf) { forms.push(n.slice(0, -suf.length)); forms.push(squeeze(n.slice(0, -suf.length))); } });
+    for (var i = 0; i < forms.length; i++) { var f = forms[i]; if (WEAK.indexOf(f) >= 0 || WEAK.indexOf(squeeze(f)) >= 0 || cfg.block[f]) return true; if (/^(f+u*c*k+|sh+i+t+)$/.test(f) && f.length > 2) return true; }
+    return false;
+  }
+  function tokenBad(n, w) {
+    if (!n && !w) return false; if (cfg.allow[n] || cfg.allow[squeeze(n)]) return false;
+    if (/^\d+$/.test(n)) return false;
+    if (w && w.indexOf('*') >= 0 && /[a-z]/.test(w) && w.length >= 3 && wild(w)) return true;
+    if (!n) return false; if (SAFE_SET[n] || SAFE_SET[squeeze(n)]) return false;
+    if (strongHit(n)) return true; return weakHit(n);
+  }
+  function wild(w) { var re = new RegExp('^' + w.replace(/\*/g, '[a-z]') + '$'); return STRONG.concat(WEAK).some(function (x) { return x.length === w.length && re.test(x); }); }
+  function bad(t) {
+    var tk = tokens(String(t)); for (var i = 0; i < tk.length; i++) if (tokenBad(tk[i].n, tk[i].w)) return true;
+    for (var j = 0; j + 1 < tk.length; j++) { var jn = tk[j].n + tk[j + 1].n; if (tk[j].n.length >= 2 && tk[j + 1].n.length >= 3 && jn.length <= 14 && strongHit(jn) && !tokenBad(tk[j].n) && !tokenBad(tk[j + 1].n)) return true; }
+    return false;
+  }
+  function mask(t) {
+    t = String(t); var tk = tokens(t), hits = [];
+    tk.forEach(function (o, i) { if (tokenBad(o.n, o.w)) hits.push([o.s, o.e]); else if (i + 1 < tk.length) { var jn = o.n + tk[i + 1].n; if (o.n.length >= 2 && tk[i + 1].n.length >= 3 && jn.length <= 14 && strongHit(jn) && !tokenBad(tk[i + 1].n)) hits.push([o.s, tk[i + 1].e]); } });
+    if (!hits.length) return t; var o2 = '', p = 0; hits.sort(function (a, b) { return a[0] - b[0]; });
+    hits.forEach(function (h) { if (h[0] < p) { if (h[1] > p) { o2 += stars(t.slice(p, h[1])); p = h[1]; } return; } o2 += t.slice(p, h[0]) + stars(t.slice(h[0], h[1])); p = h[1]; }); return o2 + t.slice(p);
+  }
+  function stars(s) { return s.replace(/[^\s]/g, '*'); }
+  return { bad: bad, mask: mask, setConfig: setConfig, strong: STRONG, weak: WEAK };
+})();
+var BAD = { test: function (t) { return PF.bad(t); } };
 function filterText(t) {
-  return String(t)
+  return PF.mask(String(t)
     .replace(/[\w.+-]+@[\w-]+(\.[\w-]+)+/g, '[email removed]')
     .replace(/\b(?:https?:\/\/|www\.)\S+/gi, '[link removed]')
     .replace(/\b[\w-]+\.(com|net|org|io|gg|co|me|tv|edu|gov|xyz|app|ly)\b\S*/gi, '[link removed]')
-    .replace(/(?:\+?1[\s.-]?)?\(?\b\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}\b/g, '[number removed]')
-    .replace(new RegExp(BAD.source, 'gi'), function (m) { return new Array(m.length + 1).join('*'); });
+    .replace(/(?:\+?1[\s.-]?)?\(?\b\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}\b/g, '[number removed]'));
 }
 /* Real-name detector. A nickname is scored by how much it looks like a person's name (a common first name, a first
    name + surname, a first name + initial, with or without digits / underscores / look-alike characters). It is a
@@ -1196,7 +1418,7 @@ var NK = (function () {
 function validNick(n) {
   if (!/^[a-z0-9_]{3,20}$/.test(n)) return 'Use 3 to 20 letters, numbers or underscores.';
   if (RESERVED.test(n)) return 'That nickname is reserved.';
-  if (BAD.test(n.replace(/_/g, '')) || /^\d+$/.test(n)) return 'Please pick a different nickname.';
+  if (BAD.test(n.replace(/_/g, '')) || BAD.test(n.replace(/_/g, ' ')) || /^\d+$/.test(n)) return 'Please pick a different nickname.';
   if (NK.scan(n).level === 'high') return 'That looks like a real name. Pick a nickname that is not your name.';
   return '';
 }
@@ -1383,7 +1605,7 @@ function start() {
   avatar($('me-av'), auth.uid, me); $('me-n').textContent = me;
   store.read = store.read || {}; store.blocks = store.blocks || {}; blocks = store.blocks;
   checkStatus(); timers.status = setInterval(checkStatus, 30000);
-  rt('GET', 'config/adminPub').then(function (p) { adminPub = p || null; }).catch(function () {}).then(function () { return refreshInbox(); }).then(retention);
+  rt('GET', 'config/filter').then(function (f) { PF.setConfig(f); }).catch(function () {}); rt('GET', 'config/adminPub').then(function (p) { adminPub = p || null; }).catch(function () {}).then(function () { return refreshInbox(); }).then(retention);
   loadBlocks(); wantPic(auth.uid);
   timers.inbox = setInterval(function () { refreshInbox(); }, 4500); openStream(); openCallStream();
   timers.msgs = setInterval(function () { if (!document.hidden && cur) pollMsgs(); }, 2200);
@@ -1513,14 +1735,11 @@ function beep(n) {
 }
 function notifyNew(c) {
   if (c.kind === 'd' && blocks[c.peerUid]) return; if (store.mute && store.mute[c.id]) return; if (store.stat === 'dnd') return;
+  if (store.nm === 'off' || (store.nm === 'mentions' && !c.at)) return;
   var away = document.hidden || !document.hasFocus(), viewing = cur && cur.id === c.id && !away; if (viewing) return;
   beep(c.at ? 2 : 1);
   if (!away) toast(c.at ? c.name + ' mentioned you' : 'New message from ' + (c.kind === 'g' ? c.lNick + ' in ' + c.name : c.name));
-  if (away && store.dn && window.Notification && Notification.permission === 'granted') {
-    var body = c.at ? 'You were mentioned' : 'New message', opt = { body: body, tag: c.id, silent: true, renotify: true };
-    var direct = function () { try { var nt = new Notification(c.name, opt); nt.onclick = function () { window.focus(); if (convs[c.id]) openChat(convs[c.id]); nt.close(); }; } catch (e) {} };
-    if (swReg && swReg.showNotification) swReg.showNotification(c.name, opt).catch(direct); else direct();
-  }
+  if (away && nOk()) nShow(c.name, { body: c.at ? 'You were mentioned' : 'New message', tag: c.id, silent: true, renotify: true }, function () { if (convs[c.id]) openChat(convs[c.id]); });
 }
 
 /* ═════════ CONVERSATION LIST ═════════ */
@@ -1568,7 +1787,7 @@ $('convs').addEventListener('keydown', function (e) { if ((e.key === 'Enter' || 
 
 /* ═════════ OPEN A CHAT ═════════ */
 var EMOJI = ['👍','❤️','😂','😮','😢','🎉','😡','🤯','😇','🤗','😋','🥲','🤞','🫡','🔥','✅','🙏','😊','😅','🤔','👏','💯','😎','🥳','😭','😍','🙌','👀','💪','⭐','😴','🤝','🙂','😬','🤣','👋','🍕','📚','✏️','🏆'];
-function openChat(c) { $('b-more').closest('.ph').classList.remove('more');
+function openChat(c) { annHide(); $('b-more').closest('.ph').classList.remove('more');
   if (cur) drafts[cur.id] = $('text').value;
   cur = { id: c.id, kind: c.kind, name: c.name, owner: c.owner, peerUid: c.peerUid, members: c.members, memberUids: c.memberUids }; lastKey = ''; shown = {}; msgData = {}; replyTo = null; editing = null; searchQ = '';
   $('ctx').hidden = true; $('typing').textContent = ''; $('sbar2').hidden = true; $('q-chat').value = '';
@@ -1588,7 +1807,7 @@ function openChat(c) { $('b-more').closest('.ph').classList.remove('more');
   $('text').value = drafts[c.id] || ''; autosize();
   setTimeout(function () { $('text').focus(); }, 60);
 }
-function closeChat() { clearTypingMark(); cur = null; $('chat').hidden = true; $('empty').hidden = false; $('app').classList.remove('in-chat'); renderConvs(); }
+function closeChat() { annHide(); clearTypingMark(); cur = null; $('chat').hidden = true; $('empty').hidden = false; $('app').classList.remove('in-chat'); renderConvs(); }
 $('b-back').onclick = closeChat;
 
 function sigOf(m) { return JSON.stringify([m.t, m.ed || 0, m.r || 0, m.rp && m.rp.t || 0]); }
@@ -1598,6 +1817,7 @@ function md(h) {
   return h.replace(/`([^`\n]{1,200})`/g, '<code>$1</code>').replace(/\*\*([^*\n]{1,300})\*\*/g, '<b>$1</b>').replace(/(^|[\s(])\*([^*\n]{1,300})\*(?=$|[\s).,!?])/g, '$1<i>$2</i>').replace(/~~([^~\n]{1,300})~~/g, '<s>$1</s>');
 }
 function msgInner(k, m, ts, c) {
+  if (m.sys) return '<div class="bub sysb' + (m.lv === 'warn' ? ' warn' : '') + '"><b><i class="fa-solid fa-' + (m.lv === 'warn' ? 'triangle-exclamation' : 'shield-halved') + '"></i> Aperture team</b>' + esc(String(m.t)) + '</div><span class="tm">' + fmtTime(typeof m.ts === 'number' ? m.ts : keyTs(k)) + '</span>';
   var mine = m.fu === auth.uid;
   var rp = m.rp ? '<button type="button" class="rp" data-act="jump" data-k="' + esc(m.rp.k) + '"><i class="fa-solid fa-reply"></i> <b>' + esc(m.rp.f) + '</b> ' + esc(filterText(m.rp._t || '')) + '</button>' : '';
   var rx = Object.keys(m.r || {}).map(function (e) { var u = Object.keys(m.r[e] || {}); if (!u.length) return ''; var on = u.indexOf(auth.uid) >= 0; return '<button type="button" class="rx' + (on ? ' on' : '') + '" data-act="tgl" data-e="' + esc(e) + '" title="' + esc(u.slice(0, 12).map(dispName).join(', ')) + '">' + esc(e) + ' <span>' + u.length + '</span></button>'; }).join('');
@@ -1610,7 +1830,7 @@ function msgInner(k, m, ts, c) {
 }
 function decryptAll(c, j) {
   return Promise.all(Object.keys(j).map(function (k) {
-    var m = j[k]; if (!m || !m.t) return null;
+    var m = j[k]; if (!m || !m.t) return null; if (m.sys) { m._t = m.t; return null; }
     var ps = [m.i ? decText(c, m.i, m.t).then(function (x) { m._t = x; }) : Promise.resolve(m._t = m.t)];
     if (m.rp && m.rp.i) ps.push(decText(c, m.rp.i, m.rp.t).then(function (x) { m.rp._t = x; }));
     return Promise.all(ps).catch(function () { m._t = '🔒 This message could not be decrypted.'; if (m.rp) m.rp._t = m.rp._t || ''; });
@@ -1640,7 +1860,7 @@ function pollMsgs(first) {
       shown[k] = 1; msgData[k] = m; if (k > lastKey) lastKey = k;
       var day = fmtDay(ts); if (day !== lastDay) { lastDay = day; var d = document.createElement('div'); d.className = 'day'; d.textContent = day; box.appendChild(d); }
       var cont = box.dataset.lf === m.fu && day === box.dataset.ld && ts - (+box.dataset.lt || 0) < 300000; box.dataset.lf = m.fu; box.dataset.ld = day; box.dataset.lt = ts;
-      var el2 = document.createElement('div'); el2.className = 'm' + (cont ? ' cont' : '') + (m.fu === auth.uid ? ' me' : '') + (m.fu !== auth.uid && mentionsMe(m._t) ? ' mention' : ''); el2.dataset.k = k; el2.innerHTML = msgInner(k, m, ts, c); box.appendChild(el2);
+      var el2 = document.createElement('div'); el2.className = 'm' + (m.sys ? ' sysm' : '') + (cont && !m.sys ? ' cont' : '') + (m.fu === auth.uid ? ' me' : '') + (m.fu !== auth.uid && mentionsMe(m._t) ? ' mention' : ''); el2.dataset.k = k; el2.innerHTML = msgInner(k, m, ts, c); box.appendChild(el2);
     });
     box.dataset.day = lastDay;
     if (!box.querySelector('.m')) box.innerHTML = '<div class="sys">' + (c.kind === 'd' ? 'This is the start of your chat with <b>' + esc(c.name) + '</b>. Say hello! Messages are encrypted.' : 'No messages yet. Say hello! Messages are encrypted.') + '</div>';
@@ -1756,9 +1976,16 @@ function startReply(k, m) { editing = null; replyTo = { k: k, f: m.f, t: filterT
 function startEdit(k, m) { replyTo = null; editing = k; setCtx('edit', '', m._t); $('text').value = m._t; autosize(); $('text').focus(); }
 function delMsg(k, el) { ask({ title: 'Delete message?', text: 'This removes the message for everyone in the chat.', ok: 'Delete', danger: true, icon: 'fa-trash-can' }).then(function (ok) { if (!ok) return; rt('DELETE', convPath(cur) + '/m/' + k).then(function () { if (el) el.remove(); delete msgData[k]; delete shown[k]; toast('Message deleted'); }).catch(function () { toast('Could not delete the message'); }); }); }
 function reportMsg(k, m, c) {
-  ask({ title: 'Report this message?', text: 'A readable copy of the message from ' + m.f + ' is sent to the site administrators for review.', ok: 'Send report', danger: true, icon: 'fa-flag' }).then(function (ok) { if (!ok) return;
-  rt('PUT', 'reports/' + newKey(), { by: auth.uid, byNick: me, from: m.fu, fromNick: m.f, conv: c.id, kind: c.kind, mk: k, t: String(m._t).slice(0, 500), ts: SV }).then(function () { toast('Reported. Thank you.'); }).catch(function () { toast('Could not send the report'); });
-  });
+  var d = $('d-report'); $('rp-who').textContent = 'A readable copy of the message from ' + m.f + ' goes to the site administrators for review.'; $('rp-note').value = ''; $('rp-why').selectedIndex = 0; $('rp-ctx').checked = true;
+  $('rp-no').onclick = function () { d.close(); };
+  $('rp-yes').onclick = function () {
+    var why = $('rp-why').value, note = $('rp-note').value.trim(), ctx = '';
+    if ($('rp-ctx').checked) { ctx = Object.keys(msgData).filter(function (x) { return x < k && !msgData[x].sys; }).sort().slice(-3).map(function (x) { var q = msgData[x]; return q.f + ': ' + String(q._t || '').slice(0, 60); }).join(' | '); }
+    var t = ('[' + why + '] ' + (note ? note + ' — ' : '') + String(m._t).slice(0, 260) + (ctx ? ' || Before it: ' + ctx : '')).slice(0, 590);
+    $('rp-yes').disabled = true;
+    rt('PUT', 'reports/' + newKey(), { by: auth.uid, byNick: me, from: m.fu, fromNick: m.f, conv: c.id, kind: c.kind, mk: k, t: t, ts: SV }).then(function () { toast('Reported. Thank you.'); d.close(); }).catch(function () { toast('Could not send the report'); }).then(function () { $('rp-yes').disabled = false; });
+  };
+  d.showModal();
 }
 function pinMsg(k, m) { var c = cur; encText(c, filterText(m._t).slice(0, 80)).then(function (e) { return rt('PUT', convPath(c) + '/pins/' + k, { f: m.f, by: auth.uid, i: e.i, t: e.t }); }).then(function () { toast('Pinned'); }).catch(function () { toast('Could not pin it'); }); }
 $('b-pins').onclick = function () {
@@ -1803,6 +2030,7 @@ $('text').addEventListener('keydown', function (e) {
 $('composer').addEventListener('submit', function (e) {
   e.preventDefault(); var c = cur; if (!c) return;
   var raw = $('text').value.replace(/\s+$/g, '').replace(/^\s+/, ''); if (!raw) return;
+  if (!ctlSendOk()) return;
   var now = Date.now(); sentTimes = sentTimes.filter(function (t) { return now - t < 60000; });
   if (now - lastSend < 900 || sentTimes.length >= 20) { toast('Slow down a little'); return; }
   if (c.kind === 'd' && blocks[c.peerUid]) { toast('You blocked this person. Unblock them in chat details to message them.'); return; }
@@ -1860,7 +2088,7 @@ $('q-go').onclick = function () {
 
 /* ═════════ GROUPS ═════════ */
 var gMembers = [];
-$('b-group').onclick = function () { gMembers = []; $('g-name').value = ''; $('g-nick').value = ''; $('g-h').textContent = ''; renderChips(); $('d-group').showModal(); $('g-name').focus(); };
+$('b-group').onclick = function () { if (P.nogroup) { toast('An administrator has turned off creating groups for your account.'); return; } gMembers = []; $('g-name').value = ''; $('g-nick').value = ''; $('g-h').textContent = ''; renderChips(); $('d-group').showModal(); $('g-name').focus(); };
 function renderChips() { $('g-chips').innerHTML = gMembers.map(function (x, i) { return '<span class="chip">' + esc(x.nick) + '<button type="button" data-i="' + i + '" aria-label="Remove">×</button></span>'; }).join(''); }
 $('g-chips').addEventListener('click', function (e) { var b = e.target.closest('button'); if (b) { gMembers.splice(+b.dataset.i, 1); renderChips(); } });
 $('g-nick').addEventListener('input', function () { this.value = this.value.toLowerCase().replace(/[^a-z0-9_]/g, ''); });
@@ -2084,7 +2312,6 @@ function onRing(sig) {
   // stays in our mailbox after we answer). Each cid is only ever handled once, otherwise a
   // repeat of the SAME call was answered with "busy", which kicked the caller out.
   if (ringSeen[sig.cid]) return;
-  if (store.dnd) { ringSeen[sig.cid] = 1; clearMyRing(); nickOf(sig.from).then(function (n) { toast('Missed call from ' + n + ' (Do not disturb)'); }); return; }
   // A newer call from the SAME person replaces a ring we're still showing (old/ghost ring, or a redial),
   // instead of being answered with "busy". Only a different caller gets "busy".
   if (pendingRing && pendingRing.from === sig.from) { $('d-incall').close(); clearTimeout(ringTimer); clearInterval(ringToneT); pendingRing = null; }
@@ -2104,11 +2331,7 @@ function showIncoming(sig) {
   nickOf(sig.from).then(function (n) { if (pendingRing && pendingRing.cid === sig.cid) { $('cl-name').textContent = n; avatar($('cl-av'), sig.from, n); } });
   $('cl-name').textContent = name; avatar($('cl-av'), sig.from, name); $('cl-kind').textContent = sig.type === 'video' ? 'Video call' : 'Voice call';
   $('d-incall').showModal();
-  if (document.hidden && store.dn && window.Notification && Notification.permission === 'granted') {
-    var no = { body: 'Incoming ' + (sig.type === 'video' ? 'video' : 'voice') + ' call', tag: 'call-' + sig.cid, requireInteraction: true, renotify: true };
-    var direct = function () { try { new Notification(name, no); } catch (e) {} };
-    if (swReg && swReg.showNotification) swReg.showNotification(name, no).catch(direct); else direct();
-  }
+  callAttention(sig, name);
   clearInterval(ringToneT); ringtoneTone(); ringToneT = setInterval(ringtoneTone, 2200);
   clearTimeout(ringTimer);
   ringTimer = setTimeout(function () { if (pendingRing && pendingRing.cid === sig.cid) { $('d-incall').close(); clearInterval(ringToneT); pendingRing = null; declineRing(sig, 'ended'); toast('Missed call from ' + name); } }, 35000);
@@ -2416,6 +2639,7 @@ function endCallLocal() {
   if (cx) cx.remoteStream = null;
   $('call-remote').srcObject = null; $('call-local').srcObject = null; hideCallOverlay(); renderConvs();
   // the caller leaves a one-line record in the chat ("Voice call · 03:12", "Missed call", …)
+  if (cx && cx.isCaller && !cx.startedAt && cx.phase === 'ringing' && !cx.outcome) { try { writeMissed(cx); } catch (e) {} }
   if (cx && cx.isCaller) {
     var kind = cx.type === 'video' ? 'Video' : 'Voice', txt = '';
     if (cx.startedAt) { var sec = Math.max(1, Math.round((Date.now() - cx.startedAt) / 1000)); txt = '📞 ' + kind + ' call · ' + String(Math.floor(sec / 60)).padStart(2, '0') + ':' + String(sec % 60).padStart(2, '0'); }
@@ -2622,7 +2846,7 @@ $('b-settings').onclick = function () {
     $('s-blocks').innerHTML = b.map(function (u) { var n = dispName(u); return '<div class="mem"><span>' + esc(n) + '</span><button class="btn sm" data-ub="' + esc(u) + '" type="button">Unblock</button></div>'; }).join('');
     $('s-blocks').querySelectorAll('[data-ub]').forEach(function (x) { x.onclick = function () { doUnblock(x.dataset.ub); $('b-settings').click(); }; });
   });
-  $('s-cq').value = store.cq || 'auto'; $('s-nc').value = store.nc || 'standard'; $('s-qj').checked = !!store.qj; $('s-dnd').checked = !!store.dnd; $('s-st').checked = !!store.stealth; $('s-rr').checked = store.rr !== false; $('s-ty').checked = store.ty !== false; $('s-cc').checked = !!store.callsClosed; $('s-24').checked = !!store.h24; $('s-snd').checked = store.snd !== false; $('s-dn').checked = !!(store.dn && window.Notification && Notification.permission === 'granted'); $('s-dn').disabled = !window.Notification;
+  $('s-cq').value = store.cq || 'auto'; $('s-nc').value = store.nc || 'standard'; $('s-qj').checked = !!store.qj; $('s-dnd').checked = store.stat === 'dnd'; $('s-nm').value = store.nm || 'all'; $('s-ncall').checked = store.ncall !== false; $('s-nhide').checked = !!store.nhide; $('s-st').checked = !!store.stealth; $('s-rr').checked = store.rr !== false; $('s-ty').checked = store.ty !== false; $('s-cc').checked = !!store.callsClosed; $('s-24').checked = !!store.h24; $('s-snd').checked = store.snd !== false; $('s-dn').checked = !!(store.dn && window.Notification && Notification.permission === 'granted'); $('s-dn').disabled = !window.Notification;
   pfpPreview(); $('s-pich').className = 'hint'; $('s-newnick').value = ''; $('s-nickh').className = 'hint'; $('s-nickh').textContent = 'Changing your nickname frees your old one for others to take. People can message you by your new nickname right away — messages you already sent keep showing the name you used at the time.';
   renderFramePicker(); renderAppearance(); $('d-set').showModal();
 };
@@ -2630,7 +2854,7 @@ $('s-rr').onchange = function () { store.rr = this.checked; save(); toast(this.c
 $('s-ty').onchange = function () { store.ty = this.checked; save(); };
 $('s-nc').onchange = function () { store.nc = this.value; save(); toast('Noise cancellation: ' + this.options[this.selectedIndex].text + (callX ? ' (applies to your next call)' : '')); };
 $('s-qj').onchange = function () { store.qj = this.checked; save(); };
-$('s-dnd').onchange = function () { store.dnd = this.checked; save(); toast(this.checked ? 'Do not disturb is on: incoming calls are silently ignored' : 'Do not disturb is off'); };
+$('s-dnd').onchange = function () { store.stat = this.checked ? 'dnd' : ''; store.dnd = false; save(); try { if (store.stat === 'off') presOff(); pushPres(true); presPaint(); } catch (e) {} toast(this.checked ? 'Do not disturb is on: incoming calls are silently ignored' : 'Do not disturb is off'); };
 $('s-st').onchange = function () { store.stealth = this.checked; save(); toast(this.checked ? 'Stealth mode is on' : 'Stealth mode is off'); if (cur) { markRead(cur, Object.keys(msgData).sort()); } };
 $('s-hide').onclick = function () { $('d-set').close(); panicHide(true); };
 $('call-ns').onclick = function () {
@@ -2848,6 +3072,7 @@ function gcMedia(type) {
     .catch(function () { return null; });
 }
 function gcJoin(c, type) {
+  if (P.nocall) { toast('An administrator has turned off calls for your account.'); return; }
   loadTurn();
   if (callX) { toast('You are already in a call.'); return; }
   if (gc) { if (gc.g === c.id) gcExpand(); else toast('Leave your current group call first.'); return; }
@@ -3583,10 +3808,11 @@ function waitText(g) {
   return on ? 'Waiting for others to join… ' + on + ' of ' + oth.length + ' online now' : 'Nobody else is in this call, and nobody else is online right now.';
 }
 function noAnswer(uid, name) {
-  presGet(uid).then(function (st) { toast(st === 'off' ? name + ' is offline right now.' : st === 'dnd' ? name + ' has Do Not Disturb on.' : name + ' didn’t answer'); });
+  presGet(uid).then(function (st) { toast(st === 'off' ? name + ' is offline. They will see that you called when they are back.' : st === 'dnd' ? name + ' has Do Not Disturb on. They will see that you called.' : name + ' did not answer. They will get a missed-call alert.'); });
 }
 /* check before ringing: no point waiting on someone who is offline or has Do Not Disturb on */
 function placeCall(peerUid, type) {
+  if (P.nocall) { toast('An administrator has turned off calls for your account.'); return; }
   if (!peerUid || peerUid === auth.uid || callX || gc) { placeCall0(peerUid, type); return; }
   var name = dispName(peerUid), p = pres[peerUid], fresh = p && p.at && Date.now() - p.at < 8000, done = false;
   function go(st) {
@@ -3611,7 +3837,7 @@ function stMenuOpen() {
 }
 [$('me-av'), $('me-n').parentNode].forEach(function (el) { el.addEventListener('click', function (e) { e.stopPropagation(); if (stMenu.hidden) stMenuOpen(); else stMenu.hidden = true; }); });
 stMenu.addEventListener('click', function (e) {
-  var b = e.target.closest('[data-m]'); if (!b) return; store.stat = b.dataset.m === 'auto' ? '' : b.dataset.m; save(); stMenu.hidden = true;
+  var b = e.target.closest('[data-m]'); if (!b) return; store.stat = b.dataset.m === 'auto' ? '' : b.dataset.m; store.dnd = false; save(); stMenu.hidden = true; try { $('s-dnd').checked = store.stat === 'dnd'; } catch (e) {}
   if (store.stat === 'off') presOff(); pushPres(true); presPaint(); toast(store.stat === 'dnd' ? 'Do Not Disturb is on' : store.stat === 'off' ? 'You appear offline' : 'You are back to Online');
 });
 document.addEventListener('mousedown', function (e) { if (!stMenu.hidden && !e.target.closest('.st-menu') && !e.target.closest('.me')) stMenu.hidden = true; });
@@ -3619,6 +3845,256 @@ document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !s
 setInterval(function () { pushPres(false); }, 10000); setInterval(function () { if (!document.hidden) presRefresh(); }, 15000); setInterval(presPaint, 1500);
 window.addEventListener('online', function () { pushPres(true); presRefresh(); }); window.addEventListener('focus', function () { pushPres(true); presRefresh(); }); window.addEventListener('pageshow', function () { pushPres(true); presRefresh(); });
 setTimeout(function () { pushPres(true); presRefresh(); }, 2500);
+/* ═════════ NOTIFICATIONS, CALL ALERTS AND MISSED CALLS ═════════ */
+function nOk() { return !!(window.Notification && Notification.permission === 'granted' && store.dn && !covered); }
+function nShow(title, opt, onclick) {
+  if (!nOk()) return; if (store.nhide) title = 'Aperture';
+  var done = false;
+  try { var n = new Notification(title, opt); n.onclick = function () { try { window.focus(); } catch (e) {} if (onclick) onclick(); try { n.close(); } catch (e) {} }; done = true; } catch (e) {}
+  if (!done && swReg && swReg.showNotification) swReg.showNotification(title, opt).catch(function () {});
+}
+function callAttention(sig, name) {
+  var away = document.hidden || !document.hasFocus();
+  if (store.ncall === false) { $('cl-hint').hidden = true; return; }
+  try { window.focus(); } catch (e) {}
+  if (away && nOk()) nShow(name, { body: 'Incoming ' + (sig.type === 'video' ? 'video' : 'voice') + ' call. Click to answer.', tag: 'call-' + sig.cid, requireInteraction: true, renotify: true }, function () { try { window.focus(); } catch (e) {} });
+  var h = $('cl-hint'); h.hidden = true;
+  if (away && !nOk() && !covered) { h.textContent = window.Notification && Notification.permission === 'denied' ? 'Notifications are blocked in your browser, so calls can be missed when this tab is in the background.' : 'Turn on desktop notifications in Settings so calls pop up even when this tab is in the background.'; h.hidden = false; }
+}
+/* flash the tab title and icon while a call is ringing and you are not looking at the page */
+var attn = { on: false, n: 0, base: '', ico: null, icoHref: '' }, RING_ICO = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='%23e0707a'/%3E%3Cpath d='M7 5h3l1.5 4-2 1.3a9 9 0 0 0 4.2 4.2L15 12.5l4 1.5v3a2 2 0 0 1-2 2A12 12 0 0 1 5 7a2 2 0 0 1 2-2z' fill='%23fff'/%3E%3C/svg%3E";
+setInterval(function () {
+  var ring = !!pendingRing && !covered && store.ncall !== false && (document.hidden || !document.hasFocus());
+  if (ring) {
+    if (!attn.on) { attn.on = true; attn.n = 0; attn.ico = document.querySelector('link[rel~="icon"]'); attn.icoHref = attn.ico ? attn.ico.href : ''; }
+    attn.n++; document.title = attn.n % 2 ? '📞 ' + dispName(pendingRing.from) + ' is calling…' : '☎️ Incoming call';
+    if (attn.ico) attn.ico.href = attn.n % 2 ? RING_ICO : attn.icoHref;
+  } else if (attn.on) { attn.on = false; if (attn.ico && attn.icoHref) attn.ico.href = attn.icoHref; try { renderConvs(); } catch (e) {} }
+}, 700);
+$('d-incall').addEventListener('cancel', function (e) { e.preventDefault(); $('cl-decline').click(); });
+$('d-incall').addEventListener('keydown', function (e) { if (e.key === 'Enter' && e.target.tagName !== 'BUTTON') { e.preventDefault(); $('cl-accept').click(); } });
+$('s-nm').onchange = function () { store.nm = this.value; save(); };
+$('s-ncall').onchange = function () { store.ncall = this.checked; save(); };
+$('s-nhide').onchange = function () { store.nhide = this.checked; save(); };
+$('s-ntest').onclick = function () {
+  if (!window.Notification) { toast('This browser does not support notifications.'); return; }
+  var go = function () { if (!nOk()) { toast('Notifications are off. Turn on "Desktop notifications" first.'); return; } nShow('Aperture', { body: 'Notifications are working.', tag: 'test' }); toast('Sent. If you do not see it, check your system notification settings.'); };
+  if (Notification.permission === 'default') Notification.requestPermission().then(function (p) { store.dn = p === 'granted'; save(); $('s-dn').checked = store.dn; go(); }); else go();
+};
+/* missed calls: the caller leaves a note for the person who did not pick up, they see it with a Call back button */
+function writeMissed(cx) {
+  rt('PUT', 'missed/' + cx.peerUid + '/' + newKey(), { f: auth.uid, c: cx.cid, ty: cx.type, ts: SV }).catch(function () {});
+}
+var missedBox = document.createElement('div'); missedBox.id = 'missed-box'; missedBox.hidden = true;
+missedBox.style.cssText = 'margin:0 10px 8px;display:flex;flex-direction:column;gap:6px';
+$('convs').parentNode.insertBefore(missedBox, $('convs'));
+function missedRender() {
+  var l = store.missed || []; missedBox.hidden = !l.length;
+  missedBox.innerHTML = l.map(function (m, i) { return '<div style="display:flex;align-items:center;gap:8px;background:rgba(224,112,122,.14);border:1px solid rgba(224,112,122,.35);border-radius:12px;padding:7px 10px;font-size:13px"><i class="fa-solid fa-phone-missed"></i><span style="flex:1;min-width:0"><b>Missed ' + (m.ty === 'video' ? 'video' : 'voice') + ' call</b> from ' + esc(m.n) + '<br><small style="color:var(--t3)">' + esc(fmtTime(m.ts)) + '</small></span><button class="btn sm pri" type="button" data-cb="' + i + '">Call back</button><button class="ibtn" type="button" data-mx="' + i + '" aria-label="Dismiss">✕</button></div>'; }).join('');
+}
+missedBox.addEventListener('click', function (e) {
+  var cb = e.target.closest('[data-cb]'), mx = e.target.closest('[data-mx]'), l = store.missed || [];
+  if (cb) { var m = l[+cb.dataset.cb]; if (!m) return; l.splice(+cb.dataset.cb, 1); store.missed = l; save(); missedRender(); var cv = convs[dmId(auth.uid, m.u)]; if (cv) openChat(cv); placeCall(m.u, m.ty); }
+  else if (mx) { l.splice(+mx.dataset.mx, 1); store.missed = l; save(); missedRender(); }
+});
+function missedCheck() {
+  if (!auth.uid || !me || covered) return;
+  rt('GET', 'missed/' + auth.uid).then(function (all) {
+    var ks = Object.keys(all || {}); if (!ks.length) return;
+    ks.forEach(function (k) {
+      var m = all[k]; rt('DELETE', 'missed/' + auth.uid + '/' + k).catch(function () {});
+      if (!m || blocks[m.f] || ringSeen[m.c]) return;                       // already saw this one ring live
+      ringSeen[m.c] = 1; var list = store.missed || [];
+      nickOf(m.f).then(function (n) {
+        if (list.some(function (x) { return x.c === m.c; })) return;
+        list.unshift({ u: m.f, n: n, ty: m.ty, ts: typeof m.ts === 'number' ? m.ts : Date.now(), c: m.c }); store.missed = list.slice(0, 8); save(); missedRender();
+        if (store.stat !== 'dnd') { beep(2); toast('Missed ' + (m.ty === 'video' ? 'video' : 'voice') + ' call from ' + n); if (document.hidden || !document.hasFocus()) nShow(n, { body: 'Missed ' + (m.ty === 'video' ? 'video' : 'voice') + ' call', tag: 'missed-' + m.c }, function () { var cv = convs[dmId(auth.uid, m.f)]; if (cv) openChat(cv); }); }
+      });
+    });
+  }).catch(function () {});
+}
+setInterval(missedCheck, 20000); setTimeout(missedCheck, 3500); setTimeout(missedRender, 500);
+document.addEventListener('visibilitychange', function () { if (!document.hidden) missedCheck(); });
+/* ═════════ ADMIN CONTROLS: permissions, notices, warnings, broadcast, device ═════════ */
+var P = {}, lastSendAt = 0, noticeQ = [], noticeOpen = null;
+function ctlSendOk() {
+  if (P.nosend) { toast('An administrator has turned off sending for your account.'); return false; }
+  var slow = +P.slow || 0; if (slow > 0 && Date.now() - lastSendAt < slow * 1000) { toast('Slow mode: wait ' + Math.ceil((slow * 1000 - (Date.now() - lastSendAt)) / 1000) + ' s before sending again.'); return false; }
+  lastSendAt = Date.now(); return true;
+}
+function ctlApply() {
+  var ta = $('text'); if (!ta) return; var off = !!P.nosend;
+  ta.disabled = off; ta.placeholder = off ? 'Sending is turned off for your account' : ((P.slow | 0) > 0 ? 'Slow mode: one message every ' + P.slow + ' s' : ta.dataset.ph || ta.placeholder);
+  if (!ta.dataset.ph && !off) ta.dataset.ph = ta.placeholder; if ($('send')) $('send').disabled = off;
+  [$('b-call-a'), $('b-call-v')].forEach(function (b) { if (b) { b.classList.toggle('off', !!P.nocall); b.title = P.nocall ? 'Calls are turned off for your account' : b.title; } });
+  if ($('b-group')) $('b-group').classList.toggle('off', !!P.nogroup);
+  try { if (annOpen) { $('ann-list').dataset.sig = ''; annPaint(); } } catch (e) {}
+}
+function ctlLoad() {
+  if (!auth.uid || !me) return;
+  rt('GET', 'perms/' + auth.uid).then(function (v) { var n = v || {}; if (JSON.stringify(n) !== JSON.stringify(P)) { P = n; ctlApply(); } }).catch(function () {});
+  rt('GET', 'notices/' + auth.uid).then(function (all) {
+    var l = Object.keys(all || {}).filter(function (k) { return !all[k].seen; }).sort().map(function (k) { return { k: k, n: all[k] }; });
+    l.forEach(function (x) { if (!noticeQ.some(function (y) { return y.k === x.k; }) && !(noticeOpen && noticeOpen.k === x.k)) noticeQ.push(x); }); noticeNext();
+  }).catch(function () {});
+  rt('GET', 'config/broadcast').then(function (b) {
+    var bar = $('bc-bar'); if (!b || !b.t || store.bcSeen === b.id || (typeof b.until === 'number' && b.until < Date.now() - 1)) { bar.hidden = true; return; }
+    bar.className = 'bc-bar' + (b.l === 'warn' ? ' warn' : ''); bar.innerHTML = '<i class="fa-solid fa-bullhorn" style="margin-top:3px"></i><span><b>Announcement</b>' + esc(b.t) + '</span><button class="x" type="button" aria-label="Dismiss">✕</button>'; bar.hidden = false;
+    bar.querySelector('.x').onclick = function () { store.bcSeen = b.id; save(); bar.hidden = true; };
+  }).catch(function () {});
+}
+function noticeNext() {
+  if (noticeOpen || !noticeQ.length || covered) return; var x = noticeQ.shift(); noticeOpen = x; var n = x.n;
+  $('nt-h').textContent = n.l === 'warn' ? 'Warning from the Aperture team' : n.l === 'final' ? 'Final warning' : 'Message from the Aperture team';
+  $('nt-ic').className = 'ask-ic' + (n.l === 'info' ? '' : ' danger'); $('nt-ic').innerHTML = '<i class="fa-solid fa-' + (n.l === 'info' ? 'shield-halved' : 'triangle-exclamation') + '"></i>';
+  $('nt-t').textContent = n.t; $('nt-m').textContent = (n.by ? 'From ' + n.by + ' · ' : '') + new Date(typeof n.ts === 'number' ? n.ts : Date.now()).toLocaleString();
+  if (!$('d-notice').open) $('d-notice').showModal(); beep(2);
+}
+$('d-notice').addEventListener('cancel', function (e) { e.preventDefault(); });
+$('nt-ok').onclick = function () {
+  var x = noticeOpen; if (!x) { $('d-notice').close(); return; }
+  rt('PUT', 'notices/' + auth.uid + '/' + x.k + '/seen', SV).catch(function () {}); noticeOpen = null; $('d-notice').close(); setTimeout(noticeNext, 250);
+};
+function loadStanding() {
+  var box = $('s-stand'); if (!box) return; box.innerHTML = '<div class="hint">Loading…</div>';
+  Promise.all([rt('GET', 'warns/' + auth.uid).catch(function () { return null; }), rt('GET', 'notices/' + auth.uid).catch(function () { return null; }), rt('GET', 'perms/' + auth.uid).catch(function () { return null; })]).then(function (r) {
+    var w = r[0] || {}, n = r[1] || {}, p = r[2] || {}, wk = Object.keys(w).sort().reverse(), h = '';
+    var lim = []; if (p.nosend) lim.push('sending is off'); if (p.nocall) lim.push('calls are off'); if (p.nogroup) lim.push('creating groups is off'); if (p.nopic) lim.push('profile picture is off'); if ((+p.slow || 0) > 0) lim.push('slow mode (' + p.slow + ' s)');
+    h += '<div class="w' + (wk.length || lim.length ? ' warn' : '') + '"><b>' + (wk.length ? wk.length + ' warning' + (wk.length === 1 ? '' : 's') : 'No warnings') + '</b>' + (lim.length ? '<br>Limits on your account: ' + esc(lim.join(', ')) : (wk.length ? '' : '<br>Your account is in good standing.')) + '</div>';
+    wk.slice(0, 6).forEach(function (k) { h += '<div class="w"><b>' + esc(new Date(w[k].ts || 0).toLocaleDateString()) + '</b> · ' + esc(w[k].r || '') + '</div>'; });
+    var nk = Object.keys(n).sort().reverse().slice(0, 4); if (nk.length) h += '<div class="hint" style="margin-top:4px">Recent messages from the team</div>' + nk.map(function (k) { return '<div class="w">' + esc(String(n[k].t).slice(0, 200)) + '</div>'; }).join('');
+    box.innerHTML = h;
+  });
+}
+(function () { var o = $('b-settings').onclick; $('b-settings').onclick = function () { var r = o.apply(this, arguments); try { loadStanding(); } catch (e) {} return r; }; })();
+setInterval(ctlLoad, 30000); setTimeout(ctlLoad, 1500); document.addEventListener('visibilitychange', function () { if (!document.hidden) ctlLoad(); });
+
+/* ── real names, made obvious ── */
+var rnSig = '';
+function rnNames() {
+  if (!cur) return []; if (cur.kind === 'd') return NK.scan(cur.name).level === 'high' || NK.scan(cur.name).level === 'likely' ? [{ n: cur.name, u: cur.peerUid }] : [];
+  var out = []; (cur.members || []).forEach(function (n, i) { if (n === me) return; var l = NK.scan(n).level; if (l === 'high' || l === 'likely') out.push({ n: n, u: (cur.memberUids || [])[i] }); }); return out;
+}
+function rnPaint() {
+  var st = $('rn-strip'); if (!st) return; var list = cur ? rnNames() : [], hid = (store.rnHide || {})[cur && cur.id];
+  var sig = (cur ? cur.id : '') + '|' + list.map(function (x) { return x.n; }).join(',') + '|' + (hid ? 1 : 0); if (sig === rnSig) return; rnSig = sig;
+  if (!list.length || hid) { st.hidden = true; st.innerHTML = ''; return; }
+  var who = list.length === 1 ? '<b>' + esc(list[0].n) + '</b>' : list.length + ' people here';
+  st.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i><span>' + (list.length === 1 ? 'The nickname ' : '') + who + ' ' + (list.length === 1 ? 'looks like a real name' : 'have nicknames that look like real names') + '. Aperture asks everyone to use a nickname, and to never share anyone’s real name.</span><button class="btn sm" type="button" data-rnr>Report</button><button class="ibtn" type="button" data-rnx aria-label="Hide this notice">✕</button>';
+  st.hidden = false;
+}
+$('rn-strip').addEventListener('click', function (e) {
+  if (e.target.closest('[data-rnx]')) { store.rnHide = store.rnHide || {}; store.rnHide[cur.id] = 1; save(); rnSig = ''; rnPaint(); return; }
+  if (!e.target.closest('[data-rnr]') || !cur) return; var l = rnNames(); if (!l.length) return;
+  Promise.all(l.map(function (x) { return rt('PUT', 'reports/' + newKey(), { by: auth.uid, byNick: me, from: x.u || '', fromNick: x.n, conv: cur.id, kind: cur.kind, mk: 'name', t: '[Real name or personal information] Nickname looks like a real name: ' + x.n, ts: SV }); })).then(function () { toast('Reported. Thank you.'); }).catch(function () { toast('Could not send the report'); });
+});
+setInterval(rnPaint, 1500);
+
+/* ── device record: lets admins ban a device and spot extra accounts made on the same one ── */
+var DEV = { id: '', fp: '', ban: '' };
+function devHex(n) { var a = new Uint8Array(n); crypto.getRandomValues(a); return Array.prototype.map.call(a, function (b) { return ('0' + b.toString(16)).slice(-2); }).join(''); }
+function devGetId() {
+  var v = ''; try { v = localStorage.getItem('ap_dev') || ''; } catch (e) {}
+  if (!/^[a-f0-9]{32}$/.test(v)) { var m = /(?:^|; )ap_dev=([a-f0-9]{32})/.exec(document.cookie || ''); v = m ? m[1] : ''; }
+  return v;
+}
+function devKeep(v) { try { localStorage.setItem('ap_dev', v); } catch (e) {} try { document.cookie = 'ap_dev=' + v + ';max-age=63072000;path=/;SameSite=Lax'; } catch (e) {} try { idbPut('dev', v).catch(function () {}); } catch (e) {} }
+function devFp() {
+  var gl = ''; try { var cv = document.createElement('canvas'), g = cv.getContext('webgl'), x = g && g.getExtension('WEBGL_debug_renderer_info'); gl = x ? g.getParameter(x.UNMASKED_RENDERER_WEBGL) : ''; } catch (e) {}
+  var raw = [navigator.userAgent, navigator.platform, navigator.language, screen.width + 'x' + screen.height + 'x' + screen.colorDepth, Intl.DateTimeFormat().resolvedOptions().timeZone, navigator.hardwareConcurrency || '', navigator.deviceMemory || '', gl].join('|');
+  return CS.digest('SHA-256', TE.encode(raw)).then(function (b) { return Array.prototype.map.call(new Uint8Array(b).slice(0, 8), function (x) { return ('0' + x.toString(16)).slice(-2); }).join(''); });
+}
+function devInit() {
+  var v = devGetId(); var ready = v ? Promise.resolve(v) : idbGet('dev').then(function (x) { return /^[a-f0-9]{32}$/.test(x || '') ? x : ''; }).catch(function () { return ''; });
+  return ready.then(function (x) { DEV.id = x || devHex(16); devKeep(DEV.id); return devFp(); }).then(function (f) { DEV.fp = f; return devCheck(); }).catch(function () {});
+}
+function devCheck() {
+  if (!DEV.id) return Promise.resolve();
+  var get = function (p) { return fetch(DB_URL + '/' + DB_ROOT + '/' + p + '.json', { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }); };
+  return get('devbans/' + DEV.id).then(function (b) { return b || (DEV.fp ? get('fpbans/' + DEV.fp) : null); }).then(function (b) {
+    DEV.ban = b ? (typeof b.r === 'string' && b.r ? b.r : 'This device has been banned from Messages.') : '';
+    if (DEV.ban && auth.uid && me) signOut('This device has been banned from Messages: ' + DEV.ban);
+  });
+}
+function devRegister() {
+  if (!DEV.id || !auth.uid) return;
+  rt('PUT', 'devices/' + auth.uid, { id: DEV.id, fp: DEV.fp || '0000000000000000', ua: (navigator.userAgent || '').slice(0, 120), ts: SV }).catch(function () {});
+  rt('PUT', 'devidx/' + DEV.id + '/' + auth.uid, SV).catch(function () {});
+  if (DEV.fp) rt('PUT', 'fpidx/' + DEV.fp + '/' + auth.uid, SV).catch(function () {});
+  rt('PUT', 'consent/' + auth.uid, { v: '2026-10', ts: SV }).catch(function () {});
+}
+devInit(); setInterval(function () { devCheck(); }, 120000); setInterval(function () { if (auth.uid && me && !devRegister._d) { devRegister._d = 1; devRegister(); } }, 4000);
+(function () { var o = $('nick-go').onclick; $('nick-go').onclick = function () { if (DEV.ban) { $('gate-err').textContent = 'This device has been banned from Messages: ' + DEV.ban; return; } return o.apply(this, arguments); }; })();
+
+/* ── liquid motion helpers ── */
+(function () {
+  document.addEventListener('pointerdown', function (e) {
+    var b = e.target.closest && e.target.closest('.btn'); if (!b || b.disabled) return; var r = b.getBoundingClientRect(), d = Math.max(r.width, r.height) * 2, i = document.createElement('i');
+    i.className = 'rip'; i.style.cssText = 'width:' + d + 'px;height:' + d + 'px;left:' + (e.clientX - r.left - d / 2) + 'px;top:' + (e.clientY - r.top - d / 2) + 'px'; b.appendChild(i); setTimeout(function () { i.remove(); }, 650);
+  }, { passive: true });
+  var oc = HTMLDialogElement.prototype.close;
+  HTMLDialogElement.prototype.close = function (v) {
+    var d = this; if (!d.open || d.classList.contains('closing') || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) return oc.call(d, v);
+    d.classList.add('closing'); setTimeout(function () { d.classList.remove('closing'); oc.call(d, v); }, 190);
+  };
+})();
+
+/* ── chat switch animation ── */
+(function () {
+  var px = 0, py = 0, busy = false; document.addEventListener('pointerdown', function (e) { px = e.clientX; py = e.clientY; }, { passive: true, capture: true });
+  var orig = openChat, reduce = function () { return window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches; };
+  openChat = function (c) {
+    var pane = $('pane'), self = this, args = arguments; if (!pane || reduce() || busy || (cur && cur.id === c.id)) return orig.apply(self, args);
+    busy = true; var shown = pane.offsetWidth > 0 && pane.offsetHeight > 0;
+    function go() {
+      pane.classList.remove('drop'); orig.apply(self, args);
+      var r = pane.getBoundingClientRect(), ox = Math.min(Math.max(px - r.left, 0), r.width), oy = Math.min(Math.max(py - r.top, 0), r.height);
+      if (!(px || py) || r.width === 0) { ox = 0; oy = r.height / 2; }
+      var rad = Math.ceil(Math.hypot(Math.max(ox, r.width - ox), Math.max(oy, r.height - oy)));
+      pane.style.setProperty('--ox', ox + 'px'); pane.style.setProperty('--oy', oy + 'px'); pane.style.setProperty('--or', rad + 'px');
+      pane.classList.remove('bubble'); void pane.offsetWidth; pane.classList.add('bubble');
+      setTimeout(function () { pane.classList.remove('bubble'); busy = false; }, 680);
+    }
+    if (shown && $('chat') && !$('chat').hidden) { pane.classList.add('drop'); setTimeout(go, 200); } else go();
+  };
+})();
+
+/* ═════════ ANNOUNCEMENTS CHANNEL (pinned for everyone; posting needs the permission) ═════════ */
+var annData = {}, annOpen = false;
+function annHide() { if (!annOpen) return; annOpen = false; $('ann').hidden = true; }
+function annCanPost() { return !!P.announce; }
+function annCount() { var seen = +store.annSeen || 0; return Object.keys(annData).filter(function (k) { return keyTs(k) > seen && annData[k].fu !== auth.uid; }).length; }
+function annRow() {
+  var ks = Object.keys(annData).sort(), n = annOpen ? 0 : annCount(), last = ks.length ? annData[ks[ks.length - 1]] : null;
+  $('ann-dot').hidden = !n; $('ann-dot').textContent = n > 9 ? '9+' : n; $('ann-last').textContent = last ? last.f + ': ' + PF.mask(String(last.t)).slice(0, 60) : 'Official news from the team';
+}
+function annPaint() {
+  var l = $('ann-list'), ks = Object.keys(annData).sort(), near = l.scrollHeight - l.scrollTop - l.clientHeight < 120, sig = ks.join(',') + '|' + (annCanPost() ? 1 : 0) + '|' + (P.isAdmin ? 1 : 0);
+  if (l.dataset.sig === sig) return; l.dataset.sig = sig;
+  l.innerHTML = ks.length ? ks.map(function (k) { var m = annData[k], can = m.fu === auth.uid; return '<div class="ann-m"><div class="h"><b>' + esc(m.f) + '</b>' + esc(new Date(typeof m.ts === 'number' ? m.ts : keyTs(k)).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })) + (can ? '<button class="x" data-ad="' + esc(k) + '" type="button" title="Delete" aria-label="Delete"><i class="fa-regular fa-trash-can"></i></button>' : '') + '</div><p>' + esc(PF.mask(String(m.t))) + '</p></div>'; }).join('') : '<div class="sys" style="margin:auto">No announcements yet.</div>';
+  if (near || !l.dataset.init) { l.scrollTop = l.scrollHeight; l.dataset.init = 1; }
+  $('ann-form').hidden = !annCanPost(); $('ann-ro').hidden = annCanPost();
+}
+function annLoad() {
+  if (!auth.uid || !me) return Promise.resolve();
+  return rt('GET', 'announce/m', undefined, 'orderBy=%22%24key%22&limitToLast=80').then(function (d) { annData = d || {}; annRow(); if (annOpen) { annSeen(); annPaint(); } }).catch(function () {});
+}
+function annSeen() { var ks = Object.keys(annData).sort(); if (ks.length) { var t = keyTs(ks[ks.length - 1]); if (t > (+store.annSeen || 0)) { store.annSeen = t; save(); annRow(); } } }
+$('ann-row').onclick = function () {
+  if (cur) { try { clearTypingMark(); } catch (e) {} cur = null; $('chat').hidden = true; }
+  $('empty').hidden = true; $('ann').hidden = false; annOpen = true; $('app').classList.add('in-chat'); $('ann-list').dataset.sig = ''; annPaint(); annSeen(); annLoad(); renderConvs();
+  var pane = $('pane'); if (pane && !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) { var r = pane.getBoundingClientRect(); pane.style.setProperty('--ox', '0px'); pane.style.setProperty('--oy', '60px'); pane.style.setProperty('--or', Math.ceil(Math.hypot(r.width, r.height)) + 'px'); pane.classList.remove('bubble'); void pane.offsetWidth; pane.classList.add('bubble'); setTimeout(function () { pane.classList.remove('bubble'); }, 680); }
+};
+$('ann-back').onclick = function () { annHide(); $('empty').hidden = false; $('app').classList.remove('in-chat'); };
+$('ann-list').addEventListener('click', function (e) { var b = e.target.closest('[data-ad]'); if (!b) return; rt('DELETE', 'announce/m/' + b.dataset.ad).then(function () { delete annData[b.dataset.ad]; $('ann-list').dataset.sig = ''; annPaint(); annRow(); }).catch(function () { toast('Could not delete it'); }); });
+$('ann-form').addEventListener('submit', function (e) {
+  e.preventDefault(); var t = $('ann-text').value.trim(); if (!t || !annCanPost()) return; if (!ctlSendOk()) return;
+  var k = newKey(), b = $('ann-form').querySelector('button'); b.disabled = true;
+  rt('PUT', 'announce/m/' + k, { f: me, fu: auth.uid, t: t, ts: SV }).then(function () { $('ann-text').value = ''; annData[k] = { f: me, fu: auth.uid, t: t, ts: Date.now() }; $('ann-list').dataset.sig = ''; annPaint(); annSeen(); }).catch(function () { toast('Could not post. You may not have permission.'); ctlLoad(); }).then(function () { b.disabled = false; });
+});
+$('ann-text').addEventListener('keydown', function (e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('ann-form').requestSubmit(); } });
+setInterval(function () { if (!document.hidden) annLoad(); }, 20000); setTimeout(annLoad, 2000);
+document.addEventListener('visibilitychange', function () { if (!document.hidden) annLoad(); });
 window.__msg = { filterText: filterText, validNick: validNick, dmId: dmId, callState: function () { return callX ? { phase: callX.phase, isCaller: callX.isCaller, cid: callX.cid, pcState: callX.pc && callX.pc.connectionState, iceState: callX.pc && callX.pc.iceConnectionState, iceGathering: callX.pc && callX.pc.iceGatheringState } : null; }, pendingRing: function () { return pendingRing; }, pcStats: function () { if (!callX || !callX.pc) return null; return callX.pc.getStats().then(function (stats) { var out = []; stats.forEach(function (r) { out.push(r); }); return out; }); } };
 })();
 </script>
