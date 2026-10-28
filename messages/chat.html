@@ -344,9 +344,14 @@ dialog.ring{width:min(320px,calc(100vw - 24px))}
 @media (max-width:700px){.call-ppl{width:auto;left:0}}
 
 /* ── presence: online / idle / do not disturb / offline ── */
-.pd{position:absolute;right:-3px;bottom:-3px;width:12px;height:12px;border-radius:50%;border:2px solid var(--surface-2,#151a22);background:#7b8594;box-sizing:border-box;pointer-events:none}
-.pd.on{background:#4cd98a}.pd.idle{background:#f2c14e}.pd.dnd{background:#e0707a}.pd.dnd::after{content:"";position:absolute;left:1px;right:1px;top:50%;height:2px;margin-top:-1px;background:#fff;border-radius:2px}.pd.off{background:#7b8594}
-.pd.idle::after{content:"";position:absolute;width:6px;height:6px;border-radius:50%;background:var(--surface-2,#151a22);right:-1px;top:-1px}
+[data-pd]{position:relative}
+[data-pd]::after{content:"";position:absolute;right:-3px;bottom:-3px;width:12px;height:12px;border-radius:50%;border:2px solid var(--surface-2,#151a22);box-sizing:border-box;background:#7b8594;transition:background-color .35s ease;pointer-events:none}
+[data-pd=on]::after{background:#4cd98a}
+[data-pd=idle]::after{background:radial-gradient(circle at 72% 28%,var(--surface-2,#151a22) 0 3px,transparent 3.6px),#f2c14e}
+[data-pd=dnd]::after{background:linear-gradient(#fff,#fff) center/6px 2px no-repeat,#e0707a}
+[data-pd=off]::after{background:#7b8594}
+#c-sub{min-height:1.2em;transition:opacity .25s ease}#c-sub.sw{opacity:0}
+@media (prefers-reduced-motion:reduce){[data-pd]::after,#c-sub{transition:none}}
 .me .av,.me .n{cursor:pointer}
 .st-menu{position:fixed;z-index:80;min-width:250px;background:var(--surface-2,#1a212b);border:1px solid var(--line,rgba(255,255,255,.12));border-radius:14px;box-shadow:0 18px 40px -14px rgba(0,0,0,.5);padding:6px}
 .st-menu[hidden]{display:none}.st-menu button{display:flex;gap:10px;align-items:flex-start;width:100%;text-align:left;background:transparent;border:0;color:inherit;padding:9px 10px;border-radius:10px;cursor:pointer;font:inherit}
@@ -1577,7 +1582,7 @@ function openChat(c) { $('b-more').closest('.ph').classList.remove('more');
   var pre = c.kind === 'g' ? rt('GET', 'groups/' + c.id).then(function (g) {
     if (cur !== cc || !g) return;
     cc.owner = g.owner; cc.memberUids = Object.keys(g.members || {});
-    return Promise.all(cc.memberUids.map(forceNickOf)).then(function (nicks) { if (cur === cc) { cc.members = nicks; $('c-sub').textContent = cc.members.length + ' members'; } });
+    return Promise.all(cc.memberUids.map(forceNickOf)).then(function (nicks) { if (cur === cc) { cc.members = nicks; if (!(cc.memberUids || []).some(function (u) { return pres[u]; })) $('c-sub').textContent = cc.members.length + ' members'; presRefresh(); } });
   }).catch(function () {}) : Promise.resolve();
   pre.then(function () { pollMsgs(true); ensureEscrow(cc); });
   $('text').value = drafts[c.id] || ''; autosize();
@@ -3480,26 +3485,43 @@ document.addEventListener('keydown', function (e) {
 });
 document.addEventListener('keyup', function (e) { var cx = callX; if (cx && cx.x && cx.x.ptt && e.key === ' ') { cx.x.ptt = false; if (!xMuted()) $('call-mute').click(); } });
 /* ═════════ PRESENCE — online / idle / do not disturb / offline ═════════ */
-var pres = {}, presSkew = 0, lastAct = Date.now(), lastSent = '', lastPush = 0, PRES_STALE = 80000;
+var pres = {}, presSkew = 0, lastAct = Date.now(), lastSent = '', lastPush = 0, PRES_STALE = 120000;
 function sNow() { return Date.now() + presSkew; }
 function myMode() { return store.stat === 'dnd' ? 'dnd' : store.stat === 'off' ? 'off' : (callX || gc) ? 'on' : (Date.now() - lastAct > 300000 ? 'idle' : 'on'); }
+/* who counts as online: trust the heartbeat we can actually watch (it ticks about every 20s), fall back to the
+   server timestamp only on the very first look, and never flip someone to offline on a single late beat */
+function pstatRaw(p) {
+  if (!p || !p.rec) return 'unk'; if (p.s === 'off') return 'off';
+  var now = Date.now(), same = now - p.first, stale;
+  if (same > PRES_STALE) stale = true; else if (p.moved) stale = false; else stale = sNow() - p.t > PRES_STALE;
+  return stale ? 'off' : (p.s === 'dnd' ? 'dnd' : p.s === 'idle' ? 'idle' : 'on');
+}
 function pstat(uid) {
-  if (uid === auth.uid) { var m = myMode(); return m; }
-  var p = pres[uid]; if (!p || !p.rec) return p ? 'unk' : 'unk';
-  if (p.s === 'off') return 'off'; if (sNow() - p.t > PRES_STALE) return 'off'; return p.s === 'dnd' ? 'dnd' : p.s === 'idle' ? 'idle' : 'on';
+  if (uid === auth.uid) return myMode();
+  var p = pres[uid]; if (!p || !p.rec) return 'unk';
+  var raw = pstatRaw(p), now = Date.now();
+  if (raw !== 'off' || p.s === 'off') { p.offSince = 0; p.disp = raw; return raw; }
+  if (!p.offSince) p.offSince = now;
+  if (p.disp && p.disp !== 'off' && p.disp !== 'unk' && now - p.offSince < 30000) return p.disp;   // hold: a late beat is not a sign-off
+  p.disp = 'off'; return 'off';
 }
 function presAgo(ms) { var m = Math.floor(ms / 60000); if (m < 1) return 'just now'; if (m < 60) return m + ' min ago'; var h = Math.floor(m / 60); if (h < 24) return h + ' h ago'; return Math.floor(h / 24) + ' d ago'; }
 function presLabel(uid) {
   var st = pstat(uid); if (uid === auth.uid) return st === 'dnd' ? 'Do not disturb' : st === 'off' ? 'Appearing offline' : st === 'idle' ? 'Idle' : 'Online';
+  if (!pres[uid]) return null;                // not heard back yet: say nothing rather than guess
+  if (st === 'unk') return 'Direct message';  // they have never reported a status (older page)
   if (st === 'on') return 'Online'; if (st === 'idle') return 'Idle'; if (st === 'dnd') return 'Do not disturb';
-  var p = pres[uid]; if (st === 'off' && p && p.rec && p.s !== 'off' && p.t) return 'Offline · last seen ' + presAgo(sNow() - p.t); return 'Offline';
+  var p = pres[uid]; if (p.s !== 'off' && p.t) return 'Offline · last seen ' + presAgo(sNow() - p.t); return 'Offline';
 }
+var lastOk = 0, lastSkew = 0, pushing = false;
 function pushPres(force) {
-  if (!auth.uid || !me || covered) return; var m = myMode(), now = Date.now();
-  if (!force && m === lastSent && now - lastPush < 25000) return; lastSent = m; lastPush = now;
+  if (!auth.uid || !me || covered || pushing) return; var m = myMode(), now = Date.now();
+  if (!force && m === lastSent && now - lastPush < 18000) return; lastSent = m; lastPush = now; pushing = true;
+  var t0 = Date.now();
   rt('PUT', 'presence/' + auth.uid, { s: m, t: SV }).then(function () {
-    if (presSkew === 0 || !pres._sk) { pres._sk = 1; return rt('GET', 'presence/' + auth.uid + '/t').then(function (t) { if (typeof t === 'number') presSkew = t - Date.now(); }); }
-  }).catch(function () {});
+    lastOk = Date.now();
+    if (!lastSkew || Date.now() - lastSkew > 120000) { lastSkew = Date.now(); return rt('GET', 'presence/' + auth.uid + '/t').then(function (t) { if (typeof t === 'number') presSkew = t - (Date.now() + t0) / 2; }); }
+  }).catch(function () { lastSent = ''; }).then(function () { pushing = false; });
 }
 function presOff() {
   if (!auth.uid || !auth.token) return;
@@ -3510,8 +3532,14 @@ function presOff() {
 document.addEventListener('mousemove', function () { var n = Date.now(); if (n - lastAct > 5000) { var was = n - lastAct > 300000; lastAct = n; if (was) pushPres(true); } }, { passive: true });
 window.addEventListener('pagehide', function () { if (store.stat !== 'off') presOff(); });
 document.addEventListener('visibilitychange', function () { if (!document.hidden) { lastAct = Date.now(); pushPres(true); presRefresh(); } });
+function presMerge(uid, v) {
+  var old = pres[uid], now = Date.now();
+  if (!v || typeof v.t !== 'number') { pres[uid] = { rec: false, at: now }; return; }
+  if (old && old.rec) { var moved = v.t !== old.t; pres[uid] = { s: v.s, t: v.t, rec: true, at: now, first: moved ? now : old.first, moved: moved || old.moved, offSince: old.offSince, disp: old.disp }; }
+  else pres[uid] = { s: v.s, t: v.t, rec: true, at: now, first: now, moved: false };
+}
 function presGet(uid) {
-  return rt('GET', 'presence/' + uid).then(function (v) { pres[uid] = v && typeof v.t === 'number' ? { s: v.s, t: v.t, rec: true } : { rec: false }; return pstat(uid); }).catch(function () { return pstat(uid); });
+  return rt('GET', 'presence/' + uid).then(function (v) { presMerge(uid, v); return pstat(uid); }).catch(function () { return pstat(uid); });
 }
 function presPeers() {
   var out = {}; Object.keys(convs).forEach(function (k) { var c = convs[k]; if (c.kind === 'd' && c.peerUid) out[c.peerUid] = 1; });
@@ -3523,17 +3551,32 @@ function presRefresh() {
   if (!auth.uid || !me || covered) return; var ids = presPeers(); if (!ids.length) { presPaint(); return; }
   var i = 0; (function next() { var chunk = ids.slice(i, i + 10); i += 10; if (!chunk.length) { presPaint(); return; } Promise.all(chunk.map(presGet)).then(function () { presPaint(); next(); }); })();
 }
-function presOpen(c) { if (c.kind === 'd' && c.peerUid) presGet(c.peerUid).then(presPaint); else presRefresh(); presPaint(); }
-function dotOn(el, st) {
-  if (!el) return; var d = el.querySelector(':scope > .pd'); if (!d) { d = document.createElement('i'); d.className = 'pd'; el.appendChild(d); }
-  var cls = 'pd ' + (st === 'unk' ? 'off' : st); if (d.className !== cls) d.className = cls;
+function presOpen(c) {
+  clearTimeout(presSubT); $('c-sub').classList.remove('sw');
+  if (c.kind === 'd' && c.peerUid) { $('c-sub').textContent = presLabel(c.peerUid) || '\u00a0'; dotOn($('c-av'), pstat(c.peerUid)); presGet(c.peerUid).then(presPaint); }
+  else { presRefresh(); }
 }
+function dotOn(el, st) {
+  if (!el) return; var v = (st === 'unk' || !st) ? '' : st;
+  if (v) { if (el.dataset.pd !== v) el.dataset.pd = v; } else if (el.dataset.pd) delete el.dataset.pd;
+}
+var presSubT = 0;
+function setSub(t) {
+  var el = $('c-sub'); if (t == null || el.textContent === t) return;
+  clearTimeout(presSubT); if (!el.textContent.trim() || el.textContent === '\u00a0') { el.textContent = t; return; }   // first fill: no flash
+  el.classList.add('sw'); presSubT = setTimeout(function () { el.textContent = t; el.classList.remove('sw'); }, 180);
+}
+var presKick = 0;
 function presPaint() {
   if (!auth.uid || !me) return;
   dotOn($('me-av'), myMode()); var ms = $('me-n') && $('me-n').nextElementSibling; if (ms) { var t = presLabel(auth.uid) + ' · change'; if (ms.textContent !== t) ms.textContent = t; }
-  document.querySelectorAll('#convs .cv').forEach(function (row) { var c = convs[row.dataset.id]; if (!c || c.kind !== 'd') return; dotOn(row.querySelector('.av'), pstat(c.peerUid)); });
-  if (cur && cur.kind === 'd') { dotOn($('c-av'), pstat(cur.peerUid)); var t2 = presLabel(cur.peerUid); if ($('c-sub').textContent !== t2) $('c-sub').textContent = t2; }
-  else if (cur && cur.kind === 'g' && cur.members) { var on = (cur.memberUids || []).filter(function (u) { var s2 = pstat(u); return s2 === 'on' || s2 === 'idle' || s2 === 'dnd'; }).length, t3 = cur.members.length + ' members · ' + on + ' online'; if ($('c-sub').textContent !== t3) $('c-sub').textContent = t3; }
+  var need = false;
+  document.querySelectorAll('#convs .cv').forEach(function (row) { var c = convs[row.dataset.id]; if (!c || c.kind !== 'd') return; if (!pres[c.peerUid]) need = true; dotOn(row.querySelector('.av'), pstat(c.peerUid)); });
+  if (need && Date.now() - presKick > 4000) { presKick = Date.now(); setTimeout(presRefresh, 0); }
+  if (cur && cur.kind === 'd') { dotOn($('c-av'), pstat(cur.peerUid)); setSub(presLabel(cur.peerUid)); }
+  else if (cur && cur.kind === 'g' && cur.members && (cur.memberUids || []).some(function (u) { return pres[u]; })) { var on = (cur.memberUids || []).filter(function (u) { var s2 = pstat(u); return s2 === 'on' || s2 === 'idle' || s2 === 'dnd'; }).length; setSub(cur.members.length + ' members · ' + on + ' online'); }
+  if (callX) { var ps = pstat(callX.peerUid); dotOn($('call-av'), ps); dotOn($('call-audio-av'), ps); }
+  if (pendingRing) dotOn($('cl-av'), pstat(pendingRing.from));
 }
 function waitText(g) {
   var oth = (g.members || []).filter(function (u) { return u !== auth.uid; }), on = oth.filter(function (u) { var s2 = pstat(u); return s2 === 'on' || s2 === 'idle'; }).length;
@@ -3545,12 +3588,18 @@ function noAnswer(uid, name) {
 /* check before ringing: no point waiting on someone who is offline or has Do Not Disturb on */
 function placeCall(peerUid, type) {
   if (!peerUid || peerUid === auth.uid || callX || gc) { placeCall0(peerUid, type); return; }
-  var name = dispName(peerUid);
-  presGet(peerUid).then(function (st) {
-    if (st === 'off') { toast(name + ' is offline right now. Send them a message instead.'); return; }
+  var name = dispName(peerUid), p = pres[peerUid], fresh = p && p.at && Date.now() - p.at < 8000, done = false;
+  function go(st) {
+    if (done) return; done = true;
+    // only turn the call away when we are sure: they chose Do Not Disturb or invisible, or the heartbeat has been silent for 3+ minutes
+    var q = pres[peerUid], sure = st === 'dnd' || (st === 'off' && q && q.rec && (q.s === 'off' || Date.now() - q.first > 180000 || (!q.moved && sNow() - q.t > 180000)));
+    if (st === 'off' && sure) { toast(name + ' is offline right now. Send them a message instead.'); return; }
     if (st === 'dnd') { toast(name + ' has Do Not Disturb on right now.'); return; }
     placeCall0(peerUid, type);
-  });
+  }
+  if (fresh) { go(pstat(peerUid)); return; }
+  var t = setTimeout(function () { go('unk'); }, 1500);
+  presGet(peerUid).then(function (st) { clearTimeout(t); go(st); });
 }
 /* my own status menu */
 var stMenu = document.createElement('div'); stMenu.className = 'st-menu'; stMenu.hidden = true; stMenu.setAttribute('role', 'menu');
@@ -3567,7 +3616,8 @@ stMenu.addEventListener('click', function (e) {
 });
 document.addEventListener('mousedown', function (e) { if (!stMenu.hidden && !e.target.closest('.st-menu') && !e.target.closest('.me')) stMenu.hidden = true; });
 document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !stMenu.hidden) stMenu.hidden = true; });
-setInterval(function () { pushPres(false); }, 30000); setInterval(presRefresh, 20000); setInterval(presPaint, 1500);
+setInterval(function () { pushPres(false); }, 10000); setInterval(function () { if (!document.hidden) presRefresh(); }, 15000); setInterval(presPaint, 1500);
+window.addEventListener('online', function () { pushPres(true); presRefresh(); }); window.addEventListener('focus', function () { pushPres(true); presRefresh(); }); window.addEventListener('pageshow', function () { pushPres(true); presRefresh(); });
 setTimeout(function () { pushPres(true); presRefresh(); }, 2500);
 window.__msg = { filterText: filterText, validNick: validNick, dmId: dmId, callState: function () { return callX ? { phase: callX.phase, isCaller: callX.isCaller, cid: callX.cid, pcState: callX.pc && callX.pc.connectionState, iceState: callX.pc && callX.pc.iceConnectionState, iceGathering: callX.pc && callX.pc.iceGatheringState } : null; }, pendingRing: function () { return pendingRing; }, pcStats: function () { if (!callX || !callX.pc) return null; return callX.pc.getStats().then(function (stats) { var out = []; stats.forEach(function (r) { out.push(r); }); return out; }); } };
 })();
