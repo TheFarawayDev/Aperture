@@ -221,6 +221,8 @@ dialog.ring{width:min(320px,calc(100vw - 24px))}
 .call-top,.call-ctrl{transition:opacity .25s}
 .call-ov.idle .call-top,.call-ov.idle .call-ctrl{opacity:0;pointer-events:none}
 .call-ov.live .call-audio-wrap .av{animation:none}
+.btn.round.off{opacity:.5}
+#cover{position:fixed;inset:0;width:100vw;height:100vh;max-width:none;max-height:none;margin:0;border:0;padding:0;background:#fff;cursor:default}#cover::backdrop{background:#fff}
 .call-pip{transform:scaleX(-1);touch-action:none;cursor:grab}.call-pip.rear{transform:none}
 .devpick{position:fixed;z-index:70;background:var(--surface-2);border:1px solid var(--line);border-radius:14px;box-shadow:0 18px 40px -14px rgba(0,0,0,.5);padding:12px;width:min(300px,calc(100vw - 24px))}
 .devpick label{display:block;font-size:11.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--t3);margin:10px 0 4px}
@@ -329,10 +331,17 @@ dialog.ring{width:min(320px,calc(100vw - 24px))}
     <div class="hint" id="s-dnh">Notifications never include message text. Muted chats stay silent.</div></div>
   <div class="sec"><h3>Calls</h3>
     <label class="tg"><span>Video quality</span><select id="s-cq" class="inp" style="width:auto;height:36px;padding:0 10px"><option value="auto">Auto (recommended)</option><option value="low">Data saver</option><option value="high">High quality</option></select></label>
+    <label class="tg"><span>Noise cancellation</span><select id="s-nc" class="inp" style="width:auto;height:36px;padding:0 10px"><option value="standard">Standard</option><option value="strong">Strong (voice only)</option><option value="off">Off</option></select></label>
+    <div class="hint">Strong adds a voice-focused filter and noise gate on top of your browser's noise suppression. It applies to the next call; during a call, the sparkle button turns it on and off.</div>
+    <label class="tg"><span>Join calls with mic muted and camera off</span><input type="checkbox" id="s-qj"></label>
+    <label class="tg"><span>Do not disturb (silently ignore incoming calls)</span><input type="checkbox" id="s-dnd"></label>
     <div class="hint">Quality also lowers itself during a call when the connection gets weak, and comes back when it improves.</div></div>
   <div class="sec"><h3>Privacy and display</h3>
     <label class="tg"><span>Send read receipts (show others when I have read their messages)</span><input type="checkbox" id="s-rr"></label>
     <label class="tg"><span>Show others when I am typing</span><input type="checkbox" id="s-ty"></label>
+    <label class="tg"><span>Stealth mode (no read receipts, no typing indicator, and none shown to you)</span><input type="checkbox" id="s-st"></label>
+    <div class="row" style="margin:8px 0"><button class="btn sm" id="s-hide" type="button"><i class="fa-solid fa-eye-slash"></i> Hide screen now</button></div>
+    <div class="hint">Quick hide: press Escape twice. It blanks the page, mutes your mic and turns your camera off. Click the blank page to come back.</div>
     <label class="tg"><span>Only let people I've already messaged call me</span><input type="checkbox" id="s-cc"></label>
     <label class="tg"><span>Use a 24-hour clock</span><input type="checkbox" id="s-24"></label></div>
   
@@ -384,6 +393,7 @@ dialog.ring{width:min(320px,calc(100vw - 24px))}
     </div>
   </div>
   <div class="call-ctrl">
+    <button class="btn round sm" id="call-ns" type="button" aria-label="Toggle noise cancellation" title="Noise cancellation" hidden><i class="fa-solid fa-wand-magic-sparkles"></i></button>
     <button class="btn round sm" id="call-devices" type="button" aria-label="Choose microphone, camera or speaker" title="Devices"><i class="fa-solid fa-sliders"></i></button>
     <button class="btn round" id="call-mute" type="button" aria-label="Mute microphone" title="Mute"><i class="fa-solid fa-microphone"></i></button>
     <button class="btn round danger" id="call-end" type="button" aria-label="End call" title="End call"><i class="fa-solid fa-phone-slash"></i></button>
@@ -396,6 +406,7 @@ dialog.ring{width:min(320px,calc(100vw - 24px))}
   <label id="dp-cam-l" for="dp-cam">Camera</label><select id="dp-cam"></select>
   <label id="dp-spk-l" for="dp-spk">Speaker</label><select id="dp-spk"></select>
 </div>
+<dialog id="cover"></dialog>
 <div id="toast" role="status"></div>
 <script>
 /* ══════════════════════════════════════════════════════════════════
@@ -1281,7 +1292,7 @@ function renderConvs() {
   var q = ($('q-list').value || '').trim().toLowerCase(), fav = store.fav || {}, bn = Object.keys(blocks).length;
   $('blk-n').textContent = 'Blocked (' + bn + ')';
   var list = Object.keys(convs).map(function (k) { return convs[k]; }).filter(function (c) { return !(c.kind === 'd' && blocks[c.peerUid]) && (!q || c.name.toLowerCase().indexOf(q) >= 0) && (lf === 'all' || (lf === 'un' && unread(c)) || (lf === 'g' && c.kind === 'g') || (lf === 'fav' && fav[c.id])); }).sort(function (a, b) { return (fav[b.id] ? 1 : 0) - (fav[a.id] ? 1 : 0) || b.ts - a.ts; });
-  var tot = Object.keys(convs).filter(function (k) { return unread(convs[k]); }).length; document.title = (callX ? '📞 In call · ' : '') + (tot ? '(' + tot + ') ' : '') + 'Messages — Aperture';
+  var tot = Object.keys(convs).filter(function (k) { return unread(convs[k]); }).length; if (!covered) document.title = (callX ? '📞 In call · ' : '') + (tot ? '(' + tot + ') ' : '') + 'Messages — Aperture';
   var box = $('convs');
   if (!list.length) { box.dataset.sig = ''; box.innerHTML = '<div class="none">' + (q ? 'No chats match “' + esc(q) + '”.' : 'No chats yet.<br>Press <b>New message</b> and type a nickname to start one.') + '</div>'; return; }
   var html = list.map(function (c) {
@@ -1377,19 +1388,19 @@ function pollMsgs(first) {
     if (atEnd) { box.scrollTop = box.scrollHeight; forceEnd = false; }
     var cv = convs[c.id]; if (cv) { store.read[c.id] = Math.max(cv.ts, store.read[c.id] || 0); save(); }
     var ty = res[1] || {}, who = Object.keys(ty).filter(function (u) { return u !== auth.uid && !blocks[u] && Date.now() - ty[u] < 6000; }).map(dispName);
-    $('typing').textContent = who.length ? (who.length === 1 ? who[0] + ' is typing…' : who.length === 2 ? who.join(' and ') + ' are typing…' : 'Several people are typing…') : '';
+    $('typing').textContent = (who.length && !store.stealth) ? (who.length === 1 ? who[0] + ' is typing…' : who.length === 2 ? who.join(' and ') + ' are typing…' : 'Several people are typing…') : '';
     renderConvs(); refreshAvatars(); updDown();
   }).catch(function (e) { if (first && cur === c) $('msgs').innerHTML = '<div class="sys">' + (e && e.message === 'nopk' ? 'This person has not set up secure messaging yet.' : 'Could not load messages. Check your connection.') + '</div>'; });
 }
 /* read receipts */
 var readMark = {}, lastReads = {};
 function markRead(c, keys) {
-  if (store.rr === false || document.hidden || !document.hasFocus()) return;
+  if (store.rr === false || store.stealth || document.hidden || !document.hasFocus()) return;
   var last = keys[keys.length - 1]; if (!last || readMark[c.id] === last) return; readMark[c.id] = last;
   rt('PUT', convPath(c) + '/read/' + auth.uid, { k: last, ts: SV }).catch(function () { delete readMark[c.id]; });
 }
 function renderReceipts(c, reads, keys, j) {
-  lastReads = reads; var box = $('msgs'); box.querySelectorAll('.rcpt').forEach(function (x) { x.remove(); }); if (store.rr === false) return;
+  lastReads = reads; var box = $('msgs'); box.querySelectorAll('.rcpt').forEach(function (x) { x.remove(); }); if (store.rr === false || store.stealth) return;
   var mk = null; for (var i = keys.length - 1; i >= 0; i--) { var m = j[keys[i]]; if (m && m.fu === auth.uid && shown[keys[i]]) { mk = keys[i]; break; } }
   if (!mk) return; var el = box.querySelector('.m[data-k="' + mk + '"]'); if (!el) return;
   var readers = Object.keys(reads).filter(function (u) { return u !== auth.uid && !blocks[u] && reads[u] && reads[u].k >= mk; });
@@ -1521,7 +1532,7 @@ $('b-emoji').onclick = function () { openPicker(this, function (em) { var t = $(
 /* ═════════ SEND ═════════ */
 function autosize() { var t = $('text'); t.style.height = 'auto'; t.style.height = Math.min(130, t.scrollHeight) + 'px'; }
 function clearTypingMark() { if (cur) rt('DELETE', convPath(cur) + '/typing/' + auth.uid).catch(function () {}); lastTyping = 0; }
-$('text').addEventListener('input', function () { shortcodes(); autosize(); var L = this.value.length, ct = $('count'); ct.hidden = L < 400; ct.textContent = L + '/500'; mentSel = 0; updMention(); if (cur && store.ty !== false && this.value && Date.now() - lastTyping > 3000) { lastTyping = Date.now(); rt('PUT', convPath(cur) + '/typing/' + auth.uid, Date.now()).catch(function () {}); } });
+$('text').addEventListener('input', function () { shortcodes(); autosize(); var L = this.value.length, ct = $('count'); ct.hidden = L < 400; ct.textContent = L + '/500'; mentSel = 0; updMention(); if (cur && store.ty !== false && !store.stealth && this.value && Date.now() - lastTyping > 3000) { lastTyping = Date.now(); rt('PUT', convPath(cur) + '/typing/' + auth.uid, Date.now()).catch(function () {}); } });
 $('text').addEventListener('keydown', function (e) {
   if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('composer').requestSubmit(); }
   else if (e.key === 'Escape') { if (!$('ctx').hidden) cancelCtx(); }
@@ -1686,16 +1697,16 @@ var TURN_SERVERS = [];
 var TURN_URL = '';
 var turnIce = [], turnAt = 0;
 function loadTurn() {
-  if (!TURN_URL || !auth.token || Date.now() - turnAt < 6 * 3600 * 1000) return;
+  if (!TURN_URL || !auth.token || Date.now() - turnAt < 20 * 60 * 1000) return;
   turnAt = Date.now();
   ensureAuth().then(function () { return fetch(TURN_URL, { headers: { Authorization: 'Bearer ' + auth.token } }); })
-    .then(function (r) { if (!r.ok) throw 0; return r.json(); })
+    .then(function (r) { if (r.status === 403) { turnIce = []; turnAt = Date.now() - 15 * 60 * 1000; throw 'off'; } if (!r.ok) throw 0; return r.json(); })
     .then(function (j) {
       var a = j && j.iceServers; a = Array.isArray(a) ? a : (a ? [a] : []);
       turnIce = a.map(function (e) { var u = [].concat(e.urls || []).filter(function (x) { return !/:53(\?|$)/.test(x) && !/^stun:/.test(x); }); return u.length ? { urls: u, username: e.username, credential: e.credential } : null; }).filter(Boolean);
-    }).catch(function () { turnAt = 0; });
+    }).catch(function (e) { if (e !== 'off') turnAt = 0; });
 }
-setInterval(loadTurn, 30 * 60 * 1000);
+setInterval(loadTurn, 5 * 60 * 1000);
 var ICE_SERVERS = [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }, { urls: 'stun:stun.cloudflare.com:3478' }].concat(TURN_SERVERS);
 var callX = null, pendingRing = null, ringTimer = 0, ringToneT = 0, callEs = null, callEsT = 0, roomEs = null, roomPollT = 0;
 // Tuned getUserMedia constraints (lag/quality task): a modest, capped resolution/framerate
@@ -1711,11 +1722,58 @@ function prepStream(stream) {
   stream.getVideoTracks().forEach(function (t) { try { t.contentHint = 'motion'; } catch (e) {} });
   return stream;
 }
-function mediaConstraints(video) { return { audio: AUDIO_CONSTRAINTS, video: video ? VIDEO_CONSTRAINTS : false }; }
+function audioConstraints() {
+  var m = store.nc || 'standard';
+  return m === 'off' ? { echoCancellation: true, noiseSuppression: false, autoGainControl: false, channelCount: 1 }
+    : m === 'strong' ? { echoCancellation: true, noiseSuppression: true, autoGainControl: true, voiceIsolation: true, channelCount: 1 }
+    : AUDIO_CONSTRAINTS;
+}
+/* "Strong" noise cancellation: mic → 90 Hz high-pass (rumble/wind) → adaptive noise gate (AudioWorklet,
+   learns the room's noise floor and fades non-speech down) → gentle compressor → what gets sent.
+   Runs in the audio thread so it keeps working when the tab is in the background. Any failure falls
+   back to the plain microphone, so a call never breaks because of it. */
+var GATE_SRC = [
+  'class G extends AudioWorkletProcessor{',
+  'constructor(){super();this.f=0.003;this.g=0;this.h=0;this.b=false;this.port.onmessage=(e)=>{this.b=!!e.data.bypass;};}',
+  'process(i,o){var a=i[0],d=o[0];if(!a||!a[0])return true;var x=a[0],n=x.length,s=0,k,c;',
+  'for(k=0;k<n;k++)s+=x[k]*x[k];var r=Math.sqrt(s/n);var open=r>Math.max(this.f*3.2,0.006);',
+  'if(!open){this.f+=(r-this.f)*(r<this.f?0.1:0.002);if(this.f<0.0008)this.f=0.0008;if(this.f>0.02)this.f=0.02;}',
+  'if(open)this.h=Math.ceil(sampleRate*0.3/n);else if(this.h>0)this.h--;',
+  'var t=(this.b||open||this.h>0)?1:0.05;this.g+=(t-this.g)*(t>this.g?0.6:0.05);',
+  'for(c=0;c<d.length;c++){var src=a[c]||a[0],dst=d[c];for(k=0;k<n;k++)dst[k]=src[k]*this.g;}return true;}}',
+  "registerProcessor('ap-gate',G);"
+].join('\n');
+function buildLocal(raw) {
+  prepStream(raw);
+  if ((store.nc || 'standard') !== 'strong' || !raw.getAudioTracks().length || !window.AudioContext || !window.AudioWorkletNode) return raw;
+  var ctx; try { ctx = new AudioContext({ latencyHint: 'interactive' }); } catch (e) { return raw; }
+  if (!ctx.audioWorklet) { try { ctx.close(); } catch (e) {} return raw; }
+  var url = URL.createObjectURL(new Blob([GATE_SRC], { type: 'application/javascript' }));
+  return ctx.audioWorklet.addModule(url).then(function () {
+    URL.revokeObjectURL(url);
+    var src = ctx.createMediaStreamSource(new MediaStream(raw.getAudioTracks()));
+    var hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 90; hp.Q.value = 0.7;
+    var gate = new AudioWorkletNode(ctx, 'ap-gate', { numberOfInputs: 1, numberOfOutputs: 1, outputChannelCount: [1] });
+    var comp = ctx.createDynamicsCompressor(); comp.threshold.value = -24; comp.knee.value = 24; comp.ratio.value = 3; comp.attack.value = 0.005; comp.release.value = 0.2;
+    var dest = ctx.createMediaStreamDestination();
+    src.connect(hp); hp.connect(gate); gate.connect(comp); comp.connect(dest);
+    if (ctx.state === 'suspended') ctx.resume();
+    var out = new MediaStream([dest.stream.getAudioTracks()[0]].concat(raw.getVideoTracks()));
+    try { out.getAudioTracks()[0].contentHint = 'speech'; } catch (e) {}
+    out._fx = { ctx: ctx, src: src, hp: hp, gate: gate, raw: raw.getAudioTracks(), bypass: false };
+    return out;
+  }).catch(function () { try { URL.revokeObjectURL(url); ctx.close(); } catch (e) {} return raw; });
+}
+function callLocalReady() {
+  var cx = callX; if (!cx) return;
+  $('call-ns').hidden = !cx.fx; $('call-ns').classList.remove('off');
+  if (store.qj) { $('call-mute').click(); if (cx.type === 'video') $('call-cam').click(); }
+}
+function mediaConstraints(video) { return { audio: audioConstraints(), video: video ? VIDEO_CONSTRAINTS : false }; }
 // Call sound effects — same WebAudio pattern as beep(), same store.snd opt-out, just a
 // small family of distinct short tones instead of one. No audio files, nothing to fetch.
 function callTone(freqs, gap, dur, vol) {
-  if (store.snd === false) return;
+  if (store.snd === false || covered) return;
   try {
     actx = actx || new (window.AudioContext || window.webkitAudioContext)(); if (actx.state === 'suspended') actx.resume();
     var t = actx.currentTime;
@@ -1745,6 +1803,10 @@ function openCallStream() {
 }
 function closeCallStream() { if (callEs) { callEs.close(); callEs = null; } clearTimeout(callEsT); }
 var ringSeen = {};
+// Our own ring mailbox is cleared once a ring is resolved (answered, declined, missed, call over). It used to keep
+// the last signal forever, which could replay as a ghost ring and answer the next real call with "busy",
+// and left a second logged-in device ringing after the first one answered.
+function clearMyRing() { return rt('DELETE', 'calls/' + auth.uid).catch(function () {}); }
 function onRing(sig) {
   if (callX) {
     if (!sig) return;
@@ -1762,6 +1824,10 @@ function onRing(sig) {
   // stays in our mailbox after we answer). Each cid is only ever handled once, otherwise a
   // repeat of the SAME call was answered with "busy", which kicked the caller out.
   if (ringSeen[sig.cid]) return;
+  if (store.dnd) { ringSeen[sig.cid] = 1; clearMyRing(); nickOf(sig.from).then(function (n) { toast('Missed call from ' + n + ' (Do not disturb)'); }); return; }
+  // A newer call from the SAME person replaces a ring we're still showing (old/ghost ring, or a redial),
+  // instead of being answered with "busy". Only a different caller gets "busy".
+  if (pendingRing && pendingRing.from === sig.from) { $('d-incall').close(); clearTimeout(ringTimer); clearInterval(ringToneT); pendingRing = null; }
   if (pendingRing) { ringSeen[sig.cid] = 1; rt('PUT', 'calls/' + sig.from, { from: auth.uid, convId: sig.convId, cid: sig.cid, type: sig.type, state: 'busy', ts: SV }).catch(function () {}); return; }
   ringSeen[sig.cid] = 1;
   if (blocks[sig.from]) { rt('PUT', 'calls/' + sig.from, { from: auth.uid, convId: sig.convId, cid: sig.cid, type: sig.type, state: 'declined', ts: SV }).catch(function () {}); return; }
@@ -1786,7 +1852,7 @@ function showIncoming(sig) {
   clearTimeout(ringTimer);
   ringTimer = setTimeout(function () { if (pendingRing && pendingRing.cid === sig.cid) { $('d-incall').close(); clearInterval(ringToneT); pendingRing = null; declineRing(sig, 'ended'); toast('Missed call from ' + name); } }, 35000);
 }
-function declineRing(sig, state) { rt('PUT', 'calls/' + sig.from, { from: auth.uid, convId: sig.convId, cid: sig.cid, type: sig.type, state: state || 'declined', ts: SV }).catch(function () {}); }
+function declineRing(sig, state) { rt('PUT', 'calls/' + sig.from, { from: auth.uid, convId: sig.convId, cid: sig.cid, type: sig.type, state: state || 'declined', ts: SV }).catch(function () {}).then(clearMyRing); }
 $('cl-decline').onclick = function () { var sig = pendingRing; $('d-incall').close(); clearTimeout(ringTimer); clearInterval(ringToneT); pendingRing = null; if (sig) declineRing(sig, 'declined'); };
 $('cl-accept').onclick = function () { var sig = pendingRing; clearInterval(ringToneT); pendingRing = null; if (sig) acceptCall(sig); };
 function playRemote() {
@@ -1914,9 +1980,9 @@ function startQualityLoop(cx) {
 }
 function setVideoEnabled(cx, on) { cx.localStream.getVideoTracks().forEach(function (t) { t.enabled = on; }); }
 function evalQuality(cx, stats) {
-  var rtt = null, avail = 0, loss = 0, inb = { lost: 0, recv: 0 };
+  var rtt = null, avail = 0, loss = 0, inb = { lost: 0, recv: 0 }, selLocal = null;
   stats.forEach(function (r) {
-    if (r.type === 'candidate-pair' && r.state === 'succeeded' && r.nominated) { if (r.currentRoundTripTime != null) rtt = r.currentRoundTripTime * 1000; if (r.availableOutgoingBitrate) avail = r.availableOutgoingBitrate; }
+    if (r.type === 'candidate-pair' && r.state === 'succeeded' && r.nominated) { if (r.currentRoundTripTime != null) rtt = r.currentRoundTripTime * 1000; if (r.availableOutgoingBitrate) avail = r.availableOutgoingBitrate; selLocal = r.localCandidateId; }
     else if (r.type === 'remote-inbound-rtp' && r.fractionLost != null) loss = Math.max(loss, r.fractionLost);
     else if (r.type === 'inbound-rtp' && !r.isRemote) { inb.lost += r.packetsLost || 0; inb.recv += r.packetsReceived || 0; }
   });
@@ -1924,6 +1990,7 @@ function evalQuality(cx, stats) {
   var dl = inb.lost - prev.lost, dr = inb.recv - prev.recv; if (dl > 0 && dl + dr > 20) loss = Math.max(loss, dl / (dl + dr));
   if (cx.startedAt && Date.now() - cx.startedAt < 6000) avail = 0;   // the bandwidth estimate starts low and ramps up
   var level = (rtt > 450 || loss > 0.12) ? 0 : (rtt > 220 || loss > 0.04) ? 1 : 2;
+  var lc = selLocal && stats.get ? stats.get(selLocal) : null; $('call-q').title = 'Connection quality' + (lc && lc.candidateType === 'relay' ? ' (via relay)' : ' (direct)');
   setQ(level);
   if (cx.type !== 'video') return;
   var cap = qualityCap(), t = cx.tier == null ? Math.min(2, cap) : cx.tier;
@@ -1985,15 +2052,15 @@ function throttleTimersForCall(on) {
   timers.msgs = setInterval(function () { if (!document.hidden && cur) pollMsgs(); }, on ? 6000 : 2200);
 }
 function placeCall(peerUid, type) {
+  loadTurn();
   if (callX) { toast('You are already in a call.'); return; }
   if (!peerUid || peerUid === auth.uid) return;
   if (blocks[peerUid]) { toast('You have blocked this person.'); return; }
   var convId = dmId(auth.uid, peerUid), peerName = dispName(peerUid), cid = newKey();
-  navigator.mediaDevices.getUserMedia(mediaConstraints(type === 'video')).then(function (stream) {
-    prepStream(stream);
-    callX = { cid: cid, convId: convId, peerUid: peerUid, peerName: peerName, type: type, isCaller: true, phase: 'ringing', localStream: stream, seenCandKeys: {} };
+  navigator.mediaDevices.getUserMedia(mediaConstraints(type === 'video')).then(buildLocal).then(function (stream) {
+    callX = { cid: cid, convId: convId, peerUid: peerUid, peerName: peerName, type: type, isCaller: true, phase: 'ringing', localStream: stream, seenCandKeys: {}, fx: stream._fx || null };
     showCallOverlay(); setCallStatus('Calling ' + peerName + '…'); buildPC();
-    callX.localStream.getTracks().forEach(function (t) { callX.pc.addTrack(t, callX.localStream); }); attachLocalPreview(); tuneSenders();
+    callX.localStream.getTracks().forEach(function (t) { callX.pc.addTrack(t, callX.localStream); }); attachLocalPreview(); tuneSenders(); callLocalReady();
     return callX.pc.createOffer().then(function (o) { return setLocalTuned(callX.pc, o); });
   }).then(function (offer) { return rt('PUT', 'dms/' + callX.convId + '/call/' + callX.cid + '/offer', { d: JSON.stringify(offer), f: auth.uid }); })
     .then(function () { return rt('PUT', 'calls/' + peerUid, { from: auth.uid, convId: callX.convId, cid: callX.cid, type: type, state: 'ringing', ts: SV }); })
@@ -2007,15 +2074,15 @@ function placeCall(peerUid, type) {
     });
 }
 function acceptCall(sig) {
+  loadTurn();
   $('d-incall').close(); clearTimeout(ringTimer);
   var peerName = dispName(sig.from);
-  navigator.mediaDevices.getUserMedia(mediaConstraints(sig.type === 'video')).then(function (stream) {
-    prepStream(stream);
-    callX = { cid: sig.cid, convId: sig.convId, peerUid: sig.from, peerName: peerName, type: sig.type, isCaller: false, phase: 'connecting', localStream: stream, seenCandKeys: {} };
+  navigator.mediaDevices.getUserMedia(mediaConstraints(sig.type === 'video')).then(buildLocal).then(function (stream) {
+    callX = { cid: sig.cid, convId: sig.convId, peerUid: sig.from, peerName: peerName, type: sig.type, isCaller: false, phase: 'connecting', localStream: stream, seenCandKeys: {}, fx: stream._fx || null };
     showCallOverlay(); setCallStatus('Connecting…'); buildPC();
-    callX.localStream.getTracks().forEach(function (t) { callX.pc.addTrack(t, callX.localStream); }); attachLocalPreview(); tuneSenders();
+    callX.localStream.getTracks().forEach(function (t) { callX.pc.addTrack(t, callX.localStream); }); attachLocalPreview(); tuneSenders(); callLocalReady();
     openCallRoom();
-    return rt('PUT', 'calls/' + sig.from, { from: auth.uid, convId: sig.convId, cid: sig.cid, type: sig.type, state: 'accepted', ts: SV });
+    return rt('PUT', 'calls/' + sig.from, { from: auth.uid, convId: sig.convId, cid: sig.cid, type: sig.type, state: 'accepted', ts: SV }).then(clearMyRing);
   }).catch(function (e) {
     toast(e && e.name === 'NotAllowedError' ? 'Camera/microphone permission was denied.' : 'Could not join the call.');
     if (callX) endCallLocal(); else declineRing(sig, 'ended');
@@ -2081,13 +2148,14 @@ function hangup(state) {
   endCallLocal();
 }
 function endCallLocal() {
-  var cx = callX; callX = null; closeCallRoom(); throttleTimersForCall(false);
+  var cx = callX; callX = null; closeCallRoom(); throttleTimersForCall(false); clearMyRing();
   if (cx) {
     clearTimeout(cx.ringTimeout); clearTimeout(cx.discoTimer); clearTimeout(cx.candT); clearTimeout(cx.idleT);
     clearInterval(cx.ringbackT); clearInterval(cx.chatPollT); clearInterval(cx.qT); stopDurTimer(cx); hangupTone(); releaseWake(cx);
   }
   if (cx && cx.pc) { try { cx.pc.close(); } catch (e) {} }
   if (cx && cx.localStream) cx.localStream.getTracks().forEach(function (t) { try { t.stop(); } catch (e) {} });
+  if (cx && cx.fx) { cx.fx.raw.forEach(function (t) { try { t.stop(); } catch (e) {} }); try { cx.fx.ctx.close(); } catch (e) {} }
   if (cx) cx.remoteStream = null;
   $('call-remote').srcObject = null; $('call-local').srcObject = null; hideCallOverlay(); renderConvs();
   // the caller leaves a one-line record in the chat ("Voice call · 03:12", "Missed call", …)
@@ -2198,7 +2266,7 @@ $('call-devices').onclick = function () {
 document.addEventListener('mousedown', function (e) { if (!$('devpick').hidden && !e.target.closest('#devpick') && !e.target.closest('#call-devices')) $('devpick').hidden = true; });
 $('dp-mic').onchange = function () {
   if (!callX) return; var id = this.value;
-  navigator.mediaDevices.getUserMedia({ audio: Object.assign({ deviceId: { exact: id } }, AUDIO_CONSTRAINTS) }).then(function (stream) { return replaceLocalTrack('audio', stream.getAudioTracks()[0]); }).catch(function () { toast('Could not switch microphone'); });
+  navigator.mediaDevices.getUserMedia({ audio: Object.assign({ deviceId: { exact: id } }, audioConstraints()) }).then(function (stream) { var fx = callX && callX.fx; if (fx) { try { fx.src.disconnect(); } catch (e) {} fx.raw.forEach(function (t) { try { t.stop(); } catch (e) {} }); fx.raw = stream.getAudioTracks(); fx.src = fx.ctx.createMediaStreamSource(new MediaStream(fx.raw)); fx.src.connect(fx.hp); return; } return replaceLocalTrack('audio', stream.getAudioTracks()[0]); }).catch(function () { toast('Could not switch microphone'); });
 };
 $('dp-cam').onchange = function () {
   if (!callX || callX.type !== 'video') return; var id = this.value;
@@ -2296,12 +2364,37 @@ $('b-settings').onclick = function () {
     $('s-blocks').innerHTML = b.map(function (u) { var n = dispName(u); return '<div class="mem"><span>' + esc(n) + '</span><button class="btn sm" data-ub="' + esc(u) + '" type="button">Unblock</button></div>'; }).join('');
     $('s-blocks').querySelectorAll('[data-ub]').forEach(function (x) { x.onclick = function () { doUnblock(x.dataset.ub); $('b-settings').click(); }; });
   });
-  $('s-cq').value = store.cq || 'auto'; $('s-rr').checked = store.rr !== false; $('s-ty').checked = store.ty !== false; $('s-cc').checked = !!store.callsClosed; $('s-24').checked = !!store.h24; $('s-snd').checked = store.snd !== false; $('s-dn').checked = !!(store.dn && window.Notification && Notification.permission === 'granted'); $('s-dn').disabled = !window.Notification;
+  $('s-cq').value = store.cq || 'auto'; $('s-nc').value = store.nc || 'standard'; $('s-qj').checked = !!store.qj; $('s-dnd').checked = !!store.dnd; $('s-st').checked = !!store.stealth; $('s-rr').checked = store.rr !== false; $('s-ty').checked = store.ty !== false; $('s-cc').checked = !!store.callsClosed; $('s-24').checked = !!store.h24; $('s-snd').checked = store.snd !== false; $('s-dn').checked = !!(store.dn && window.Notification && Notification.permission === 'granted'); $('s-dn').disabled = !window.Notification;
   pfpPreview(); $('s-pich').className = 'hint'; $('s-newnick').value = ''; $('s-nickh').className = 'hint'; $('s-nickh').textContent = 'Changing your nickname frees your old one for others to take. People can message you by your new nickname right away — messages you already sent keep showing the name you used at the time.';
   renderFramePicker(); $('d-set').showModal();
 };
 $('s-rr').onchange = function () { store.rr = this.checked; save(); toast(this.checked ? 'Read receipts are on' : 'Read receipts are off. You will not see others’ either.'); };
 $('s-ty').onchange = function () { store.ty = this.checked; save(); };
+$('s-nc').onchange = function () { store.nc = this.value; save(); toast('Noise cancellation: ' + this.options[this.selectedIndex].text + (callX ? ' (applies to your next call)' : '')); };
+$('s-qj').onchange = function () { store.qj = this.checked; save(); };
+$('s-dnd').onchange = function () { store.dnd = this.checked; save(); toast(this.checked ? 'Do not disturb is on: incoming calls are silently ignored' : 'Do not disturb is off'); };
+$('s-st').onchange = function () { store.stealth = this.checked; save(); toast(this.checked ? 'Stealth mode is on' : 'Stealth mode is off'); if (cur) { markRead(cur, Object.keys(msgData).sort()); } };
+$('s-hide').onclick = function () { $('d-set').close(); panicHide(true); };
+$('call-ns').onclick = function () {
+  var fx = callX && callX.fx; if (!fx) return; fx.bypass = !fx.bypass; fx.gate.port.postMessage({ bypass: fx.bypass });
+  $('call-ns').classList.toggle('off', fx.bypass); toast(fx.bypass ? 'Noise cancellation off' : 'Noise cancellation on');
+};
+/* quick hide: double-Escape blanks the page, silences the call, and restores on click */
+var covered = false, lastEsc = 0, titleBefore = '';
+function panicHide(on) {
+  if (on === covered) return; covered = on; var c = $('cover');
+  if (on) {
+    titleBefore = document.title; document.title = 'New Tab'; $('call-remote').muted = true;
+    if (callX) { if (!$('call-mute').classList.contains('on')) $('call-mute').click(); if (callX.type === 'video' && !$('call-cam').classList.contains('on')) $('call-cam').click(); }
+    try { c.showModal(); } catch (e) {}
+  } else { try { c.close(); } catch (e) {} $('call-remote').muted = false; document.title = titleBefore || 'Messages — Aperture'; }
+}
+$('cover').addEventListener('cancel', function (e) { e.preventDefault(); });
+$('cover').addEventListener('click', function () { panicHide(false); });
+document.addEventListener('keydown', function (e) {
+  if (e.key !== 'Escape' || e.repeat || covered || !me) return;
+  var n = Date.now(); if (n - lastEsc < 600) { panicHide(true); lastEsc = 0; } else lastEsc = n;
+}, true);
 $('s-cq').onchange = function () { store.cq = this.value; save(); if (callX && callX.type === 'video' && callX.pc) { var cap = qualityCap(); if ((callX.tier == null ? 2 : callX.tier) > cap) applyTier(callX, cap); } };
 // Like the read-receipt/typing toggles above, this is a CLIENT-respected preference, not a
 // server-enforced rule (calls/{uid} write rules can't easily tell "have we ever messaged" —

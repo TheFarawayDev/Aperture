@@ -25,6 +25,10 @@ export default {
     });
     if (!v.ok) return out({ error: 'unauthorized' }, 401);
 
+    // Admin switch (Administration → Calls). Off by default: no flag, no credentials.
+    const f = await fetch('https://aperture-5c3af-default-rtdb.firebaseio.com/aperture-messages/config/turn.json?auth=' + encodeURIComponent(idToken));
+    if (!f.ok || (await f.json()) !== true) return out({ error: 'relay_off' }, 403);
+
     const r = await fetch('https://rtc.live.cloudflare.com/v1/turn/keys/' + env.TURN_KEY_ID + '/credentials/generate-ice-servers', {
       method: 'POST',
       headers: { Authorization: 'Bearer ' + env.TURN_KEY_API_TOKEN, 'Content-Type': 'application/json' },
