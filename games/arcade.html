@@ -22,26 +22,28 @@ a{color:var(--a2)}button,input,select,textarea{font:inherit;color:inherit}[hidde
 .hdr{min-height:56px;padding:8px 10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:rgba(27,35,44,.96);border:1px solid var(--hair);border-radius:18px;box-shadow:var(--shadow)}
 .crumbs{display:flex;align-items:center;gap:2px;color:var(--t3);font-size:13px;min-width:0;flex:1;overflow:hidden}
 .home{order:-1;margin-right:2px;display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 14px;border-radius:12px;border:1px solid var(--hair-2);color:var(--t2);text-decoration:none;font-size:13.5px;font-weight:500}.home:hover{background:var(--surface-2);color:#fff}
-main{flex:1;width:100%;padding:12px 10px 10px;display:flex;flex-direction:column;min-height:0}
+main{flex:1;width:100%;padding:12px 10px 10px;display:flex;flex-direction:column;min-height:0;position:relative;z-index:1}
 .card{background:var(--surface);border:1px solid var(--hair);border-radius:22px;box-shadow:var(--shadow)}
 .inp{width:100%;height:42px;padding:0 12px;border-radius:12px;background:var(--inset);border:1px solid var(--hair);outline:none;transition:border-color .15s,box-shadow .15s}
 .inp:focus{border-color:rgba(91,143,232,.55);box-shadow:0 0 0 3px rgba(91,143,232,.14)}.inp::placeholder{color:#5c6b7d}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;padding:0 16px;border-radius:12px;border:1px solid var(--hair-2);background:transparent;color:var(--t2);cursor:pointer;font-weight:600;font-size:13.5px;white-space:nowrap;text-decoration:none}.btn:hover{background:var(--surface-2);color:#fff}
 .btn.pri{background:var(--accent);border-color:transparent;color:#0e1620}.btn.pri:hover{background:var(--a2)}.btn.sm{height:34px;padding:0 12px;font-size:13px;border-radius:10px}
-footer{padding:14px 12px 22px;text-align:center;color:var(--t3);font-size:12px}footer a{color:var(--t2)}
+footer{padding:14px 12px 22px;text-align:center;color:var(--t3);font-size:12px;position:relative;z-index:1}footer a{color:var(--t2)}
 .top{padding:18px 18px 4px}
 .top h1{margin:0 0 4px;font-size:22px;display:flex;align-items:center;gap:10px}
 .top p{margin:0 0 14px;color:var(--t3);font-size:14px;max-width:62ch}
 .fsearch{position:relative;max-width:420px}.fsearch i{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--t3);font-size:13px;pointer-events:none}.fsearch .inp{height:44px;padding-left:38px;border-radius:99px}
 .chips{display:flex;gap:6px;padding:14px 18px 6px;overflow-x:auto}.chips button{flex:none;height:30px;padding:0 13px;border-radius:99px;border:1px solid var(--hair);background:transparent;color:var(--t2);font-size:12.5px;font-weight:600;cursor:pointer}.chips button:hover{background:var(--surface-2)}.chips button.on{background:rgba(91,143,232,.2);border-color:rgba(91,143,232,.5);color:#fff}
 #count{color:var(--t3);font-size:12.5px;font-weight:500}
-.sec-h{padding:14px 18px 6px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--t3);font-weight:700}
-#grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;padding:6px 18px 20px}
+.sec-h{padding:14px 18px 6px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--t3);font-weight:700;display:flex;justify-content:space-between;align-items:center}
+.clear-btn{background:none;border:none;color:var(--t3);font-size:11px;font-weight:600;cursor:pointer;padding:2px 8px;border-radius:6px;text-transform:none;letter-spacing:0}.clear-btn:hover{color:var(--text);background:var(--surface-2)}
+#grid,#recent-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;padding:6px 18px 20px}
+#recent-grid{padding-bottom:6px}
 .gc{display:flex;flex-direction:column;gap:10px;padding:16px;border-radius:18px;background:var(--inset);border:1px solid var(--hair);position:relative}
 .gc .row1{display:flex;align-items:center;gap:12px}
 .tile{flex:none;width:46px;height:46px;border-radius:14px;display:grid;place-items:center;font-weight:700;color:#0e1620;font-size:18px}
-.gc .nm{min-width:0;flex:1}.gc .nm b{display:block;font-size:15px}.gc .nm span{display:block;font-size:12px;color:var(--t3)}
-.gc .desc{font-size:13px;color:var(--t2);margin:0;min-height:36px}
+.gc .nm{min-width:0;flex:1}.gc .nm b{display:block;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.gc .nm span{display:block;font-size:12px;color:var(--t3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gc .desc{font-size:13px;color:var(--t2);margin:0;min-height:36px;flex:1}
 .gc .meta{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .lic{display:inline-block;padding:2px 8px;border-radius:7px;background:var(--surface-3);border:1px solid var(--hair);font-size:10.5px;color:var(--t3)}
 .gc .acts{display:flex;gap:8px}
@@ -61,13 +63,17 @@ footer{padding:14px 12px 22px;text-align:center;color:var(--t3);font-size:12px}f
 <section class="card">
   <div class="top">
     <h1><i class="fa-solid fa-gamepad"></i> Arcade</h1>
-    <p>Open-source browser games. Pressing Play takes you straight to the game's own page — it opens like any other website, not inside a box here.</p>
+    <p>Open-source browser games. Pressing Play pulls the game's <code>index.html</code> from GitHub and embeds it directly into a clean <code>about:blank</code> tab.</p>
     <div class="fsearch"><i class="fa-solid fa-magnifying-glass"></i><input class="inp" id="q" placeholder="Search games" autocomplete="off" aria-label="Search games"></div>
   </div>
   <div class="chips" id="chips"></div>
-  <div class="sec-h" style="display:flex;justify-content:space-between;align-items:center;padding-right:18px"><span>Games</span><span id="count"></span></div>
+  <div id="recent-sec" hidden>
+    <div class="sec-h"><span>Recently Played</span><button type="button" class="clear-btn" id="clear-rec">Clear</button></div>
+    <div id="recent-grid"></div>
+  </div>
+  <div class="sec-h"><span>Games</span><span id="count"></span></div>
   <div id="grid"></div>
-  <div class="notice"><i class="fa-brands fa-github"></i><div><b>Each game belongs to its own authors</b> and keeps its own open-source license, shown on its card. Aperture does not host or change the game code — it links straight to the project on GitHub, served through the jsDelivr CDN.</div></div>
+  <div class="notice"><i class="fa-brands fa-github"></i><div><b>Each game belongs to its own authors</b> and keeps its own open-source license, shown on its card. Aperture does not host or change the game code — it pulls the project straight from GitHub through the jsDelivr CDN into an isolated <code>about:blank</code> tab.</div></div>
 </section>
 </main>
 <footer>&copy; 2026 Faros Technologies Inc. All rights reserved. · <a href="../legal/privacy-policy" data-lg>Privacy</a> · <a href="../legal/terms-of-use" data-lg>Terms</a></footer>
@@ -621,34 +627,18 @@ window.APERTURE = {
 'use strict';
 /* ═════════ GAME LIST ═════════
    To add a game, add one line here. Each game is loaded straight from its GitHub
-   project through the jsDelivr CDN — no copy of its code lives on Aperture.
+   project through the jsDelivr CDN and embedded into an about:blank window.
      repo  = "owner/name"      ref = branch or tag      dir = folder inside the repo ('' for the top)
      entry = the page to open (usually index.html)
    Only add games you have the right to link to (check the license on GitHub first). */
 var GAMES = [
-  { id: '2048',        name: '2048',                              repo: 'gabrielecirulli/2048',          ref: 'master',   dir: '',      entry: 'index.html', tag: 'Puzzle',   license: 'MIT',        desc: 'Slide tiles and combine them to reach 2048.' },
-  { id: 'hextris',     name: 'Hextris',                           repo: 'Hextris/hextris',               ref: 'gh-pages', dir: '',      entry: 'index.html', tag: 'Arcade',   license: 'GPL-3.0',    desc: 'Fast-paced puzzle with a spinning hexagon.' },
-  { id: 'clumsy-bird', name: 'Clumsy Bird',                       repo: 'ellisonleao/clumsy-bird',       ref: 'master',   dir: '',      entry: 'index.html', tag: 'Arcade',   license: 'GPL-3.0',    desc: 'A flappy-style bird game built with melonJS.' },
-  { id: 'adarkroom',   name: 'A Dark Room',                       repo: 'doublespeakgames/adarkroom',    ref: 'main',     dir: '',      entry: 'index.html', tag: 'Strategy', license: 'MPL-2.0',    desc: 'A minimalist text adventure that grows as you play.' },
-  { id: 'tetris',      name: 'Tetris',                            repo: 'jakesgordon/javascript-tetris', ref: 'master',   dir: '',      entry: 'index.html', tag: 'Puzzle',   license: 'MIT',        desc: 'A classic falling-block puzzle game.' },
-  { id: 'pacman',      name: 'Pac-Man',                           repo: 'daleharvey/pacman',             ref: 'master',   dir: '',      entry: 'index.html', tag: 'Arcade',   license: 'WTFPL',      desc: 'A JavaScript remake of the arcade classic.' },
-  { id: 'racer',       name: 'Racer',                             repo: 'jakesgordon/javascript-racer',  ref: 'master',   dir: '',      entry: 'index.html', tag: 'Arcade',   license: 'MIT',        desc: 'A pseudo-3D racing game built with canvas.' },
-  { id: 'fnaf1',       name: "Five Nights at Freddy's",           repo: 'irv77/hd_fnaf',                 ref: 'main',     dir: '1',     entry: 'index.html', tag: 'Horror',   license: 'Proprietary', desc: 'Survive five night shifts monitoring security cameras at Freddy Fazbear\'s Pizza.' },
-  { id: 'fnaf2',       name: "Five Nights at Freddy's 2",         repo: 'irv77/hd_fnaf',                 ref: 'main',     dir: '2',     entry: 'index.html', tag: 'Horror',   license: 'Proprietary', desc: 'Defend against new and retro animatronics with a Freddy mask and flashlight.' },
-  { id: 'fnaf3',       name: "Five Nights at Freddy's 3",         repo: 'irv77/hd_fnaf',                 ref: 'main',     dir: '3',     entry: 'index.html', tag: 'Horror',   license: 'Proprietary', desc: 'Manage ventilation, audio, and camera systems to survive Springtrap at Fazbear\'s Fright.' },
-  { id: 'fnaf4',       name: "Five Nights at Freddy's 4",         repo: 'irv77/hd_fnaf',                 ref: 'main',     dir: '4',     entry: 'index.html', tag: 'Horror',   license: 'Proprietary', desc: 'Listen for breathing and defend your bedroom doors and closet against nightmare animatronics.' },
-  { id: 'fnaf-sl',     name: "Five Nights at Freddy's: Sister Location", repo: 'irv77/hd_fnaf',           ref: 'main',     dir: 'sl',    entry: 'index.html', tag: 'Horror',   license: 'Proprietary', desc: 'Navigate maintenance rooms and perform nightly tasks across Circus Baby\'s Entertainment and Rental.' },
-  { id: 'fnaf-ps',     name: "Freddy Fazbear's Pizzeria Simulator", repo: 'irv77/hd_fnaf',               ref: 'main',     dir: 'ps',    entry: 'index.html', tag: 'Simulation', license: 'Proprietary', desc: 'Design your own restaurant by day and salvage rogue animatronics by night.' },
-  { id: 'fnaf-ucn',    name: 'Ultimate Custom Night',             repo: 'irv77/hd_fnaf',                 ref: 'main',     dir: 'ucn',   entry: 'index.html', tag: 'Survival', license: 'Proprietary', desc: 'Customize and face off against up to 50 selectable animatronic characters.' },
-  { id: 'fnaf-world',  name: 'FNAF World',                        repo: 'irv77/hd_fnaf',                 ref: 'main',     dir: 'w',     entry: 'index.html', tag: 'RPG',      license: 'Proprietary', desc: 'Lead an animatronic party on an animated turn-based RPG adventure through Village and beyond.' },
-  { id: 'polytrack',   name: 'PolyTrack',                         repo: 'StaticQuasar931/PolyTrack-0.6.3',  ref: 'main',     dir: '',     entry: 'index.html', tag: 'Racing',      license: 'Proprietary', desc: 'A fast-paced racing game with unique track designs.' },
-  { id: 'buckshot-roulette', name: 'Buckshot Roulette',                 repo: 'StaticQuasar931/buckshot-roulette', ref: 'main',     dir: '',     entry: 'index.html', tag: 'Arcade',      license: 'Proprietary', desc: 'A thrilling game of chance and strategy.' },
-  { id: 'repo', name: 'R.E.P.O.', repo: 'bandit968thegamer-ops/undertale', ref: 'main', dir: 'repo', entry: 'index.html', tag: 'Adventure', license: 'Proprietary', desc: 'An adventure game based on the Undertale universe.' },
-  { id: 'silksong-hollow-knight', name: 'Hollow Knight: Silksong', repo: 'web-ports/hollow-knight-silksong', ref: 'master', dir: '', entry: 'index.html', tag: 'Adventure', license: 'Proprietary', desc: 'Explore the world of Hallownest in this action-adventure game.' },
-  { id: 'celeste', name: 'Celeste', repo: 'web-ports/celeste', ref: '4f043a5ce121b74dc54ce56d74f213a2eeea6b4e', dir: '', entry: 'index.html', tag: 'Platformer', license: 'Proprietary', desc: 'A challenging platformer about climbing a mountain and overcoming personal struggles.' },
-  { id: 'pvz', name: 'Plants vs. Zombies', repo: 'web-ports/pvz', ref: 'main', dir: '', entry: 'index.html', tag: 'Strategy', license: 'Proprietary', desc: 'Defend your home from waves of zombies using a variety of plants.' },
-  { id: 'slime-rancher', name: 'Slime Rancher', repo: 'web-ports/slime-ranchers', ref: 'main', dir: '', entry: 'index.html', tag: 'Simulation', license: 'Proprietary', desc: 'Manage your own slime ranch and explore a colorful world.' },
-  { id: 'terraria', name: 'Terraria', repo: 'web-ports/terraria', ref: 'main', dir: '', entry: 'index.html', tag: 'Adventure', license: 'Proprietary', desc: 'Welcome to the 2D world of Terraria where anything is possible!' }
+  { id: '2048',        name: '2048',         repo: 'gabrielecirulli/2048',          ref: 'master',   dir: '', entry: 'index.html', tag: 'Puzzle',   license: 'MIT',     desc: 'Slide tiles and combine them to reach 2048.' },
+  { id: 'hextris',     name: 'Hextris',      repo: 'Hextris/hextris',               ref: 'gh-pages', dir: '', entry: 'index.html', tag: 'Arcade',   license: 'GPL-3.0', desc: 'Fast-paced puzzle with a spinning hexagon.' },
+  { id: 'clumsy-bird', name: 'Clumsy Bird',  repo: 'ellisonleao/clumsy-bird',       ref: 'master',   dir: '', entry: 'index.html', tag: 'Arcade',   license: 'GPL-3.0', desc: 'A flappy-style bird game built with melonJS.' },
+  { id: 'adarkroom',   name: 'A Dark Room',  repo: 'doublespeakgames/adarkroom',    ref: 'main',     dir: '', entry: 'index.html', tag: 'Strategy', license: 'MPL-2.0', desc: 'A minimalist text adventure that grows as you play.' },
+  { id: 'tetris',      name: 'Tetris',       repo: 'jakesgordon/javascript-tetris', ref: 'master',   dir: '', entry: 'index.html', tag: 'Puzzle',   license: 'MIT',     desc: 'A classic falling-block puzzle game.' },
+  { id: 'pacman',      name: 'Pac-Man',      repo: 'daleharvey/pacman',             ref: 'master',   dir: '', entry: 'index.html', tag: 'Arcade',   license: 'WTFPL',   desc: 'A JavaScript remake of the arcade classic.' },
+  { id: 'racer',       name: 'Racer',        repo: 'jakesgordon/javascript-racer',  ref: 'master',   dir: '', entry: 'index.html', tag: 'Arcade',   license: 'MIT',     desc: 'A pseudo-3D racing game built with canvas.' }
 ];
 var CDN = 'https://cdn.jsdelivr.net/gh/';
 
@@ -659,10 +649,78 @@ function save() { try { localStorage.setItem('aperture-arcade', JSON.stringify(s
 store.fav = store.fav || {}; store.recent = store.recent || [];
 var cat = 'All';
 function color(s) { var h = 0; for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0; return 'hsl(' + (h % 360) + ' 55% 68%)'; }
-function tile(el, g) { el.style.background = color(g.name); el.style.color = '#0e1620'; el.textContent = g.name.charAt(0).toUpperCase(); }
+function tile(el, g) { if (!g) return; el.style.background = color(g.name); el.style.color = '#0e1620'; el.textContent = g.name.charAt(0).toUpperCase(); }
 function base(g) { return CDN + g.repo + '@' + g.ref + '/' + (g.dir ? g.dir.replace(/^\/|\/$/g, '') + '/' : ''); }
 function url(g) { return base(g) + g.entry; }
 function byId(id) { for (var i = 0; i < GAMES.length; i++) if (GAMES[i].id === id) return GAMES[i]; return null; }
+
+/* ═════════ ABOUT:BLANK FETCH & EMBED ENGINE ═════════
+   Opens an about:blank tab synchronously on click, fetches the raw index.html
+   from jsDelivr, injects <base href="..."> so all relative scripts/CSS/images/audio
+   resolve from the CDN, and writes the document directly into about:blank. */
+function openInAboutBlank(g) {
+  var win = window.open('about:blank', '_blank');
+  if (!win) {
+    alert('Popup blocked! Please allow popups for this site so the game can open in about:blank.');
+    return;
+  }
+
+  var gameBase = base(g);
+  var gameUrl = url(g);
+
+  // Write a clean loading state into about:blank while fetching index.html
+  win.document.open();
+  win.document.write(
+    '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Loading ' + esc(g.name) + '…</title>' +
+    '<style>html,body{margin:0;height:100%;background:#161c23;color:#e8edf3;font-family:Inter,system-ui,-apple-system,sans-serif;display:grid;place-items:center;text-align:center}' +
+    '.box{display:flex;flex-direction:column;align-items:center;gap:14px;padding:24px}' +
+    '.spin{width:38px;height:38px;border:3px solid rgba(91,143,232,.25);border-top-color:#5b8fe8;border-radius:50%;animation:s .8s linear infinite}' +
+    '@keyframes s{to{transform:rotate(360deg)}}' +
+    'p{margin:0;font-size:13.5px;color:#8795a8}</style></head>' +
+    '<body><div class="box"><div class="spin"></div><b>Loading ' + esc(g.name) + '…</b><p>Pulling ' + esc(g.entry) + ' into about:blank</p></div></body></html>'
+  );
+  win.document.close();
+
+  fetch(gameUrl)
+    .then(function (res) {
+      if (!res.ok) throw new Error('HTTP ' + res.status + ' fetching ' + gameUrl);
+      return res.text();
+    })
+    .then(function (html) {
+      if (!win || win.closed) return;
+
+      // Normalize root-relative asset references (e.g. href="/style.css" -> href="style.css")
+      // so they obey our <base> tag inside about:blank
+      html = html.replace(/\b(href|src)=["']\/(?![\/])/gi, '$1="');
+
+      var headInject = '<base href="' + esc(gameBase) + '">';
+      if (/<head[^>]*>/i.test(html)) {
+        html = html.replace(/<head[^>]*>/i, function (m) { return m + '\n' + headInject; });
+      } else if (/<html[^>]*>/i.test(html)) {
+        html = html.replace(/<html[^>]*>/i, function (m) { return m + '\n<head>' + headInject + '</head>'; });
+      } else {
+        html = '<!DOCTYPE html><html><head>' + headInject + '</head><body>' + html + '</body></html>';
+      }
+
+      win.document.open();
+      win.document.write(html);
+      win.document.close();
+    })
+    .catch(function (err) {
+      if (!win || win.closed) return;
+      win.document.open();
+      win.document.write(
+        '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Error — ' + esc(g.name) + '</title>' +
+        '<style>html,body{margin:0;height:100%;background:#161c23;color:#e8edf3;font-family:Inter,system-ui,sans-serif;display:grid;place-items:center;text-align:center}' +
+        '.err{padding:24px;max-width:440px;background:#212a34;border:1px solid rgba(255,255,255,.12);border-radius:18px}' +
+        'h3{margin:0 0 8px;color:#e0707a}p{margin:0 0 16px;color:#b4c0cf;font-size:13.5px}' +
+        'button{padding:8px 16px;border-radius:10px;border:none;background:#5b8fe8;color:#0e1620;font-weight:600;cursor:pointer}</style></head>' +
+        '<body><div class="err"><h3>Could not load ' + esc(g.name) + '</h3><p>' + esc(err && err.message ? err.message : String(err)) + '</p>' +
+        '<button onclick="window.close()">Close Tab</button></div></body></html>'
+      );
+      win.document.close();
+    });
+}
 
 function card(g) {
   var f = store.fav[g.id];
@@ -672,38 +730,72 @@ function card(g) {
     '<p class="desc">' + esc(g.desc) + '</p>' +
     '<div class="meta"><span class="lic">' + esc(g.tag) + ' · ' + esc(g.license) + '</span><div class="acts">' +
     '<a class="btn sm" href="https://github.com/' + esc(g.repo) + '" target="_blank" rel="noopener noreferrer" title="View source on GitHub" aria-label="View source on GitHub"><i class="fa-brands fa-github"></i></a>' +
-    '<a class="btn sm pri" href="' + esc(url(g)) + '" target="_blank" rel="noopener noreferrer" data-play="' + esc(g.id) + '"><i class="fa-solid fa-play"></i> Play</a>' +
+    '<a class="btn sm pri" href="about:blank" data-play="' + esc(g.id) + '"><i class="fa-solid fa-play"></i> Play</a>' +
     '</div></div></div>';
 }
+
 function render() {
-  var q = $('q').value.trim().toLowerCase(), list = GAMES.filter(function (g) { return (cat === 'All' || (cat === 'Favorites' ? store.fav[g.id] : g.tag === cat)) && (!q || (g.name + ' ' + g.tag + ' ' + g.desc + ' ' + g.repo).toLowerCase().indexOf(q) >= 0); });
+  var q = $('q').value.trim().toLowerCase();
+  var list = GAMES.filter(function (g) {
+    return (cat === 'All' || (cat === 'Favorites' ? store.fav[g.id] : g.tag === cat)) &&
+           (!q || (g.name + ' ' + g.tag + ' ' + g.desc + ' ' + g.repo).toLowerCase().indexOf(q) >= 0);
+  });
   list.sort(function (a, b) { return (store.fav[b.id] ? 1 : 0) - (store.fav[a.id] ? 1 : 0) || a.name.localeCompare(b.name); });
   $('count').textContent = list.length + (list.length === 1 ? ' game' : ' games');
-  var html = '';
-  if (!q && cat === 'All') {
-    var rec = store.recent.map(byId).filter(Boolean).slice(0, 3);
-    if (rec.length) { $('grid').dataset.hasRecent = '1'; html += rec.map(card).join(''); }
+
+  var rec = (!q && cat === 'All') ? store.recent.map(byId).filter(Boolean).slice(0, 3) : [];
+  if (rec.length) {
+    $('recent-sec').hidden = false;
+    $('recent-grid').innerHTML = rec.map(card).join('');
+    $('recent-grid').querySelectorAll('[data-t]').forEach(function (el) { tile(el, byId(el.dataset.t)); });
+  } else {
+    $('recent-sec').hidden = true;
+    $('recent-grid').innerHTML = '';
   }
-  $('grid').innerHTML = (html ? '' : '') + (list.length ? list.map(card).join('') : '<div class="none">' + (cat === 'Favorites' ? 'No favorites yet. Press the star on a game.' : 'No games match “' + esc(q) + '”.') + '</div>');
-  if (html) $('grid').insertAdjacentHTML('afterbegin', html);
+
+  $('grid').innerHTML = list.length
+    ? list.map(card).join('')
+    : '<div class="none">' + (cat === 'Favorites' ? 'No favorites yet. Press the star on a game.' : 'No games match “' + esc(q) + '”.') + '</div>';
   $('grid').querySelectorAll('[data-t]').forEach(function (el) { tile(el, byId(el.dataset.t)); });
 }
+
 function chips() {
   var tags = ['All', 'Favorites']; GAMES.forEach(function (g) { if (tags.indexOf(g.tag) < 0) tags.push(g.tag); });
   $('chips').innerHTML = tags.map(function (t) { return '<button type="button" data-c="' + esc(t) + '" class="' + (t === cat ? 'on' : '') + '">' + (t === 'Favorites' ? '<i class="fa-solid fa-star"></i> ' : '') + esc(t) + '</button>'; }).join('');
 }
+
+function onCardClick(e) {
+  var s = e.target.closest('[data-fav]');
+  if (s) {
+    e.preventDefault();
+    var id = s.dataset.fav;
+    if (store.fav[id]) delete store.fav[id]; else store.fav[id] = 1;
+    save();
+    render();
+    return;
+  }
+  var p = e.target.closest('[data-play]');
+  if (p) {
+    e.preventDefault();
+    var id2 = p.dataset.play;
+    var g = byId(id2);
+    if (!g) return;
+    store.recent = [id2].concat(store.recent.filter(function (x) { return x !== id2; })).slice(0, 6);
+    save();
+    render();
+    openInAboutBlank(g);
+  }
+}
+
 $('chips').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; cat = b.dataset.c; chips(); render(); });
 $('q').addEventListener('input', render);
-$('grid').addEventListener('click', function (e) {
-  var s = e.target.closest('[data-fav]'); if (s) { e.preventDefault(); var id = s.dataset.fav; if (store.fav[id]) delete store.fav[id]; else store.fav[id] = 1; save(); render(); return; }
-  var p = e.target.closest('[data-play]'); if (p) { var id2 = p.dataset.play; store.recent = [id2].concat(store.recent.filter(function (x) { return x !== id2; })).slice(0, 6); save(); }
-  /* no custom window.open/injection here on purpose: target="_blank" rel="noopener noreferrer" on the link
-     already opens the game in its own normal tab, on its own origin, with no way back into this page. */
-});
+$('grid').addEventListener('click', onCardClick);
+$('recent-grid').addEventListener('click', onCardClick);
+$('clear-rec').addEventListener('click', function () { store.recent = []; save(); render(); });
 document.addEventListener('keydown', function (e) { if (e.key === '/' && !/input|textarea/i.test(document.activeElement.tagName)) { e.preventDefault(); $('q').focus(); } });
 
 chips(); render();
-window.__arcade = { GAMES: GAMES, url: url };
+window.__arcade = { GAMES: GAMES, url: url, launch: openInAboutBlank };
 })();
 </script>
 </body>
