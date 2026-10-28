@@ -1896,7 +1896,20 @@ function openInfo() {
    reusing the DM's existing read/write access (see database.rules.json). WebRTC's DTLS-SRTP
    encrypts the actual audio/video on its own; only the call *metadata* here isn't end-to-end
    encrypted the way chat text is. */
-// Free STUN only (no relay, so nothing here ever costs money). Several servers are listed so one being slow or blocked doesn't delay connecting.
+// Relay (TURN) for networks where direct calls fail. It is hosted on our own free server (see TURN-SETUP.md). An admin
+// switches it on/off and sets its address in the admin page (Calls tab); the server also refuses everyone while it is off.
+var turnIce = [], turnAt = 0;
+function loadTurn() {
+  if (!auth.token || Date.now() - turnAt < 20 * 60 * 1000) return;
+  turnAt = Date.now();
+  ensureAuth().then(function () { return rt('GET', 'config/turnUrl'); }).then(function (u) { if (typeof u !== 'string' || !u) { turnIce = []; turnAt = Date.now() - 15 * 60 * 1000; throw 'off'; } return fetch(u, { headers: { Authorization: 'Bearer ' + auth.token } }); })
+    .then(function (r) { if (r.status === 403) { turnIce = []; turnAt = Date.now() - 15 * 60 * 1000; throw 'off'; } if (!r.ok) throw 0; return r.json(); })
+    .then(function (j) {
+      var a = j && j.iceServers; a = Array.isArray(a) ? a : (a ? [a] : []);
+      turnIce = a.map(function (e) { var u = [].concat(e.urls || []).filter(function (x) { return !/^stun:/.test(x); }); return u.length ? { urls: u, username: e.username, credential: e.credential } : null; }).filter(Boolean);
+    }).catch(function (e) { if (e !== 'off') turnAt = 0; });
+}
+setInterval(loadTurn, 5 * 60 * 1000);
 var ICE_SERVERS = [{ urls: ['stun:stun.l.google.com:19302', 'stun:stun1.l.google.com:19302', 'stun:stun2.l.google.com:19302', 'stun:stun3.l.google.com:19302', 'stun:stun4.l.google.com:19302'] }, { urls: 'stun:stun.cloudflare.com:3478' }, { urls: 'stun:global.stun.twilio.com:3478' }];
 var callX = null, pendingRing = null, ringTimer = 0, ringToneT = 0, callEs = null, callEsT = 0, roomEs = null, roomPollT = 0;
 // Tuned getUserMedia constraints (lag/quality task): a modest, capped resolution/framerate
@@ -1980,6 +1993,7 @@ function ringtoneTone() { callTone([784, 659, 784], .16, .45, .11); } // callee 
 function connectTone() { callTone([659, 988], .09, .18, .12); }   // once, when the call actually connects
 function hangupTone() { callTone([520, 330], .12, .3, .11); }     // once, whenever a call ends for any reason
 function openCallStream() {
+  loadTurn();
   closeCallStream(); if (!me || !window.EventSource) return;
   ensureAuth().then(function () {
     callEs = new EventSource(DB_URL + '/' + DB_ROOT + '/calls/' + auth.uid + '.json?auth=' + encodeURIComponent(auth.token));
@@ -2085,7 +2099,7 @@ function flushCands(cx) {
   });
 }
 function buildPC() {
-  var pc = new RTCPeerConnection({ iceServers: ICE_SERVERS, bundlePolicy: 'max-bundle', rtcpMuxPolicy: 'require', iceCandidatePoolSize: 2 }), cx = callX;
+  var pc = new RTCPeerConnection({ iceServers: ICE_SERVERS.concat(turnIce), bundlePolicy: 'max-bundle', rtcpMuxPolicy: 'require', iceCandidatePoolSize: 2 }), cx = callX;
   cx.candBuf = {};
   pc.onicecandidate = function (e) {
     if (callX !== cx) return;
@@ -2124,7 +2138,7 @@ function buildPC() {
     else if (st === 'failed') {
       clearTimeout(cx.discoTimer); setCallStatus('Reconnecting…');
       if (cx.isCaller && (cx.restarts || 0) < 3) restartIce(cx);
-      cx.discoTimer = setTimeout(function () { if (callX === cx && pc.connectionState !== 'connected') { toast('Call could not connect — this network blocks direct calls. Try mobile data or another wifi.'); hangup('ended'); } }, cx.isCaller ? 15000 : 20000);
+      cx.discoTimer = setTimeout(function () { if (callX === cx && pc.connectionState !== 'connected') { toast(turnIce.length ? 'Call could not connect, even through the relay.' : 'Call could not connect — this network blocks direct calls. Try mobile data or another wifi.'); hangup('ended'); } }, cx.isCaller ? 15000 : 20000);
     }
   };
   cx.pc = pc;
@@ -2242,6 +2256,7 @@ function throttleTimersForCall(on) {
   timers.msgs = setInterval(function () { if (!document.hidden && cur) pollMsgs(); }, on ? 6000 : 2200);
 }
 function placeCall(peerUid, type) {
+  loadTurn();
   if (callX || gc) { toast('You are already in a call.'); return; }
   if (!peerUid || peerUid === auth.uid) return;
   if (blocks[peerUid]) { toast('You have blocked this person.'); return; }
@@ -2263,6 +2278,7 @@ function placeCall(peerUid, type) {
     });
 }
 function acceptCall(sig) {
+  loadTurn();
   $('d-incall').close(); clearTimeout(ringTimer);
   var peerName = dispName(sig.from);
   navigator.mediaDevices.getUserMedia(mediaConstraints(sig.type === 'video')).then(buildLocal).then(function (stream) {
@@ -2778,6 +2794,7 @@ function gcMedia(type) {
     .catch(function () { return null; });
 }
 function gcJoin(c, type) {
+  loadTurn();
   if (callX) { toast('You are already in a call.'); return; }
   if (gc) { if (gc.g === c.id) gcExpand(); else toast('Leave your current group call first.'); return; }
   if (!window.RTCPeerConnection || !navigator.mediaDevices) { toast('Calls are not supported in this browser.'); return; }
@@ -2893,7 +2910,7 @@ function gcMakePeer(g, u) {
   g.peers[u] = p; gcBuildPc(g, p); if (off) gcSendOffer(g, p);
 }
 function gcBuildPc(g, p) {
-  var pc = new RTCPeerConnection({ iceServers: ICE_SERVERS, bundlePolicy: 'max-bundle', rtcpMuxPolicy: 'require', iceCandidatePoolSize: 1 });
+  var pc = new RTCPeerConnection({ iceServers: ICE_SERVERS.concat(turnIce), bundlePolicy: 'max-bundle', rtcpMuxPolicy: 'require', iceCandidatePoolSize: 1 });
   p.pc = pc; p.stream = new MediaStream(); p.buf = {}; p.an = null; p.seen = {}; p.tries = {}; p.offerD = ''; p.answerD = ''; p.ok = false;
   var a = g.localStream.getAudioTracks()[0];
   if (a) pc.addTrack(a, g.localStream); else pc.addTransceiver('audio', { direction: 'recvonly' });

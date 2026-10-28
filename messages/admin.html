@@ -50,7 +50,7 @@ dialog{border:1px solid var(--hair-2);border-radius:20px;background:var(--surfac
     <div class="hint err" id="g-err"></div>
   </section>
   <section id="main" hidden>
-    <div class="top"><h1><i class="fa-solid fa-shield-halved"></i> Administration</h1><div class="tabs"><button data-t="ov" class="on">Overview</button><button data-t="rep">Reports</button><button data-t="chat">Chats</button><button data-t="usr">Users</button><button data-t="nm">Names</button><button data-t="ban">Banned</button></div><button class="btn sm danger" id="reset-db" type="button" title="Wipe all accounts, chats and keys"><i class="fa-solid fa-trash-can"></i> Reset database</button><button class="btn sm" id="out" type="button">Sign out</button></div>
+    <div class="top"><h1><i class="fa-solid fa-shield-halved"></i> Administration</h1><div class="tabs"><button data-t="ov" class="on">Overview</button><button data-t="rep">Reports</button><button data-t="chat">Chats</button><button data-t="usr">Users</button><button data-t="call">Calls</button><button data-t="nm">Names</button><button data-t="ban">Banned</button></div><button class="btn sm danger" id="reset-db" type="button" title="Wipe all accounts, chats and keys"><i class="fa-solid fa-trash-can"></i> Reset database</button><button class="btn sm" id="out" type="button">Sign out</button></div>
     <div id="st"></div><div class="card" id="view"></div>
   </section>
 </div>
@@ -221,7 +221,7 @@ $('rz-yes').onclick = function () {
   });
 };
 document.querySelectorAll('.tabs button').forEach(function (b) { b.onclick = function () { tab(b.dataset.t); }; });
-function tab(t) { document.querySelectorAll('.tabs button').forEach(function (b) { b.classList.toggle('on', b.dataset.t === t); }); clearInterval(chatT); loadStats(); ({ ov: overview, rep: reports, chat: chats, usr: users, nm: namesTab, ban: bansTab })[t](); }
+function tab(t) { document.querySelectorAll('.tabs button').forEach(function (b) { b.classList.toggle('on', b.dataset.t === t); }); clearInterval(chatT); loadStats(); ({ ov: overview, rep: reports, chat: chats, usr: users, nm: namesTab, call: callsTab, ban: bansTab })[t](); }
 function fmt(ts) { return ts ? new Date(ts).toLocaleString() : ''; }
 function keyTs(k) { return parseInt(k.slice(0, 8), 36) || 0; }
 
@@ -491,6 +491,21 @@ function namesTab() {
     v.querySelectorAll('[data-cn]').forEach(function (b) { b.onclick = function () { rt('DELETE', 'forcename/' + b.dataset.cn).then(function () { toast('Request cancelled'); namesTab(); }).catch(fail('Could not cancel')); }; });
     if ($('nb')) $('nb').onclick = function () { askReason('Force ' + bulk.length + ' people to change nickname?', 'Everyone listed as high confidence must pick a new nickname before they can use Messages again.', 'Force all', false).then(function (reason) { if (!reason) return; Promise.all(bulk.map(function (x) { return forceRename(x.n, x.u, reason); })).then(function () { toast(bulk.length + ' people must change their nickname'); namesTab(); }).catch(fail('Could not set them all')); }); };
   }).catch(fail('Could not scan nicknames'));
+}
+
+/* CALLS (relay) */
+function callsTab() {
+  var v = $('view'); v.innerHTML = '<div class="hint">Loading…</div>';
+  Promise.all([rt('GET', 'config/turn'), rt('GET', 'config/turnUrl')]).then(function (res) {
+    var on = res[0] === true, wurl = res[1] || '';
+    v.innerHTML = '<h3 style="margin:0 0 6px">Call relay (TURN)</h3>' +
+      '<p class="hint" style="margin:0 0 12px">Calls connect directly whenever they can. The relay is our own free server (see TURN-SETUP.md) that carries call audio and video for people on strict networks like school wifi. While it is <b>off</b>, the server hands out no relay credentials.</p>' +
+      '<div class="row"><span class="hint" style="font-weight:700;flex:1">Relay is ' + (on ? 'ON' : 'OFF') + '</span><button class="btn ' + (on ? 'danger' : 'pri') + '" id="turn-t" type="button">' + (on ? 'Turn off' : 'Turn on') + '</button></div>' +
+      '<h4 style="margin:18px 0 6px">Relay server address</h4><p class="hint" style="margin:0 0 8px">The https address the setup script prints, e.g. https://your-name.duckdns.org:8443 . Without it, turning the relay on does nothing.</p><div class="row"><input class="inp" id="turn-u" style="flex:1" placeholder="https://your-name.duckdns.org:8443" value="' + esc(wurl) + '"><button class="btn pri" id="turn-us" type="button">Save</button></div>' +
+      '<p class="hint" style="margin-top:12px">Changes reach users within about 20 minutes.</p>';
+    $('turn-us').onclick = function () { var u = $('turn-u').value.trim(); if (u && !/^https:\/\/[^ ]{4,200}$/.test(u)) { toast('That must be a full https:// address.'); return; } (u ? rt('PUT', 'config/turnUrl', u) : rt('DELETE', 'config/turnUrl')).then(function () { toast('Saved'); }).catch(fail('Could not save. Publish the latest database rules')); };
+    $('turn-t').onclick = function () { var btn = this; btn.disabled = true; rt('PUT', 'config/turn', !on).then(function () { toast(!on ? 'Relay turned on' : 'Relay turned off'); callsTab(); }).catch(function () { btn.disabled = false; toast('Could not change it. Publish the latest database rules.'); }); };
+  }).catch(function () { v.innerHTML = '<div class="hint err">Could not load. Publish the latest database rules.</div>'; });
 }
 
 /* BANNED */
