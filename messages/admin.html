@@ -50,7 +50,7 @@ dialog{border:1px solid var(--hair-2);border-radius:20px;background:var(--surfac
     <div class="hint err" id="g-err"></div>
   </section>
   <section id="main" hidden>
-    <div class="top"><h1><i class="fa-solid fa-shield-halved"></i> Administration</h1><div class="tabs"><button data-t="rep" class="on">Reports</button><button data-t="chat">Chats</button><button data-t="usr">Users</button><button data-t="call">Calls</button></div><button class="btn sm danger" id="reset-db" type="button" title="Wipe all accounts, chats and keys"><i class="fa-solid fa-trash-can"></i> Reset database</button><button class="btn sm" id="out" type="button">Sign out</button></div>
+    <div class="top"><h1><i class="fa-solid fa-shield-halved"></i> Administration</h1><div class="tabs"><button data-t="rep" class="on">Reports</button><button data-t="chat">Chats</button><button data-t="usr">Users</button></div><button class="btn sm danger" id="reset-db" type="button" title="Wipe all accounts, chats and keys"><i class="fa-solid fa-trash-can"></i> Reset database</button><button class="btn sm" id="out" type="button">Sign out</button></div>
     <div id="st"></div><div class="card" id="view"></div>
   </section>
 </div>
@@ -217,7 +217,7 @@ $('rz-yes').onclick = function () {
   });
 };
 document.querySelectorAll('.tabs button').forEach(function (b) { b.onclick = function () { tab(b.dataset.t); }; });
-function tab(t) { document.querySelectorAll('.tabs button').forEach(function (b) { b.classList.toggle('on', b.dataset.t === t); }); ({ rep: reports, chat: chats, usr: users, call: callsTab })[t](); }
+function tab(t) { document.querySelectorAll('.tabs button').forEach(function (b) { b.classList.toggle('on', b.dataset.t === t); }); ({ rep: reports, chat: chats, usr: users })[t](); }
 function fmt(ts) { return ts ? new Date(ts).toLocaleString() : ''; }
 function keyTs(k) { return parseInt(k.slice(0, 8), 36) || 0; }
 
@@ -294,17 +294,6 @@ function openConv(id) {
 }
 
 /* USERS */
-function callsTab() {
-  var v = $('view'); v.innerHTML = '<div class="hint">Loading…</div>';
-  rt('GET', 'config/turn').then(function (on) {
-    on = on === true;
-    v.innerHTML = '<h3 style="margin:0 0 6px">Call relay (TURN)</h3>' +
-      '<p class="hint" style="margin:0 0 12px">Calls connect directly whenever they can. The relay is a paid Cloudflare service that carries call media for people on strict networks (school wifi) who cannot connect directly. It is <b>off by default</b>. While off, nobody can get relay credentials, even if the Worker is deployed. Turning it on can use your Cloudflare data allowance, so switch it off when you do not need it.</p>' +
-      '<div class="row"><span class="hint" id="turn-st" style="font-weight:700;flex:1">Relay is ' + (on ? 'ON' : 'OFF') + '</span><button class="btn ' + (on ? 'danger' : 'pri') + '" id="turn-t" type="button">' + (on ? 'Turn off' : 'Turn on') + '</button></div>' +
-      '<p class="hint" style="margin-top:12px">Changes reach users within about 20 minutes (calls started before that may still use the relay).</p>';
-    $('turn-t').onclick = function () { var btn = this; btn.disabled = true; rt('PUT', 'config/turn', !on).then(function () { toast(!on ? 'Relay turned on' : 'Relay turned off'); callsTab(); }).catch(function () { btn.disabled = false; toast('Could not change it. Check the database rules are published.'); }); };
-  }).catch(function () { v.innerHTML = '<div class="hint">Could not load. Check the database rules are published.</div>'; });
-}
 function users() {
   var v = $('view'); v.innerHTML = '<div class="row"><input class="inp" id="uf" placeholder="Filter nicknames" style="flex:1"></div><div id="ul" class="hint" style="margin-top:12px">Loading…</div>';
   /* nicknames are just the current name->uid directory; bans/pictures live on the
