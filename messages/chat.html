@@ -111,6 +111,29 @@ main{flex:1;width:100%;padding:12px 10px 10px;display:flex;flex-direction:column
 .ann-m p{margin:0;white-space:pre-wrap;word-break:break-word;font-size:14.5px;line-height:1.5}
 #ann-form{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--hair)}#ann-form textarea{flex:1;min-height:42px;max-height:120px;resize:none;padding:10px 12px;height:auto}
 #ann-ro{padding:12px 16px;text-align:center;color:var(--t3);font-size:13px;border-top:1px solid var(--hair)}
+
+/* ── polished small dialogs ── */
+.dlg-pro{width:min(460px,calc(100vw - 20px))}
+.dlg-pro{display:none;overflow:hidden;flex-direction:column}.dlg-pro[open]{display:flex}
+.dlg-pro .dh{justify-content:flex-start;gap:14px;align-items:center;padding:20px 20px 8px;position:static}
+.dlg-pro .dh .ibtn{margin-left:auto;flex:none;align-self:flex-start}
+.dlg-pro .dic{flex:none;width:46px;height:46px;border-radius:15px;display:grid;place-items:center;font-size:19px;color:var(--accent);background:linear-gradient(135deg,rgba(91,143,232,.22),rgba(123,97,255,.14));border:1px solid rgba(91,143,232,.3)}
+.dlg-pro .dt{min-width:0}.dlg-pro .dt h2{margin:0;font-size:19px;letter-spacing:-.01em}.dlg-pro .dt p{margin:2px 0 0;font-size:13px;color:var(--t3);line-height:1.4}
+.dlg-pro .db{padding:12px 20px 14px;overflow-y:auto;min-height:0}
+.dlg-pro .lbl{margin-bottom:7px}.dlg-pro .lbl-row{display:flex;align-items:center;justify-content:space-between;margin-top:16px}.dlg-pro .lbl-row .lbl{margin:0 0 7px}.dlg-pro .cnt{font-size:12px;color:var(--t3);margin-bottom:7px;font-variant-numeric:tabular-nums}
+.dlg-pro .inp{height:46px;border-radius:13px}
+.field{position:relative;display:flex;align-items:center}.field>i{position:absolute;left:14px;color:var(--t3);font-size:14px;pointer-events:none}.field .inp{padding-left:38px}
+.field.has-btn .inp{padding-right:92px}.field.has-btn .btn{position:absolute;right:6px;top:50%;transform:translateY(-50%);height:34px;border-radius:10px}
+.field.has-btn .btn:not(:disabled):hover{transform:translateY(-50%)}.field.has-btn .btn:not(:disabled):active{transform:translateY(-50%) scale(.94)}
+.dlg-pro .chips{margin:12px 0 0;gap:8px;max-height:150px;overflow-y:auto}.dlg-pro .chips[hidden]{display:none}
+.dlg-pro .chip{padding:4px 6px 4px 5px;gap:8px;font-size:13.5px}.dlg-pro .chip .ci{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:800;color:#0e1620}
+.dlg-pro .chip button{width:20px;height:20px;border-radius:50%;border:0;background:rgba(255,255,255,.1);color:inherit;cursor:pointer;line-height:1;font-size:14px;transition:background-color .2s}.dlg-pro .chip button:hover{background:rgba(224,112,122,.45)}
+.dlg-pro .hint{min-height:20px;margin-top:8px}
+.tipbox{display:flex;gap:10px;align-items:flex-start;margin-top:10px;padding:10px 12px;border-radius:13px;background:rgba(91,143,232,.08);border:1px solid rgba(91,143,232,.2);font-size:12.5px;color:var(--t2);line-height:1.45}.tipbox i{color:var(--accent);margin-top:2px}
+.dlg-pro>.acts{margin:0;padding:12px 20px 18px;justify-content:flex-end;border-top:1px solid var(--hair);flex:none}
+.dlg-pro>.acts .btn{height:44px;border-radius:13px;min-width:96px}.dlg-pro>.acts .btn.pri{flex:1.4}
+.btn.dim{opacity:.55}
+@media(max-width:520px){.dlg-pro .dh{padding:16px 16px 6px}.dlg-pro .db{padding:10px 16px 12px}.dlg-pro>.acts{padding:12px 16px 16px}.dlg-pro .dic{width:42px;height:42px}}
 /* ── liquid motion ── */
 :root{--spring:cubic-bezier(.34,1.56,.64,1);--ease-out:cubic-bezier(.22,1,.36,1)}
 .btn,.ibtn,.home,.tabs button,.chip,.conv,.row{transition:transform .35s var(--spring),background-color .25s var(--ease-out),border-color .25s,box-shadow .3s var(--ease-out),opacity .2s}
@@ -559,17 +582,19 @@ dialog.ring{width:min(320px,calc(100vw - 24px))}
   </section>
 </main>
 
-<dialog id="d-new"><div class="dh"><h2>Message someone</h2><button class="ibtn" data-close type="button" aria-label="Close"><i class="fa-solid fa-xmark"></i></button></div><div class="db">
+<dialog id="d-new" class="dlg-pro"><div class="dh"><span class="dic"><i class="fa-solid fa-pen-to-square"></i></span><div class="dt"><h2>New message</h2><p>Start a private chat. You only need their nickname.</p></div><button class="ibtn" data-close type="button" aria-label="Close"><i class="fa-solid fa-xmark"></i></button></div><div class="db">
   <label class="lbl" for="q-nick">Their nickname</label>
-  <div class="row"><input class="inp" id="q-nick" placeholder="nickname" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="20"><button class="btn pri" id="q-go" type="button">Find</button></div>
-  <div class="hint" id="q-h"></div></div></dialog>
+  <div class="field"><i class="fa-solid fa-at"></i><input class="inp" id="q-nick" autofocus placeholder="nickname" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="20" enterkeyhint="go"></div>
+  <div class="hint" id="q-h"></div>
+  <div class="tipbox"><i class="fa-solid fa-shield-halved"></i><span>Chats are private between you and them. Never share real names, addresses or phone numbers.</span></div></div>
+  <div class="acts"><button class="btn" data-close type="button">Cancel</button><button class="btn pri" id="q-go" type="button"><i class="fa-solid fa-magnifying-glass"></i> Find</button></div></dialog>
 
-<dialog id="d-group"><div class="dh"><h2>New group</h2><button class="ibtn" data-close type="button" aria-label="Close"><i class="fa-solid fa-xmark"></i></button></div><div class="db">
-  <label class="lbl" for="g-name">Group name</label><input class="inp" id="g-name" maxlength="40" placeholder="Study crew" autocomplete="off">
-  <label class="lbl" for="g-nick" style="margin-top:14px">Add people by nickname <small style="color:var(--t3);font-weight:400">(up to 24)</small></label>
-  <div class="row"><input class="inp" id="g-nick" placeholder="nickname" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="20"><button class="btn" id="g-add" type="button">Add</button></div>
-  <div class="chips" id="g-chips"></div><div class="hint" id="g-h"></div>
-  <div class="acts"><button class="btn pri" id="g-make" type="button">Create group</button></div></div></dialog>
+<dialog id="d-group" class="dlg-pro"><div class="dh"><span class="dic"><i class="fa-solid fa-user-group"></i></span><div class="dt"><h2>New group</h2><p>Name it, then add people by their nickname.</p></div><button class="ibtn" data-close type="button" aria-label="Close"><i class="fa-solid fa-xmark"></i></button></div><div class="db">
+  <label class="lbl" for="g-name">Group name</label><input class="inp" id="g-name" autofocus maxlength="40" placeholder="Study crew" autocomplete="off" enterkeyhint="next">
+  <div class="lbl-row"><label class="lbl" for="g-nick">Add people</label><span class="cnt" id="g-cnt">0 of 24</span></div>
+  <div class="field has-btn"><i class="fa-solid fa-at"></i><input class="inp" id="g-nick" placeholder="nickname" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="20" enterkeyhint="done"><button class="btn sm" id="g-add" type="button"><i class="fa-solid fa-plus"></i> Add</button></div>
+  <div class="chips" id="g-chips"></div><div class="hint" id="g-h"></div></div>
+  <div class="acts"><button class="btn" data-close type="button">Cancel</button><button class="btn pri" id="g-make" type="button"><i class="fa-solid fa-check"></i> Create group</button></div></dialog>
 
 <dialog id="d-info"><div class="dh"><h2 id="i-title">Details</h2><button class="ibtn" data-close type="button" aria-label="Close"><i class="fa-solid fa-xmark"></i></button></div><div class="db" id="i-body"></div></dialog>
 
@@ -2098,7 +2123,9 @@ $('q-go').onclick = function () {
 /* ═════════ GROUPS ═════════ */
 var gMembers = [];
 $('b-group').onclick = function () { if (P.nogroup) { toast('An administrator has turned off creating groups for your account.'); return; } gMembers = []; $('g-name').value = ''; $('g-nick').value = ''; $('g-h').textContent = ''; renderChips(); $('d-group').showModal(); $('g-name').focus(); };
-function renderChips() { $('g-chips').innerHTML = gMembers.map(function (x, i) { return '<span class="chip">' + esc(x.nick) + '<button type="button" data-i="' + i + '" aria-label="Remove">×</button></span>'; }).join(''); }
+function renderChips() { $('g-chips').innerHTML = gMembers.map(function (x, i) { return '<span class="chip"><span class="ci" style="background:' + colorFor(x.nick) + '">' + esc(x.nick.charAt(0).toUpperCase()) + '</span>' + esc(x.nick) + '<button type="button" data-i="' + i + '" aria-label="Remove ' + esc(x.nick) + '">×</button></span>'; }).join(''); $('g-cnt').textContent = gMembers.length + ' of 24'; $('g-chips').hidden = !gMembers.length; syncMake(); }
+function syncMake() { var ok = $('g-name').value.trim().length > 0 && gMembers.length > 0; $('g-make').classList.toggle('dim', !ok); }
+$('g-name').addEventListener('input', syncMake);
 $('g-chips').addEventListener('click', function (e) { var b = e.target.closest('button'); if (b) { gMembers.splice(+b.dataset.i, 1); renderChips(); } });
 $('g-nick').addEventListener('input', function () { this.value = this.value.toLowerCase().replace(/[^a-z0-9_]/g, ''); });
 $('g-nick').addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); $('g-add').click(); } });
