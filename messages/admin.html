@@ -50,7 +50,7 @@ dialog{border:1px solid var(--hair-2);border-radius:20px;background:var(--surfac
     <div class="hint err" id="g-err"></div>
   </section>
   <section id="main" hidden>
-    <div class="top"><h1><i class="fa-solid fa-shield-halved"></i> Administration</h1><div class="tabs"><button data-t="ov" class="on">Overview</button><button data-t="rep">Reports</button><button data-t="chat">Chats</button><button data-t="usr">Users</button><button data-t="call">Calls</button><button data-t="nm">Names</button><button data-t="ban">Banned</button></div><button class="btn sm danger" id="reset-db" type="button" title="Wipe all accounts, chats and keys"><i class="fa-solid fa-trash-can"></i> Reset database</button><button class="btn sm" id="out" type="button">Sign out</button></div>
+    <div class="top"><h1><i class="fa-solid fa-shield-halved"></i> Administration</h1><div class="tabs"><button data-t="ov" class="on">Overview</button><button data-t="rep">Reports</button><button data-t="chat">Chats</button><button data-t="usr">Users</button><button data-t="call">Calls</button><button data-t="sd">Shutdown</button><button data-t="nm">Names</button><button data-t="ban">Banned</button></div><button class="btn sm danger" id="reset-db" type="button" title="Wipe all accounts, chats and keys"><i class="fa-solid fa-trash-can"></i> Reset database</button><button class="btn sm" id="out" type="button">Sign out</button></div>
     <div id="st"></div><div class="card" id="view"></div>
   </section>
 </div>
@@ -221,7 +221,7 @@ $('rz-yes').onclick = function () {
   });
 };
 document.querySelectorAll('.tabs button').forEach(function (b) { b.onclick = function () { tab(b.dataset.t); }; });
-function tab(t) { document.querySelectorAll('.tabs button').forEach(function (b) { b.classList.toggle('on', b.dataset.t === t); }); clearInterval(chatT); loadStats(); ({ ov: overview, rep: reports, chat: chats, usr: users, nm: namesTab, call: callsTab, ban: bansTab })[t](); }
+function tab(t) { document.querySelectorAll('.tabs button').forEach(function (b) { b.classList.toggle('on', b.dataset.t === t); }); clearInterval(chatT); loadStats(); ({ ov: overview, rep: reports, chat: chats, usr: users, nm: namesTab, call: callsTab, sd: shutTab, ban: bansTab })[t](); }
 function fmt(ts) { return ts ? new Date(ts).toLocaleString() : ''; }
 function keyTs(k) { return parseInt(k.slice(0, 8), 36) || 0; }
 
@@ -505,6 +505,26 @@ function callsTab() {
       '<p class="hint" style="margin-top:12px">Changes reach users within about 20 minutes.</p>';
     $('turn-us').onclick = function () { var u = $('turn-u').value.trim(); if (u && !/^https:\/\/[^ ]{4,200}$/.test(u)) { toast('That must be a full https:// address.'); return; } (u ? rt('PUT', 'config/turnUrl', u) : rt('DELETE', 'config/turnUrl')).then(function () { toast('Saved'); }).catch(fail('Could not save. Publish the latest database rules')); };
     $('turn-t').onclick = function () { var btn = this; btn.disabled = true; rt('PUT', 'config/turn', !on).then(function () { toast(!on ? 'Relay turned on' : 'Relay turned off'); callsTab(); }).catch(function () { btn.disabled = false; toast('Could not change it. Publish the latest database rules.'); }); };
+  }).catch(function () { v.innerHTML = '<div class="hint err">Could not load. Publish the latest database rules.</div>'; });
+}
+
+/* SHUTDOWN (kill switch) */
+function shutTab() {
+  var v = $('view'); v.innerHTML = '<div class="hint">Loading…</div>';
+  rt('GET', 'config/shutdown').then(function (c) {
+    var on = !!(c && c.on), msg = (c && c.m) || '';
+    v.innerHTML = '<h3 style="margin:0 0 6px">Shut down Aperture Messages</h3>' +
+      '<p class="hint" style="margin:0 0 12px">While this is <b>on</b>, everyone who opens or is using Messages sees only your message and cannot use the app. Calls end and nothing loads. This page (Admin) keeps working, so you can turn it back off. People already open get it within about 45 seconds, and the app comes back by itself within about a minute of turning it off.</p>' +
+      '<div class="row"><span class="hint" style="font-weight:700;flex:1">App is ' + (on ? 'SHUT DOWN' : 'running') + '</span><button class="btn ' + (on ? 'pri' : 'danger') + '" id="sd-t" type="button">' + (on ? 'Bring it back' : 'Shut it down') + '</button></div>' +
+      '<h4 style="margin:18px 0 6px">Message people see</h4><div class="row"><input class="inp" id="sd-m" maxlength="200" style="flex:1" placeholder="This app has been shut down, sorry..." value="' + esc(msg) + '"></div>' +
+      '<p class="hint" style="margin-top:12px">Leave it blank for the default: "This app has been shut down, sorry...". The message is saved when you press the button.</p>';
+    $('sd-t').onclick = function () {
+      var btn = this, m = $('sd-m').value.trim();
+      ask({ title: on ? 'Bring Messages back?' : 'Shut down Messages for everyone?', text: on ? 'People can use it again within a minute.' : 'Everyone is locked out right away until you turn it back off.', ok: on ? 'Bring it back' : 'Shut it down', icon: 'fa-power-off' }).then(function (ok) {
+        if (!ok) return; btn.disabled = true;
+        rt('PUT', 'config/shutdown', { on: !on, m: m }).then(function () { toast(!on ? 'App shut down' : 'App is back'); shutTab(); }).catch(function () { btn.disabled = false; toast('Could not change it. Publish the latest database rules.'); });
+      });
+    };
   }).catch(function () { v.innerHTML = '<div class="hint err">Could not load. Publish the latest database rules.</div>'; });
 }
 

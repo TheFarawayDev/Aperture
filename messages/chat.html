@@ -3244,6 +3244,29 @@ function renderAppearance() {
   applyAppearance();
 }
 try { applyAppearance(); } catch (e) {}
+/* ═════════ KILL SWITCH — an admin can shut the whole app down (Admin > Shutdown) ═════════ */
+var sdOn = false;
+function sdCheck() {
+  if (sdOn) return;
+  fetch(DB_URL + '/' + DB_ROOT + '/config/shutdown.json', { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : null; }).then(function (v) {
+    if (!v || v.on !== true || sdOn) return;
+    sdOn = true;
+    try { if (typeof gc !== 'undefined' && gc) gcLeave(); } catch (e) {}
+    try { stopTimers(); } catch (e) {}
+    clearInterval(timers.sdWatch);
+    ['app', 'gate'].forEach(function (id) { var n = $(id); if (n) n.hidden = true; });
+    document.querySelectorAll('dialog[open]').forEach(function (d) { try { d.close(); } catch (e) {} });
+    var o = document.createElement('div'); o.setAttribute('role', 'alertdialog');
+    o.style.cssText = 'position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;padding:24px;background:#0b0d12;color:#e8eaf0;font-family:system-ui,sans-serif;text-align:center';
+    var b = document.createElement('div'); b.style.maxWidth = '420px';
+    var h = document.createElement('div'); h.textContent = 'Aperture Messages'; h.style.cssText = 'font-size:13px;letter-spacing:.12em;text-transform:uppercase;opacity:.55;margin-bottom:14px';
+    var t = document.createElement('div'); t.textContent = (typeof v.m === 'string' && v.m.trim()) || 'This app has been shut down, sorry...'; t.style.cssText = 'font-size:22px;font-weight:700;line-height:1.35';
+    b.appendChild(h); b.appendChild(t); o.appendChild(b); document.body.appendChild(o);
+    // if it is switched back on, bring everyone back automatically
+    setInterval(function () { fetch(DB_URL + '/' + DB_ROOT + '/config/shutdown.json', { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : null; }).then(function (x) { if (!x || x.on !== true) location.reload(); }).catch(function () {}); }, 60000);
+  }).catch(function () {});
+}
+sdCheck(); setInterval(sdCheck, 45000);
 window.__msg = { filterText: filterText, validNick: validNick, dmId: dmId, callState: function () { return callX ? { phase: callX.phase, isCaller: callX.isCaller, cid: callX.cid, pcState: callX.pc && callX.pc.connectionState, iceState: callX.pc && callX.pc.iceConnectionState, iceGathering: callX.pc && callX.pc.iceGatheringState } : null; }, pendingRing: function () { return pendingRing; }, pcStats: function () { if (!callX || !callX.pc) return null; return callX.pc.getStats().then(function (stats) { var out = []; stats.forEach(function (r) { out.push(r); }); return out; }); } };
 })();
 </script>
