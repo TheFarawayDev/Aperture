@@ -603,6 +603,7 @@ dialog.ring{width:min(320px,calc(100vw - 24px))}
     <label class="tg"><span>Join calls with mic muted and camera off</span><input type="checkbox" id="s-qj"></label>
     <label class="tg"><span>Do not disturb (no sounds or pop-ups, and callers are told you are busy)</span><input type="checkbox" id="s-dnd"></label>
     <div class="hint">Quality also lowers itself during a call when the connection gets weak, and comes back when it improves.</div></div>
+  <div class="sec"><h3>Previous nicknames</h3><div class="hint" id="s-hist">Loading…</div><div class="hint">Your name in old messages changes to your new nickname. Administrators keep a record of nickname changes, and people you chat with may see your last nickname for two weeks.</div></div>
   <div class="sec"><h3>Account standing</h3><div class="stand" id="s-stand"><div class="hint">Loading…</div></div></div>
   <div class="sec"><h3>Rules and responsibility</h3>
     <div class="hint">You are responsible for what you send from your account. Please:</div>
@@ -1643,7 +1644,7 @@ $('f-go').onclick = function () {
   var e1 = validNick(nn); if (e1) { h.className = 'hint err'; h.textContent = e1; return; }
   var on = me; b.disabled = true; h.textContent = 'Checking…';
   rt('GET', 'nicknames/' + nn).then(function (v) { if (v) throw { TAKEN: true }; return rt('PUT', 'nicknames/' + nn, { u: auth.uid, t: SV }); })
-    .then(function () { return rt('PUT', 'users/' + auth.uid, nn); })
+    .then(function () { return rt('PUT', 'users/' + auth.uid, nn); }).then(function () { logRename(on, nn, 'forced'); })
     .then(function () {
       me = nn; store.nick = nn; save(); nickCache[auth.uid] = nn; uidCache[nn] = auth.uid; delete uidCache[on];
       $('s-nick').textContent = me; $('me-n').textContent = me; refreshAvatars(); renderConvs();
@@ -1810,7 +1811,7 @@ function openChat(c) { annHide(); $('b-more').closest('.ph').classList.remove('m
 function closeChat() { annHide(); clearTypingMark(); cur = null; $('chat').hidden = true; $('empty').hidden = false; $('app').classList.remove('in-chat'); renderConvs(); }
 $('b-back').onclick = closeChat;
 
-function sigOf(m) { return JSON.stringify([m.t, m.ed || 0, m.r || 0, m.rp && m.rp.t || 0]); }
+function sigOf(m) { return JSON.stringify([m.t, m.ed || 0, m.r || 0, m.rp && m.rp.t || 0, m.f]); }
 function mentionize(h) { return h.replace(/(^|[\s(])@([a-z0-9_]{3,20})\b/g, function (x, a, n) { return a + '<span class="at' + (n === me ? ' me' : n === 'everyone' ? ' all' : '') + '">@' + n + '</span>'; }); }
 function mentionsMe(t) { return new RegExp('(^|[^a-z0-9_])@(' + me + '|everyone)\\b', 'i').test(t || ''); }
 function md(h) {
@@ -1828,13 +1829,21 @@ function msgInner(k, m, ts, c) {
     '<div class="act"><button type="button" data-act="react" title="React"><i class="fa-regular fa-face-smile"></i></button><button type="button" data-act="reply" title="Reply"><i class="fa-solid fa-reply"></i></button><button type="button" data-act="copy" title="Copy text"><i class="fa-regular fa-copy"></i></button><button type="button" data-act="pin" title="Pin"><i class="fa-solid fa-thumbtack"></i></button>' +
     (mine ? '<button type="button" data-act="edit" title="Edit"><i class="fa-solid fa-pen"></i></button><button type="button" data-act="del" title="Delete"><i class="fa-regular fa-trash-can"></i></button>' : '<button type="button" data-act="rep" title="Report"><i class="fa-regular fa-flag"></i></button><button type="button" data-act="blk" title="Block ' + esc(m.f) + '"><i class="fa-solid fa-ban"></i></button>') + '</div>';
 }
+var nickAge = {};
+function freshNick(uid) { if (!uid) return Promise.resolve(''); if (nickCache[uid] !== undefined && Date.now() - (nickAge[uid] || 0) < 45000) return Promise.resolve(nickCache[uid]); nickAge[uid] = Date.now(); return forceNickOf(uid); }
 function decryptAll(c, j) {
   return Promise.all(Object.keys(j).map(function (k) {
     var m = j[k]; if (!m || !m.t) return null; if (m.sys) { m._t = m.t; return null; }
+    if (m.fu && !m.sys) { var old = m.f; return freshNick(m.fu).then(function (n) { if (n) m.f = n; m.fo = old; return decOne(c, m); }); }
+    return decOne(c, m);
+  }));
+}
+function decOne(c, m) {
+  {
     var ps = [m.i ? decText(c, m.i, m.t).then(function (x) { m._t = x; }) : Promise.resolve(m._t = m.t)];
     if (m.rp && m.rp.i) ps.push(decText(c, m.rp.i, m.rp.t).then(function (x) { m.rp._t = x; }));
     return Promise.all(ps).catch(function () { m._t = '🔒 This message could not be decrypted.'; if (m.rp) m.rp._t = m.rp._t || ''; });
-  }));
+  }
 }
 function pollMsgs(first) {
   var c = cur; if (!c) return; var base = convPath(c);
@@ -2953,7 +2962,7 @@ $('s-nickgo').onclick = function () {
   var e1 = validNick(nn); if (e1) { h.className = 'hint err'; h.textContent = e1; return; }
   var on = me; b.disabled = true; h.textContent = 'Checking…';
   rt('GET', 'nicknames/' + nn).then(function (v) { if (v) throw { TAKEN: true }; return rt('PUT', 'nicknames/' + nn, { u: auth.uid, t: SV }); })
-    .then(function () { return rt('PUT', 'users/' + auth.uid, nn); })
+    .then(function () { return rt('PUT', 'users/' + auth.uid, nn); }).then(function () { logRename(on, nn, 'self'); })
     .then(function () {
       me = nn; store.nick = nn; save(); nickCache[auth.uid] = nn; uidCache[nn] = auth.uid; delete uidCache[on];
       $('s-nick').textContent = me; $('me-n').textContent = me; $('s-newnick').value = ''; refreshAvatars(); renderConvs();
@@ -4095,6 +4104,32 @@ $('ann-form').addEventListener('submit', function (e) {
 $('ann-text').addEventListener('keydown', function (e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('ann-form').requestSubmit(); } });
 setInterval(function () { if (!document.hidden) annLoad(); }, 20000); setTimeout(annLoad, 2000);
 document.addEventListener('visibilitychange', function () { if (!document.hidden) annLoad(); });
+
+/* ═════════ NICKNAME HISTORY ═════════ */
+function logRename(oldN, newN, why) {
+  if (!auth.uid || !oldN || oldN === newN) return;
+  rt('PUT', 'nickhist/' + auth.uid + '/' + newKey(), { n: oldN, to: newN, w: why, ts: SV }).catch(function () {});
+  rt('PUT', 'prevnick/' + auth.uid, { n: oldN, ts: SV }).catch(function () {});
+}
+function loadHist() {
+  var box = $('s-hist'); if (!box) return;
+  rt('GET', 'nickhist/' + auth.uid).then(function (h) {
+    var ks = Object.keys(h || {}).sort().reverse(); box.innerHTML = ks.length ? ks.slice(0, 10).map(function (k) { var x = h[k]; return '<div class="w"><b>' + esc(x.n) + '</b> → ' + esc(x.to) + ' <span style="opacity:.7">· ' + esc(new Date(typeof x.ts === 'number' ? x.ts : keyTs(k)).toLocaleDateString()) + (x.w === 'forced' ? ' · asked by an admin' : '') + '</span></div>'; }).join('') : 'You have not changed your nickname.';
+  }).catch(function () { box.textContent = 'Could not load your history.'; });
+}
+(function () { var o = $('b-settings').onclick; $('b-settings').onclick = function () { var r = o.apply(this, arguments); try { loadHist(); } catch (e) {} return r; }; })();
+var formerFor = '';
+function paintFormer() {
+  var t = $('c-name') && $('c-name').parentNode; if (!t) return; var el = $('c-former');
+  if (!el) { el = document.createElement('span'); el.id = 'c-former'; el.className = 'rn-tag'; el.style.cssText = 'margin:0 0 0 6px;background:rgba(91,143,232,.2);color:#9bbcf2'; el.hidden = true; $('c-name').insertAdjacentElement('afterend', el); }
+  if (!cur || cur.kind !== 'd' || !cur.peerUid) { el.hidden = true; formerFor = ''; return; }
+  if (formerFor === cur.id) return; formerFor = cur.id; el.hidden = true; var id = cur.id;
+  rt('GET', 'prevnick/' + cur.peerUid).then(function (p) {
+    if (!cur || cur.id !== id || !p || !p.n || (Date.now() - (+p.ts || 0)) > 14 * 864e5) return; var lv = NK.scan(p.n).level; if (lv === 'high' || lv === 'likely') return;
+    el.textContent = 'formerly ' + p.n; el.hidden = false;
+  }).catch(function () {});
+}
+setInterval(paintFormer, 1200);
 window.__msg = { filterText: filterText, validNick: validNick, dmId: dmId, callState: function () { return callX ? { phase: callX.phase, isCaller: callX.isCaller, cid: callX.cid, pcState: callX.pc && callX.pc.connectionState, iceState: callX.pc && callX.pc.iceConnectionState, iceGathering: callX.pc && callX.pc.iceGatheringState } : null; }, pendingRing: function () { return pendingRing; }, pcStats: function () { if (!callX || !callX.pc) return null; return callX.pc.getStats().then(function (stats) { var out = []; stats.forEach(function (r) { out.push(r); }); return out; }); } };
 })();
 </script>
