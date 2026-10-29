@@ -134,6 +134,19 @@ main{flex:1;width:100%;padding:12px 10px 10px;display:flex;flex-direction:column
 .dlg-pro>.acts .btn{height:44px;border-radius:13px;min-width:96px}.dlg-pro>.acts .btn.pri{flex:1.4}
 .btn.dim{opacity:.55}
 @media(max-width:520px){.dlg-pro .dh{padding:16px 16px 6px}.dlg-pro .db{padding:10px 16px 12px}.dlg-pro>.acts{padding:12px 16px 16px}.dlg-pro .dic{width:42px;height:42px}}
+
+/* ── message formatting ── */
+.bub .md-h{display:block;font-weight:700;line-height:1.25;margin:2px 0}.bub .md-h1{font-size:1.55em}.bub .md-h2{font-size:1.3em}.bub .md-h3{font-size:1.12em}
+.bub .md-sub{display:block;font-size:.78em;opacity:.7;margin:1px 0}
+.bub blockquote{display:block;margin:3px 0;padding:2px 0 2px 10px;border-left:3px solid currentColor;opacity:.9;white-space:pre-wrap}
+.bub ul,.bub ol{display:block;margin:3px 0;padding-left:22px;white-space:normal}.bub li{margin:1px 0}
+.bub pre.mdp{display:block;margin:4px 0;padding:8px 10px;border-radius:10px;background:rgba(6,10,14,.35);overflow-x:auto;white-space:pre;max-width:100%;font-size:.88em}.m.me .bub pre.mdp{background:rgba(14,22,32,.22)}
+.bub pre.mdp code{background:none;padding:0}
+.bub u{text-decoration-thickness:1.5px;text-underline-offset:2px}
+.spl{background:#0b1015;color:transparent;border-radius:5px;padding:0 3px;cursor:pointer;transition:background-color .25s,color .25s;user-select:none}.m.me .spl{background:#16314f}
+.spl.on{background:rgba(6,10,14,.28);color:inherit;user-select:text}
+.fmt-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:6px 14px;font-size:13px}.fmt-grid code{display:block;background:var(--inset);border:1px solid var(--hair);border-radius:8px;padding:5px 8px;font-size:12.5px;white-space:pre-wrap}.fmt-grid div{min-width:0}
+@media(max-width:520px){.fmt-grid{grid-template-columns:1fr}}
 /* ── liquid motion ── */
 :root{--spring:cubic-bezier(.34,1.56,.64,1);--ease-out:cubic-bezier(.22,1,.36,1)}
 .btn,.ibtn,.home,.tabs button,.chip,.conv,.row{transition:transform .35s var(--spring),background-color .25s var(--ease-out),border-color .25s,box-shadow .3s var(--ease-out),opacity .2s}
@@ -169,7 +182,7 @@ dialog.closing{animation:dlgx .2s ease-in forwards}
 #app{flex:none;display:grid;grid-template-columns:330px minmax(0,1fr);grid-template-rows:minmax(0,1fr);min-height:0;height:calc(100vh - 88px);height:calc(100dvh - 88px);min-height:320px;overflow:hidden}
 @media(max-width:820px){#app{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr);height:calc(100dvh - 88px)}#app.in-chat #side{display:none}#app:not(.in-chat) #pane{display:none}}
 #side{display:flex;flex-direction:column;min-height:0;border-right:1px solid var(--hair)}
-.me{display:flex;align-items:center;gap:10px;padding:14px 14px 10px}.av{flex:none;width:38px;height:38px;border-radius:12px;display:grid;place-items:center;font-weight:700;font-size:15px;color:#0e1620;position:relative}
+#side .me{display:flex;align-items:center;gap:10px;padding:14px 14px 10px}.av{flex:none;width:38px;height:38px;border-radius:12px;display:grid;place-items:center;font-weight:700;font-size:15px;color:#0e1620;position:relative}
 /* decorative avatar frames — outline/box-shadow only, never background, so they never
    fight the inline background color avatar() sets per-person */
 /* avatar frames: 17 styles, recolorable. Drawn with pseudo-elements around the avatar (never touching its
@@ -265,7 +278,7 @@ body.no-tm .m .tm{display:none}
 .g-ctrl .btn.hot{background:#ffd24d;color:#1a1400;border-color:transparent}
 .fpick{width:34px;height:34px;border-radius:10px;border:1px solid var(--line);background:var(--surface-2);cursor:pointer;display:grid;place-items:center;color:var(--t3)}
 .fpick.on{border-color:var(--accent,#5b8fe8);box-shadow:0 0 0 2px rgba(91,143,232,.3)}
-.me .n{min-width:0;flex:1}.me b{display:block;font-size:14.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.me span{font-size:12px;color:var(--t3)}
+#side .me .n{min-width:0;flex:1}#side .me b{display:block;font-size:14.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#side .me span{font-size:12px;color:var(--t3)}
 .ibtn{width:36px;height:36px;border-radius:10px;border:1px solid var(--hair);background:transparent;color:var(--t2);cursor:pointer;display:inline-grid;place-items:center}.ibtn:hover{background:var(--surface-3);color:#fff}
 .sbar{padding:0 14px 10px;display:flex;gap:8px}.sbar .btn{flex:1}
 #convs{flex:1;overflow-y:auto;padding:0 8px 10px}
@@ -317,7 +330,7 @@ dialog::backdrop{background:rgba(6,10,14,.6);backdrop-filter:blur(3px)}
 .card{overflow:hidden}
 #app{background:linear-gradient(180deg,rgba(255,255,255,.015),transparent 120px),var(--surface)}
 #side{background:rgba(6,10,14,.12)}
-.me{padding:16px 14px 12px}.av{background-image:linear-gradient(160deg,rgba(255,255,255,.22),transparent 60%)}
+#side .me{padding:16px 14px 12px}.av{background-image:linear-gradient(160deg,rgba(255,255,255,.22),transparent 60%)}
 .fsearch{position:relative;margin:0 14px 8px}.fsearch i{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--t3);font-size:13px;pointer-events:none}.fsearch .inp{height:38px;padding-left:34px;border-radius:99px;font-size:13.5px}
 .cv{transition:background .12s;position:relative}.cv.un .t b{color:#fff}.cv.un .t span{color:var(--t2);font-weight:500}
 .cv .qb{display:none;flex:none;width:30px;height:30px;border-radius:9px;border:1px solid var(--hair);background:var(--surface-2);color:var(--t3);place-items:center;cursor:pointer}
@@ -476,7 +489,7 @@ dialog.ring{width:min(320px,calc(100vw - 24px))}
 [data-pd=off]::after{background:#7b8594}
 #c-sub{min-height:1.2em;transition:opacity .25s ease}#c-sub.sw{opacity:0}
 @media (prefers-reduced-motion:reduce){[data-pd]::after,#c-sub{transition:none}}
-.me .av,.me .n{cursor:pointer}
+#side .me .av,#side .me .n{cursor:pointer}
 .st-menu{position:fixed;z-index:80;min-width:250px;background:var(--surface-2,#1a212b);border:1px solid var(--line,rgba(255,255,255,.12));border-radius:14px;box-shadow:0 18px 40px -14px rgba(0,0,0,.5);padding:6px}
 .st-menu[hidden]{display:none}.st-menu button{display:flex;gap:10px;align-items:flex-start;width:100%;text-align:left;background:transparent;border:0;color:inherit;padding:9px 10px;border-radius:10px;cursor:pointer;font:inherit}
 .st-menu button:hover,.st-menu button.on{background:rgba(127,127,127,.14)}.st-menu .d{flex:none;width:12px;height:12px;border-radius:50%;margin-top:4px;position:relative}
@@ -573,7 +586,7 @@ dialog.ring{width:min(320px,calc(100vw - 24px))}
         <div id="typing" class="typing" aria-live="polite"></div>
         <div id="ctx" class="ctx" hidden></div>
         <form id="composer" autocomplete="off" style="position:relative">
-          <button class="ibtn" id="b-emoji" type="button" title="Emoji" aria-label="Emoji" style="height:42px;width:42px;border-radius:12px"><i class="fa-regular fa-face-smile"></i></button>
+          <button class="ibtn" id="b-fmt" type="button" title="Formatting (Ctrl+/)" aria-label="Formatting help" style="height:42px;width:42px;border-radius:12px"><i class="fa-solid fa-font"></i></button><button class="ibtn" id="b-emoji" type="button" title="Emoji" aria-label="Emoji" style="height:42px;width:42px;border-radius:12px"><i class="fa-regular fa-face-smile"></i></button>
           <div id="ment" class="ment" hidden role="listbox"></div><span id="count" hidden></span><textarea id="text" rows="1" maxlength="500" placeholder="Write a message" aria-label="Message"></textarea>
           <button class="btn pri" id="send" type="submit" aria-label="Send"><i class="fa-solid fa-paper-plane"></i></button>
         </form>
@@ -676,6 +689,19 @@ dialog.ring{width:min(320px,calc(100vw - 24px))}
   <label class="tg" style="margin-top:8px"><span>Include the 3 messages before it, so admins see the context</span><input type="checkbox" id="rp-ctx" checked></label>
   <div class="hint">Administrators review reports. If someone is in danger, tell a trusted adult right away.</div>
   <div class="acts"><button class="btn" id="rp-no" type="button">Cancel</button><button class="btn dangerfill" id="rp-yes" type="button">Send report</button></div></div></dialog>
+<dialog id="d-fmt" class="dlg-pro"><div class="dh"><span class="dic"><i class="fa-solid fa-font"></i></span><div class="dt"><h2>Formatting</h2><p>Type these in a message. Shift+Enter starts a new line.</p></div><button class="ibtn" data-close type="button" aria-label="Close"><i class="fa-solid fa-xmark"></i></button></div><div class="db">
+  <div class="fmt-grid"><div><code>**bold**</code></div><div><b>bold</b></div><div><code>*italic*  or  _italic_</code></div><div><i>italic</i></div><div><code>__underline__</code></div><div><u>underline</u></div><div><code>~~strike~~</code></div><div><s>strike</s></div><div><code>||spoiler||</code></div><div><span class="spl" onclick="this.classList.toggle('on')">hidden text</span></div><div><code>`code`</code></div><div><code style="display:inline;padding:1px 6px">code</code></div><div><code># Big heading
+## Medium
+### Small</code></div><div><span class="md-h md-h1" style="display:block">Big heading</span></div><div><code>-# small text</code></div><div><span class="md-sub" style="font-size:11px;opacity:.7">small text</span></div><div><code>&gt; quote</code></div><div><span style="border-left:3px solid var(--t3);padding-left:8px">quote</span></div><div><code>- list item
+- another</code></div><div>• list item<br>• another</div><div><code>```
+code block
+```</code></div><div>A boxed block of code</div></div>
+  <div class="hint" style="margin-top:12px">Shortcuts: Ctrl+B bold, Ctrl+I italic, Ctrl+U underline, Ctrl+Shift+X strike, Ctrl+E code, Ctrl+↑ edit your last message, Ctrl+/ this list.</div></div>
+  <div class="acts"><button class="btn pri" data-close type="button">Got it</button></div></dialog>
+<dialog id="d-keep" class="dlg-pro"><div class="dh"><span class="dic"><i class="fa-solid fa-user-clock"></i></span><div class="dt"><h2>Is this account still in use?</h2><p id="kp-sub">Please answer so we know.</p></div></div><div class="db">
+  <p id="kp-text" style="margin:4px 0 0;font-size:14px;line-height:1.5;color:var(--t2)"></p>
+  <div class="tipbox"><i class="fa-solid fa-circle-info"></i><span id="kp-when"></span></div></div>
+  <div class="acts"><button class="btn" id="kp-no" type="button">I do not need it</button><button class="btn pri" id="kp-yes" type="button"><i class="fa-solid fa-check"></i> Yes, keep my account</button></div></dialog>
 <dialog id="d-pw"><div class="dh"><h2>Change password</h2><button class="ibtn" data-close type="button" aria-label="Close"><i class="fa-solid fa-xmark"></i></button></div><div class="db">
   <label class="lbl" for="pw-old">Current password</label><input class="inp" id="pw-old" type="password" autocomplete="current-password">
   <label class="lbl" for="pw-new" style="margin-top:12px">New password</label><input class="inp" id="pw-new" type="password" autocomplete="new-password" placeholder="At least 8 characters">
@@ -1851,8 +1877,32 @@ $('b-back').onclick = closeChat;
 function sigOf(m) { return JSON.stringify([m.t, m.ed || 0, m.r || 0, m.rp && m.rp.t || 0, m.f]); }
 function mentionize(h) { return h.replace(/(^|[\s(])@([a-z0-9_]{3,20})\b/g, function (x, a, n) { return a + '<span class="at' + (n === me ? ' me' : n === 'everyone' ? ' all' : '') + '">@' + n + '</span>'; }); }
 function mentionsMe(t) { return new RegExp('(^|[^a-z0-9_])@(' + me + '|everyone)\\b', 'i').test(t || ''); }
+function mdInl(t) {
+  return t.replace(/\*\*\*([^*\n]+?)\*\*\*/g, '<b><i>$1</i></b>').replace(/\*\*([^*\n]+?)\*\*/g, '<b>$1</b>').replace(/__([^_\n]+?)__/g, '<u>$1</u>')
+    .replace(/(^|[^*\w])\*([^*\s][^*\n]*?)\*(?![*\w])/g, '$1<i>$2</i>').replace(/(^|[^_\w])_([^_\s][^_\n]*?)_(?![_\w])/g, '$1<i>$2</i>').replace(/~~([^~\n]+?)~~/g, '<s>$1</s>');
+}
+/* Discord-style formatting, applied to already-escaped text:  # / ## / ### headings, -# small text, **bold**, *italic*, __underline__,
+   ~~strike~~, ||spoiler||, `code`, ```code blocks```, > quote, >>> quote to the end, - / * bullet lists, 1. numbered lists */
 function md(h) {
-  return h.replace(/`([^`\n]{1,200})`/g, '<code>$1</code>').replace(/\*\*([^*\n]{1,300})\*\*/g, '<b>$1</b>').replace(/(^|[\s(])\*([^*\n]{1,300})\*(?=$|[\s).,!?])/g, '$1<i>$2</i>').replace(/~~([^~\n]{1,300})~~/g, '<s>$1</s>');
+  var hold = [], SO = '\u0001', SC = '\u0002';
+  function keep(x) { hold.push(x); return SO + (hold.length - 1) + SC; }
+  h = h.replace(/```(?:[a-z0-9+#-]*\n)?([\s\S]*?)```/g, function (x, c) { return keep('<pre class="mdp"><code>' + c.replace(/^\n+|\n+$/g, '') + '</code></pre>'); });
+  h = h.replace(/`([^`\n]{1,200})`/g, function (x, c) { return keep('<code>' + c + '</code>'); });
+  h = h.replace(/\|\|([^|\n]{1,300})\|\|/g, '<span class="spl" tabindex="0" role="button" title="Spoiler: click to reveal">$1</span>');
+  var lines = h.split('\n'), out = [], i = 0, m;
+  function blk(x) { out.push({ b: 1, h: x }); } function pl(x) { out.push({ b: 0, h: x }); }
+  while (i < lines.length) {
+    var l = lines[i];
+    if ((m = /^(#{1,3}) (\S.*)$/.exec(l))) { blk('<span class="md-h md-h' + m[1].length + '">' + mdInl(m[2]) + '</span>'); i++; continue; }
+    if ((m = /^-# (\S.*)$/.exec(l))) { blk('<span class="md-sub">' + mdInl(m[1]) + '</span>'); i++; continue; }
+    if (/^&gt;&gt;&gt; /.test(l)) { var rest = [l.slice(13)].concat(lines.slice(i + 1)); blk('<blockquote>' + mdInl(rest.join('\n')) + '</blockquote>'); break; }
+    if (/^&gt; /.test(l)) { var q = []; while (i < lines.length && /^&gt; /.test(lines[i])) { q.push(lines[i].slice(5)); i++; } blk('<blockquote>' + mdInl(q.join('\n')) + '</blockquote>'); continue; }
+    if (/^[-*] \S/.test(l)) { var li = []; while (i < lines.length && /^[-*] \S/.test(lines[i])) { li.push('<li>' + mdInl(lines[i].slice(2)) + '</li>'); i++; } blk('<ul>' + li.join('') + '</ul>'); continue; }
+    if (/^\d{1,3}\. \S/.test(l)) { var ol = [], st = parseInt(l, 10); while (i < lines.length && /^\d{1,3}\. \S/.test(lines[i])) { ol.push('<li>' + mdInl(lines[i].replace(/^\d{1,3}\. /, '')) + '</li>'); i++; } blk('<ol start="' + st + '">' + ol.join('') + '</ol>'); continue; }
+    pl(mdInl(l)); i++;
+  }
+  var res = ''; out.forEach(function (x, n) { res += (n && !x.b && !out[n - 1].b ? '\n' : '') + x.h; });
+  return res.replace(/\u0001(\d+)\u0002/g, function (x, n) { return hold[+n]; });
 }
 function msgInner(k, m, ts, c) {
   if (m.sys) return '<div class="bub sysb' + (m.lv === 'warn' ? ' warn' : '') + '"><b><i class="fa-solid fa-' + (m.lv === 'warn' ? 'triangle-exclamation' : 'shield-halved') + '"></i> Aperture team</b>' + esc(String(m.t)) + '</div><span class="tm">' + fmtTime(typeof m.ts === 'number' ? m.ts : keyTs(k)) + '</span>';
@@ -4120,7 +4170,7 @@ function annRow() {
 function annPaint() {
   var l = $('ann-list'), ks = Object.keys(annData).sort(), near = l.scrollHeight - l.scrollTop - l.clientHeight < 120, sig = ks.join(',') + '|' + (annCanPost() ? 1 : 0) + '|' + (P.isAdmin ? 1 : 0);
   if (l.dataset.sig === sig) return; l.dataset.sig = sig;
-  l.innerHTML = ks.length ? ks.map(function (k) { var m = annData[k], can = m.fu === auth.uid; return '<div class="ann-m"><div class="h"><b>' + esc(m.f) + '</b>' + esc(new Date(typeof m.ts === 'number' ? m.ts : keyTs(k)).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })) + (can ? '<button class="x" data-ad="' + esc(k) + '" type="button" title="Delete" aria-label="Delete"><i class="fa-regular fa-trash-can"></i></button>' : '') + '</div><p>' + esc(PF.mask(String(m.t))) + '</p></div>'; }).join('') : '<div class="sys" style="margin:auto">No announcements yet.</div>';
+  l.innerHTML = ks.length ? ks.map(function (k) { var m = annData[k], can = m.fu === auth.uid; return '<div class="ann-m"><div class="h"><b>' + esc(m.f) + '</b>' + esc(new Date(typeof m.ts === 'number' ? m.ts : keyTs(k)).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })) + (can ? '<button class="x" data-ad="' + esc(k) + '" type="button" title="Delete" aria-label="Delete"><i class="fa-regular fa-trash-can"></i></button>' : '') + '</div><p>' + mentionize(md(esc(PF.mask(String(m.t))))) + '</p></div>'; }).join('') : '<div class="sys" style="margin:auto">No announcements yet.</div>';
   if (near || !l.dataset.init) { l.scrollTop = l.scrollHeight; l.dataset.init = 1; }
   $('ann-form').hidden = !annCanPost(); $('ann-ro').hidden = annCanPost();
 }
@@ -4170,6 +4220,56 @@ function paintFormer() {
   }).catch(function () {});
 }
 setInterval(paintFormer, 1200);
+
+/* ── formatting QoL: shortcuts, help, spoilers, edit last ── */
+$('b-fmt').onclick = function () { $('d-fmt').showModal(); };
+function wrapSel(ta, a, b) {
+  var s0 = ta.selectionStart, e0 = ta.selectionEnd, v = ta.value, sel = v.slice(s0, e0);
+  if (sel && v.slice(s0 - a.length, s0) === a && v.slice(e0, e0 + b.length) === b) { ta.value = v.slice(0, s0 - a.length) + sel + v.slice(e0 + b.length); ta.setSelectionRange(s0 - a.length, e0 - a.length); }
+  else { ta.value = v.slice(0, s0) + a + sel + b + v.slice(e0); if (sel) ta.setSelectionRange(s0 + a.length, e0 + a.length); else ta.setSelectionRange(s0 + a.length, s0 + a.length); }
+  ta.dispatchEvent(new Event('input', { bubbles: true })); ta.focus();
+}
+$('text').addEventListener('keydown', function (e) {
+  var k = e.key.toLowerCase(), mod = e.ctrlKey || e.metaKey; if (!mod) return;
+  if (!e.shiftKey && k === 'b') { e.preventDefault(); wrapSel(this, '**', '**'); }
+  else if (!e.shiftKey && k === 'i') { e.preventDefault(); wrapSel(this, '*', '*'); }
+  else if (!e.shiftKey && k === 'u') { e.preventDefault(); wrapSel(this, '__', '__'); }
+  else if (e.shiftKey && k === 'x') { e.preventDefault(); wrapSel(this, '~~', '~~'); }
+  else if (!e.shiftKey && k === 'e') { e.preventDefault(); wrapSel(this, '`', '`'); }
+  else if (k === '/') { e.preventDefault(); $('d-fmt').showModal(); }
+  else if (e.key === 'ArrowUp' && !this.value.trim() && cur) {
+    var mine = Object.keys(msgData).filter(function (x) { return msgData[x].fu === auth.uid && !msgData[x].sys; }).sort().pop(); if (mine) { e.preventDefault(); startEdit(mine, msgData[mine]); }
+  }
+});
+document.addEventListener('click', function (e) { var sp = e.target.closest && e.target.closest('.spl'); if (sp && !sp.closest('#d-fmt')) sp.classList.toggle('on'); });
+document.addEventListener('keydown', function (e) { if ((e.key === 'Enter' || e.key === ' ') && e.target.classList && e.target.classList.contains('spl')) { e.preventDefault(); e.target.classList.toggle('on'); } });
+
+/* ── scheduled account clean-up: ask the person before anything is deleted ── */
+var keepOpen = null;
+function keepLoad() {
+  if (!auth.uid || !me || keepOpen || covered) return;
+  rt('GET', 'deletions/' + auth.uid).then(function (d) {
+    if (!d || !d.rule || keepOpen) return; keepOpen = d;
+    var dupe = d.rule === 'dupe', when = typeof d.at === 'number' ? new Date(d.at).toLocaleDateString([], { weekday: 'long', month: 'short', day: 'numeric' }) : 'soon';
+    $('kp-sub').textContent = dupe ? 'Another account has a very similar name' : 'This account has not been used in a while';
+    $('kp-text').textContent = dupe
+      ? 'Your account “' + me + '” looks like a duplicate of “' + (d.other || 'another account') + '”. If these are two different people, nothing is wrong: press the keep button. If this is an old account of yours that you replaced, you can let it go.'
+      : 'Your account “' + me + '” looks inactive, so it was scheduled to be cleaned up. If you still use Messages, press the keep button and it stays.';
+    $('kp-when').textContent = 'If you do nothing, an admin may remove it after ' + when + '. Your nickname would then be free for anyone.';
+    if (!$('d-keep').open) $('d-keep').showModal(); rt('PUT', 'deletions/' + auth.uid + '/seen', SV).catch(function () {});
+  }).catch(function () {});
+}
+$('d-keep').addEventListener('cancel', function (e) { e.preventDefault(); });
+$('d-keep').addEventListener('click', function (e) { if (e.target === $('d-keep')) e.stopImmediatePropagation(); }, true);
+$('kp-yes').onclick = function () {
+  $('kp-yes').disabled = true;
+  rt('PUT', 'keeps/' + auth.uid, { ts: SV, r: keepOpen ? keepOpen.rule : '' }).catch(function () {}).then(function () { return rt('DELETE', 'deletions/' + auth.uid); })
+    .then(function () { keepOpen = null; $('d-keep').close(); toast('Thanks, your account is staying'); }).catch(function () { toast('Could not save that. Try again.'); }).then(function () { $('kp-yes').disabled = false; });
+};
+$('kp-no').onclick = function () {
+  ask({ title: 'Delete this account?', text: 'Your messages, chat list and the nickname “' + me + '” are removed, and anyone can take the name. This cannot be undone.', ok: 'Delete account', danger: true, icon: 'fa-user-xmark' }).then(function (ok) { if (ok) { rt('DELETE', 'deletions/' + auth.uid).catch(function () {}); $('d-keep').close(); keepOpen = null; delAccount(); } });
+};
+setInterval(keepLoad, 45000); setTimeout(keepLoad, 2500);
 window.__msg = { filterText: filterText, validNick: validNick, dmId: dmId, callState: function () { return callX ? { phase: callX.phase, isCaller: callX.isCaller, cid: callX.cid, pcState: callX.pc && callX.pc.connectionState, iceState: callX.pc && callX.pc.iceConnectionState, iceGathering: callX.pc && callX.pc.iceGatheringState } : null; }, pendingRing: function () { return pendingRing; }, pcStats: function () { if (!callX || !callX.pc) return null; return callX.pc.getStats().then(function (stats) { var out = []; stats.forEach(function (r) { out.push(r); }); return out; }); } };
 })();
 </script>

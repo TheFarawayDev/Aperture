@@ -143,7 +143,7 @@ pre,code{white-space:pre-wrap;overflow-wrap:anywhere}
     <div class="hint err" id="g-err"></div>
   </section>
   <section id="main" hidden>
-    <div class="top"><h1><i class="fa-solid fa-shield-halved"></i> Administration</h1><div class="tabs"><button data-t="ov" class="on">Overview</button><button data-t="rep">Reports</button><button data-t="chat">Chats</button><button data-t="usr">Users</button><button data-t="call">Calls</button><button data-t="sd">Shutdown</button><button data-t="snd">Send</button><button data-t="flt">Filter</button><button data-t="dev">Devices</button><button data-t="log">Log</button><button data-t="nm">Names</button><button data-t="ban">Banned</button></div><button class="btn sm danger" id="reset-db" type="button" title="Wipe all accounts, chats and keys"><i class="fa-solid fa-trash-can"></i> Reset database</button><button class="btn sm" id="out" type="button">Sign out</button></div>
+    <div class="top"><h1><i class="fa-solid fa-shield-halved"></i> Administration</h1><div class="tabs"><button data-t="ov" class="on">Overview</button><button data-t="rep">Reports</button><button data-t="chat">Chats</button><button data-t="usr">Users</button><button data-t="call">Calls</button><button data-t="sd">Shutdown</button><button data-t="snd">Send</button><button data-t="flt">Filter</button><button data-t="dev">Devices</button><button data-t="cln">Cleanup</button><button data-t="log">Log</button><button data-t="nm">Names</button><button data-t="ban">Banned</button></div><button class="btn sm danger" id="reset-db" type="button" title="Wipe all accounts, chats and keys"><i class="fa-solid fa-trash-can"></i> Reset database</button><button class="btn sm" id="out" type="button">Sign out</button></div>
     <div id="st"></div><div class="card" id="view"></div>
   </section>
 </div>
@@ -281,7 +281,7 @@ $('go2').onclick = function () {
   } else run = openPriv(keyBlob, p).then(function (pr) { adminPriv = pr; });
   run.then(function () { if ($('rem').checked) idbPut('adm', adminPriv).catch(function () {}); }).then(show).catch(function () { err.textContent = keyBlob ? 'Wrong passphrase.' : 'Could not create the key.'; }).then(function () { b.disabled = false; });
 };
-function show() { $('gate').hidden = true; $('main').hidden = false; $('kp').value = $('kp2').value = ''; tab('ov'); }
+function show() { $('gate').hidden = true; $('main').hidden = false; $('kp').value = $('kp2').value = ''; tab('ov'); setTimeout(function () { try { autoClean(); } catch (e) {} }, 2500); }
 $('out').onclick = function () { tok = ''; rtok = ''; adminPriv = null; keyCache = {}; forget(); location.reload(); };
 
 /* RESET DATABASE: wipes every user-data collection in one go, so admins can ship an
@@ -316,7 +316,7 @@ $('rz-yes').onclick = function () {
   });
 };
 document.querySelectorAll('.tabs button').forEach(function (b) { b.onclick = function () { tab(b.dataset.t); }; });
-function tab(t) { document.querySelectorAll('.tabs button').forEach(function (b) { b.classList.toggle('on', b.dataset.t === t); }); clearInterval(chatT); loadStats(); ({ ov: overview, rep: reports, chat: chats, usr: users, nm: namesTab, call: callsTab, sd: shutTab, ban: bansTab, snd: sendTab, flt: filterTab, dev: devTab, log: logTab })[t](); }
+function tab(t) { document.querySelectorAll('.tabs button').forEach(function (b) { b.classList.toggle('on', b.dataset.t === t); }); clearInterval(chatT); loadStats(); ({ ov: overview, rep: reports, chat: chats, usr: users, nm: namesTab, call: callsTab, sd: shutTab, ban: bansTab, snd: sendTab, flt: filterTab, dev: devTab, log: logTab, cln: cleanTab })[t](); }
 function fmt(ts) { return ts ? new Date(ts).toLocaleString() : ''; }
 function keyTs(k) { return parseInt(k.slice(0, 8), 36) || 0; }
 
@@ -498,7 +498,7 @@ function users() {
       ul.querySelectorAll('[data-kk]').forEach(function (b) { b.onclick = function () { var n = b.dataset.kk, u = uidOf(n); if (u) doKick(n, u).then(function (d) { if (d) { delete nn[n]; draw(); loadStats(); } }); }; });
       ul.querySelectorAll('[data-b]').forEach(function (b) { b.onclick = function () { var n = b.dataset.b, u = uidOf(n), on = !bans[u]; if (!u) return; ask({ title: (on ? 'Ban ' : 'Unban ') + n + '?', text: on ? 'They can no longer send messages or sign in to Messages, even if they change their nickname.' : 'They can use Messages again.', ok: on ? 'Ban' : 'Unban', danger: on, icon: on ? 'fa-ban' : 'fa-user-check' }).then(function (ok) { if (!ok) return; ban(u, on).then(function () { if (on) bans[u] = true; else delete bans[u]; draw(); loadStats(); toast(on ? n + ' banned' : n + ' unbanned'); }).catch(fail('Failed')); }); }; });
       ul.querySelectorAll('[data-p]').forEach(function (b) { b.onclick = function () { var n = b.dataset.p, u = uidOf(n); if (!u) return; ask({ title: 'Clear ' + n + "'s picture?", text: 'Their profile picture is removed. They can set a new one.', ok: 'Clear picture', danger: true, icon: 'fa-image' }).then(function (ok) { if (!ok) return; rt('DELETE', 'profile/' + u + '/pic').then(function () { pics[n] = ''; draw(); toast('Picture cleared'); }).catch(fail('Could not clear it')); }); }; });
-      ul.querySelectorAll('[data-x]').forEach(function (b) { b.onclick = function () { var n = b.dataset.x, u = uidOf(n); ask({ title: 'Remove ' + n + '?', text: 'Their nickname, chat list and keys are deleted and the name becomes free. Their sign-in stays in Firebase Authentication; delete it there if needed.', ok: 'Remove user', danger: true, icon: 'fa-user-xmark' }).then(function (ok) { if (!ok) return; (u ? Promise.all([rt('DELETE', 'users/' + u), rt('DELETE', 'keys/' + u), rt('DELETE', 'profile/' + u + '/pic'), rt('DELETE', 'profile/' + u + '/pk')]) : Promise.resolve()).then(function () { return rt('DELETE', 'inbox/' + (u || n)); }).then(function () { return rt('DELETE', 'nicknames/' + n); }).then(function () { delete nn[n]; metaC = null; draw(); loadStats(); toast(n + ' removed'); }).catch(fail('Could not remove the user')); }); }; });
+      ul.querySelectorAll('[data-x]').forEach(function (b) { b.onclick = function () { var n = b.dataset.x, u = uidOf(n); ask({ title: 'Remove ' + n + '?', text: 'Their nickname, chat list and keys are deleted and the name becomes free. Their sign-in stays in Firebase Authentication; delete it there if needed.', ok: 'Remove user', danger: true, icon: 'fa-user-xmark' }).then(function (ok) { if (!ok) return; (u ? Promise.all([rt('DELETE', 'users/' + u), rt('DELETE', 'keys/' + u), rt('DELETE', 'profile/' + u + '/pic'), rt('DELETE', 'profile/' + u + '/pk'), rt('DELETE', 'presence/' + u), rt('DELETE', 'perms/' + u), rt('DELETE', 'prevnick/' + u), rt('DELETE', 'missed/' + u)]) : Promise.resolve()).then(function () { return rt('DELETE', 'inbox/' + (u || n)); }).then(function () { return rt('DELETE', 'nicknames/' + n); }).then(function () { delete nn[n]; metaC = null; draw(); loadStats(); toast(n + ' removed'); }).catch(fail('Could not remove the user')); }); }; });
     }
     function paint(n) { var el = $('ul').querySelector('.av[data-n="' + n + '"]'), pb = $('ul').querySelector('[data-p="' + n + '"]'); if (pb) pb.hidden = !pics[n]; if (el && pics[n]) { var im = new Image(); im.className = 'av'; im.referrerPolicy = 'no-referrer'; im.onload = function () { el.replaceWith(im); }; im.src = pics[n]; } }
     $('uf').oninput = draw; $('us').onchange = draw; draw();
@@ -748,6 +748,114 @@ function logTab() {
       $('lr').onclick = logTab;
     });
   }).catch(fail('Could not load the log'));
+}
+
+/* ═════════ ACCOUNT CLEANUP: duplicates, never-used and abandoned accounts ═════════
+   Nothing is deleted straight away. An account is first SCHEDULED: its owner gets a prompt the next time they open Messages
+   ("is this account still in use?"), and only if nobody answers, and the account stays unused, is it removed on the due date. */
+var CLN = { auto: false, dupes: true, never: true, aband: true, graceDays: 3, abandonDays: 30, notifyDays: 3 };
+var DAYMS = 864e5;
+function cleanBase(n) { return String(n).toLowerCase().replace(/[_\d]+$/, ''); }
+function cleanSettings() { return rt('GET', 'config/cleanup').then(function (c) { var o = {}; Object.keys(CLN).forEach(function (k) { o[k] = c && c[k] !== undefined ? c[k] : CLN[k]; }); o.graceDays = Math.max(1, Math.min(60, +o.graceDays || 3)); o.abandonDays = Math.max(7, Math.min(365, +o.abandonDays || 30)); o.notifyDays = Math.max(1, Math.min(14, +o.notifyDays || 3)); return o; }).catch(function () { return Object.assign({}, CLN); }); }
+function keyTsA(k) { return parseInt(String(k).slice(0, 8), 36) || 0; }
+function pool2(items, n, fn) { var i = 0; function w() { if (i >= items.length) return Promise.resolve(); var k = items[i++]; return Promise.resolve(fn(k)).catch(function () {}).then(w); } var ws = []; for (var j = 0; j < Math.min(n, items.length); j++) ws.push(w()); return Promise.all(ws); }
+/* scan: { list: [{n,u,rule,why,other,created,last,sched}], total, info, dels } */
+function cleanScan(cfg) {
+  return Promise.all([rt('GET', 'nicknames'), rt('GET', 'admins'), rt('GET', 'presence'), rt('GET', 'devices'), rt('GET', 'keeps'), rt('GET', 'deletions')]).then(function (r) {
+    var nn = r[0] || {}, adm = r[1] || {}, pr = r[2] || {}, dv = r[3] || {}, keeps = r[4] || {}, dels = r[5] || {}, now = Date.now(), names = Object.keys(nn).filter(function (n) { return nn[n] && nn[n].u; });
+    var info = {}; names.forEach(function (n) { var u = nn[n].u, p = pr[u] || {}, d = dv[u] || {}; info[u] = { n: n, u: u, created: +nn[n].t || 0, adm: !!(adm[u] && adm[u].on), act: Math.max(+p.t || 0, +p.lo || 0, +d.ts || 0), seen: !!(pr[u] || dv[u]), kept: keeps[u] && now - (+keeps[u].ts || 0) < 90 * DAYMS }; });
+    var uids = Object.keys(info);
+    return pool2(uids, 6, function (u) { return Promise.all([rt('GET', 'nickhist/' + u).catch(function () { return null; }), rt('GET', 'inbox/' + u).catch(function () { return null; })]).then(function (x) {
+      var h = x[0] || {}, hk = Object.keys(h).sort(); if (hk.length) { var f = keyTsA(hk[0]); if (f && f < info[u].created) info[u].created = f; }
+      var ib = x[1] || {}, ik = Object.keys(ib); info[u].chats = ik.length; ik.forEach(function (c) { var t = +(ib[c] && ib[c].ts) || 0; if (t > info[u].act) info[u].act = t; });
+    }); }).then(function () {
+      var out = [], hit = {}, dead = {};
+      function add(u, rule, why, other) { if (hit[u]) return; hit[u] = 1; var i = info[u]; out.push({ n: i.n, u: u, rule: rule, why: why, other: other || '', created: i.created, last: Math.max(i.act, i.created), sched: dels[u] || null }); }
+      uids.forEach(function (u) { var i = info[u]; if (i.adm || i.kept) return;
+        if (cfg.never && !i.seen && !i.chats && i.created && now - i.created > cfg.graceDays * DAYMS) dead[u] = ['never', 'Never opened Messages or started a chat, and made over ' + cfg.graceDays + ' days ago.'];
+        else if (cfg.aband && i.created && now - Math.max(i.act, i.created) > cfg.abandonDays * DAYMS) dead[u] = ['aband', 'No activity for over ' + cfg.abandonDays + ' days.']; });
+      if (cfg.dupes) {
+        var g = {}; uids.forEach(function (u) { var b = cleanBase(info[u].n); if (b.length >= 3) (g[b] = g[b] || []).push(u); });
+        Object.keys(g).forEach(function (b) { var l = g[b]; if (l.length < 2) return; l.sort(function (a, c) { return info[a].created - info[c].created; }); var newest = l[l.length - 1];
+          if (dead[newest]) return;   // the newer account is itself going, so the older one is not a leftover
+          l.slice(0, -1).forEach(function (u) { var i = info[u]; if (i.adm || i.kept || info[newest].adm) return; if (i.act > info[newest].created + 36e5) return;   // still used after the newer one was made: a different person
+            add(u, 'dupe', 'Looks like a duplicate of ' + info[newest].n + ' (newer). Not used since that one was created.', info[newest].n); }); });
+      }
+      Object.keys(dead).forEach(function (u) { add(u, dead[u][0], dead[u][1]); });
+      return { list: out, total: uids.length, info: info, dels: dels };
+    });
+  });
+}
+function removeAccount(n, u) {
+  return Promise.all([rt('DELETE', 'users/' + u), rt('DELETE', 'keys/' + u), rt('DELETE', 'profile/' + u + '/pic'), rt('DELETE', 'profile/' + u + '/pk'), rt('DELETE', 'presence/' + u), rt('DELETE', 'perms/' + u), rt('DELETE', 'prevnick/' + u), rt('DELETE', 'missed/' + u), rt('DELETE', 'notices/' + u)])
+    .then(function () { return rt('DELETE', 'inbox/' + u); }).then(function () { return rt('DELETE', 'nicknames/' + n); }).then(function () { return rt('DELETE', 'deletions/' + u); });
+}
+function scheduleAccount(x, cfg) { return rt('PUT', 'deletions/' + x.u, { rule: x.rule, n: x.n, other: x.other || null, why: x.why.slice(0, 190), at: Date.now() + cfg.notifyDays * DAYMS, ts: SV, by: uid }).then(function () { return aud('cleanup-scheduled', x.n + ' (' + x.rule + '), due ' + new Date(Date.now() + cfg.notifyDays * DAYMS).toLocaleDateString()); }); }
+/* run what is due: skip (and cancel) anyone who answered, signed in since, or is no longer flagged */
+function runDue(scan) {
+  var due = Object.keys(scan.dels).filter(function (u) { return scan.dels[u] && typeof scan.dels[u].at === 'number' && scan.dels[u].at < Date.now(); }), removed = 0, cancelled = 0;
+  return pool2(due, 3, function (u) {
+    var d = scan.dels[u], i = scan.info[u]; if (!i) return rt('DELETE', 'deletions/' + u);
+    var active = i.act > (+d.ts || 0) + 6e4 || d.seen || i.kept;
+    if (active) { cancelled++; return rt('DELETE', 'deletions/' + u).then(function () { return aud('cleanup-cancelled', i.n + ': the owner came back'); }); }
+    removed++; return removeAccount(i.n, u).then(function () { return aud('cleanup-removed', i.n + ' (' + d.rule + '): no answer by the due date'); });
+  }).then(function () { return { removed: removed, cancelled: cancelled }; });
+}
+function autoClean() {
+  return cleanSettings().then(function (cfg) {
+    if (!cfg.auto) return; return cleanScan(cfg).then(function (r) {
+      var fresh = r.list.filter(function (x) { return !x.sched; });
+      var msgs = [];
+      var p1 = Promise.resolve();
+      if (fresh.length) {
+        if (fresh.length > 25 || fresh.length > Math.max(5, r.total * 0.4)) { aud('auto-cleanup-skipped', fresh.length + ' accounts matched out of ' + r.total + ', which is too many to schedule automatically. Review them on the Cleanup tab.'); msgs.push('Auto-cleanup found ' + fresh.length + ' accounts, which is too many to schedule on its own. Review the Cleanup tab.'); }
+        else p1 = pool2(fresh, 3, function (x) { return scheduleAccount(x, cfg); }).then(function () { msgs.push(fresh.length + ' account' + (fresh.length === 1 ? '' : 's') + ' scheduled for cleanup'); });
+      }
+      return p1.then(function () { return runDue(r); }).then(function (d) { if (d.removed) msgs.push(d.removed + ' removed'); if (d.cancelled) msgs.push(d.cancelled + ' kept because the owner came back'); if (msgs.length) { toast('Auto-cleanup: ' + msgs.join(', ')); metaC = null; try { loadStats(); } catch (e) {} } });
+    });
+  }).catch(function () {});
+}
+function cleanTab() {
+  var v = $('view'); v.innerHTML = '<div class="hint">Loading…</div>';
+  cleanSettings().then(function (cfg) {
+    function chk(k, a, b) { return '<div class="tg2"><span>' + a + '<small>' + b + '</small></span><input type="checkbox" data-c="' + k + '"' + (cfg[k] ? ' checked' : '') + '></div>'; }
+    function sel(id, a, b, arr, val) { return '<div class="tg2"><span>' + a + '<small>' + b + '</small></span><select class="inp" id="' + id + '" style="width:auto;height:36px">' + arr.map(function (x) { return '<option value="' + x + '"' + (val === x ? ' selected' : '') + '>' + x + ' days</option>'; }).join('') + '</select></div>'; }
+    v.innerHTML = '<b style="font-size:16px">Account cleanup</b><div class="hint">Finds accounts that are duplicates or abandoned. Nothing is deleted straight away: the owner is first asked “is this account still in use?” the next time they open Messages, and only an unanswered, still-unused account is removed on the due date. Admin accounts are never touched, and anyone who presses keep is left alone for 90 days.</div>' +
+      chk('dupes', 'Duplicate accounts', 'blumey and blumey1: the older one is flagged, but only if it has not been used since the newer one was made') +
+      chk('never', 'Never-used accounts', 'Made but never opened Messages or started a chat') +
+      sel('cl-g', 'Grace period for new accounts', 'So accounts made on a Friday survive the weekend and Monday. Use 5 to be safe.', [2, 3, 4, 5, 7, 14], cfg.graceDays) +
+      chk('aband', 'Abandoned accounts', 'Nobody has used it, or chatted on it, for a long time') +
+      sel('cl-a', 'Counts as abandoned after', 'Time since the last sign of activity', [14, 30, 45, 60, 90, 180], cfg.abandonDays) +
+      sel('cl-n', 'Notice before removal', 'How long the owner has to answer the prompt', [1, 2, 3, 5, 7, 14], cfg.notifyDays) +
+      chk('auto', 'Run automatically', 'Whenever an admin opens this page: schedules new matches, and removes the ones that are due. Stops and asks you if it would schedule more than about 40% of users at once.') +
+      '<div class="row" style="margin-top:12px"><button class="btn" id="cl-save" type="button">Save settings</button><button class="btn pri" id="cl-scan" type="button"><i class="fa-solid fa-magnifying-glass"></i> Scan now</button></div><div id="cl-out" style="margin-top:14px"></div><div id="cl-due" style="margin-top:18px"></div>';
+    function read() { var o = { by: uid, ts: SV, graceDays: +$('cl-g').value, abandonDays: +$('cl-a').value, notifyDays: +$('cl-n').value }; v.querySelectorAll('[data-c]').forEach(function (c) { o[c.dataset.c] = c.checked; }); return o; }
+    $('cl-save').onclick = function () { var o = read(); rt('PUT', 'config/cleanup', o).then(function () { aud('cleanup-settings', 'auto ' + o.auto + ', dupes ' + o.dupes + ', never ' + o.never + ' (' + o.graceDays + 'd), abandoned ' + o.aband + ' (' + o.abandonDays + 'd), notice ' + o.notifyDays + 'd'); toast('Saved'); }).catch(fail('Could not save')); };
+    function drawDue() {
+      rt('GET', 'deletions').then(function (d) {
+        d = d || {}; var us = Object.keys(d).sort(function (a, b) { return (d[a].at || 0) - (d[b].at || 0); }), box = $('cl-due');
+        box.innerHTML = '<b>Scheduled for removal (' + us.length + ')</b>' + (us.length ? us.map(function (u) { var x = d[u]; return '<div class="item row sp" style="margin-top:6px"><span><b>' + esc(x.n || u.slice(0, 6)) + '</b> <span class="chip' + (x.rule === 'dupe' ? ' bad' : '') + '">' + (x.rule === 'dupe' ? 'duplicate' : x.rule === 'never' ? 'never used' : x.rule === 'aband' ? 'abandoned' : 'manual') + '</span><br><span class="meta">Due ' + esc(new Date(x.at || 0).toLocaleDateString()) + ' · ' + (x.seen ? 'the owner has seen the prompt' : 'not seen yet') + '</span></span><span class="row"><button class="btn sm" data-cn="' + esc(u) + '">Cancel</button><button class="btn sm danger" data-rn="' + esc(u) + '">Remove now</button></span></div>'; }).join('') : '<div class="hint">Nothing scheduled.</div>');
+        box.querySelectorAll('[data-cn]').forEach(function (b) { b.onclick = function () { rt('DELETE', 'deletions/' + b.dataset.cn).then(function () { aud('cleanup-cancelled', d[b.dataset.cn].n + ': cancelled by an admin'); drawDue(); }).catch(fail('Could not cancel')); }; });
+        box.querySelectorAll('[data-rn]').forEach(function (b) { b.onclick = function () { var x = d[b.dataset.rn]; ask({ title: 'Remove ' + x.n + ' now?', text: 'Skips the rest of the notice period. This cannot be undone.', ok: 'Remove', danger: true, icon: 'fa-user-xmark' }).then(function (ok) { if (ok) removeAccount(x.n, b.dataset.rn).then(function () { aud('cleanup-removed', x.n + ' (' + x.rule + '): removed early by an admin'); metaC = null; toast('Removed'); loadStats(); drawDue(); }).catch(fail('Could not remove')); }); }; });
+      }).catch(function () {});
+    }
+    drawDue();
+    $('cl-scan').onclick = function () {
+      var o = read(), out = $('cl-out'); out.innerHTML = '<div class="hint">Scanning…</div>'; $('cl-scan').disabled = true;
+      cleanScan(o).then(function (r) {
+        out.innerHTML = '<div class="hint">' + r.total + ' accounts checked, ' + r.list.length + ' flagged.</div>' + r.list.map(function (x, i) { return '<div class="item row sp" style="margin-top:6px"><label class="row" style="flex-wrap:nowrap;align-items:flex-start;gap:12px;cursor:pointer"><input type="checkbox" data-r="' + i + '"' + (x.sched ? '' : ' checked') + ' style="margin-top:2px"><span><b>' + esc(x.n) + '</b> <span class="chip' + (x.rule === 'dupe' ? ' bad' : '') + '">' + (x.rule === 'dupe' ? 'duplicate' : x.rule === 'never' ? 'never used' : 'abandoned') + '</span>' + (x.sched ? ' <span class="chip">already scheduled</span>' : '') + '<br><span class="meta">' + esc(x.why) + '<br>Created ' + esc(x.created ? new Date(x.created).toLocaleDateString() : 'unknown') + ' · last seen ' + esc(x.last ? ago(x.last) : 'never') + '</span></span></label></div>'; }).join('') + (r.list.length ? '<div class="row" style="margin-top:12px"><button class="btn pri" id="cl-sch" type="button"><i class="fa-solid fa-clock"></i> Schedule checked (notice ' + o.notifyDays + ' d)</button><button class="btn danger" id="cl-go" type="button"><i class="fa-solid fa-user-xmark"></i> Remove checked now</button></div>' : '');
+        function picked() { var pick = []; out.querySelectorAll('[data-r]').forEach(function (c) { if (c.checked) pick.push(r.list[+c.dataset.r]); }); return pick; }
+        if ($('cl-sch')) $('cl-sch').onclick = function () { var pick = picked().filter(function (x) { return !x.sched; }); if (!pick.length) { toast('Nothing new checked'); return; } $('cl-sch').disabled = true; pool2(pick, 3, function (x) { return scheduleAccount(x, o); }).then(function () { toast(pick.length + ' scheduled. Their owners will be asked next time they open Messages.'); cleanTab(); }); };
+        if ($('cl-go')) $('cl-go').onclick = function () {
+          var pick = picked(); if (!pick.length) { toast('Nothing checked'); return; }
+          ask({ title: 'Remove ' + pick.length + ' account' + (pick.length === 1 ? '' : 's') + ' now?', text: pick.slice(0, 12).map(function (x) { return x.n; }).join(', ') + (pick.length > 12 ? ' and ' + (pick.length - 12) + ' more' : '') + '. Their owners are not asked first. This cannot be undone.', ok: 'Remove now', danger: true, icon: 'fa-user-xmark' }).then(function (ok) {
+            if (!ok) return; $('cl-go').disabled = true;
+            pool2(pick, 3, function (x) { return removeAccount(x.n, x.u).then(function () { return aud('cleanup-removed', x.n + ' (' + x.rule + '): removed now by an admin. ' + x.why); }); }).then(function () { metaC = null; toast(pick.length + ' removed'); loadStats(); cleanTab(); });
+          });
+        };
+      }).catch(fail('Scan failed')).then(function () { $('cl-scan').disabled = false; });
+    };
+  });
 }
 })();
 </script>
