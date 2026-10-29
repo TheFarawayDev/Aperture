@@ -147,6 +147,22 @@ main{flex:1;width:100%;padding:12px 10px 10px;display:flex;flex-direction:column
 .spl.on{background:rgba(6,10,14,.28);color:inherit;user-select:text}
 .fmt-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:6px 14px;font-size:13px}.fmt-grid code{display:block;background:var(--inset);border:1px solid var(--hair);border-radius:8px;padding:5px 8px;font-size:12.5px;white-space:pre-wrap}.fmt-grid div{min-width:0}
 @media(max-width:520px){.fmt-grid{grid-template-columns:1fr}}
+
+/* ── sidebar: compact header, whole sidebar scrolls so the chat list gets the room ── */
+#side{overflow:hidden}
+#side #convs{flex:1 1 0;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding-bottom:6px}
+#side .me,#side .sbar,#side .lf,#side .fsearch,#side .ann-row,#side .side-foot{flex:none}
+#side .me{margin:8px 10px 8px;padding:9px 10px 9px 14px;gap:12px;border-radius:16px}
+#side .me .av{width:40px;height:40px;border-radius:12px;font-size:16px;margin:2px}
+#side .me .n b{font-size:15px}#side .me .n span{margin-top:0;font-size:12px}
+#side .me .ibtn{width:34px;height:34px;border-radius:11px}
+#side .sbar{padding:0 10px 8px;gap:8px}#side .sbar .btn{height:38px;border-radius:12px;font-size:13px}
+#side .lf{margin:0 10px 8px;padding:3px}#side .lf button{height:28px;font-size:12.5px}
+#side .fsearch{margin:0 10px 8px}#side .fsearch .inp{height:36px}
+#side .ann-row{margin:0 10px 6px;width:calc(100% - 20px);padding:7px 10px;gap:10px;border-radius:12px;background:linear-gradient(135deg,#3a3326,#2c2e30);box-shadow:0 6px 14px -8px rgba(0,0,0,.6)}
+#side .ann-row .ai{width:30px;height:30px;border-radius:9px;font-size:13px}#side .ann-row b{font-size:13.5px}#side .ann-row small{font-size:11.5px}
+@media(max-height:720px){#side .sbar{padding-bottom:6px}#side .sbar .btn{height:34px}#side .lf{margin-bottom:6px}#side .lf button{height:26px}#side .fsearch{margin-bottom:6px}#side .fsearch .inp{height:34px}#side .ann-row{padding:5px 10px;margin-bottom:4px}#side .ann-row small{display:none}}
+@media(max-height:760px){#side .me .n span{display:none}#side .me{padding:7px 10px 7px 12px}#side .me .av{width:36px;height:36px}}
 /* ── liquid motion ── */
 :root{--spring:cubic-bezier(.34,1.56,.64,1);--ease-out:cubic-bezier(.22,1,.36,1)}
 .btn,.ibtn,.home,.tabs button,.chip,.conv,.row{transition:transform .35s var(--spring),background-color .25s var(--ease-out),border-color .25s,box-shadow .3s var(--ease-out),opacity .2s}
@@ -1500,6 +1516,7 @@ function rt(method, path, body, q) {
   });
 }
 function authMsg(e) {
+  if (e && e.devMsg) return e.devMsg;
   var m = e && e.message || '';
   if (/EMAIL_EXISTS/.test(m)) return 'That nickname is taken. Try another.';
   if (/INVALID_LOGIN|INVALID_PASSWORD|EMAIL_NOT_FOUND|INVALID_EMAIL/.test(m)) return 'Wrong nickname or password.';
@@ -1644,7 +1661,7 @@ $('nick-go').onclick = function () {
     var kp, blob, pubStr;
     post(IDT + 'signUp?key=' + API_KEY, { email: n + MAIL, password: pw, returnSecureToken: true }).then(applyTokens)
       .then(genEC).then(function (k) { kp = k; return Promise.all([sealPriv(k.privateKey, pw), pubToStr(k.publicKey)]); })
-      .then(function (r) { blob = r[0]; pubStr = r[1]; return rt('PUT', 'nicknames/' + n, { u: auth.uid, t: SV }); })
+      .then(function (r) { blob = r[0]; pubStr = r[1]; return devClaim(); }).then(function () { return rt('PUT', 'nicknames/' + n, { u: auth.uid, t: SV }); })
       .then(function () { return rt('PUT', 'users/' + auth.uid, n); })
       .then(function () { return rt('PUT', 'profile/' + auth.uid + '/pk', pubStr); })
       .then(function () { return rt('PUT', 'keys/' + auth.uid, blob); })
@@ -4090,22 +4107,52 @@ $('rn-strip').addEventListener('click', function (e) {
 setInterval(rnPaint, 1500);
 
 /* ── device record: lets admins ban a device and spot extra accounts made on the same one ── */
-var DEV = { id: '', fp: '', ban: '' };
+var DEV = { id: '', fp: '', ban: '', fresh: false };
+var DEVSALT = 'aperture-device-v2';
 function devHex(n) { var a = new Uint8Array(n); crypto.getRandomValues(a); return Array.prototype.map.call(a, function (b) { return ('0' + b.toString(16)).slice(-2); }).join(''); }
-function devGetId() {
-  var v = ''; try { v = localStorage.getItem('ap_dev') || ''; } catch (e) {}
-  if (!/^[a-f0-9]{32}$/.test(v)) { var m = /(?:^|; )ap_dev=([a-f0-9]{32})/.exec(document.cookie || ''); v = m ? m[1] : ''; }
-  return v;
+/* The device id is sealed (AES-GCM) before it is stored, so a casually edited or copied value is rejected rather than trusted.
+   It is kept in five places at once (localStorage, a cookie, IndexedDB, Cache Storage and the window name); if any one survives
+   a partial wipe the others are restored from it. A full "clear site data" removes all of them, which is what the
+   fingerprint match on the server side is for. */
+var DEVK = null;
+function devKey() { return DEVK || (DEVK = CS.importKey('raw', TE.encode('aperture-dev|' + location.origin), 'PBKDF2', false, ['deriveKey']).then(function (k) { return CS.deriveKey({ name: 'PBKDF2', salt: TE.encode(DEVSALT), iterations: 60000, hash: 'SHA-256' }, k, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']); })); }
+function devSeal(id) { return devKey().then(function (k) { var iv = crypto.getRandomValues(new Uint8Array(12)); return CS.encrypt({ name: 'AES-GCM', iv: iv }, k, TE.encode('ap1:' + id)).then(function (ct) { return 'v2.' + b64(iv) + '.' + b64(ct); }); }); }
+function devOpen(blob) {
+  if (!blob || typeof blob !== 'string') return Promise.resolve('');
+  if (/^[a-f0-9]{32}$/.test(blob)) return Promise.resolve(blob);                       // older plain id: adopted, then sealed
+  var p = blob.split('.'); if (p[0] !== 'v2' || p.length !== 3) return Promise.resolve('');
+  return devKey().then(function (k) { return CS.decrypt({ name: 'AES-GCM', iv: unb64(p[1]) }, k, unb64(p[2])); }).then(function (pt) { var t = TD.decode(pt); return /^ap1:[a-f0-9]{32}$/.test(t) ? t.slice(4) : ''; }).catch(function () { return ''; });
 }
-function devKeep(v) { try { localStorage.setItem('ap_dev', v); } catch (e) {} try { document.cookie = 'ap_dev=' + v + ';max-age=63072000;path=/;SameSite=Lax'; } catch (e) {} try { idbPut('dev', v).catch(function () {}); } catch (e) {} }
+function devReadAll() {
+  var out = [];
+  try { out.push(localStorage.getItem('ap_dv')); out.push(localStorage.getItem('ap_dev')); } catch (e) {}
+  try { var m = /(?:^|; )ap_dv=([^;]+)/.exec(document.cookie || ''); if (m) out.push(decodeURIComponent(m[1])); } catch (e) {}
+  try { if (/^apdv:/.test(window.name || '')) out.push(window.name.slice(5)); } catch (e) {}
+  var jobs = [idbGet('dv').catch(function () { return null; }), idbGet('dev').catch(function () { return null; })];
+  if (window.caches) jobs.push(caches.open('ap-dev').then(function (c) { return c.match('/__dv'); }).then(function (r) { return r ? r.text() : null; }).catch(function () { return null; }));
+  return Promise.all(jobs).then(function (x) { return out.concat(x).filter(Boolean); });
+}
+function devKeep(id) {
+  return devSeal(id).then(function (blob) {
+    try { localStorage.setItem('ap_dv', blob); } catch (e) {}
+    try { document.cookie = 'ap_dv=' + encodeURIComponent(blob) + ';max-age=63072000;path=/;SameSite=Lax'; } catch (e) {}
+    try { var w = window.name || ''; if (!w || /^apdv:/.test(w)) window.name = 'apdv:' + blob; } catch (e) {}
+    var jobs = [idbPut('dv', blob).catch(function () {})];
+    if (window.caches) jobs.push(caches.open('ap-dev').then(function (c) { return c.put('/__dv', new Response(blob)); }).catch(function () {}));
+    return Promise.all(jobs);
+  });
+}
 function devFp() {
-  var gl = ''; try { var cv = document.createElement('canvas'), g = cv.getContext('webgl'), x = g && g.getExtension('WEBGL_debug_renderer_info'); gl = x ? g.getParameter(x.UNMASKED_RENDERER_WEBGL) : ''; } catch (e) {}
-  var raw = [navigator.userAgent, navigator.platform, navigator.language, screen.width + 'x' + screen.height + 'x' + screen.colorDepth, Intl.DateTimeFormat().resolvedOptions().timeZone, navigator.hardwareConcurrency || '', navigator.deviceMemory || '', gl].join('|');
+  var gl = '', cv2 = '';
+  try { var cv = document.createElement('canvas'), g = cv.getContext('webgl'), x = g && g.getExtension('WEBGL_debug_renderer_info'); gl = x ? g.getParameter(x.UNMASKED_RENDERER_WEBGL) + '/' + g.getParameter(x.UNMASKED_VENDOR_WEBGL) + '/' + g.getParameter(g.MAX_TEXTURE_SIZE) : ''; } catch (e) {}
+  try { var c = document.createElement('canvas'); c.width = 200; c.height = 40; var q = c.getContext('2d'); q.textBaseline = 'top'; q.font = '16px Arial'; q.fillStyle = '#f60'; q.fillRect(2, 2, 60, 20); q.fillStyle = '#069'; q.fillText('Aperture ☃ fp 1.0', 4, 8); q.strokeStyle = 'rgba(102,204,0,.6)'; q.arc(120, 20, 14, 0, 6.2); q.stroke(); cv2 = c.toDataURL().slice(-120); } catch (e) {}
+  var raw = [navigator.userAgent, navigator.platform, navigator.language, (navigator.languages || []).join(','), screen.width + 'x' + screen.height + 'x' + screen.colorDepth + '@' + (window.devicePixelRatio || 1), Intl.DateTimeFormat().resolvedOptions().timeZone, navigator.hardwareConcurrency || '', navigator.deviceMemory || '', navigator.maxTouchPoints || 0, gl, cv2].join('|');
   return CS.digest('SHA-256', TE.encode(raw)).then(function (b) { return Array.prototype.map.call(new Uint8Array(b).slice(0, 8), function (x) { return ('0' + x.toString(16)).slice(-2); }).join(''); });
 }
 function devInit() {
-  var v = devGetId(); var ready = v ? Promise.resolve(v) : idbGet('dev').then(function (x) { return /^[a-f0-9]{32}$/.test(x || '') ? x : ''; }).catch(function () { return ''; });
-  return ready.then(function (x) { DEV.id = x || devHex(16); devKeep(DEV.id); return devFp(); }).then(function (f) { DEV.fp = f; return devCheck(); }).catch(function () {});
+  return devReadAll().then(function (all) { return Promise.all(all.map(devOpen)); }).then(function (ids) {
+    var id = ids.filter(Boolean)[0] || ''; DEV.fresh = !id; DEV.id = id || devHex(16); return devKeep(DEV.id);   // restores every layer from whichever survived
+  }).then(devFp).then(function (f) { DEV.fp = f; return devCheck(); }).catch(function () {});
 }
 function devCheck() {
   if (!DEV.id) return Promise.resolve();
@@ -4115,12 +4162,36 @@ function devCheck() {
     if (DEV.ban && auth.uid && me) signOut('This device has been banned from Messages: ' + DEV.ban);
   });
 }
+function devLive(u) { return u && u !== auth.uid ? rt('GET', 'users/' + u).then(function (n) { return !!n; }).catch(function () { return false; }) : Promise.resolve(false); }
+/* called while creating an account: enforces "one account per device" and records the device before the account is written */
+function devClaim() {
+  if (!DEV.id) return Promise.resolve();
+  return Promise.all([rt('GET', 'config/oneperdevice').catch(function () { return null; }), rt('GET', 'config/fpstrict').catch(function () { return null; }), rt('GET', 'devown/' + DEV.id).catch(function () { return null; }), rt('GET', 'devallow/' + DEV.id).catch(function () { return null; }), DEV.fp ? rt('GET', 'fpmap/' + DEV.fp).catch(function () { return null; }) : Promise.resolve(null)]).then(function (r) {
+    var one = r[0] === true, strict = r[1] === true, own = r[2], allow = !!r[3], fm = r[4];
+    return Promise.all([devLive(own && own.u), devLive(fm && fm.id !== DEV.id && fm.u)]).then(function (l) {
+      if (one && !allow && l[0]) throw { devMsg: 'This device already has an account. Sign in to that one instead of making a new one. If several people really share this device, ask an administrator.' };
+      if (one && strict && !allow && l[1]) throw { devMsg: 'This device looks like one that already has an account. If that is not right, ask an administrator.' };
+      return rt('PUT', 'devices/' + auth.uid, { id: DEV.id, fp: DEV.fp || '0000000000000000', ua: (navigator.userAgent || '').slice(0, 120), ts: SV })
+        .then(function () { return rt('PUT', 'devown/' + DEV.id, { u: auth.uid, ts: SV }).catch(function () {}); });
+    });
+  });
+}
 function devRegister() {
   if (!DEV.id || !auth.uid) return;
   rt('PUT', 'devices/' + auth.uid, { id: DEV.id, fp: DEV.fp || '0000000000000000', ua: (navigator.userAgent || '').slice(0, 120), ts: SV }).catch(function () {});
   rt('PUT', 'devidx/' + DEV.id + '/' + auth.uid, SV).catch(function () {});
   if (DEV.fp) rt('PUT', 'fpidx/' + DEV.fp + '/' + auth.uid, SV).catch(function () {});
   rt('PUT', 'consent/' + auth.uid, { v: '2026-10', ts: SV }).catch(function () {});
+  rt('GET', 'devown/' + DEV.id).then(function (o) { if (!o || o.u === auth.uid) return rt('PUT', 'devown/' + DEV.id, { u: auth.uid, ts: SV }); return devLive(o.u).then(function (live) { if (!live) return rt('PUT', 'devown/' + DEV.id, { u: auth.uid, ts: SV }); }); }).catch(function () {});
+  /* wiped-data check: same fingerprint as an existing live account but a different device id */
+  if (DEV.fp) rt('GET', 'fpmap/' + DEV.fp).then(function (f) {
+    if (!f) return rt('PUT', 'fpmap/' + DEV.fp, { id: DEV.id, u: auth.uid, ts: SV });
+    if (f.u === auth.uid) return;
+    return devLive(f.u).then(function (live) {
+      if (!live) return rt('PUT', 'fpmap/' + DEV.fp, { id: DEV.id, u: auth.uid, ts: SV });
+      if (f.id !== DEV.id) return rt('PUT', 'flags/' + newKey(), { u: auth.uid, o: f.u, k: DEV.fresh ? 'fresh-id-same-fp' : 'same-fp', ts: SV });
+    });
+  }).catch(function () {});
 }
 devInit(); setInterval(function () { devCheck(); }, 120000); setInterval(function () { if (auth.uid && me && !devRegister._d) { devRegister._d = 1; devRegister(); } }, 4000);
 (function () { var o = $('nick-go').onclick; $('nick-go').onclick = function () { if (DEV.ban) { $('gate-err').textContent = 'This device has been banned from Messages: ' + DEV.ban; return; } return o.apply(this, arguments); }; })();
