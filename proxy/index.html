@@ -70,9 +70,19 @@ function normalizeTarget(raw) {
     var scope = new URL("./", location.href).pathname;      // e.g. /proxy/
 
     status("STARTING SERVICE WORKER...");
-    var reg = await navigator.serviceWorker.register("./sw.js", { scope: scope });
+    var reg = await navigator.serviceWorker.register("./sw.js", { scope: scope, updateViaCache: "none" });
+    // If an older worker (e.g. the previous proxy version) is installed, force the update and wait until the NEW
+    // worker is active, because the controller must talk to the worker that actually handles requests.
+    try { await reg.update(); } catch (e) {}
+    var sw = reg.installing || reg.waiting || reg.active;
+    if (sw && sw.state !== "activated") {
+      await new Promise(function (resolve) {
+        sw.addEventListener("statechange", function () { if (sw.state === "activated") resolve(); });
+        setTimeout(resolve, 8000);
+      });
+    }
     await navigator.serviceWorker.ready;
-    var sw = reg.active || reg.waiting || reg.installing;
+    sw = reg.active || sw;
 
     var wisp = await pickWisp(q.get("wisp"));
     var transport = new LibcurlTransport.LibcurlClient({ websocket: wisp });
