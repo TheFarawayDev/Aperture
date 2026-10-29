@@ -163,7 +163,7 @@ dialog.closing{animation:dlgx .2s ease-in forwards}
 .toast{animation:toastin .5s var(--spring) both}
 @keyframes toastin{from{opacity:0;transform:translate(-50%,20px) scale(.9)}to{opacity:1;transform:translate(-50%,0)}}
 .bc-bar{animation:bcin .55s var(--spring) both}@keyframes bcin{from{opacity:0;transform:translate(-50%,-20px) scale(.95)}to{opacity:1;transform:translate(-50%,0)}}
-.av{transition:transform .4s var(--spring)}.av:hover{transform:scale(1.08) rotate(-3deg)}
+
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 /* app */
 #app{flex:none;display:grid;grid-template-columns:330px minmax(0,1fr);grid-template-rows:minmax(0,1fr);min-height:0;height:calc(100vh - 88px);height:calc(100dvh - 88px);min-height:320px;overflow:hidden}
@@ -1535,13 +1535,25 @@ function applyFrame(el, uid) {
   if (f) { el.classList.add('frame-' + f.s); if (f.c) el.style.setProperty('--fc', f.c); }
   else if (uid && frames[uid] === undefined && me) wantFrame(uid);
 }
+var picImg = {};
 function avatar(el, uid, name, group) {
-  el.dataset.au = uid || ''; el.dataset.av = name || ''; el.dataset.g = group ? 1 : 0; el.style.background = colorFor(name || uid || '?');
+  var url = !group && uid && pics[uid] ? pics[uid] : '', kid = el.firstElementChild;
+  var sameImg = url && kid && kid.tagName === 'IMG' && kid.getAttribute('src') === url;
+  var sameGrp = group && kid && kid.tagName === 'I' && el.dataset.g === '1';
+  el.dataset.au = uid || ''; el.dataset.av = name || ''; el.dataset.g = group ? 1 : 0;
   applyFrame(el, uid);
-  if (group) { el.innerHTML = '<i class="fa-solid fa-user-group" style="font-size:14px"></i>'; return; }
-  el.textContent = (name || '?').charAt(0).toUpperCase();
-  if (uid && pics[uid]) { var im = new Image(); im.alt = ''; im.referrerPolicy = 'no-referrer'; im.onload = function () { el.textContent = ''; el.appendChild(im); el.style.background = 'var(--surface-3)'; }; im.src = pics[uid]; }
-  else if (uid && pics[uid] === undefined && me) wantPic(uid);
+  if (sameImg || sameGrp) return;                                   // already showing the right thing: leave it alone
+  if (group) { el.style.background = colorFor(name || uid || '?'); el.innerHTML = '<i class="fa-solid fa-user-group" style="font-size:14px"></i>'; return; }
+  if (url) {
+    var hit = picImg[url];
+    if (hit && hit.complete && hit.naturalWidth) { var c = hit.cloneNode(); el.textContent = ''; el.appendChild(c); el.style.background = 'var(--surface-3)'; return; }   // painted instantly from cache
+    if (!(kid && kid.tagName === 'IMG')) { el.style.background = colorFor(name || uid || '?'); el.textContent = (name || '?').charAt(0).toUpperCase(); }
+    var im = new Image(); im.alt = ''; im.referrerPolicy = 'no-referrer'; im.decoding = 'sync';
+    im.onload = function () { picImg[url] = im; if (el.dataset.au === (uid || '') && pics[uid] === url) { el.textContent = ''; el.appendChild(im.cloneNode()); el.style.background = 'var(--surface-3)'; } };
+    im.src = url; return;
+  }
+  el.style.background = colorFor(name || uid || '?'); el.textContent = (name || '?').charAt(0).toUpperCase();
+  if (uid && pics[uid] === undefined && me) wantPic(uid);
 }
 function refreshAvatars() { document.querySelectorAll('[data-av]').forEach(function (el) { avatar(el, el.dataset.au, el.dataset.av, el.dataset.g === '1'); }); }
 function dmId(a, b) { return a < b ? a + '~' + b : b + '~' + a; }
@@ -3772,21 +3784,22 @@ function presLabel(uid) {
   if (!pres[uid]) return null;                // not heard back yet: say nothing rather than guess
   if (st === 'unk') return 'Direct message';  // they have never reported a status (older page)
   if (st === 'on') return 'Online'; if (st === 'idle') return 'Idle'; if (st === 'dnd') return 'Do not disturb';
-  var p = pres[uid]; if (p.s !== 'off' && p.t) return 'Offline · last seen ' + presAgo(sNow() - p.t); return 'Offline';
+  var p = pres[uid], lt = p.lo || (p.s !== 'off' ? p.t : 0); return lt ? 'Last online ' + presAgo(sNow() - lt) : 'Offline';
 }
 var lastOk = 0, lastSkew = 0, pushing = false;
 function pushPres(force) {
   if (!auth.uid || !me || covered || pushing) return; var m = myMode(), now = Date.now();
   if (!force && m === lastSent && now - lastPush < 18000) return; lastSent = m; lastPush = now; pushing = true;
   var t0 = Date.now();
-  rt('PUT', 'presence/' + auth.uid, { s: m, t: SV }).then(function () {
+  var body = { s: m, t: SV }; if (m !== 'off') { body.lo = SV; store.lo = Date.now() + presSkew; } if (m === 'off' && store.lo) body.lo = store.lo;
+  rt('PUT', 'presence/' + auth.uid, body).then(function () {
     lastOk = Date.now();
     if (!lastSkew || Date.now() - lastSkew > 120000) { lastSkew = Date.now(); return rt('GET', 'presence/' + auth.uid + '/t').then(function (t) { if (typeof t === 'number') presSkew = t - (Date.now() + t0) / 2; }); }
   }).catch(function () { lastSent = ''; }).then(function () { pushing = false; });
 }
 function presOff() {
   if (!auth.uid || !auth.token) return;
-  try { fetch(DB_URL + '/' + DB_ROOT + '/presence/' + auth.uid + '.json?auth=' + encodeURIComponent(auth.token), { method: 'PUT', keepalive: true, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ s: 'off', t: { '.sv': 'timestamp' } }) }); } catch (e) {}
+  try { fetch(DB_URL + '/' + DB_ROOT + '/presence/' + auth.uid + '.json?auth=' + encodeURIComponent(auth.token), { method: 'PUT', keepalive: true, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(store.lo ? { s: 'off', t: { '.sv': 'timestamp' }, lo: { '.sv': 'timestamp' } } : { s: 'off', t: { '.sv': 'timestamp' } }) }); } catch (e) {}
   lastSent = '';
 }
 ['pointerdown', 'keydown', 'touchstart', 'wheel'].forEach(function (ev) { document.addEventListener(ev, function () { var was = Date.now() - lastAct > 300000; lastAct = Date.now(); if (was) pushPres(true); }, { passive: true, capture: true }); });
@@ -3796,8 +3809,8 @@ document.addEventListener('visibilitychange', function () { if (!document.hidden
 function presMerge(uid, v) {
   var old = pres[uid], now = Date.now();
   if (!v || typeof v.t !== 'number') { pres[uid] = { rec: false, at: now }; return; }
-  if (old && old.rec) { var moved = v.t !== old.t; pres[uid] = { s: v.s, t: v.t, rec: true, at: now, first: moved ? now : old.first, moved: moved || old.moved, offSince: old.offSince, disp: old.disp }; }
-  else pres[uid] = { s: v.s, t: v.t, rec: true, at: now, first: now, moved: false };
+  if (old && old.rec) { var moved = v.t !== old.t; pres[uid] = { s: v.s, t: v.t, lo: typeof v.lo === 'number' ? v.lo : 0, rec: true, at: now, first: moved ? now : old.first, moved: moved || old.moved, offSince: old.offSince, disp: old.disp }; }
+  else pres[uid] = { s: v.s, t: v.t, lo: typeof v.lo === 'number' ? v.lo : 0, rec: true, at: now, first: now, moved: false };
 }
 function presGet(uid) {
   return rt('GET', 'presence/' + uid).then(function (v) { presMerge(uid, v); return pstat(uid); }).catch(function () { return pstat(uid); });
