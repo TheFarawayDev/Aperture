@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aperture Proxy</title>
+<style>
+  html,body{margin:0;height:100%;background:#0b0f15;color:#b4c0cf;font:600 12px ui-monospace,Menlo,monospace}
+  #msg{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:0 20px;letter-spacing:.05em}
+  #msg.hide{display:none}
+  #msg.err{color:#f0a0a7}
+  #sjf{position:fixed;inset:0;width:100%;height:100%;border:0;background:#fff}
+</style>
+</head>
+<body>
+<div id="msg">STARTING PROXY...</div>
+<script src="./scram/scramjet.all.js"></script>
+<script src="./baremux/index.js"></script>
+<script>
+"use strict";
+/* Public Wisp servers, tried in order. They are free community servers and come and go, so
+   paste your own into ?wisp=wss://your-server/ (it is remembered) or add it to this list. */
+var WISP_SERVERS = [
+  "wss://wisp.mercurywork.shop/",
+  "wss://anura.pro/",
+  "wss://wisp.rhw.one/wisp/"
+];
+
+var msg = document.getElementById("msg");
+function status(t, err) { msg.className = err ? "err" : ""; msg.textContent = t; }
+function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } }
+
+function probe(url, ms) {
+  return new Promise(function (res) {
+    var done = false, ws;
+    function fin(ok) { if (done) return; done = true; try { ws.close(); } catch (e) {} res(ok); }
+    try { ws = new WebSocket(url); } catch (e) { return res(false); }
+    ws.onopen = function () { fin(true); };
+    ws.onerror = function () { fin(false); };
+    setTimeout(function () { fin(false); }, ms);
+  });
+}
+async function pickWisp(custom) {
+  var list = [];
+  if (custom) list.push(custom);
+  var saved = store("aperture:wisp"); if (saved) list.push(saved);
+  list = list.concat(WISP_SERVERS).filter(function (u, i, a) { return a.indexOf(u) === i; });
+  for (var i = 0; i < list.length; i++) {
+    status("CONNECTING TO " + list[i].replace(/^wss?:\/\//, "").toUpperCase() + "...");
+    if (await probe(list[i], 5000)) { store("aperture:wisp", list[i]); return list[i]; }
+  }
+  throw new Error("No Wisp server reachable. Add your own with ?wisp=wss://your-server/");
+}
+
+function normalizeTarget(raw) {
+  raw = (raw || "").trim();
+  if (!raw) return "";
+  if (/^https?:\/\//i.test(raw)) return raw;
+  if (/^[^\s]+\.[a-z]{2,}([\/?#:].*)?$/i.test(raw)) return "https://" + raw;
+  return "https://duckduckgo.com/?q=" + encodeURIComponent(raw);
+}
+
+(async function main() {
+  try {
+    var q = new URLSearchParams(location.search);
+    var target = normalizeTarget(q.get("url") || decodeURIComponent(location.hash.slice(1)));
+    if (!("serviceWorker" in navigator)) throw new Error("Service workers unavailable here (needs https and a normal browser context).");
+
+    var base = new URL("./", location.href);
+    var scope = base.pathname;                              // e.g. /Aperture/proxy/
+    var controller = new (($scramjetLoadController()).ScramjetController)({
+      prefix: scope + "service/",
+      files: {
+        wasm: scope + "scram/scramjet.wasm.wasm",
+        all: scope + "scram/scramjet.all.js",
+        sync: scope + "scram/scramjet.sync.js"
+      }
+    });
+    await controller.init();
+
+    // Register the worker only AFTER init(): init creates the config database the worker reads.
+    await navigator.serviceWorker.register("./sw.js", { scope: scope });
+    await navigator.serviceWorker.ready;
+
+    var wisp = await pickWisp(q.get("wisp"));
+    var conn = new BareMux.BareMuxConnection(scope + "baremux/worker.js");
+    await conn.setTransport(scope + "libcurl/index.mjs", [{ websocket: wisp }]);
+
+    if (!target) { status("READY. Open this page with ?url=https://example.com"); return; }
+
+    var f = controller.createFrame();
+    f.frame.id = "sjf";
+    f.frame.setAttribute("allow", "autoplay; encrypted-media; fullscreen; picture-in-picture; clipboard-write; clipboard-read");
+    f.frame.setAttribute("allowfullscreen", "");
+    document.body.appendChild(f.frame);
+    msg.className = "hide";
+    f.go(target);
+    window.__sj = f;
+  } catch (e) {
+    status("PROXY ERROR: " + (e && e.message || e), true);
+    console.error(e);
+  }
+})();
+</script>
+</body>
+</html>
