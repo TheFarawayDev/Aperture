@@ -41,16 +41,34 @@ function probe(url, ms) {
     setTimeout(function () { fin(false); }, ms);
   });
 }
+// A server only counts as working if it can really complete an HTTPS request (TLS handshake included).
+// Many public Wisp servers accept the websocket but fail every site with "SSL connect error".
+async function verify(url) {
+  if (!(await probe(url, 5000))) return false;
+  if (!/^wss:/i.test(url)) return true;              // local/dev servers: the websocket check is enough
+  try {
+    var t = new LibcurlTransport.LibcurlClient({ websocket: url });
+    await t.init();
+    var ctrl = new AbortController();
+    var to = setTimeout(function () { ctrl.abort(); }, 10000);
+    var r = await t.request(new URL("https://example.com/"), "GET", null, [], ctrl.signal);
+    clearTimeout(to);
+    return !!r && r.status >= 200 && r.status < 500;
+  } catch (e) { console.warn("Wisp test failed for " + url + ":", e && e.message || e); return false; }
+}
 async function pickWisp(custom) {
   var list = [];
   if (custom) list.push(custom);
   var saved = store("aperture:wisp"); if (saved) list.push(saved);
   list = list.concat(WISP_SERVERS).filter(function (u, i, a) { return a.indexOf(u) === i; });
+  var tried = [];
   for (var i = 0; i < list.length; i++) {
-    status("CONNECTING TO " + list[i].replace(/^wss?:\/\//, "").toUpperCase() + "...");
-    if (await probe(list[i], 5000)) { store("aperture:wisp", list[i]); return list[i]; }
+    status("TESTING " + list[i].replace(/^wss?:\/\//, "").toUpperCase() + "...");
+    if (await verify(list[i])) { store("aperture:wisp", list[i]); return list[i]; }
+    tried.push(list[i]);
   }
-  throw new Error("No Wisp server reachable. Add your own with ?wisp=wss://your-server/");
+  store("aperture:wisp", "");
+  throw new Error("No working Wisp server (tried " + tried.length + "). Public servers often fail; deploy your own and use ?wisp=wss://your-server/");
 }
 
 function normalizeTarget(raw) {
