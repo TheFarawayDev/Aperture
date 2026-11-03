@@ -1658,16 +1658,28 @@ $('nick-go').onclick = function () {
   if (gateMode === 'up') {
     if (pw !== $('pw2').value) { err.textContent = 'The two passwords do not match.'; setBusy(false); return; }
     if (!$('consent').checked) { err.textContent = 'Please confirm that you are 13 or older, that you understand chats are monitored, and that you agree to the Terms and Privacy Policy.'; setBusy(false); return; }
-    var kp, blob, pubStr;
+    var kp, blob, pubStr, step = 'auth', claimed = false;
     post(IDT + 'signUp?key=' + API_KEY, { email: n + MAIL, password: pw, returnSecureToken: true }).then(applyTokens)
-      .then(genEC).then(function (k) { kp = k; return Promise.all([sealPriv(k.privateKey, pw), pubToStr(k.publicKey)]); })
-      .then(function (r) { blob = r[0]; pubStr = r[1]; return devClaim(); }).then(function () { return rt('PUT', 'nicknames/' + n, { u: auth.uid, t: SV }); })
-      .then(function () { return rt('PUT', 'users/' + auth.uid, n); })
+      .then(function () { step = 'keys'; return genEC(); }).then(function (k) { kp = k; return Promise.all([sealPriv(k.privateKey, pw), pubToStr(k.publicKey)]); })
+      .then(function (r) { blob = r[0]; pubStr = r[1]; step = 'device'; return devClaim(); })
+      .then(function () { step = 'nick'; return rt('GET', 'nicknames/' + n); })
+      .then(function (ex) { if (ex) throw { TAKEN: true }; return rt('PUT', 'nicknames/' + n, { u: auth.uid, t: SV }); })
+      .then(function () { claimed = true; step = 'save'; return rt('PUT', 'users/' + auth.uid, n); })
       .then(function () { return rt('PUT', 'profile/' + auth.uid + '/pk', pubStr); })
       .then(function () { return rt('PUT', 'keys/' + auth.uid, blob); })
-      .then(function () { return openPriv(blob, pw); })
+      .then(function () { step = 'open'; return openPriv(blob, pw); })
       .then(function (priv) { store.consent = { v: 2, t: Date.now() }; store.read = {}; store.blocks = {}; pubCache[auth.uid] = pubStr; return afterAuth(n, priv); })
-      .catch(function (e) { err.textContent = authMsg(e); if (e && e.status === 401 && /noauth/.test(e.message)) err.textContent = 'Could not finish creating the account. Try signing in.'; if (auth.token && !store.nick) { post(IDT + 'delete?key=' + API_KEY, { idToken: auth.token }).catch(function () {}); store.refresh = ''; auth.token = ''; save(); if (e && (e.status === 401 || e.status === 403 || /Permission/i.test(e.message || ''))) err.textContent = 'That nickname is taken, or the database rules blocked the request.'; } })
+      .catch(function (e) {
+        if (e && e.TAKEN) err.textContent = 'That nickname is taken. Try another.';
+        else if (e && e.devMsg) err.textContent = e.devMsg;
+        else if (step === 'auth') err.textContent = authMsg(e);
+        else if (step === 'nick' || step === 'save') err.textContent = (e && (e.status === 401 || e.status === 403)) ? 'That nickname is taken, or the database rules blocked the request.' : 'Could not save your account. Check your connection and try again.';
+        else err.textContent = 'Could not finish creating the account. Please try again.';
+        if (auth.token && !store.nick) {
+          var tok = auth.token, undo = claimed ? rt('DELETE', 'nicknames/' + n).catch(function () {}) : Promise.resolve();   // give the nickname back so a retry is not told it is taken
+          return undo.then(function () { return post(IDT + 'delete?key=' + API_KEY, { idToken: tok }); }).catch(function () {}).then(function () { store.refresh = ''; auth.token = ''; auth.exp = 0; auth.uid = ''; save(); });
+        }
+      })
       .then(function () { setBusy(false); });
   } else {
     post(IDT + 'signInWithPassword?key=' + API_KEY, { email: n + MAIL, password: pw, returnSecureToken: true }).then(applyTokens)
@@ -4172,6 +4184,7 @@ function devClaim() {
       if (one && !allow && l[0]) throw { devMsg: 'This device already has an account. Sign in to that one instead of making a new one. If several people really share this device, ask an administrator.' };
       if (one && strict && !allow && l[1]) throw { devMsg: 'This device looks like one that already has an account. If that is not right, ask an administrator.' };
       return rt('PUT', 'devices/' + auth.uid, { id: DEV.id, fp: DEV.fp || '0000000000000000', ua: (navigator.userAgent || '').slice(0, 120), ts: SV })
+        .catch(function () {})   // best effort: devRegister() records the device again right after sign-up, so a refused write must not block the account
         .then(function () { return rt('PUT', 'devown/' + DEV.id, { u: auth.uid, ts: SV }).catch(function () {}); });
     });
   });
