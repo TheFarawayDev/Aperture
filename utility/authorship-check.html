@@ -298,6 +298,8 @@ details.note p { margin: 6px 0 0; color: var(--text-2); }
 .cautions { margin: 0; padding: 0; list-style: none; }
 .cautions li { display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: 8px; font-size: 13px; color: var(--text-2); padding: 6px 0; }
 .cautions li svg { width: 16px; height: 16px; color: var(--warn); margin-top: 2px; }
+.cautions li.askq svg { color: var(--accent); }
+#askbox { margin-top: 14px; }
 .gchip { display: inline-flex; margin-left: 8px; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: var(--surface-2); color: var(--text-2); vertical-align: middle; }
 .helpmask { position: fixed; inset: 0; z-index: 80; background: rgba(8,11,15,.66); backdrop-filter: blur(4px); display: flex; align-items: flex-start; justify-content: center; padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); overflow-y: auto; }
 .helpmask[hidden] { display: none; }
@@ -392,6 +394,7 @@ details.note p { margin: 6px 0 0; color: var(--text-2); }
         <div class="section-head"><h2 id="h-ev">Why this result</h2><span>both sides shown</span></div>
         <div id="evidence"></div>
         <div id="cautionbox"></div>
+        <div id="askbox"></div>
       </section>
       <details class="card fold" id="sigfold">
         <summary><h2 id="h-sg">Signal readout</h2><span class="sub">0 human · 100 machine</span><svg class="i chev" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></summary>
@@ -443,7 +446,7 @@ details.note p { margin: 6px 0 0; color: var(--text-2); }
       <div class="fgroup" id="f-kind"><span>Label</span>
         <button class="chipbtn" type="button" data-f="all" aria-pressed="true">All</button><button class="chipbtn" type="button" data-f="ai" aria-pressed="false">AI-written</button><button class="chipbtn" type="button" data-f="human" aria-pressed="false">Human-written</button><button class="chipbtn" type="button" data-f="mixed" aria-pressed="false">Mixed</button></div>
       <div class="fgroup" id="f-type"><span>Type</span>
-        <button class="chipbtn" type="button" data-f="all" aria-pressed="true">All</button><button class="chipbtn" type="button" data-f="essay" aria-pressed="false">Essays</button><button class="chipbtn" type="button" data-f="poem" aria-pressed="false">Poems</button><button class="chipbtn" type="button" data-f="grade" aria-pressed="false">Grade levels</button></div>
+        <button class="chipbtn" type="button" data-f="all" aria-pressed="true">All</button><button class="chipbtn" type="button" data-f="essay" aria-pressed="false">Essays</button><button class="chipbtn" type="button" data-f="poem" aria-pressed="false">Poems</button><button class="chipbtn" type="button" data-f="grade" aria-pressed="false">Grade levels</button><button class="chipbtn" type="button" data-f="short" aria-pressed="false">Short texts</button></div>
       <div class="fgroup" id="f-set"><span>Set</span>
         <button class="chipbtn" type="button" data-f="all" aria-pressed="true">All</button><button class="chipbtn" type="button" data-f="tune" aria-pressed="false">Tuning set</button><button class="chipbtn" type="button" data-f="blind" aria-pressed="false">Blind set</button></div>
     </div>
@@ -455,7 +458,7 @@ details.note p { margin: 6px 0 0; color: var(--text-2); }
   <div class="helpdlg" role="dialog" aria-modal="true" aria-labelledby="h-help" tabindex="-1" id="helpdlg">
     <div class="helphead"><h2 id="h-help">Help</h2><button class="tool-btn" id="helpclose" type="button" aria-label="Close help">Close</button></div>
     <details open><summary>Quick start</summary>
-      <ol><li>Paste the writing into <b>Text to check</b> (25 words or more, 80+ works best).</li><li>Open <b>Settings</b> and pick the grade level. Change <b>Who wrote it</b> for English learners or lab work.</li><li>Press <b>Check text</b>. Read the verdict, then the sentences that are highlighted.</li><li>Use <b>Copy report</b> to keep a summary.</li></ol></details>
+      <ol><li>Paste the writing into <b>Text to check</b> (15 words or more; 80+ works better, 150+ best).</li><li>Open <b>Settings</b> and pick the grade level. Change <b>Who wrote it</b> for English learners or lab work.</li><li>Press <b>Check text</b>. Read the verdict, then the sentences that are highlighted.</li><li>Use <b>Copy report</b> to keep a summary.</li></ol></details>
     <details><summary>What each setting does</summary>
       <ul><li><b>Type.</b> Essay or poem. Auto-detect looks for short lines in stanzas. Poems are scored line by line on cliché imagery, abstract nouns, rhyme and line evenness.</li>
       <li><b>Grade level.</b> A younger writer using polished words is a stronger signal. Elementary and middle school also expect shorter sentences.</li>
@@ -662,6 +665,40 @@ const PHRASES = [
   [/\b(?:potential )?sources? of error\b/gi, 0.6, 'Lab-report boilerplate'],
   [/\bfuture (?:experiments|research|studies) (?:could|should|may)\b/gi, 1.0, 'Lab-report boilerplate'],
   [/\bgenerations? of (?:readers|students)\b/gi, 0.8, 'Stock phrase'],
+  // --- v4 additions: short-answer, listicle, brochure and fiction tells ---
+  [/\b(?:here(?:'|’)s the thing|let(?:'|’)s (?:dive|delve|unpack|break (?:it|this) down|explore)|buckle up|without further ado)\b/gi, 1.8, 'Chatbot opener'],
+  [/\b(?:navigate|navigating) the (?:complexit|challeng|landscape|intricac|nuance|world)/gi, 2.0, 'Stock phrase'],
+  [/\b(?:a|stands? as a|serves? as a|is a) (?:true |powerful |living |clear |enduring |lasting )?(?:testament|beacon|cornerstone|linchpin|tapestry) (?:to|of|for)\b/gi, 2.2, 'Stock metaphor'],
+  [/\b(?:game[- ]chang(?:er|ing)|paradigm shift|cutting[- ]edge|state[- ]of[- ]the[- ]art|best[- ]in[- ]class|next[- ]level)\b/gi, 1.4, 'Marketing cliché'],
+  [/\b(?:unlock|unleash|harness|elevate|empower|supercharge|revolutioni[sz]e) (?:the )?(?:power|potential|full potential|your|their|its|a new)/gi, 1.8, 'Marketing cliché'],
+  [/\b(?:ever[- ]evolving|ever[- ]changing|ever[- ]growing|rapidly (?:evolving|changing)) (?:landscape|world|field|environment|nature)/gi, 2.2, 'Stock phrase'],
+  [/\b(?:underscores?|highlights?|showcases?|exemplif(?:y|ies)|illuminates?) (?:the )?(?:importance|significance|need|role|value|power|fact|critical)/gi, 1.8, 'Stock phrase'],
+  [/\b(?:fosters?|cultivates?|nurtures?) (?:a )?(?:sense|culture|environment|spirit|understanding|deeper|collaboration|innovation)/gi, 1.6, 'Stock phrase'],
+  [/\b(?:leverag(?:e|es|ing)|utili[sz](?:e|es|ing)) (?:the )?(?:power|strengths?|potential|insights?|technolog|tools?|resources)/gi, 1.4, 'Corporate wording'],
+  [/\b(?:seamless(?:ly)?|robust (?:framework|solution|system|approach)|holistic (?:approach|view|understanding|perspective)|comprehensive (?:understanding|overview|approach|guide|analysis))\b/gi, 1.4, 'Stock phrase'],
+  [/\b(?:it(?:'|’)s|this is|that(?:'|’)s) not (?:just|merely|simply|only) (?:about )?[^.!?;—–-]{2,48}[,;—–-]+\s*(?:it(?:'|’)s|this is|that(?:'|’)s|but)\b/gi, 2.2, 'Not-just-X-but-Y'],
+  [/\b(?:isn(?:'|’)t|aren(?:'|’)t|wasn(?:'|’)t) (?:just|merely|simply|only) (?:about )?[^.!?;—–-]{2,48}[,;—–-]+\s*(?:it(?:'|’)s|but|they(?:'|’)re|it was)\b/gi, 2.2, 'Not-just-X-but-Y'],
+  [/\b(?:not|never) (?:about|a matter of) [^.!?;]{2,40}(?:—|–|;|,)\s*(?:it(?:'|’)s|but) (?:about|a matter of)\b/gi, 1.8, 'Not-X-but-Y'],
+  [/\b(?:comes|boils) down to\b|\bat the end of the day\b|\bthe bottom line\b|\bin a nutshell\b|\bthe key takeaway/gi, 1.4, 'Wrap-up phrase'],
+  [/\ba double[- ]edged sword\b|\bshed(?:s|ding)? light on\b|\bpav(?:e|es|ing) the way (?:for|to)\b|\bin the realm of\b|\bthe tip of the iceberg\b/gi, 1.6, 'Stock phrase'],
+  [/\b(?:has|have) become increasingly\b|\bit is (?:crucial|imperative|paramount|essential) (?:to|that|for)\b|\bit can be argued that\b|\bit goes without saying\b/gi, 1.8, 'Stock phrase'],
+  [/\b(?:think of (?:it|this|them) as|imagine (?:a world|a future|a scenario|a place) (?:where|in which)|picture this:?)\b/gi, 1.6, 'Explainer opener'],
+  [/\b(?:here are (?:some|a few|\d+|the) (?:key |top |simple |easy |practical |common )?(?:tips|ways|steps|things|reasons|strategies|points|factors|ideas|takeaways)|here(?:'|’)s why|let me know if (?:you|there))/gi, 1.8, 'Listicle opener'],
+  [/\b(?:stay tuned|embark(?:s|ed|ing)? on (?:a|an|this) (?:journey|adventure|quest)|a (?:journey|voyage|adventure) of (?:self[- ])?(?:discovery|growth|a lifetime))\b/gi, 1.8, 'Stock phrase'],
+  [/\b(?:a )?(?:symphony|dance|tapestry|kaleidoscope|mosaic|whisper|ballet|crescendo|labyrinth) of (?:colou?rs?|sounds?|emotions?|flavou?rs?|light|shadows?|life|memories|possibilities|cultures?|voices|ideas|experiences|hope|history)\b/gi, 2.2, 'Purple-prose cliché'],
+  [/\b(?:the )?weight of (?:the |her |his |their |my |it all|expectations|responsibility|history|the world|the moment|unspoken)/gi, 1.4, 'Fiction cliché'],
+  [/\b(?:a breath (?:she|he|they|i) (?:didn(?:'|’)t|hadn(?:'|’)t|did not|had not) (?:know|realized|realised)|let out a (?:breath|sigh) (?:she|he|they|i) (?:had|hadn))/gi, 2.4, 'Fiction cliché'],
+  [/\b(?:heart (?:pounded|hammered|raced|thundered|skipped)|(?:a )?shiver (?:ran|crept|went) (?:down|up|through)|shivers? (?:ran |crept )?down (?:her|his|my|their) spine|(?:blood|stomach) ran cold|time (?:seemed to )?(?:slow|stand still|stopped)|little did (?:she|he|they|i) know)/gi, 1.5, 'Fiction cliché'],
+  [/\b(?:in the (?:grand|big|broader|larger) scheme of things|when all is said and done|in the (?:final|last) analysis|all things considered)\b/gi, 1.4, 'Wrap-up phrase'],
+  [/\b(?:it(?:'|’)s (?:no secret|undeniable|clear|evident|safe to say|fair to say|worth (?:noting|mentioning|remembering)) that|there(?:'|’)s no denying|needless to say|suffice it to say)\b/gi, 1.8, 'Stock phrase'],
+  [/\b(?:a (?:number|variety|host|plethora|multitude|myriad) of|plethora of|myriad of|myriad (?:ways|challenges|factors|opportunities))\b/gi, 1.2, 'Stock phrase'],
+  [/\b(?:strik(?:e|es|ing) (?:the )?(?:right |a (?:delicate |fine |healthy )?)balance|delicate balance|(?:fine|thin) line between|interplay (?:between|of)|intersection of)\b/gi, 1.6, 'Stock phrase'],
+  [/\b(?:rich (?:history|heritage|tapestry|cultural)|vibrant (?:community|culture|city|atmosphere|colou?rs)|bustling (?:city|streets|market|metropolis)|breathtaking (?:views?|scenery|beauty)|nestled (?:in|within|between|among|at)|hidden gem|must[- ]visit|off the beaten (?:path|track))\b/gi, 1.4, 'Brochure cliché'],
+  // humanizer / paraphraser fingerprints: tortured synonyms and stilted rewordings
+  [/\b(?:counterfeit (?:consciousness|intelligence|brainpower)|profound (?:learning|neural)|irregular (?:woodland|backwoods|forest)|colossal (?:information|data)|man-?made (?:consciousness|brainpower)|artificial (?:neural organi[sz]ation)|bosom (?:peril|danger)|flag to clamou?r|mean square (?:blunder|error rate)|haze (?:figuring|computing)|information base)\b/gi, 3.0, 'Paraphraser synonym swap'],
+  [/\b(?:in light of the fact that|owing to the fact that|on account of the fact that|for the purpose of|with (?:regard|respect) to the (?:matter|issue) of|in the event that|with the end goal of|so as to|in order to be able to|make use of|take into consideration|bring about|come to the realization)\b/gi, 1.4, 'Stilted rewording'],
+  [/\b(?:a great deal of|a large number of|an abundance of|an extensive (?:amount|range) of|a substantial (?:amount|number|portion) of)\b/gi, 1.0, 'Stilted rewording'],
+  [/\b(?:thus|hence|thereby|therein|whereby|thereof|herein)\b/gi, 0.5, 'Formal connector'],
 ];
 
 const TRANS_STRONG = /^[^A-Za-z]*(additionally|furthermore|moreover|in addition|consequently|as a result|in conclusion|to conclude|in summary|overall|ultimately|notably|importantly|in essence|in today|moving forward|reflecting on|together)\b/i;
@@ -692,12 +729,15 @@ const GRADE = {
 };
 
 /*MODEL-START*/
-const MODEL = {"names":["burst","phrase","trans","voice","complex","spec","hz","adv","aiPer100","humPer","cv","meanLen","advRate","specFrac","transFrac","meanSent","cap","colon","commaS","commaW","contr","dialog","digit","ed","emd","excl","fk","fw_a","fw_about","fw_all","fw_also","fw_an","fw_and","fw_are","fw_as","fw_at","fw_be","fw_been","fw_but","fw_by","fw_can","fw_for","fw_from","fw_has","fw_have","fw_he","fw_her","fw_his","fw_i","fw_if","fw_in","fw_is","fw_it","fw_its","fw_may","fw_more","fw_my","fw_not","fw_of","fw_on","fw_one","fw_or","fw_she","fw_so","fw_such","fw_than","fw_that","fw_the","fw_their","fw_there","fw_these","fw_they","fw_this","fw_to","fw_was","fw_we","fw_what","fw_when","fw_which","fw_who","fw_will","fw_with","fw_would","fw_you","hapax","hyph","ing","long9","ly","mattr","modal","neg","paren","passive","pron3","pronI","pronWe","pronYou","ques","quote","semi","short3","slLong","slMax","slMean","slSd","slShort","startDiv","startI","startIn","startThe","startThis","tion","upperRatio","wlSd"],"mu":[0.57872,0.2012,0.15763,0.60886,0.50191,0.34509,0.03354,0.45007,1.41074,0.44011,0.45901,18.20974,0.19709,0.43975,0.04753,0.46858,4.24842,4.19733,1.15928,6.29504,5.08518,0.10006,0.89044,3.38504,0.25154,0.01927,10.84584,2.22204,0.17663,0.21298,0.18117,0.3288,3.35446,0.45861,0.71169,0.33986,0.47868,0.17712,0.3732,0.50835,0.37026,0.98106,0.36102,0.30812,0.43709,0.43791,0.22905,0.35515,1.0235,0.17514,1.94095,0.99606,0.75675,0.26462,0.11102,0.25803,0.39634,0.35873,2.83713,0.65952,0.23814,0.2916,0.20444,0.20308,0.14138,0.1271,0.99663,5.65776,0.42536,0.1991,0.19359,0.35319,0.54507,2.8322,0.55573,0.29842,0.14124,0.1847,0.20456,0.15573,0.29578,0.68476,0.17941,0.3488,0.39766,6.91442,3.69381,13.11392,1.30887,0.80874,13.28567,5.63647,2.48784,0.13103,22.97251,10.83228,5.61683,4.68174,0.02477,12.68331,1.24404,37.69291,0.11742,35.73622,18.20974,7.93855,0.17476,0.69079,0.04579,0.0388,0.12602,0.04323,3.93221,0.48102,2.6707],"sd":[0.35371,0.22795,0.21713,0.33753,0.42094,0.3579,0.0976,0.4456,1.60476,0.45298,0.17839,6.26499,0.09948,0.29449,0.06626,0.23291,4.10115,10.74859,0.8256,3.31906,11.10915,0.17572,1.58689,2.03377,1.20601,0.0837,4.21892,1.27588,0.36037,0.36652,0.29123,0.38836,1.68744,0.59288,0.59766,0.4814,0.58334,0.33755,0.48684,0.49624,0.59483,0.72536,0.4189,0.49941,0.62534,0.95845,0.75551,0.78794,2.10811,0.37965,1.02418,1.07873,0.83391,0.48859,0.25447,0.38152,0.99831,0.49675,1.48087,0.57577,0.36967,0.44013,0.7534,0.43764,0.2438,0.2586,0.79499,2.51948,0.61685,0.38423,0.31654,0.6262,0.54791,1.24394,0.81683,0.73373,0.32904,0.36107,0.31935,0.29913,0.54345,0.59062,0.36485,0.98982,0.089,8.14336,1.88279,7.8414,0.85139,0.04302,10.95662,6.62028,5.8146,0.14624,25.98918,22.35241,11.62557,13.14233,0.06992,24.24056,4.21073,6.53368,0.14301,13.53636,6.26499,4.00573,0.19415,0.15365,0.09947,0.0536,0.12282,0.0596,2.9425,1.17436,0.43631],"coef":[-0.2288,0.4361,0.0098,0.197,-0.0362,-0.0094,0.1694,0.1145,0.4389,-0.7029,0.018,-0.1307,-0.0369,-0.0642,-0.0141,0.484,-0.3886,-0.2313,0.0084,-0.1058,0.0221,0.1724,-0.0783,0.408,0.158,-0.4553,-0.008,0.1598,-0.0036,-0.2702,0.3305,-0.1001,0.7319,-0.0471,0.1741,-0.0263,-0.2584,0.0482,0.2104,0.2695,-0.0092,-0.2095,-0.3784,-0.1225,-0.2513,-0.3293,0.0799,0.0187,-0.1684,0.3638,-0.0944,-0.3487,0.1048,0.07,-0.1485,-0.053,0.1517,-0.4398,-0.4864,-0.1077,-0.076,0.1341,0.1238,-0.0918,-0.1067,-0.1628,0.4851,-0.0137,0.0096,-0.3561,0.1203,-0.3784,-0.2366,-0.3696,-0.6138,-0.3759,0.0932,-0.0376,-0.2179,0.1834,-0.3278,0.0464,-0.0361,-0.1975,-0.4924,-0.3882,0.3674,-0.1397,-0.0974,0.9437,-0.0316,0.1036,-1.1477,-0.3287,-0.4037,0.182,-0.0149,-0.1721,-0.3046,-0.1135,-0.9626,-0.4577,-0.4989,-0.4161,-0.1307,-0.4659,-0.0594,-0.2457,0.0721,-0.1162,0.1352,0.201,0.2403,0.1523,-0.1029],"b":-0.1194};
+const MODEL = {"names":["burst","phrase","trans","voice","complex","spec","hz","adv","aiPer100","humPer","cv","meanLen","advRate","specFrac","transFrac","meanSent","cap","colon","commaS","commaW","contr","dialog","digit","ed","emd","excl","fk","fw_a","fw_about","fw_all","fw_also","fw_an","fw_and","fw_are","fw_as","fw_at","fw_be","fw_been","fw_but","fw_by","fw_can","fw_for","fw_from","fw_has","fw_have","fw_he","fw_her","fw_his","fw_i","fw_if","fw_in","fw_is","fw_it","fw_its","fw_may","fw_more","fw_my","fw_not","fw_of","fw_on","fw_one","fw_or","fw_she","fw_so","fw_such","fw_than","fw_that","fw_the","fw_their","fw_there","fw_these","fw_they","fw_this","fw_to","fw_was","fw_we","fw_what","fw_when","fw_which","fw_who","fw_will","fw_with","fw_would","fw_you","hapax","hyph","ing","long9","ly","mattr","modal","neg","paren","passive","pron3","pronI","pronWe","pronYou","ques","quote","semi","short3","slLong","slMax","slMean","slSd","slShort","startDiv","startI","startIn","startThe","startThis","tion","upperRatio","wlSd"],"mu":[0.56398,0.19429,0.14517,0.58782,0.47441,0.33813,0.03117,0.42483,1.36333,0.49303,0.46708,18.24209,0.1905,0.44586,0.04377,0.44989,4.23396,4.1138,1.19242,6.3983,5.44127,0.10106,1.14081,3.35982,0.22665,0.02149,10.66141,2.22673,0.18437,0.22185,0.17736,0.3253,3.27974,0.45168,0.69307,0.34798,0.47943,0.17658,0.3806,0.49717,0.36081,0.98984,0.36863,0.30192,0.44054,0.4479,0.22206,0.35187,1.05854,0.17803,1.92215,1.00467,0.81289,0.26233,0.11068,0.25252,0.39678,0.37082,2.81586,0.66265,0.24808,0.29737,0.19767,0.21081,0.13425,0.13019,0.98872,5.6573,0.39858,0.20353,0.18461,0.34473,0.55788,2.81355,0.5692,0.29099,0.15106,0.1892,0.2111,0.15529,0.29074,0.68413,0.18647,0.37447,0.40576,8.15814,3.59047,12.59339,1.3028,0.80767,13.16937,5.89185,2.71531,0.13071,22.59377,10.42287,5.41651,5.05981,0.02937,13.04,1.58895,38.09422,0.12172,35.84017,18.24209,8.05546,0.1805,0.70081,0.04818,0.03665,0.12401,0.04183,3.77836,0.56409,2.64125],"sd":[0.35459,0.23009,0.21174,0.34475,0.4203,0.3558,0.09464,0.44246,1.62341,0.53598,0.18286,6.66019,0.09898,0.29521,0.06457,0.23632,4.17708,10.53357,1.04269,3.60812,11.57823,0.18138,2.6231,2.02902,1.14726,0.09431,4.30095,1.29625,0.38698,0.38968,0.29054,0.39304,1.68187,0.60024,0.60831,0.49624,0.59199,0.34165,0.49765,0.50672,0.59091,0.75877,0.45933,0.50104,0.62999,0.98423,0.74341,0.78297,2.1015,0.38182,1.07823,1.09889,0.91367,0.4957,0.26914,0.384,0.983,0.51746,1.52978,0.60088,0.40215,0.46145,0.73331,0.45341,0.24074,0.26697,0.81281,2.55878,0.59977,0.39917,0.31118,0.6208,0.58671,1.27215,0.83479,0.72065,0.35823,0.37327,0.33614,0.31447,0.54351,0.60899,0.38776,1.00178,0.09859,17.14274,1.89141,7.77849,0.87378,0.04581,11.01811,6.99982,8.5148,0.14905,26.11405,21.78387,11.35114,13.40137,0.09053,25.45276,4.91489,6.6007,0.14977,13.88529,6.66019,4.12615,0.19736,0.15726,0.10199,0.05289,0.12315,0.05986,2.90764,1.42637,0.44189],"coef":[-0.0957,0.2796,0.0249,0.2371,-0.1552,-0.111,0.1878,0.0567,0.2912,-0.778,0.2374,-0.0922,-0.1492,-0.0659,0.0037,0.6323,-0.2859,-0.2345,-0.0505,-0.2517,-0.0988,0.1867,-0.2694,0.2815,0.0943,-0.2941,-0.0782,0.1549,0.0411,-0.459,0.2507,-0.0741,0.5938,-0.0261,0.1001,0.0429,-0.3091,0.0014,0.1593,0.2776,0.0809,-0.1866,-0.3533,0.0182,-0.2375,-0.3506,0.0602,0.0884,-0.1754,0.1908,-0.1229,-0.2505,0.1188,0.1712,-0.1636,-0.0473,0.0761,-0.3676,-0.5395,-0.1537,-0.0931,0.1553,0.1037,0.1205,-0.1591,-0.1989,0.4147,0.1392,-0.0466,-0.4547,0.097,-0.3681,-0.3383,-0.3542,-0.3955,-0.5437,0.106,0.0413,-0.1313,0.2222,-0.3362,-0.0053,-0.0976,-0.2839,-0.3051,-0.4509,0.4172,-0.1539,-0.11,0.8432,-0.0275,0.1127,-1.4868,-0.4025,-0.2962,0.4825,0.2484,0.0331,-0.3573,-0.1979,-1.0373,-0.5856,-0.5703,-0.2604,-0.0922,-0.3516,0.0383,0.0132,0.0928,-0.0907,0.108,0.209,0.3366,0.0268,-0.2699],"b":-1.0568};
 /*MODEL-END*/
+/*MODELS-START*/
+const MODEL_S = {"names":["burst","phrase","trans","voice","complex","spec","hz","adv","aiPer100","humPer","cv","meanLen","advRate","specFrac","transFrac","meanSent","cap","colon","commaS","commaW","contr","dialog","digit","ed","emd","excl","fk","fw_a","fw_about","fw_all","fw_also","fw_an","fw_and","fw_are","fw_as","fw_at","fw_be","fw_been","fw_but","fw_by","fw_can","fw_for","fw_from","fw_has","fw_have","fw_he","fw_her","fw_his","fw_i","fw_if","fw_in","fw_is","fw_it","fw_its","fw_may","fw_more","fw_my","fw_not","fw_of","fw_on","fw_one","fw_or","fw_she","fw_so","fw_such","fw_than","fw_that","fw_the","fw_their","fw_there","fw_these","fw_they","fw_this","fw_to","fw_was","fw_we","fw_what","fw_when","fw_which","fw_who","fw_will","fw_with","fw_would","fw_you","hapax","hyph","ing","long9","ly","mattr","modal","neg","paren","passive","pron3","pronI","pronWe","pronYou","ques","quote","semi","short3","slLong","slMax","slMean","slSd","slShort","startDiv","startI","startIn","startThe","startThis","tion","upperRatio","wlSd"],"mu":[0.54788,0.1598,0.08039,0.57434,0.43528,0.34256,0.00268,0.31358,1.18423,0.54196,0.47471,19.75879,0.17771,0.49457,0.0275,0.38917,5.00786,4.50962,1.35483,6.64246,6.19256,0.09981,1.38502,3.3737,0.18738,0.02405,10.89455,2.33163,0.20019,0.2389,0.14799,0.33769,3.16266,0.44562,0.67691,0.38586,0.43877,0.20963,0.38189,0.46906,0.30198,0.96716,0.37643,0.33863,0.44297,0.51282,0.2407,0.38657,1.04392,0.17125,1.94144,1.02057,0.83141,0.24551,0.0916,0.21036,0.36441,0.37176,2.86341,0.67397,0.25589,0.28591,0.22172,0.2182,0.1192,0.13417,0.97394,5.77559,0.35857,0.21452,0.162,0.3442,0.5698,2.67019,0.59962,0.27916,0.16201,0.20809,0.21926,0.15162,0.27086,0.69661,0.17723,0.39642,0.63876,8.41894,3.44208,11.63569,1.26673,0.81924,11.85854,5.98145,3.01631,0.13823,23.82932,10.22252,5.34094,5.34319,0.0343,15.35179,2.02852,38.64326,0.16455,27.61328,19.75879,5.75484,0.16043,0.92103,0.0472,0.03265,0.12123,0.04075,3.44046,0.57235,2.56353],"sd":[0.27795,0.25764,0.22286,0.38671,0.42241,0.40448,0.02605,0.42532,2.0716,0.62701,0.16602,10.04085,0.10393,0.3671,0.08508,0.2125,6.21655,13.21591,1.62107,5.44714,15.79367,0.27232,4.28864,2.89544,2.05478,0.11394,5.47384,2.27417,0.65539,0.70304,0.52579,0.79844,2.44769,1.01829,1.23169,0.91454,0.95569,0.67643,0.84238,0.93441,0.84279,1.36936,0.85918,0.85984,1.01167,1.40753,1.01545,1.13067,2.29449,0.60532,1.89642,1.63005,1.44458,0.7402,0.45802,0.64808,1.15874,0.90161,2.4018,1.16292,0.74353,0.80626,0.99764,0.71835,0.47848,0.51058,1.39844,3.71782,0.93595,0.71332,0.54667,0.99183,1.04532,2.21503,1.28032,0.97,0.64208,0.65951,0.61766,0.55617,0.78067,1.1608,0.63963,1.32797,0.12993,22.21759,2.79736,8.21305,1.59837,0.06773,16.33513,11.84164,12.57125,0.26553,34.04222,23.92561,15.27663,17.20716,0.14075,43.28275,9.03307,8.19092,0.27956,11.76479,10.04085,4.39608,0.23885,0.14444,0.13444,0.11087,0.20969,0.11569,3.5238,2.09906,0.50028],"coef":[-0.0563,0.1876,-0.259,0.0315,-0.1655,-0.179,0.0212,0.0171,0.2406,-0.4923,-0.0531,0.0267,-0.1527,-0.2947,0.0712,0.7303,0.1514,-0.0484,-0.422,-0.1062,-0.045,0.2315,-0.0802,0.2058,0.0501,-0.4155,-0.0163,0.161,0.0234,-0.1699,0.0566,-0.0148,0.239,-0.1258,0.0657,0.1211,-0.2164,-0.191,0.0628,0.0432,0.0708,-0.0929,-0.2161,-0.0907,-0.0948,-0.0957,0.1077,0.097,-0.1267,0.0429,-0.2257,-0.0857,0.0903,0.0905,-0.0604,0.0606,0.2368,-0.1626,-0.3378,0.0278,-0.0063,0.0398,0.206,0.0023,-0.0396,-0.1235,0.1648,0.0507,0.1035,-0.24,-0.0824,-0.1174,-0.2771,-0.2412,-0.3005,-0.4248,0.0036,0.0327,-0.0479,0.1376,-0.2295,-0.1184,-0.1573,-0.0342,-0.2189,-0.4118,0.2718,0.002,-0.0078,0.4869,-0.1112,0.1038,-0.6274,-0.1616,-0.3711,0.5904,0.2596,-0.0775,-0.0668,-0.3268,-0.7483,-0.5753,-0.3487,0.0199,0.0267,-0.1395,0.019,0.2048,0.0465,0.1016,0.1739,0.1337,0.1399,0.0296,-0.2449],"b":-0.8845};
+/*MODELS-END*/
 
 const THRESH = {
   balanced: { ai: .80, likely: .60, human: .30, sent: .62 },
-  cautious: { ai: .88, likely: .75, human: .35, sent: .70 },
+  cautious: { ai: .92, likely: .84, human: .35, sent: .70 },
   strict:   { ai: .95, likely: .88, human: .40, sent: .80 },
 };
 
@@ -982,7 +1022,8 @@ function analyzeProse(text, opts) {
   const caution = opts.caution || 'cautious';
   const grade = GRADE[opts.grade] ? opts.grade : 'high';
   const G = GRADE[grade];
-  const T = THRESH[caution] || THRESH.cautious;
+  const T0 = THRESH[caution] || THRESH.cautious;
+  const T = Object.assign({}, T0); // short texts need a higher bar before any flag (set once totalWords is known)
   const { sents, segs } = segment(text);
   const info = sents.map(s => analyzeSentence(s));
   info.forEach(x => { x.aiW = Math.min(x.aiW * G.mult, 5.4); });
@@ -1123,9 +1164,14 @@ function analyzeProse(text, opts) {
   let zM = MODEL.b;
   MODEL.names.forEach((nm, i) => { const v = typeof dict[nm] === 'number' && isFinite(dict[nm]) ? dict[nm] : 0; zM += MODEL.coef[i] * clamp((v - MODEL.mu[i]) / MODEL.sd[i], -4, 4); });
   const zFit = zM;
+  { // short-text model (trained on 25-125 word chunks), blended into the long model between ~110 and ~200 words
+    let zS = MODEL_S.b;
+    MODEL_S.names.forEach((nm, i) => { const v = typeof dict[nm] === 'number' && isFinite(dict[nm]) ? dict[nm] : 0; zS += MODEL_S.coef[i] * clamp((v - MODEL_S.mu[i]) / MODEL_S.sd[i], -4, 4); });
+    const a = clamp((totalWords - 110) / 90, 0, 1); zM = (1 - a) * zS + a * zM;
+  }
   zM += (writer === 'esl' ? -0.7 : writer === 'technical' ? -0.6 : 0);
   zM += (grade === 'elem' || grade === 'middle' ? 0.9 : grade === 'high' ? 0.45 : 0) * f.over;
-  { const k = clamp(totalWords / 160, 0.35, 1); zM = zM * k + (1 - k) * -1.2; } // short texts: shrink toward "unclear"
+  { const k = clamp(totalWords / 60, 0.7, 1); zM = zM * k + (1 - k) * -1.2; } // very short texts: mild shrink toward "unclear"
   final = clamp(sig(zM), 0.01, 0.99);
   const lm = info.reduce((a, x, i) => a + smooth[i] * x.n, 0) / (totalWords || 1);
   const sentP2 = smooth.map(l => sig(0.9 * zM + 1.0 * (l - lm)));
@@ -1133,6 +1179,7 @@ function analyzeProse(text, opts) {
   if (f.art >= 0.8) final = Math.max(final, 0.92);
   else if (assistantHits >= 2) final = Math.max(final, 0.8);
 
+  { const a = clamp((totalWords - 110) / 90, 0, 1); T.ai = Math.max(T0.ai, 0.93) * (1 - a) + T0.ai * a; T.likely = Math.max(T0.likely, 0.85) * (1 - a) + T0.likely * a; }
   let aiWd = 0, mixWd = 0, humWd = 0;
   const out = sents.map((s, i) => {
     const p = sentP2[i];
@@ -1149,6 +1196,7 @@ function analyzeProse(text, opts) {
   let verdict;
   if (final <= T.human) verdict = 'human';
   else if (f.art >= 0.8 || (assistantHits >= 2 && final >= T.ai)) verdict = 'ai';
+  else if (assistantHits >= 2) verdict = 'likely';
   else if (final >= T.ai && share.ai >= 0.5) verdict = 'ai';
   else if (share.ai >= 0.2 && share.ai <= 0.8 && share.human >= 0.15) verdict = 'mixed';
   else if (final >= T.likely) verdict = 'likely';
@@ -1386,6 +1434,7 @@ function analyze(text, opts) {
   const r = genre === 'poem' ? analyzePoem(text, opts, note) : analyzeProse(text, opts);
   if (genre !== 'poem') { r.genre = 'prose'; r.genreNote = ''; r.grade = GRADE[opts.grade] ? opts.grade : 'high'; r.opts.grade = r.grade; r.opts.kind = kind; }
   r.cautions = buildCautions(r, text);
+  r.ask = buildAsk(r, text);
   return r;
 }
 
@@ -1408,6 +1457,23 @@ function buildCautions(r, text) {
 const API = { analyze, segment, THRESH, GRADE, detectGenre };
 if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.Detector = API;
 })(typeof window !== 'undefined' ? window : this);
+
+// Conversation starters for the teacher: concrete, text-specific questions a student who wrote this can answer easily.
+function buildAsk(r, text) {
+  const q = [];
+  if (!r || r.words < 15) return q;
+  const sents = (r.sentences || []).filter(s => s.n >= 8).slice().sort((a, b) => b.p - a.p);
+  const clip = t => { t = t.replace(/\s+/g, ' ').trim(); return t.length > 120 ? t.slice(0, 117).replace(/\s+\S*$/, '') + '…' : t; };
+  if (sents[0]) q.push('Can you explain, in your own words, what you meant by “' + clip(sents[0].text) + '”?');
+  if (sents[1] && sents[1].text !== sents[0].text) q.push('Where did the idea in “' + clip(sents[1].text) + '” come from, and what source or example backs it up?');
+  const words = [];
+  (r.sentences || []).forEach(s => (s.hits || []).forEach(h => { const w = (h.term || '').toLowerCase().trim(); if ((h.kind === 'strong' || h.kind === 'weak' || h.kind === 'med') && /^[a-z-]{7,}$/.test(w) && words.indexOf(w) < 0) words.push(w); }));
+  if (words.length) q.push('What does “' + words[0] + '” mean here' + (words[1] ? ', and what about “' + words[1] + '”' : '') + '? Could you use it in a new sentence?');
+  q.push('Walk me through how you wrote this: where did you start, what did you change, and how long did it take?');
+  q.push('Which part was hardest, and what would you add or cut if you had to revise it now?');
+  q.push('Can you write a similar paragraph on a related topic right now, without notes?');
+  return q.slice(0, 6);
+}
 
 </script>
 <script>
@@ -1874,6 +1940,231 @@ if (typeof module !== 'undefined' && module.exports) module.exports = GR; else r
 
 </script>
 <script>
+/* Short real passages: AI = Claude output from my modern sets (held-out half), human = public corpora (held-out half). Not cherry-picked by score. */
+(function (root) {
+const SH = [
+ {
+  "id": "sh-ai-E02",
+  "set": "blind",
+  "kind": "ai",
+  "title": "Short chatbot text 1",
+  "tag": "~47 words · Claude-written",
+  "note": "A real chatbot-written passage, cut to its first sentences. Short texts carry little evidence, so a lower score here is normal.",
+  "text": "World War I was caused by a combination of long-term tensions and a single triggering event. Historians often summarize the long-term causes with the acronym MAIN: militarism, alliances, imperialism, and nationalism. Militarism led European powers to build up large armies and navies, increasing the likelihood of conflict."
+ },
+ {
+  "id": "sh-ai-E04",
+  "set": "blind",
+  "kind": "ai",
+  "title": "Short chatbot text 2",
+  "tag": "~60 words · Claude-written",
+  "note": "A real chatbot-written passage, cut to its first sentences. Short texts carry little evidence, so a lower score here is normal.",
+  "text": "Romeo and Juliet, by William Shakespeare, is a tragedy set in Verona, Italy, where two noble families, the Montagues and the Capulets, are bitter enemies. Romeo, a Montague, sneaks into a Capulet party and falls instantly in love with Juliet, the Capulet daughter. The two secretly marry with the help of Friar Laurence, hoping their union might end the feud."
+ },
+ {
+  "id": "sh-ai-E06",
+  "set": "blind",
+  "kind": "ai",
+  "title": "Short chatbot text 3",
+  "tag": "~51 words · Claude-written",
+  "note": "A real chatbot-written passage, cut to its first sentences. Short texts carry little evidence, so a lower score here is normal.",
+  "text": "We have seasons because Earth's axis is tilted about 23. 5 degrees relative to its orbit around the Sun. This tilt, not the distance from the Sun, is the key cause. As Earth travels around the Sun over the course of a year, the tilt stays pointed in the same direction."
+ },
+ {
+  "id": "sh-ai-I03",
+  "set": "blind",
+  "kind": "ai",
+  "title": "Short chatbot text 4",
+  "tag": "~67 words · Claude-written",
+  "note": "A real chatbot-written passage, cut to its first sentences. Short texts carry little evidence, so a lower score here is normal.",
+  "text": "George Milton, one of the two main characters in John Steinbeck's Of Mice and Men, is a small, quick-witted, and fiercely protective ranch worker during the Great Depression. He travels with Lennie Small, a large and mentally disabled man whom he looks after like a brother. George often complains about the burden of caring for Lennie, yet his loyalty and compassion reveal a deep bond between them."
+ },
+ {
+  "id": "sh-ai-J03",
+  "set": "blind",
+  "kind": "ai",
+  "title": "Short chatbot text 5",
+  "tag": "~57 words · Claude-written",
+  "note": "A real chatbot-written passage, cut to its first sentences. Short texts carry little evidence, so a lower score here is normal.",
+  "text": "Why does reading matter? Honestly, more than most of us admit, especially now when everyones glued to a screen. For starters, reading builds knowledge. Every book, article or essay teaches you something, whether its history, science or just how other people think. The more you read, the more you know, and that knowledge piles up over time."
+ },
+ {
+  "id": "sh-ai-J05",
+  "set": "blind",
+  "kind": "ai",
+  "title": "Short chatbot text 6",
+  "tag": "~41 words · Claude-written",
+  "note": "A real chatbot-written passage, cut to its first sentences. Short texts carry little evidence, so a lower score here is normal.",
+  "text": "Social media and friendship, what a complicated mix. It's changed how we connect, for better and for worse, and I think its worth looking at both sides. The good stuff first. Social media makes it super easy to keep in touch."
+ },
+ {
+  "id": "sh-ai-C03",
+  "set": "blind",
+  "kind": "ai",
+  "title": "Short chatbot text 7",
+  "tag": "~52 words · Claude-written",
+  "note": "A real chatbot-written passage, cut to its first sentences. Short texts carry little evidence, so a lower score here is normal.",
+  "text": "School lunch needs to change, and I say that as someone who has eaten it almost every day for six years. Here's a typical Tuesday at my school. You get a rectangle of pizza that's somehow both soggy and hard, a small cup of canned corn, and a carton of chocolate milk."
+ },
+ {
+  "id": "sh-ai-B05",
+  "set": "blind",
+  "kind": "ai",
+  "title": "Short chatbot text 8",
+  "tag": "~52 words · Claude-written",
+  "note": "A real chatbot-written passage, cut to its first sentences. Short texts carry little evidence, so a lower score here is normal.",
+  "text": "No, I do not think it is fair that some schools have more money than others. Every student deserves a good education, but right now where you live can decide what kind of school you get. A big reason for this is that schools are often paid for with local property taxes."
+ },
+ {
+  "id": "sh-ai-O02",
+  "set": "blind",
+  "kind": "ai",
+  "title": "Short chatbot text 9",
+  "tag": "~63 words · Claude-written",
+  "note": "A real chatbot-written passage, cut to its first sentences. Short texts carry little evidence, so a lower score here is normal.",
+  "text": "I think the strongest point in this week's reading is how the author connects urban planning to public health. Neighborhoods with more green space consistently show lower stress levels, yet these areas are often the most expensive. That raises an important question: should cities treat parks as essential infrastructure rather than amenities? I'd be curious to hear whether others found the evidence convincing."
+ },
+ {
+  "id": "sh-ai-O06",
+  "set": "blind",
+  "kind": "ai",
+  "title": "Short chatbot text 10",
+  "tag": "~58 words · Claude-written",
+  "note": "A real chatbot-written passage, cut to its first sentences. Short texts carry little evidence, so a lower score here is normal.",
+  "text": "Photosynthesis is the process by which plants, algae, and some bacteria convert light energy into chemical energy. Using chlorophyll, they absorb sunlight and combine carbon dioxide from the air with water from the soil to produce glucose and oxygen. The glucose fuels growth and metabolism, while the oxygen is released into the atmosphere, supporting most life on Earth."
+ },
+ {
+  "id": "sh-ai-O10",
+  "set": "blind",
+  "kind": "ai",
+  "title": "Short chatbot text 11",
+  "tag": "~55 words · Claude-written",
+  "note": "A real chatbot-written passage, cut to its first sentences. Short texts carry little evidence, so a lower score here is normal.",
+  "text": "Hey Professor Kim, quick question about the essay prompt. Does the 1,500-word limit include the bibliography, or just the main text? I've got a solid draft but want to make sure I'm not over. Also, would it be okay to use one source from outside the reading list? Thanks a bunch, really appreciate your help!"
+ },
+ {
+  "id": "sh-ai-O14",
+  "set": "blind",
+  "kind": "ai",
+  "title": "Short chatbot text 12",
+  "tag": "~53 words · Claude-written",
+  "note": "A real chatbot-written passage, cut to its first sentences. Short texts carry little evidence, so a lower score here is normal.",
+  "text": "Good evening, Mr. Thompson. I'm writing to request an extension on the lab report due Friday. I have been recovering from the flu and have not been able to complete the data analysis section. I can submit the full report by Monday morning if that is acceptable. Thank you for considering my request."
+ },
+ {
+  "id": "sh-ai-M03",
+  "set": "blind",
+  "kind": "ai",
+  "title": "Short chatbot text 13",
+  "tag": "~59 words · Claude-written",
+  "note": "A real chatbot-written passage, cut to its first sentences. Short texts carry little evidence, so a lower score here is normal.",
+  "text": "Reflection on the Group Science Project At the start of the semester, I wasn't looking forward to working in a group on the ecosystem project. Past experiences had taught me that group work usually means one or two people doing most of the work while everyone else coasts. This time turned out a little different, though not without problems."
+ },
+ {
+  "id": "sh-ai-M07",
+  "set": "blind",
+  "kind": "ai",
+  "title": "Short chatbot text 14",
+  "tag": "~57 words · Claude-written",
+  "note": "A real chatbot-written passage, cut to its first sentences. Short texts carry little evidence, so a lower score here is normal.",
+  "text": "The Industrial Revolution changed nearly every part of daily life in the nineteenth century. Before it, most people lived in rural areas and worked in agriculture or small workshops. With the invention of steam engines and mechanized textile production, factories began to appear, and workers moved to cities in search of wages. This shift brought undeniable benefits."
+ },
+ {
+  "id": "sh-ai-N03",
+  "set": "blind",
+  "kind": "ai",
+  "title": "Short chatbot text 15",
+  "tag": "~69 words · Claude-written",
+  "note": "A real chatbot-written passage, cut to its first sentences. Short texts carry little evidence, so a lower score here is normal.",
+  "text": "Book Report: Charlotte's Web Charlotte's Web is a book by E. B. White. It is about a pig named Wilbur and a spider named Charlotte. Wilbur lives on a farm and he is very scared because the farmer might turn him into bacon. Charlotte is a clever spider who becomes his friend. She writes words in her web, like \"SOME PIG,\" so the people will think Wilbur is special."
+ },
+ {
+  "id": "sh-ai-N07",
+  "set": "blind",
+  "kind": "ai",
+  "title": "Short chatbot text 16",
+  "tag": "~59 words · Claude-written",
+  "note": "A real chatbot-written passage, cut to its first sentences. Short texts carry little evidence, so a lower score here is normal.",
+  "text": "An Octopus Has Three Hearts One of the coolest science facts I have learned is that an octopus has three hearts. Two of the hearts pump blood through the gills, where the blood picks up oxygen. The third heart pumps that oxygen-rich blood to the rest of the body. Even stranger, the octopus's blood is blue instead of red!"
+ },
+ {
+  "id": "sh-hu-movie_reviews1",
+  "set": "blind",
+  "kind": "human",
+  "title": "Short human movie review",
+  "tag": "~50 words · real movie review",
+  "note": "Real human writing from a public text collection, cut to its first sentences.",
+  "text": "capsule: the weakest and least engaging of the alien movies, dragged down by an uninvolving story and no real tension. alien 3 (the \"3\" should be in superscript) is a sad and wan entry in what was shaping up as one of the best sf sagas ever put on screen."
+ },
+ {
+  "id": "sh-hu-movie_reviews5",
+  "set": "blind",
+  "kind": "human",
+  "title": "Short human movie review",
+  "tag": "~51 words · real movie review",
+  "note": "Real human writing from a public text collection, cut to its first sentences.",
+  "text": "warning: anyone offended by blatant, leering machismo had better avoid this film. or lots of blood & guts, men against men and mano-et-mano stuff. in other words, it's a walter hill film! with a john milius script! i always picture these guys getting together and producing a movie between arm-wrestling matches."
+ },
+ {
+  "id": "sh-hu-webtext_forums3",
+  "set": "blind",
+  "kind": "human",
+  "title": "Short human forum post",
+  "tag": "~53 words · real forum post",
+  "note": "Real human writing from a public text collection, cut to its first sentences.",
+  "text": "Keen observer: That woman's not pregnant; she's just real old. Woman holding baby: You don't understand why I'm upset when, after I deliver your 10-pound baby, you take another woman to a wine bar? Woman: Being pregnant is like slowly drinking a bottle of ipecac. Five year old: This baby stuff is boring!"
+ },
+ {
+  "id": "sh-hu-webtext_forums9",
+  "set": "blind",
+  "kind": "human",
+  "title": "Short human forum post",
+  "tag": "~46 words · real forum post",
+  "note": "Real human writing from a public text collection, cut to its first sentences.",
+  "text": "Lady: Oh, look, how funny! That alligator's eating a baby. Nursing chick: What should I do? That lady is complaining of ? WASP woman: People like shouldn't have animals. They don't know how to them. Woman on phone: It's about bugs. Well, it's about burying bugs."
+ },
+ {
+  "id": "sh-hu-speeches3",
+  "set": "blind",
+  "kind": "human",
+  "title": "Short human speech",
+  "tag": "~49 words · real speech",
+  "note": "Real human writing from a public text collection, cut to its first sentences.",
+  "text": "A new breeze is blowing, and the old bipartisanship must be made new again. To my friends -- and yes, I do mean friends -- in the loyal opposition -- and yes, I mean loyal: I put out my hand. I am putting out my hand to you, Mr."
+ },
+ {
+  "id": "sh-hu-abc_news7",
+  "set": "blind",
+  "kind": "human",
+  "title": "Short human news report",
+  "tag": "~66 words · real news report",
+  "note": "Real human writing from a public text collection, cut to its first sentences.",
+  "text": "Kraft cream cheese factory moves from Vic to SA Locals in the northern Victorian town of Strathmerton say they are shocked at a decision by Kraft Foods to move cream cheese production out of the state. A total of 150 employees will be affected by the restructure over the next two years, with the production being moved to Suttontown, near Mount Gambier, in south-east South Australia."
+ },
+ {
+  "id": "sh-hu-brown_romance5",
+  "set": "blind",
+  "kind": "human",
+  "title": "Short human fiction",
+  "tag": "~73 words · real fiction",
+  "note": "Real human writing from a public text collection, cut to its first sentences.",
+  "text": "Louis,/, where he got to be a big unhappy success. /. You wonder if he looks at his wife now and thinks of you. /. You wonder about the Christmas card with no name on it,/, and it comes to you that maybe it would have been better to have made somebody else happy if you couldn't be happy yourself,/, to give somebody else the one they wanted -- to give them you."
+ },
+ {
+  "id": "sh-hu-brown_editorial7",
+  "set": "blind",
+  "kind": "human",
+  "title": "Short human editorial",
+  "tag": "~75 words · real editorial",
+  "note": "Real human writing from a public text collection, cut to its first sentences.",
+  "text": "The charges by the late junior Senator from Wisconsin not only destroyed innocent people but misled the nation. /. Yet the press was powerless to put these charges in perspective in its news columns. /. Despite several years of front-page stories,/, the average citizen was unable to get a complete picture of McCarthy until he saw on the television screen what the reporters had been seeing all along but had no effective way of communicating."
+ }
+];
+if (typeof module !== 'undefined' && module.exports) module.exports = SH; else root.SHORTS = SH;
+})(typeof window !== 'undefined' ? window : this);
+
+</script>
+<script>
 /* APERTURE navigation. Same behaviour as the shared nav script: the Back button goes up one part,
    and the Pages menu lists every registered page. Paths are relative to the site root, so save this
    file as utility/authorship-check.html and the links resolve. */
@@ -2019,9 +2310,9 @@ if (typeof module !== 'undefined' && module.exports) module.exports = GR; else r
   }
 
   function renderHero(r) {
-    var short = r.words < 25, hero = $('#hero');
+    var short = r.words < 15, hero = $('#hero');
     var v = r.verdict, vt = VERDICT[v];
-    if (short) { hero.dataset.tone = 'idle'; $('#vt').textContent = r.words ? 'Need more text' : 'Awaiting text'; $('#vsub').textContent = 'Give it at least 25 words, about two sentences. 80 or more works best.'; $('#pct').textContent = '--'; $('#range').textContent = 'AI likelihood'; }
+    if (short) { hero.dataset.tone = 'idle'; $('#vt').textContent = r.words ? 'Need more text' : 'Awaiting text'; $('#vsub').textContent = 'Give it at least 15 words. 80 or more works best, and 150+ is best.'; $('#pct').textContent = '--'; $('#range').textContent = 'AI likelihood'; }
     else {
       hero.dataset.tone = vt[2]; $('#vt').textContent = vt[0]; $('#vsub').textContent = vt[1] + (r.humanizer && r.humanizer.flagged ? ' Signs of a humanizer or paraphraser: casual touches sit on top of stock AI wording, so do not trust the human-looking parts.' : '');
       $('#pct').textContent = pct(r.final) + '%';
@@ -2036,7 +2327,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = GR; else r
     var n = short ? 0 : r.sentences.filter(function (x) { return x.cls === 'ai'; }).length;
     $('#ringsub').textContent = short ? 'Too short to judge' : n + ' of ' + r.sentences.length + ' sentences';
     var conf = $('#conf');
-    if (short) { conf.style.display = 'none'; } else { conf.style.display = ''; conf.className = 'conf' + (r.confidence === 'low' ? ' low' : ''); conf.textContent = r.confidence === 'low' ? 'Low reliability: short text' : r.confidence === 'medium' ? 'Medium reliability' : 'Best-case reliability'; }
+    if (short) { conf.style.display = 'none'; } else { conf.style.display = ''; conf.className = 'conf' + (r.confidence === 'low' || r.words < 60 ? ' low' : ''); conf.textContent = r.words < 60 ? 'Very short (' + r.words + ' words): a weak lead only' : r.confidence === 'low' ? 'Low reliability: short text' : r.confidence === 'medium' ? 'Medium reliability' : 'Best-case reliability'; }
     $('#count').textContent = r.words + ' words · ' + r.sentences.length + ' sentence' + (r.sentences.length === 1 ? '' : 's');
   }
 
@@ -2060,13 +2351,22 @@ if (typeof module !== 'undefined' && module.exports) module.exports = GR; else r
   }
   function renderEvidence(r) {
     var box = $('#evidence'); box.innerHTML = '';
-    if (r.words < 25) { box.innerHTML = '<p class="empty">Evidence appears once there is enough text to judge.</p>'; return; }
+    if (r.words < 15) { box.innerHTML = '<p class="empty">Evidence appears once there is enough text to judge.</p>'; return; }
     box.appendChild(evGroup('Points toward AI', 'var(--warn)', r.evidence.ai, 'No AI-typical patterns found.'));
     box.appendChild(evGroup('Points toward a person', 'var(--accent)', r.evidence.human, 'No clear human markers found. That is common in formal writing and is not evidence of AI.'));
   }
+  function renderAsk(r) {
+    var box = $('#askbox'); box.innerHTML = '';
+    if (r.words < 15 || !r.ask || !r.ask.length) return;
+    var g = document.createElement('div'); g.className = 'evgroup';
+    var h = document.createElement('div'); h.className = 'evh'; var d = document.createElement('i'); d.style.background = 'var(--accent)'; h.appendChild(d); h.appendChild(document.createTextNode('Questions to ask the student')); g.appendChild(h);
+    var ul = document.createElement('ul'); ul.className = 'cautions';
+    r.ask.forEach(function (c) { var li = document.createElement('li'); li.className = 'askq'; li.innerHTML = '<svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7"/><path d="M12 17h.01"/></svg>'; var sp = document.createElement('span'); sp.textContent = c; li.appendChild(sp); ul.appendChild(li); });
+    g.appendChild(ul); box.appendChild(g);
+  }
   function renderCautions(r) {
     var box = $('#cautionbox'); box.innerHTML = '';
-    if (r.words < 25 || !r.cautions || !r.cautions.length) return;
+    if (r.words < 15 || !r.cautions || !r.cautions.length) return;
     var g = document.createElement('div'); g.className = 'evgroup';
     var h = document.createElement('div'); h.className = 'evh'; var d = document.createElement('i'); d.style.background = 'var(--text-3)'; h.appendChild(d); h.appendChild(document.createTextNode('Before you rely on this')); g.appendChild(h);
     var ul = document.createElement('ul'); ul.className = 'cautions';
@@ -2075,7 +2375,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = GR; else r
   }
 
   function renderSignals(r) {
-    var box = $('#signals'); box.innerHTML = ''; var short = r.words < 25;
+    var box = $('#signals'); box.innerHTML = ''; var short = r.words < 15;
     r.signals.forEach(function (g) {
       var v = short ? 0 : g.v, row = document.createElement('div'); row.className = 'sig';
       var l = document.createElement('div'); l.className = 'l'; l.textContent = g.label;
@@ -2090,7 +2390,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = GR; else r
   function renderMarked(r) {
     var box = $('#marked'); box.innerHTML = ''; activeEl = null;
     if (!r.sentences.length) { var e = document.createElement('p'); e.className = 'empty'; e.textContent = 'The text appears here with every sentence scored.'; box.appendChild(e); $('#outmeta').textContent = ''; return; }
-    var short = r.words < 25;
+    var short = r.words < 15;
     $('#outmeta').textContent = short ? 'too short to judge' : r.sentences.length + ' sentences scored';
     r.segs.forEach(function (sg) {
       if (sg.gap !== undefined) { box.appendChild(document.createTextNode(sg.gap)); return; }
@@ -2114,7 +2414,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = GR; else r
     if (activeEl) activeEl.classList.remove('on');
     activeEl = el; if (el) el.classList.add('on');
     var s = current.sentences[i], box = $('#insp'); box.innerHTML = '';
-    if (current.words < 25) { box.innerHTML = '<p class="empty">Too short for a sentence-level read.</p>'; return; }
+    if (current.words < 15) { box.innerHTML = '<p class="empty">Too short for a sentence-level read.</p>'; return; }
     var q = document.createElement('p'); q.className = 'q'; q.textContent = s.text; box.appendChild(q);
     var row = document.createElement('div'); row.className = 'row';
     var big = document.createElement('span'); big.className = 'big'; big.textContent = pct(s.p) + '%';
@@ -2132,12 +2432,12 @@ if (typeof module !== 'undefined' && module.exports) module.exports = GR; else r
 
   function run() {
     var r = Detector.analyze(ta.value, state); current = r;
-    renderHero(r); renderEvidence(r); renderCautions(r); renderSignals(r); renderMarked(r); inspectEmpty();
+    renderHero(r); renderEvidence(r); renderCautions(r); renderAsk(r); renderSignals(r); renderMarked(r); inspectEmpty();
   }
 
   /* report */
   function reportText() {
-    var r = current; if (!r || r.words < 25) return null;
+    var r = current; if (!r || r.words < 15) return null;
     var vt = VERDICT[r.verdict][0], L = [];
     L.push('AUTHORSHIP CHECK SUMMARY');
     L.push('Result: ' + vt + '. AI likelihood ' + pct(r.final) + '% (likely range ' + pct(r.range[0]) + '–' + pct(r.range[1]) + '%).');
@@ -2148,11 +2448,12 @@ if (typeof module !== 'undefined' && module.exports) module.exports = GR; else r
     L.push(''); L.push('Points toward a person:');
     (r.evidence.human.length ? r.evidence.human : [{ strength: '', text: 'None found.' }]).slice(0, 5).forEach(function (e) { L.push('- ' + (e.strength ? '[' + e.strength + '] ' : '') + e.text); });
     if (r.cautions && r.cautions.length) { L.push(''); L.push('Reasons for caution:'); r.cautions.forEach(function (c) { L.push('- ' + c); }); }
+    if (r.ask && r.ask.length) { L.push(''); L.push('Questions to ask the student:'); r.ask.forEach(function (c) { L.push('- ' + c); }); }
     L.push(''); L.push('This is an automated estimate from writing style. It is not proof of anything. Compare with the student’s earlier work, review the version history, and talk with the student before drawing conclusions.');
     return L.join('\n');
   }
   $('#copybtn').addEventListener('click', function () {
-    var t = reportText(); if (!t) { toast('Run a check on at least 25 words first'); return; }
+    var t = reportText(); if (!t) { toast('Run a check on at least 15 words first'); return; }
     var box = $('#reportbox'), area = $('#reporttext'); area.value = t;
     function reveal() { box.classList.add('on'); area.focus(); area.select(); }
     try {
@@ -2179,8 +2480,8 @@ if (typeof module !== 'undefined' && module.exports) module.exports = GR; else r
   });
 
   /* example library */
-  var ALL = SAMPLES.concat(BLIND, POEMS, POEMS_BLIND, GRADES), fk = 'all', fs = 'all', ft = 'all';
-  ALL.forEach(function (x) { x.type = /^(p-|pb-)/.test(x.id) ? 'poem' : /^g-/.test(x.id) ? 'grade' : 'essay'; });
+  var ALL = SAMPLES.concat(BLIND, POEMS, POEMS_BLIND, GRADES, SHORTS), fk = 'all', fs = 'all', ft = 'all';
+  ALL.forEach(function (x) { x.type = /^(p-|pb-)/.test(x.id) ? 'poem' : /^g-/.test(x.id) ? 'grade' : /^sh-/.test(x.id) ? 'short' : 'essay'; });
   var LABELS = { ai: 'AI-written', human: 'Human-written', mixed: 'Mixed' };
   var flagged = function (v) { return v === 'ai' || v === 'likely' || v === 'mixed'; };
   function outcome(kind, v) {
@@ -2234,12 +2535,13 @@ if (typeof module !== 'undefined' && module.exports) module.exports = GR; else r
   filterHandler('#f-type', function (v) { ft = v; });
 
   $('#acc').innerHTML = [
-    '<b>How the score is made.</b> Hand-written pattern checks (AI phrases, human markers, chatbot leftovers, essay-site templates, humanizer fingerprints) feed a small statistical model, with about 115 style measures, that was fitted offline on thousands of real human and AI texts. It runs entirely in your browser. No AI model is used.',
-    '<b>Held-out test on real text.</b> On texts the model never saw in fitting (half of each public collection of student essays, news, stories and ChatGPT or Claude output), the ranking quality is about 0.97 AUC. At the default Balanced setting about 2 to 3 in 100 human texts were wrongly flagged and roughly 75 to 80 in 100 AI texts were caught. Cautious flags about 1 to 2 in 100 humans and catches roughly 65 in 100 AI texts. Strict flags fewer still and misses more.',
-    '<b>Human false alarms.</b> On 1,883 other real human texts (news, fiction, forums, reviews, speeches), 1.6% were flagged at the default setting. Part of that data was also used in fitting, so treat it as a rough figure. Fiction and news reports are the types that false-flag most often, and human student essays were flagged about 18% of the time in one collection. That is why a flag should start a conversation, never end one.',
-    '<b>Modern AI.</b> Recent chatbot text is caught best when it is plain and essay-like (11 of 12 in my set). It is caught less when told to sound like a student or to avoid AI wording (8 to 9 of 12), when it is a short answer, and for stories and poems (8 of 16). Those sets were written by Claude only, and some were used in fitting, so those counts are optimistic. Other chatbots may differ.',
-    '<b>Written by me.</b> The poems, grade-level cases, essay-site look-alikes and humanizer-style texts were written by me to match known patterns. They show what each rule catches, not how it performs on a real class set. In the 8 blind essays I wrote, 1 human stand-in (a formal biography) was falsely flagged as likely AI.',
-    '<b>Not a probability.</b> The percentage is a score, not a chance of being right. No detector, including this one, is reliable enough to be the only evidence for an accusation.'
+    '<b>How the score is made.</b> Hand-written pattern checks (about 250 AI phrases and fiction clichés, human markers, chatbot leftovers, essay-site templates, paraphraser fingerprints) feed two small statistical models with about 115 style measures. One is for full essays and one is for short passages under about 150 words. Both were fitted offline on thousands of real human and AI texts and run entirely in your browser. No AI model is used.',
+    '<b>Full-length essays (150+ words), held-out test.</b> On texts the model never saw in fitting (student essays, news, stories, ESL writing, and ChatGPT, Claude and humanizer output), ranking quality is about 0.95 AUC. At the default Cautious setting about 3 in 100 human texts were wrongly flagged and about 72 in 100 AI texts were caught. Balanced flags about 6 in 100 humans and catches about 86 in 100 AI texts. Student essays in one collection were flagged about 10 to 12% of the time, so a flag is a reason to talk to the student, never a verdict.',
+    '<b>Short passages (15 to 150 words).</b> These have a lot less to go on. On held-out passages cut from the same collections, ranking quality was only about 0.75 to 0.85 AUC. At default settings most AI passages under 100 words come back as Unclear, not as flagged, and about 5 in 100 human passages were still flagged. A short score is a weak lead. The Questions to ask the student panel is the better tool for short texts.',
+    '<b>Other real human writing.</b> On 1,883 other human texts (news, fiction, forums, reviews, speeches), 0.7% were flagged at Cautious. Part of that data was also used in fitting, so treat it as a rough figure. The human training data also covers product reviews, Reuters news, chat, religion, hobby, government, mystery and sci-fi writing, so those no longer trip it. Fiction and news reports still false-flag most often.',
+    '<b>Modern AI.</b> In my modern-chatbot sets, plain essays and discussion posts were caught most often. Text told to sound like a student, short answers, stories and personal narratives were caught much less often (roughly 6 to 50% in short form). All of those sets were written by Claude, and one half was used in fitting, so other chatbots may behave differently.',
+    '<b>Written by me.</b> The poems, grade-level cases, essay-site look-alikes and humanizer-style texts were written by me to match known patterns. They show what each rule catches, not how it performs on a real class set.',
+    '<b>Not a probability, and never proof.</b> The percentage is a score. No detector, including this one, can tell you for certain that a student used AI. Use the highlighted sentences to start a conversation, and ask the student the questions listed in the report.'
   ].map(function (t) { return '<li>' + t + '</li>'; }).join('');
   
   /* tips */
