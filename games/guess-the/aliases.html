@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#060b08">
+<title>Aliases — Guess the character</title>
+<meta name="description" content="Guess the comic character from five clues.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2032%2032%27%3E%3Crect%20width%3D%2732%27%20height%3D%2732%27%20rx%3D%279%27%20fill%3D%27%230a1a12%27/%3E%3Cg%20fill%3D%27%23ffb454%27%3E%3Cpath%20d%3D%22M4%2013c0-3.5%203.5-5.5%2012-5.5S28%209.500%2028%2013s-1.500%207-6.500%207c-3%200-3.500-2.500-5.500-2.500S13.500%2020%2010.500%2020C5.500%2020%204%2016.500%204%2013z%22/%3E%3Cellipse%20cx%3D%2211%22%20cy%3D%2213%22%20rx%3D%222.800%22%20ry%3D%221.800%22%20fill%3D%22%230a1a12%22/%3E%3Cellipse%20cx%3D%2221%22%20cy%3D%2213%22%20rx%3D%222.800%22%20ry%3D%221.800%22%20fill%3D%22%230a1a12%22/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#060b08;--panel:#0c140f;--panel2:#111c15;--line:rgba(255,255,255,.08);--line2:rgba(255,255,255,.16);--text:#e9f2ec;--t2:#a9b9af;--t3:#6f8176;--g:#ffb454;--g2:#ffd08a;--amber:#f0b94a;--red:#f0657a;--ease:cubic-bezier(.22,1,.36,1)}
+*{box-sizing:border-box}
+html{background:var(--bg);color-scheme:dark}
+body{margin:0;min-height:100vh;font-family:Inter,system-ui,-apple-system,'Segoe UI',sans-serif;color:var(--text);line-height:1.45;-webkit-font-smoothing:antialiased;background:radial-gradient(900px 420px at 50% -8%,color-mix(in srgb,var(--g) 11%,transparent),transparent 65%),var(--bg)}
+button,input,select{font:inherit;color:inherit}[hidden]{display:none!important}
+:focus-visible{outline:2px solid var(--g);outline-offset:2px}svg{display:block}
+.top{display:flex;align-items:center;gap:10px;max-width:640px;margin:0 auto;padding:14px 14px 6px}
+.logo{display:flex;align-items:center;gap:10px;flex:1;min-width:0;text-decoration:none;color:var(--text)}
+.logo b{font-size:21px;font-weight:800;letter-spacing:-.03em}.logo b i{font-style:normal;color:var(--g)}
+.tabs{display:inline-flex;padding:3px;border-radius:12px;background:var(--panel);border:1px solid var(--line)}
+.tabs button{border:0;background:transparent;height:32px;padding:0 14px;border-radius:9px;color:var(--t2);font-weight:600;font-size:13.5px;cursor:pointer}.tabs button.on{background:var(--g);color:#04140b}
+.ib{width:38px;height:38px;border-radius:11px;border:1px solid var(--line);background:var(--panel);display:grid;place-items:center;color:var(--t2);cursor:pointer;transition:background .2s,color .2s}.ib:hover{background:var(--panel2);color:#fff}
+main{max-width:640px;margin:0 auto;padding:6px 14px 40px;display:flex;flex-direction:column;gap:12px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px}
+.lbl{font-size:11.5px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px;display:block}
+.inp{width:100%;height:44px;padding:0 13px;border-radius:12px;border:1px solid var(--line2);background:#070d09;outline:none;transition:border-color .15s,box-shadow .15s}
+.inp:focus{border-color:color-mix(in srgb,var(--g) 60%,transparent);box-shadow:0 0 0 3px color-mix(in srgb,var(--g) 14%,transparent)}.inp::placeholder{color:#506057}
+select.inp{cursor:pointer;color-scheme:dark}select option{background:#0c140f}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 18px;border-radius:12px;border:1px solid var(--line2);background:transparent;color:var(--text);font-weight:600;font-size:14px;cursor:pointer;white-space:nowrap;text-decoration:none;transition:transform .2s var(--ease),background .2s}
+.btn:hover{background:var(--panel2)}.btn:active:not(:disabled){transform:scale(.96)}.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.pri{background:var(--g);border-color:transparent;color:#04140b}.btn.pri:hover{background:var(--g2)}.btn.sm{height:36px;padding:0 13px;font-size:13px;border-radius:10px}
+.grid{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end}
+.note{font-size:12.5px;color:var(--t3)}
+.meta{display:flex;justify-content:space-between;font-size:13px;color:var(--t2);margin-bottom:12px}.meta b{color:var(--text)}
+.clues{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.clue{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border-radius:13px;border:1px solid var(--line);background:#09100c;font-size:15px;animation:in .4s var(--ease) both}
+.clue .n{flex:none;width:24px;height:24px;border-radius:8px;display:grid;place-items:center;font-size:12px;font-weight:800;background:color-mix(in srgb,var(--g) 18%,transparent);color:var(--g2)}
+.clue.lock{opacity:.5;animation:none;align-items:center}.clue.lock .n{background:rgba(255,255,255,.06);color:var(--t3)}
+.clue.lock span.t{color:var(--t3);letter-spacing:.2em}
+.clue.new{border-color:color-mix(in srgb,var(--g) 40%,transparent)}
+@keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.rows{list-style:none;margin:0 0 12px;padding:0;display:flex;flex-direction:column;gap:6px}
+.rows li{display:flex;align-items:center;gap:10px;min-height:42px;padding:7px 12px;border-radius:11px;border:1px solid var(--line);background:#09100c;font-size:14px;animation:in .35s var(--ease) both}
+.rows li .n{flex:none;width:20px;color:var(--t3);font-size:12px;font-weight:700}
+.rows li .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rows li .t small{color:var(--t3)}
+.rows li.empty{opacity:.45;animation:none}.rows li.cur{opacity:1;border-color:color-mix(in srgb,var(--g) 35%,transparent);animation:none}
+.tag{flex:none;font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:99px}
+.tag.bad{background:rgba(240,101,122,.14);color:var(--red)}.tag.skip{background:rgba(255,255,255,.07);color:var(--t2)}.tag.ok{background:color-mix(in srgb,var(--g) 20%,transparent);color:var(--g2)}.tag.art{background:rgba(240,185,74,.16);color:var(--amber)}
+.sw{position:relative}
+.res{margin-top:6px;border:1px solid var(--line2);border-radius:13px;background:#0a110d;max-height:290px;overflow:auto}
+.res button{display:flex;align-items:center;gap:10px;width:100%;border:0;background:transparent;text-align:left;padding:10px 12px;cursor:pointer;border-bottom:1px solid var(--line)}
+.res button:last-child{border:0}.res button.on,.res button:hover{background:color-mix(in srgb,var(--g) 13%,transparent)}
+.res span{min-width:0;flex:1}.res b{display:block;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.res small{display:block;color:var(--t3);font-size:12.5px}
+.res mark{background:none;color:var(--g2)}.res .msg{padding:12px;color:var(--t3);font-size:13px}
+.acts{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}.acts .grow{flex:1}
+.hints{margin-top:10px;display:flex;flex-direction:column;gap:6px}
+.hint{display:flex;gap:10px;align-items:baseline;padding:8px 12px;border-radius:11px;background:rgba(240,185,74,.08);border:1px solid rgba(240,185,74,.2);font-size:13.5px}.hint em{font-style:normal;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--amber);flex:none}
+.hint code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.12em}
+.found{margin-bottom:10px;padding:9px 12px;border-radius:11px;background:color-mix(in srgb,var(--g) 11%,transparent);border:1px solid color-mix(in srgb,var(--g) 30%,transparent);font-size:13.5px;color:var(--g2)}
+.verdict{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;margin-bottom:8px}.verdict.w{color:var(--g)}.verdict.l{color:var(--red)}
+.ans h2{margin:0;font-size:22px;letter-spacing:-.02em}.ans p{margin:2px 0 0;color:var(--t2);font-size:14px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:6px 0 4px}
+.st{text-align:center;padding:10px 4px;border-radius:12px;background:#09100c;border:1px solid var(--line)}.st b{display:block;font-size:20px}.st span{font-size:10.5px;color:var(--t3);text-transform:uppercase;letter-spacing:.07em}
+dialog{border:1px solid var(--line2);border-radius:20px;background:var(--panel);color:var(--text);padding:22px;max-width:min(480px,92vw);width:100%}
+dialog::backdrop{background:rgba(0,0,0,.65)}dialog h3{margin:0 0 10px;font-size:18px}dialog ol,dialog ul{padding-left:20px;margin:8px 0;color:var(--t2);font-size:14px}dialog li{margin:5px 0}
+.cred{text-align:center;font-size:11.5px;color:var(--t3);margin-top:4px}
+#toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,16px);opacity:0;pointer-events:none;background:#16251c;border:1px solid var(--line2);padding:10px 16px;border-radius:12px;font-size:13.5px;transition:.2s;z-index:90;max-width:92vw}#toast.show{opacity:1;transform:translate(-50%,0)}
+@media(max-width:480px){.tabs button{padding:0 11px}.logo b{font-size:19px}.grid{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<header class="top">
+  <a class="logo" href="#" aria-label="Aliases"><svg width="34" height="34" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#0a1a12"/><g fill="#ffb454"><path d="M4 13c0-3.5 3.5-5.5 12-5.5S28 9.500 28 13s-1.500 7-6.500 7c-3 0-3.500-2.500-5.500-2.500S13.500 20 10.500 20C5.500 20 4 16.500 4 13z"/><ellipse cx="11" cy="13" rx="2.800" ry="1.800" fill="#0a1a12"/><ellipse cx="21" cy="13" rx="2.800" ry="1.800" fill="#0a1a12"/></g></svg><b>alias<i>es</i></b></a>
+  <div class="tabs" id="tabs"><button type="button" class="on" data-m="daily">Daily</button><button type="button" data-m="free">Free play</button></div>
+  <button class="ib" id="bStats" type="button" aria-label="Stats"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 20V10M12 20V4M19 20v-7"/></svg></button>
+  <button class="ib" id="bHelp" type="button" aria-label="How to play"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7M12 17h.01"/></svg></button>
+</header>
+<main>
+  <section class="panel" id="settings" hidden>
+    <div class="grid">
+      <div><label class="lbl" for="sF">Group</label><select class="inp" id="sF"></select></div>
+      <button class="btn pri" id="bNew" type="button">New character</button>
+    </div>
+  </section>
+  <section class="panel">
+    <div class="meta"><span id="mL"></span><span id="mR"></span></div>
+    <ul class="clues" id="clues"></ul>
+  </section>
+  <section class="panel" id="gp">
+    <div id="found" class="found" hidden></div>
+    <ul class="rows" id="rows"></ul>
+    <div class="sw">
+      <input class="inp" id="q" placeholder="Search for the character" autocomplete="off" spellcheck="false" enterkeyhint="search" role="combobox" aria-expanded="false" aria-controls="res">
+      <div class="res" id="res" hidden role="listbox"></div>
+    </div>
+    <div class="acts">
+      <button class="btn" id="bSkip" type="button">Skip: next clue</button>
+      <button class="btn" id="bHint" type="button">Hint</button>
+      <button class="btn pri grow" id="bSubmit" type="button">Guess</button>
+    </div>
+    <div class="hints" id="hints"></div>
+  </section>
+  <section class="panel" id="result" hidden></section>
+  <div class="cred">Clues are written for this game. Characters belong to their respective publishers and creators.</div>
+</main>
+<dialog id="dHelp"><h3>How to play</h3>
+  <ol><li>You get one clue about a mystery character, starting vague.</li><li>Search the list, pick your guess and press Guess.</li><li>A wrong guess or a skip reveals the next clue. You have 5 chances.</li><li>The fewer clues you need, the more points you earn.</li></ol>
+  <ul><li>If you pick the right group but the wrong answer, it tells you.</li><li>Hints are optional and cost a few points each.</li><li>Daily gives everyone the same answer, chosen from the date. Free play lets you filter by group.</li></ul>
+  <div class="acts"><button class="btn pri" type="button" data-close>Got it</button></div></dialog>
+<dialog id="dStats"><h3>Your stats</h3><div id="statBody"></div><div class="acts"><button class="btn pri" type="button" data-close>Close</button></div></dialog>
+<div id="toast" role="status"></div>
+<script>
+(function () {
+'use strict';
+var $ = function (id) { return document.getElementById(id); };
+var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+var CFG = {"key": "aliases", "name": "Aliases", "noun": "character", "closeNoun": "Group", "filters": ["Marvel", "DC", "Newspaper strips", "Indie and international"]}, DATA = [{"n": "Spider-Man", "a": ["Spiderman", "Peter Parker"], "g": "Marvel", "f": "Marvel", "c": ["A teenager by day, this hero juggles homework and rent with crime fighting.", "Gained powers after being bitten by a radioactive creature.", "Shoots sticky strands from the wrists and clings to walls.", "Lives in Queens, New York, guided by the lesson that great power brings great responsibility.", "Real name Peter Parker; wears a red-and-blue suit with a web pattern."]}, {"n": "Batman", "a": ["Bruce Wayne", "The Dark Knight"], "g": "DC", "f": "DC", "c": ["Has no superpowers: just money, training and fear.", "Orphaned as a child after a crime in an alley.", "Operates from a hidden cave beneath a wealthy estate.", "Protects Gotham City from a rogues gallery that includes a clown prince of crime.", "Real name Bruce Wayne; wears a cape and cowl shaped like a flying mammal."]}, {"n": "Superman", "a": ["Clark Kent", "Man of Steel", "Kal-El"], "g": "DC", "f": "DC", "c": ["Often credited as the first superhero of the modern comic book age (1938).", "Born on a distant planet that was destroyed, then raised by farmers in Kansas.", "Powers come from Earth's yellow sun: flight, strength and heat vision.", "Works as a mild-mannered reporter at the Daily Planet.", "Weak to green rock from his home world; wears a red cape and an S shield."]}, {"n": "Wonder Woman", "a": ["Diana Prince"], "g": "DC", "f": "DC", "c": ["A princess raised on a hidden island of warriors.", "Carries a weapon that forces people to tell the truth.", "Wears bracelets that deflect bullets.", "Created in 1941; her mission blends fighting with peace and love.", "Real name Diana; from Themyscira; uses a golden lasso."]}, {"n": "Iron Man", "a": ["Tony Stark"], "g": "Marvel", "f": "Marvel", "c": ["A billionaire inventor who builds his own weapons.", "Captured and forced to build weapons, he built something else to escape.", "A glowing device in his chest keeps shrapnel away from his heart.", "Runs Stark Industries and helped found the Avengers.", "Real name Tony Stark; red-and-gold powered armor."]}, {"n": "Captain America", "a": ["Steve Rogers"], "g": "Marvel", "f": "Marvel", "c": ["A hero from the 1940s, first shown punching a dictator on a cover.", "A frail young man transformed by an experimental serum.", "Frozen in ice for decades before being revived.", "Fights with a disc-shaped shield made of vibranium.", "Real name Steve Rogers; a star on the chest and a red, white and blue costume."]}, {"n": "Thor", "a": ["Thor Odinson"], "g": "Marvel", "f": "Marvel", "c": ["Not human-born: a prince of a realm of gods.", "Wields a weapon that only the worthy can lift.", "Commands storms and lightning.", "His father is Odin and his adopted brother is a trickster.", "Hammer called Mjolnir; heir to Asgard; blond with a red cape."]}, {"n": "Hulk", "a": ["The Incredible Hulk", "Bruce Banner"], "g": "Marvel", "f": "Marvel", "c": ["Anger is both a weakness and a power source.", "Created by an accident involving an experimental device and radiation.", "A scientist whose body changes shape under stress.", "Grows massive and strong the angrier he gets.", "Alter ego Bruce Banner; huge green-skinned brute who smashes."]}, {"n": "Black Panther", "a": ["T'Challa", "TChalla"], "g": "Marvel", "f": "Marvel", "c": ["A king and a superhero in one.", "Rules a hidden, technologically advanced African nation.", "Powers are boosted by a heart-shaped herb.", "His suit and his country's wealth rely on a rare metal.", "Real name T'Challa; ruler of Wakanda; black cat-themed suit."]}, {"n": "Wolverine", "a": ["Logan", "James Howlett"], "g": "Marvel", "f": "Marvel", "c": ["Short-tempered and tough, with a Canadian connection.", "Heals from nearly any injury.", "His skeleton was bonded with an unbreakable metal.", "A member of the X-Men.", "Real name Logan; adamantium claws pop out of his hands."]}, {"n": "Deadpool", "a": ["Wade Wilson"], "g": "Marvel", "f": "Marvel", "c": ["Known for breaking the fourth wall and joking constantly.", "A mercenary who sought a cure for a terminal illness.", "His regeneration came with severe scarring.", "Wears a red mask and carries swords and guns.", "Real name Wade Wilson; nicknamed the Merc with a Mouth."]}, {"n": "The Flash", "a": ["Flash", "Barry Allen", "Wally West"], "g": "DC", "f": "DC", "c": ["Speed is everything for this hero.", "A lab accident involving lightning and chemicals gave him powers.", "Can vibrate through objects and run on water.", "Draws power from a source called the Speed Force.", "Common identity Barry Allen; red suit with a lightning bolt; Central City."]}, {"n": "Aquaman", "a": ["Arthur Curry"], "g": "DC", "f": "DC", "c": ["Half of two worlds, he can talk to sea creatures.", "His father was a lighthouse keeper and his mother a queen.", "Carries a trident and has super strength underwater.", "Rules a kingdom beneath the waves.", "Real name Arthur Curry; king of Atlantis; orange-and-green costume."]}, {"n": "Green Lantern", "a": ["Hal Jordan"], "g": "DC", "f": "DC", "c": ["His power comes from willpower, not birth.", "Wears a ring that creates solid objects from thought.", "Must recharge the ring regularly at a lantern.", "A member of an interstellar police corps.", "Hal Jordan is the best-known test pilot to wear the green ring."]}, {"n": "Black Widow", "a": ["Natasha Romanoff"], "g": "Marvel", "f": "Marvel", "c": ["A spy with a mysterious past in the former Soviet Union.", "No superpowers, but an expert at combat and infiltration.", "Trained in an elite program called the Red Room.", "A founding member of the Avengers and partner of an archer.", "Real name Natasha Romanoff; black catsuit; named after a spider."]}, {"n": "Doctor Strange", "a": ["Stephen Strange", "Dr. Strange"], "g": "Marvel", "f": "Marvel", "c": ["A brilliant surgeon whose career ended in an accident.", "Searched the world for a cure and found a hidden teacher.", "Master of magic and mystic arts, not technology.", "Lives in a mansion in New York's Greenwich Village.", "Wears a red Cloak of Levitation and an amulet called the Eye of Agamotto."]}, {"n": "Storm", "a": ["Ororo Munroe"], "g": "Marvel", "f": "Marvel", "c": ["Worshipped as a goddess in her youth.", "A mutant who can control the weather.", "A longtime leader of her mutant team.", "White hair and bright blue eyes.", "Real name Ororo Munroe; X-Men; lightning and wind."]}, {"n": "Magneto", "a": ["Erik Lehnsherr", "Max Eisenhardt"], "g": "Marvel", "f": "Marvel", "c": ["A survivor whose past shapes his ruthless philosophy.", "Believes his people must be protected from persecution, by force if needed.", "Manipulates metal with his mind.", "Often at odds with a telepathic professor who was once his friend.", "Erik Lehnsherr; wears a helmet that blocks telepathy; X-Men foe."]}, {"n": "Joker", "a": ["The Joker"], "g": "DC", "f": "DC", "c": ["A criminal whose motive is chaos, not money.", "Origin stories vary; one says he fell into a vat of chemicals.", "Fond of deadly pranks and a signature laugh.", "Pale skin, green hair and a permanent grin.", "The chief enemy of Batman, known as the Clown Prince of Crime."]}, {"n": "Harley Quinn", "a": ["Harleen Quinzel"], "g": "DC", "f": "DC", "c": ["Started as a sidekick on a 1990s TV cartoon.", "A former psychiatrist who fell under a patient's spell.", "Fights with a giant mallet.", "Real name Harleen Quinzel; red-and-black jester costume.", "Partner of the Joker, later friends with Poison Ivy."]}, {"n": "Catwoman", "a": ["Selina Kyle"], "g": "DC", "f": "DC", "c": ["An anti-hero who plays by her own rules.", "A master thief with agility and a whip.", "Often on the other side of a romance with a masked vigilante.", "Always accompanied by felines.", "Real name Selina Kyle; operates in Gotham."]}, {"n": "Thanos", "a": ["The Mad Titan"], "g": "Marvel", "f": "Marvel", "c": ["A villain who believes the universe is out of balance.", "Obsessed with collecting six powerful stones.", "Born on Titan; his adopted daughters include Gamora.", "One snap of his fingers wipes out half of all life in a famous story.", "Purple skin and a golden gauntlet."]}, {"n": "Loki", "a": ["Loki Laufeyson"], "g": "Marvel", "f": "Marvel", "c": ["A trickster whose loyalty is never guaranteed.", "Shape-shifts and creates illusions.", "Adopted brother of a god of thunder.", "Called the God of Mischief.", "Wears a horned helmet and green-and-gold armor; from Asgard."]}, {"n": "Venom", "a": ["Eddie Brock"], "g": "Marvel", "f": "Marvel", "c": ["Two beings in one body.", "An alien organism bonds with a human host.", "Holds a grudge against a wall-crawling hero.", "Long tongue, razor teeth and a black body.", "Host Eddie Brock; the alien is a symbiote that first bonded with Peter Parker."]}, {"n": "Daredevil", "a": ["Matt Murdock"], "g": "Marvel", "f": "Marvel", "c": ["A lawyer by day, a vigilante by night.", "Lost his sight as a boy after chemicals splashed his eyes.", "His other senses are heightened, giving him a radar-like awareness.", "Protects Hell's Kitchen and fights Kingpin.", "Matt Murdock; red costume with horns; the Man Without Fear."]}, {"n": "Captain Marvel", "a": ["Carol Danvers"], "g": "Marvel", "f": "Marvel", "c": ["A former Air Force pilot turned cosmic hero.", "Gained powers from an alien energy source.", "Can fly, absorb energy and fire photon blasts.", "Several heroes have used this codename.", "Real name Carol Danvers; red, blue and gold suit with a star."]}, {"n": "Green Arrow", "a": ["Oliver Queen"], "g": "DC", "f": "DC", "c": ["A wealthy playboy turned archer vigilante.", "Stranded on an island, he learned to survive.", "Uses trick arrows.", "Real name Oliver Queen; protects Star City.", "Green hood and a goatee in the spirit of Robin Hood."]}, {"n": "Nightwing", "a": ["Dick Grayson"], "g": "DC", "f": "DC", "c": ["Grew up in a circus family before tragedy struck.", "Was the first to take on a younger sidekick role.", "Left that role to strike out on his own.", "An acrobat who fights with escrima sticks.", "Real name Dick Grayson; formerly Robin; operated from Bludhaven."]}, {"n": "Batgirl", "a": ["Barbara Gordon"], "g": "DC", "f": "DC", "c": ["Daughter of a police commissioner.", "Has a brilliant mind and computer skills.", "After an injury, became an information broker known as Oracle.", "Wears a cowl with pointed ears in Gotham.", "Real name Barbara Gordon."]}, {"n": "Cyborg", "a": ["Victor Stone"], "g": "DC", "f": "DC", "c": ["A former athlete rebuilt after a lab accident.", "Half human, half machine.", "A member of the Titans and the Justice League.", "One arm is a sonic cannon.", "Real name Victor Stone."]}, {"n": "Spawn", "a": ["Al Simmons"], "g": "Indie and international", "f": "Indie and international", "c": ["A soldier betrayed and sent to the underworld.", "Made a deal with a demon to see his wife again.", "Has a chain-covered cape and necroplasm powers.", "Created by Todd McFarlane in 1992.", "Real name Al Simmons; published by Image Comics."]}, {"n": "Hellboy", "a": [], "g": "Indie and international", "f": "Indie and international", "c": ["A demon raised by a paranormal investigation bureau.", "Summoned into our world during World War II.", "Has filed-down horns and a giant right hand of stone.", "Works for the B.P.R.D.", "Created by Mike Mignola; red skin; loves cats and pancakes."]}, {"n": "Invincible", "a": ["Mark Grayson"], "g": "Indie and international", "f": "Indie and international", "c": ["A teenager whose father is the world's greatest hero.", "His powers emerge around age 17.", "Created by Robert Kirkman; also an animated series.", "His father is Omni-Man.", "Real name Mark Grayson; blue-and-yellow suit."]}, {"n": "Tintin", "a": ["Tin Tin"], "g": "Indie and international", "f": "Indie and international", "c": ["A young reporter and adventurer.", "Created by Belgian artist Herge in 1929.", "Travels the world with a small white dog.", "His friend is Captain Haddock.", "Quiff of hair and plus-fours; dog named Snowy."]}, {"n": "Asterix", "a": ["Asterix the Gaul"], "g": "Indie and international", "f": "Indie and international", "c": ["Hero of a long-running Franco-Belgian series set in ancient times.", "A small village resists a powerful empire.", "Gets strength from a druid's potion.", "His best friend Obelix carries menhirs.", "A Gaulish warrior who battles Romans in 50 BC."]}, {"n": "Snoopy", "a": [], "g": "Newspaper strips", "f": "Newspaper strips", "c": ["Star of one of the most famous newspaper strips ever.", "A pet who imagines alternate lives.", "Fights the Red Baron on top of his doghouse.", "His best friend is a small yellow bird, Woodstock.", "The beagle of Peanuts, owned by Charlie Brown."]}, {"n": "Charlie Brown", "a": [], "g": "Newspaper strips", "f": "Newspaper strips", "c": ["A lovable loser who keeps trying anyway.", "Never gets to kick the football.", "Pitcher on a terrible baseball team.", "Friends with Linus, picked on by Lucy.", "The round-headed kid in Peanuts, Snoopy's owner."]}, {"n": "Calvin", "a": ["Calvin and Hobbes"], "g": "Newspaper strips", "f": "Newspaper strips", "c": ["A strip that ran from 1985 to 1995 and was never merchandised.", "A six-year-old with a huge imagination.", "His best friend is a stuffed animal that appears alive.", "Alter egos include Spaceman Spiff and Stupendous Man.", "The boy of Calvin and Hobbes, with his tiger."]}, {"n": "Garfield", "a": [], "g": "Newspaper strips", "f": "Newspaper strips", "c": ["Famous for hating a particular day of the week.", "Loves lasagna.", "Created by Jim Davis in 1978.", "Owner Jon Arbuckle has a dog named Odie.", "A lazy orange cat."]}], LS = CFG.key + '-v1', PTS = [100, 70, 45, 25, 10], HINT_COST = 8, HINT_NAMES = [CFG.closeNoun, 'Letters', 'Starts with'];
+function norm(s) { var x = String(s || '').toLowerCase(); if (x.normalize) x = x.normalize('NFD').replace(/[̀-ͯ]/g, ''); x = x.replace(/&/g, ' and ').replace(/^(the|a|an)\s+/, ''); return x.replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim(); }
+DATA.forEach(function (d, i) { d.i = i; d.keys = [d.n].concat(d.a || []).map(norm); });
+var store = (function () { var o = {}; try { o = JSON.parse(localStorage.getItem(LS) || '{}'); } catch (e) {} o.d = o.d || { played: 0, won: 0, streak: 0, best: 0, last: '' }; o.f = o.f || { played: 0, won: 0, pts: 0 }; o.filter = o.filter || 'All'; return o; })();
+function save() { try { localStorage.setItem(LS, JSON.stringify(store)); } catch (e) {} }
+function toast(m) { var t = $('toast'); t.textContent = m; t.classList.add('show'); clearTimeout(toast._t); toast._t = setTimeout(function () { t.classList.remove('show'); }, 2600); }
+function dayKey(d) { return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York' }).format(d || new Date()); }
+function hash(s) { var h = 2166136261; for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+function rng32(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; var t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
+var tab = 'daily', games = {};
+function cur() { return games[tab]; }
+function newGame(mode, item) { return { mode: mode, item: item, stage: 0, hist: [], hints: 0, done: false, won: false, closeFound: false, score: 0 }; }
+function dailyItem() { var r = rng32(hash(CFG.key + '-' + dayKey())); return DATA[Math.floor(r() * DATA.length)]; }
+function freeItem(prev) { var pool = DATA.filter(function (d) { return store.filter === 'All' || d.f === store.filter; }); if (pool.length > 1 && prev != null) pool = pool.filter(function (d) { return d.i !== prev; }); return pool[Math.floor(Math.random() * pool.length)]; }
+function startFree() { var prev = games.free && games.free.item.i; games.free = newGame('free', freeItem(prev)); }
+function initDaily() {
+  var it = dailyItem(), d = store.daily, g = games.daily = newGame('daily', it);
+  if (d && d.date === dayKey() && d.i === it.i) { (d.hist || []).forEach(function (x) { apply(g, x, true); }); g.hints = d.hints || 0; if (g.done) g.score = g.won ? score(g, g.hist.length - 1) : 0; }
+}
+function saveDaily(g) { store.daily = { date: dayKey(), i: g.item.i, hist: g.hist, hints: g.hints }; save(); }
+function score(g, idx) { return Math.max(5, PTS[idx] - g.hints * HINT_COST); }
+
+function apply(g, gu, replay) {
+  if (g.done) return;
+  var n = g.hist.length;
+  if (gu.k === 's') { g.hist.push({ k: 's' }); g.stage++; }
+  else {
+    var d = DATA[gu.i], ok = d.i === g.item.i, close = !ok && d.g === g.item.g;
+    g.hist.push({ k: 'g', i: gu.i, ok: ok, close: close }); if (close) g.closeFound = true;
+    if (ok) { g.closeFound = true; return finish(g, true, n, replay); } g.stage++;
+  }
+  if (g.stage >= 5) return finish(g, false, n, replay);
+  if (!replay) { if (g.mode === 'daily') saveDaily(g); if (g === cur()) { render(); if (g.hist[n].close) toast('Right ' + CFG.closeNoun.toLowerCase() + ', wrong answer.'); } }
+}
+function finish(g, won, idx, replay) {
+  g.done = true; g.won = won; g.score = won ? score(g, idx) : 0;
+  if (!replay) {
+    if (g.mode === 'daily') { var s = store.d, today = dayKey(), y = dayKey(new Date(Date.now() - 864e5)); s.played++; if (won) { s.won++; s.streak = (s.last === y || s.last === today) ? s.streak + 1 : 1; if (s.streak > s.best) s.best = s.streak; } else s.streak = 0; s.last = today; saveDaily(g); }
+    else { store.f.played++; if (won) { store.f.won++; store.f.pts += g.score; } }
+    save();
+  }
+  if (g === cur()) { render(); if (!replay) setTimeout(function () { $('result').scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 80); }
+}
+function shareText(g) { var sq = g.hist.map(function (h) { return h.k === 's' ? '-' : h.ok ? 'O' : h.close ? 'A' : 'X'; }); while (sq.length < 5) sq.push('.'); var n = g.hist.length; return CFG.name + ' ' + dayKey() + '\n[' + sq.slice(0, 5).join(' ') + ']\n' + (g.won ? n + '/5, ' + g.score + ' pts' : 'X/5'); }
+function hintBody(g, k) {
+  var n = g.item.n;
+  if (k === 0) return esc(g.item.g);
+  if (k === 1) return '<code>' + n.split(' ').map(function (w) { return new Array(w.replace(/[^A-Za-z0-9]/g, '').length + 1).join('_'); }).join('&nbsp;&nbsp;') + '</code>';
+  return esc(n.charAt(0).toUpperCase());
+}
+
+/* search */
+var sT = 0, sList = [], sSel = -1, sQ = '';
+function rank(q, d) { var s = 0; d.keys.forEach(function (k, j) { var v = 0; if (k === q) v = 100; else if (k.indexOf(q) === 0) v = 80; else if (k.split(' ').some(function (w) { return w.indexOf(q) === 0; })) v = 60; else if (k.indexOf(q) >= 0) v = 40; if (j === 0) v += 2; if (v > s) s = v; }); return s; }
+function search(q) {
+  var nq = norm(q); if (nq.length < 1) return [];
+  return DATA.map(function (d) { return { d: d, s: rank(nq, d) }; }).filter(function (x) { return x.s > 0; }).sort(function (a, b) { return b.s - a.s || a.d.n.localeCompare(b.d.n); }).slice(0, 8).map(function (x) { return x.d; });
+}
+function hl(text, q) { var t = String(text), i = t.toLowerCase().indexOf(String(q).trim().toLowerCase()); if (!q.trim() || i < 0) return esc(t); return esc(t.slice(0, i)) + '<mark>' + esc(t.slice(i, i + q.trim().length)) + '</mark>' + esc(t.slice(i + q.trim().length)); }
+function hideRes() { $('res').hidden = true; $('q').setAttribute('aria-expanded', 'false'); sSel = -1; }
+function showRes() {
+  var b = $('res'); if (!sList.length) { b.innerHTML = '<div class="msg">No match. Check the spelling or try fewer letters.</div>'; }
+  else b.innerHTML = sList.map(function (d, i) { return '<button type="button" role="option" data-i="' + i + '" class="' + (i === sSel ? 'on' : '') + '"><span><b>' + hl(d.n, sQ) + '</b><small>' + esc(d.g) + '</small></span></button>'; }).join('');
+  b.hidden = false; $('q').setAttribute('aria-expanded', 'true');
+}
+$('q').addEventListener('input', function () { sQ = this.value; sSel = -1; if (!sQ.trim()) { hideRes(); return; } clearTimeout(sT); sT = setTimeout(function () { sList = search(sQ); showRes(); }, 60); });
+$('q').addEventListener('keydown', function (e) {
+  if (e.key === 'Enter') { e.preventDefault(); submit(); return; }
+  if ($('res').hidden || !sList.length) return;
+  if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); sSel = (sSel + (e.key === 'ArrowDown' ? 1 : -1) + sList.length) % sList.length; showRes(); var on = $('res').querySelector('.on'); if (on) on.scrollIntoView({ block: 'nearest' }); }
+  else if (e.key === 'Escape') hideRes();
+});
+$('res').addEventListener('mousedown', function (e) { e.preventDefault(); });
+$('res').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; sSel = +b.dataset.i; submit(); });
+document.addEventListener('click', function (e) { if (!e.target.closest('.sw')) hideRes(); });
+function submit() {
+  var g = cur(); if (!g || g.done) return;
+  var text = $('q').value.trim(), sel = sSel >= 0 ? sList[sSel] : null;
+  if (!sel && !text) { toast('Search for an answer and pick it first.'); return; }
+  if (!sel) { var nt = norm(text); sel = DATA.filter(function (d) { return d.keys.indexOf(nt) >= 0; })[0] || null; }
+  if (!sel) { var l = search(text); if (l.length === 1) sel = l[0]; }
+  if (!sel) { // naming the group (era, author...) is free
+    var ng = norm(text); if (ng.length > 2 && norm(g.item.g).indexOf(ng) >= 0) { g.closeFound = true; $('q').value = ''; hideRes(); render(); toast('Yes, that is the right ' + CFG.closeNoun.toLowerCase() + '.'); return; }
+    toast('Pick one of the suggestions to guess.'); return;
+  }
+  if (g.hist.some(function (h) { return h.k === 'g' && h.i === sel.i; })) { toast('You already guessed that.'); return; }
+  $('q').value = ''; sList = []; hideRes(); apply(g, { k: 'g', i: sel.i });
+}
+$('bSubmit').onclick = submit;
+$('bSkip').onclick = function () { var g = cur(); if (g && !g.done) apply(g, { k: 's' }); };
+$('bHint').onclick = function () { var g = cur(); if (!g || g.done || g.hints >= 3) return; g.hints++; if (g.mode === 'daily') saveDaily(g); render(); };
+
+function render() {
+  var g = cur(), live = !!(g && !g.done);
+  document.querySelectorAll('#tabs button').forEach(function (b) { b.classList.toggle('on', b.dataset.m === tab); });
+  $('settings').hidden = tab !== 'free';
+  var shown = g ? (g.done ? 5 : Math.min(g.stage, 4) + 1) : 1, h = '';
+  for (var i = 0; i < 5; i++) h += i < shown ? '<li class="clue' + (i === shown - 1 && live && i > 0 ? ' new' : '') + '"><span class="n">' + (i + 1) + '</span><span>' + esc(g.item.c[i]) + '</span></li>' : '<li class="clue lock"><span class="n">' + (i + 1) + '</span><span class="t">LOCKED</span></li>';
+  $('clues').innerHTML = h;
+  $('mL').innerHTML = g && g.done ? (g.won ? 'Solved' : 'Round over') : 'Clue <b>' + shown + '</b> of 5';
+  $('mR').innerHTML = g && g.mode === 'daily' ? esc(dayKey()) : '';
+  var r = '';
+  for (var j = 0; j < 5; j++) {
+    var x = g && g.hist[j];
+    if (x) { var tag = x.k === 's' ? '<span class="tag skip">Skipped</span>' : x.ok ? '<span class="tag ok">Correct</span>' : x.close ? '<span class="tag art">Right ' + esc(CFG.closeNoun.toLowerCase()) + '</span>' : '<span class="tag bad">Wrong</span>'; r += '<li><span class="n">' + (j + 1) + '</span><span class="t">' + (x.k === 's' ? 'Skipped' : esc(DATA[x.i].n)) + '</span>' + tag + '</li>'; }
+    else r += '<li class="' + (live && j === g.hist.length ? 'cur' : 'empty') + '"><span class="n">' + (j + 1) + '</span><span class="t"><small>' + (live && j === g.hist.length ? 'Your guess' : '') + '</small></span></li>';
+  }
+  $('rows').innerHTML = r;
+  var f = $('found'); f.hidden = !(g && g.closeFound && !g.done); if (!f.hidden) f.innerHTML = 'Right ' + esc(CFG.closeNoun.toLowerCase()) + ': <b>' + esc(g.item.g) + '</b>. Now find the exact answer.';
+  var hh = ''; if (g) for (var k = 0; k < g.hints; k++) hh += '<div class="hint"><em>' + esc(HINT_NAMES[k]) + '</em><span>' + hintBody(g, k) + '</span></div>'; $('hints').innerHTML = hh;
+  $('bHint').innerHTML = g && g.hints >= 3 ? 'No more hints' : 'Hint <small style="opacity:.6">(-' + HINT_COST + ')</small>';
+  $('bHint').disabled = !live || g.hints >= 3; $('bSkip').disabled = !live; $('bSubmit').disabled = !live; $('q').disabled = !live;
+  $('q').placeholder = live ? 'Search for the ' + CFG.noun : 'Round over';
+  var res = $('result');
+  if (g && g.done) {
+    res.hidden = false;
+    res.innerHTML = '<div class="verdict ' + (g.won ? 'w' : 'l') + '">' + (g.won ? 'Solved in ' + g.hist.length + (g.hist.length === 1 ? ' try, ' : ' tries, ') + g.score + ' points' : 'Out of chances') + '</div><div class="ans"><h2>' + esc(g.item.n) + '</h2><p>' + esc(g.item.g) + (g.item.f && g.item.f !== g.item.g ? ' · ' + esc(g.item.f) : '') + '</p></div><div class="acts">' + (g.mode === 'daily' ? '<button class="btn sm pri" data-act="share" type="button">Share result</button>' : '<button class="btn sm pri" data-act="next" type="button">Next ' + CFG.noun + '</button>') + '</div>' + (g.mode === 'daily' ? '<div class="note" style="margin-top:12px">A new daily ' + CFG.noun + ' arrives at midnight Eastern. Try Free play for more rounds.</div>' : '');
+  } else res.hidden = true;
+}
+$('result').addEventListener('click', function (e) {
+  var b = e.target.closest('[data-act]'); if (!b) return; var g = cur();
+  if (b.dataset.act === 'next') { startFree(); render(); }
+  else { var t = shareText(g); if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(function () { toast('Result copied.'); }, function () { toast(t); }); else toast(t); }
+});
+$('tabs').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b || b.dataset.m === tab) return; hideRes(); $('q').value = ''; tab = b.dataset.m; if (tab === 'free' && !games.free) startFree(); render(); });
+(function () {
+  var s = $('sF'); s.innerHTML = '<option>All</option>' + CFG.filters.map(function (f) { return '<option>' + esc(f) + '</option>'; }).join(''); s.value = store.filter;
+  s.onchange = function () { store.filter = s.value; save(); startFree(); render(); };
+  $('bNew').onclick = function () { startFree(); render(); };
+})();
+function openDlg(d) { if (d.showModal) d.showModal(); else d.setAttribute('open', ''); }
+$('bHelp').onclick = function () { openDlg($('dHelp')); };
+$('bStats').onclick = function () {
+  var d = store.d, f = store.f;
+  var box = function (a) { return '<div class="stats">' + a.map(function (x) { return '<div class="st"><b>' + x[1] + '</b><span>' + x[0] + '</span></div>'; }).join('') + '</div>'; };
+  $('statBody').innerHTML = '<span class="lbl">Daily</span>' + box([['Played', d.played], ['Win %', d.played ? Math.round(d.won / d.played * 100) : 0], ['Streak', d.streak], ['Best', d.best]]) + '<span class="lbl" style="margin-top:14px">Free play</span>' + box([['Played', f.played], ['Solved', f.won], ['Points', f.pts], ['Win %', f.played ? Math.round(f.won / f.played * 100) : 0]]);
+  openDlg($('dStats'));
+};
+document.querySelectorAll('[data-close]').forEach(function (b) { b.onclick = function () { b.closest('dialog').close(); }; });
+document.querySelectorAll('dialog').forEach(function (d) { d.addEventListener('click', function (e) { if (e.target === d) d.close(); }); });
+try { if (!store.seen) { store.seen = 1; save(); setTimeout(function () { openDlg($('dHelp')); }, 400); } } catch (e) {}
+initDaily(); render();
+})();
+</script>
+</body>
+</html>
