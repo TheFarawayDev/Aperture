@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#060b08">
+<title>Epochs — Guess the figure</title>
+<meta name="description" content="Guess the historical figure from five clues.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2032%2032%27%3E%3Crect%20width%3D%2732%27%20height%3D%2732%27%20rx%3D%279%27%20fill%3D%27%230a1a12%27/%3E%3Cg%20fill%3D%27%237fb2ff%27%3E%3Cpath%20d%3D%22M9%205h14v3c0%204-5%205-5%208s5%204%205%208v3H9v-3c0-4%205-5%205-8S9%2012%209%208z%22/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#060b08;--panel:#0c140f;--panel2:#111c15;--line:rgba(255,255,255,.08);--line2:rgba(255,255,255,.16);--text:#e9f2ec;--t2:#a9b9af;--t3:#6f8176;--g:#7fb2ff;--g2:#b3d0ff;--amber:#f0b94a;--red:#f0657a;--ease:cubic-bezier(.22,1,.36,1)}
+*{box-sizing:border-box}
+html{background:var(--bg);color-scheme:dark}
+body{margin:0;min-height:100vh;font-family:Inter,system-ui,-apple-system,'Segoe UI',sans-serif;color:var(--text);line-height:1.45;-webkit-font-smoothing:antialiased;background:radial-gradient(900px 420px at 50% -8%,color-mix(in srgb,var(--g) 11%,transparent),transparent 65%),var(--bg)}
+button,input,select{font:inherit;color:inherit}[hidden]{display:none!important}
+:focus-visible{outline:2px solid var(--g);outline-offset:2px}svg{display:block}
+.top{display:flex;align-items:center;gap:10px;max-width:640px;margin:0 auto;padding:14px 14px 6px}
+.logo{display:flex;align-items:center;gap:10px;flex:1;min-width:0;text-decoration:none;color:var(--text)}
+.logo b{font-size:21px;font-weight:800;letter-spacing:-.03em}.logo b i{font-style:normal;color:var(--g)}
+.tabs{display:inline-flex;padding:3px;border-radius:12px;background:var(--panel);border:1px solid var(--line)}
+.tabs button{border:0;background:transparent;height:32px;padding:0 14px;border-radius:9px;color:var(--t2);font-weight:600;font-size:13.5px;cursor:pointer}.tabs button.on{background:var(--g);color:#04140b}
+.ib{width:38px;height:38px;border-radius:11px;border:1px solid var(--line);background:var(--panel);display:grid;place-items:center;color:var(--t2);cursor:pointer;transition:background .2s,color .2s}.ib:hover{background:var(--panel2);color:#fff}
+main{max-width:640px;margin:0 auto;padding:6px 14px 40px;display:flex;flex-direction:column;gap:12px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px}
+.lbl{font-size:11.5px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px;display:block}
+.inp{width:100%;height:44px;padding:0 13px;border-radius:12px;border:1px solid var(--line2);background:#070d09;outline:none;transition:border-color .15s,box-shadow .15s}
+.inp:focus{border-color:color-mix(in srgb,var(--g) 60%,transparent);box-shadow:0 0 0 3px color-mix(in srgb,var(--g) 14%,transparent)}.inp::placeholder{color:#506057}
+select.inp{cursor:pointer;color-scheme:dark}select option{background:#0c140f}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 18px;border-radius:12px;border:1px solid var(--line2);background:transparent;color:var(--text);font-weight:600;font-size:14px;cursor:pointer;white-space:nowrap;text-decoration:none;transition:transform .2s var(--ease),background .2s}
+.btn:hover{background:var(--panel2)}.btn:active:not(:disabled){transform:scale(.96)}.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.pri{background:var(--g);border-color:transparent;color:#04140b}.btn.pri:hover{background:var(--g2)}.btn.sm{height:36px;padding:0 13px;font-size:13px;border-radius:10px}
+.grid{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end}
+.note{font-size:12.5px;color:var(--t3)}
+.meta{display:flex;justify-content:space-between;font-size:13px;color:var(--t2);margin-bottom:12px}.meta b{color:var(--text)}
+.clues{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.clue{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border-radius:13px;border:1px solid var(--line);background:#09100c;font-size:15px;animation:in .4s var(--ease) both}
+.clue .n{flex:none;width:24px;height:24px;border-radius:8px;display:grid;place-items:center;font-size:12px;font-weight:800;background:color-mix(in srgb,var(--g) 18%,transparent);color:var(--g2)}
+.clue.lock{opacity:.5;animation:none;align-items:center}.clue.lock .n{background:rgba(255,255,255,.06);color:var(--t3)}
+.clue.lock span.t{color:var(--t3);letter-spacing:.2em}
+.clue.new{border-color:color-mix(in srgb,var(--g) 40%,transparent)}
+@keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.rows{list-style:none;margin:0 0 12px;padding:0;display:flex;flex-direction:column;gap:6px}
+.rows li{display:flex;align-items:center;gap:10px;min-height:42px;padding:7px 12px;border-radius:11px;border:1px solid var(--line);background:#09100c;font-size:14px;animation:in .35s var(--ease) both}
+.rows li .n{flex:none;width:20px;color:var(--t3);font-size:12px;font-weight:700}
+.rows li .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rows li .t small{color:var(--t3)}
+.rows li.empty{opacity:.45;animation:none}.rows li.cur{opacity:1;border-color:color-mix(in srgb,var(--g) 35%,transparent);animation:none}
+.tag{flex:none;font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:99px}
+.tag.bad{background:rgba(240,101,122,.14);color:var(--red)}.tag.skip{background:rgba(255,255,255,.07);color:var(--t2)}.tag.ok{background:color-mix(in srgb,var(--g) 20%,transparent);color:var(--g2)}.tag.art{background:rgba(240,185,74,.16);color:var(--amber)}
+.sw{position:relative}
+.res{margin-top:6px;border:1px solid var(--line2);border-radius:13px;background:#0a110d;max-height:290px;overflow:auto}
+.res button{display:flex;align-items:center;gap:10px;width:100%;border:0;background:transparent;text-align:left;padding:10px 12px;cursor:pointer;border-bottom:1px solid var(--line)}
+.res button:last-child{border:0}.res button.on,.res button:hover{background:color-mix(in srgb,var(--g) 13%,transparent)}
+.res span{min-width:0;flex:1}.res b{display:block;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.res small{display:block;color:var(--t3);font-size:12.5px}
+.res mark{background:none;color:var(--g2)}.res .msg{padding:12px;color:var(--t3);font-size:13px}
+.acts{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}.acts .grow{flex:1}
+.hints{margin-top:10px;display:flex;flex-direction:column;gap:6px}
+.hint{display:flex;gap:10px;align-items:baseline;padding:8px 12px;border-radius:11px;background:rgba(240,185,74,.08);border:1px solid rgba(240,185,74,.2);font-size:13.5px}.hint em{font-style:normal;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--amber);flex:none}
+.hint code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.12em}
+.found{margin-bottom:10px;padding:9px 12px;border-radius:11px;background:color-mix(in srgb,var(--g) 11%,transparent);border:1px solid color-mix(in srgb,var(--g) 30%,transparent);font-size:13.5px;color:var(--g2)}
+.verdict{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;margin-bottom:8px}.verdict.w{color:var(--g)}.verdict.l{color:var(--red)}
+.ans h2{margin:0;font-size:22px;letter-spacing:-.02em}.ans p{margin:2px 0 0;color:var(--t2);font-size:14px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:6px 0 4px}
+.st{text-align:center;padding:10px 4px;border-radius:12px;background:#09100c;border:1px solid var(--line)}.st b{display:block;font-size:20px}.st span{font-size:10.5px;color:var(--t3);text-transform:uppercase;letter-spacing:.07em}
+dialog{border:1px solid var(--line2);border-radius:20px;background:var(--panel);color:var(--text);padding:22px;max-width:min(480px,92vw);width:100%}
+dialog::backdrop{background:rgba(0,0,0,.65)}dialog h3{margin:0 0 10px;font-size:18px}dialog ol,dialog ul{padding-left:20px;margin:8px 0;color:var(--t2);font-size:14px}dialog li{margin:5px 0}
+.cred{text-align:center;font-size:11.5px;color:var(--t3);margin-top:4px}
+#toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,16px);opacity:0;pointer-events:none;background:#16251c;border:1px solid var(--line2);padding:10px 16px;border-radius:12px;font-size:13.5px;transition:.2s;z-index:90;max-width:92vw}#toast.show{opacity:1;transform:translate(-50%,0)}
+@media(max-width:480px){.tabs button{padding:0 11px}.logo b{font-size:19px}.grid{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<header class="top">
+  <a class="logo" href="#" aria-label="Epochs"><svg width="34" height="34" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#0a1a12"/><g fill="#7fb2ff"><path d="M9 5h14v3c0 4-5 5-5 8s5 4 5 8v3H9v-3c0-4 5-5 5-8S9 12 9 8z"/></g></svg><b>epoch<i>s</i></b></a>
+  <div class="tabs" id="tabs"><button type="button" class="on" data-m="daily">Daily</button><button type="button" data-m="free">Free play</button></div>
+  <button class="ib" id="bStats" type="button" aria-label="Stats"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 20V10M12 20V4M19 20v-7"/></svg></button>
+  <button class="ib" id="bHelp" type="button" aria-label="How to play"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7M12 17h.01"/></svg></button>
+</header>
+<main>
+  <section class="panel" id="settings" hidden>
+    <div class="grid">
+      <div><label class="lbl" for="sF">Era</label><select class="inp" id="sF"></select></div>
+      <button class="btn pri" id="bNew" type="button">New figure</button>
+    </div>
+  </section>
+  <section class="panel">
+    <div class="meta"><span id="mL"></span><span id="mR"></span></div>
+    <ul class="clues" id="clues"></ul>
+  </section>
+  <section class="panel" id="gp">
+    <div id="found" class="found" hidden></div>
+    <ul class="rows" id="rows"></ul>
+    <div class="sw">
+      <input class="inp" id="q" placeholder="Search for the figure" autocomplete="off" spellcheck="false" enterkeyhint="search" role="combobox" aria-expanded="false" aria-controls="res">
+      <div class="res" id="res" hidden role="listbox"></div>
+    </div>
+    <div class="acts">
+      <button class="btn" id="bSkip" type="button">Skip: next clue</button>
+      <button class="btn" id="bHint" type="button">Hint</button>
+      <button class="btn pri grow" id="bSubmit" type="button">Guess</button>
+    </div>
+    <div class="hints" id="hints"></div>
+  </section>
+  <section class="panel" id="result" hidden></section>
+  <div class="cred">Clues are summaries written for this game.</div>
+</main>
+<dialog id="dHelp"><h3>How to play</h3>
+  <ol><li>You get one clue about a mystery figure, starting vague.</li><li>Search the list, pick your guess and press Guess.</li><li>A wrong guess or a skip reveals the next clue. You have 5 chances.</li><li>The fewer clues you need, the more points you earn.</li></ol>
+  <ul><li>If you pick the right era but the wrong answer, it tells you.</li><li>Hints are optional and cost a few points each.</li><li>Daily gives everyone the same answer, chosen from the date. Free play lets you filter by era.</li></ul>
+  <div class="acts"><button class="btn pri" type="button" data-close>Got it</button></div></dialog>
+<dialog id="dStats"><h3>Your stats</h3><div id="statBody"></div><div class="acts"><button class="btn pri" type="button" data-close>Close</button></div></dialog>
+<div id="toast" role="status"></div>
+<script>
+(function () {
+'use strict';
+var $ = function (id) { return document.getElementById(id); };
+var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+var CFG = {"key": "epochs", "name": "Epochs", "noun": "figure", "closeNoun": "Era", "filters": ["Ancient", "Medieval", "Early modern (1400-1800)", "1800s", "1900s and later"]}, DATA = [{"n": "Cleopatra", "a": ["Cleopatra VII"], "g": "Ancient", "f": "Ancient", "c": ["A ruler who spoke many languages, unusual for her dynasty.", "The last active pharaoh of a Greek-descended royal line.", "Allied with two powerful Roman leaders.", "Her death in 30 BCE ended the Ptolemaic dynasty.", "Famous queen of the Nile, partner of Julius Caesar and Mark Antony."]}, {"n": "Julius Caesar", "a": ["Caesar"], "g": "Ancient", "f": "Ancient", "c": ["A general whose rise helped end a republic.", "Wrote an account of his wars in Gaul.", "Crossed a small river with his army, defying the Senate.", "Named dictator for life shortly before his death.", "Assassinated on the Ides of March, 44 BCE."]}, {"n": "Alexander the Great", "a": ["Alexander III of Macedon", "Alexander"], "g": "Ancient", "f": "Ancient", "c": ["Became king in his early twenties.", "Tutored by a famous philosopher.", "Never lost a major battle.", "Built an empire stretching from Greece to India.", "Macedonian king who died in Babylon aged 32; student of Aristotle."]}, {"n": "Socrates", "a": [], "g": "Ancient", "f": "Ancient", "c": ["Left no writings of his own.", "Known for a method of asking probing questions.", "Lived in Athens and was condemned by a jury.", "His best-known student was Plato.", "Sentenced to drink hemlock."]}, {"n": "Tutankhamun", "a": ["King Tut", "Tutankhamen"], "g": "Ancient", "f": "Ancient", "c": ["Became ruler as a child.", "Restored traditional gods after a religious revolution.", "His tomb was found nearly intact in 1922.", "Buried with a famous golden death mask.", "The boy pharaoh of the Valley of the Kings."]}, {"n": "Confucius", "a": [], "g": "Ancient", "f": "Ancient", "c": ["A teacher whose ideas shaped East Asian society for centuries.", "Born in the state of Lu.", "Emphasized filial piety and ritual.", "His sayings were collected in the Analects.", "Chinese philosopher who lived from 551 to 479 BCE."]}, {"n": "Hannibal", "a": ["Hannibal Barca"], "g": "Ancient", "f": "Ancient", "c": ["Swore a childhood oath of hatred toward an enemy.", "Famous for an unexpected route with war elephants.", "Crossed the Alps.", "Came from Carthage.", "Fought Rome in the Second Punic War."]}, {"n": "Genghis Khan", "a": ["Temujin", "Chinggis Khan"], "g": "Medieval", "f": "Medieval", "c": ["Born with a different name, he united rival tribes.", "Built the largest contiguous land empire in history.", "Created a postal relay system and tolerated many religions.", "Conquered northern China and Central Asia.", "Founder of the Mongol Empire."]}, {"n": "Joan of Arc", "a": ["Jeanne d'Arc"], "g": "Medieval", "f": "Medieval", "c": ["A teenager who led armies.", "Claimed to receive visions from saints.", "Fought in the Hundred Years' War.", "Helped see a French king crowned at Reims.", "Burned at the stake in 1431; the Maid of Orleans."]}, {"n": "Leonardo da Vinci", "a": ["Leonardo", "Da Vinci"], "g": "Early modern (1400-1800)", "f": "Early modern (1400-1800)", "c": ["Painter, inventor and anatomist in one person.", "Wrote his notes in mirror writing.", "Sketched flying machines centuries before flight.", "Painted The Last Supper.", "Painted the Mona Lisa."]}, {"n": "Christopher Columbus", "a": ["Columbus"], "g": "Early modern (1400-1800)", "f": "Early modern (1400-1800)", "c": ["Sailed with royal backing from Spain.", "Underestimated the size of the Earth.", "His ships were the Nina, Pinta and Santa Maria.", "Landed in the Caribbean in 1492.", "Italian navigator who thought he had reached Asia."]}, {"n": "Queen Elizabeth I", "a": ["Elizabeth I", "Elizabeth 1"], "g": "Early modern (1400-1800)", "f": "Early modern (1400-1800)", "c": ["Ruled during a golden age of theater.", "Never married, and was known as the Virgin Queen.", "Her fleet defeated the Spanish Armada.", "Daughter of Henry VIII and Anne Boleyn.", "Queen of England from 1558 to 1603."]}, {"n": "Galileo Galilei", "a": ["Galileo"], "g": "Early modern (1400-1800)", "f": "Early modern (1400-1800)", "c": ["Improved a new optical instrument and aimed it at the sky.", "Discovered four large moons orbiting a giant planet.", "Supported a sun-centered model of the solar system.", "Tried by the Inquisition and kept under house arrest.", "Italian astronomer, said to have dropped objects from a leaning tower."]}, {"n": "Isaac Newton", "a": ["Newton"], "g": "Early modern (1400-1800)", "f": "Early modern (1400-1800)", "c": ["Developed new mathematics while avoiding the plague in the countryside.", "Wrote the Principia.", "Described three laws of motion.", "Legend says an apple inspired him.", "English scientist behind universal gravitation."]}, {"n": "George Washington", "a": ["Washington"], "g": "Early modern (1400-1800)", "f": "Early modern (1400-1800)", "c": ["Commanded an army before he led a nation.", "Presided over the convention that wrote a constitution.", "Stepped down after two terms, setting a precedent.", "Famously crossed the Delaware River.", "First president of the United States."]}, {"n": "Benjamin Franklin", "a": ["Franklin", "Ben Franklin"], "g": "Early modern (1400-1800)", "f": "Early modern (1400-1800)", "c": ["Printer, scientist, diplomat and author.", "Founded a lending library and a fire company.", "Published Poor Richard's Almanack.", "Famous for an experiment with a kite and a key.", "Appears on the $100 bill; signed the Declaration of Independence."]}, {"n": "Thomas Jefferson", "a": ["Jefferson"], "g": "Early modern (1400-1800)", "f": "Early modern (1400-1800)", "c": ["Wrote the document that declared independence.", "Founded the University of Virginia.", "Doubled the nation's size with a purchase from France.", "Lived at Monticello.", "Third president of the United States."]}, {"n": "Catherine the Great", "a": ["Catherine II"], "g": "Early modern (1400-1800)", "f": "Early modern (1400-1800)", "c": ["A foreign-born princess who came to rule a vast empire.", "Took power after a coup against her husband.", "Corresponded with Enlightenment thinkers like Voltaire.", "Expanded her territory south and west.", "Empress of Russia."]}, {"n": "Peter the Great", "a": ["Peter I"], "g": "Early modern (1400-1800)", "f": "Early modern (1400-1800)", "c": ["Traveled in disguise through Europe to learn shipbuilding.", "Made nobles shave their beards.", "Founded a new capital on the Baltic.", "Modernized and westernized his country.", "Tsar of Russia who built St. Petersburg."]}, {"n": "Napoleon Bonaparte", "a": ["Napoleon", "Bonaparte"], "g": "1800s", "f": "1800s", "c": ["Rose from the artillery ranks during a revolution.", "Crowned himself emperor.", "Issued a legal code still influential today.", "His 1812 campaign in Russia was a disaster.", "Defeated at Waterloo and exiled to Saint Helena."]}, {"n": "Abraham Lincoln", "a": ["Lincoln", "Abe Lincoln"], "g": "1800s", "f": "1800s", "c": ["A self-taught lawyer from the frontier.", "Debated Stephen Douglas in a Senate race.", "Issued the Emancipation Proclamation.", "Delivered a short speech at Gettysburg.", "16th U.S. president, assassinated at Ford's Theatre."]}, {"n": "Harriet Tubman", "a": [], "g": "1800s", "f": "1800s", "c": ["Born into slavery in Maryland.", "Escaped, then returned repeatedly to guide others.", "Nicknamed Moses by those she led.", "Served as a scout and spy in the Civil War.", "A conductor of the Underground Railroad."]}, {"n": "Frederick Douglass", "a": ["Douglass"], "g": "1800s", "f": "1800s", "c": ["Taught himself to read despite laws against it.", "Escaped slavery and became a famous speaker.", "Published an autobiography in 1845.", "Edited an abolitionist newspaper called The North Star.", "An adviser to Abraham Lincoln."]}, {"n": "Charles Darwin", "a": ["Darwin"], "g": "1800s", "f": "1800s", "c": ["A voyage on a ship reshaped his career.", "Studied finches and tortoises on remote islands.", "Waited years before publishing his theory.", "Wrote On the Origin of Species.", "Natural selection; sailed on HMS Beagle."]}, {"n": "Queen Victoria", "a": ["Victoria"], "g": "1800s", "f": "1800s", "c": ["Became monarch as a teenager.", "An entire era is named after her.", "Wore black for decades after her husband's death.", "Empress of India.", "Longest-reigning British monarch before Elizabeth II; husband Albert."]}, {"n": "Simon Bolivar", "a": ["Simón Bolívar", "Bolivar"], "g": "1800s", "f": "1800s", "c": ["Educated in Europe and inspired by the Enlightenment.", "Led independence movements across a continent.", "Called El Libertador.", "A country is named after him.", "Venezuelan leader honored in Bolivia's name."]}, {"n": "Susan B. Anthony", "a": ["Susan Anthony"], "g": "1800s", "f": "1800s", "c": ["Raised in a Quaker family, she became a teacher then an activist.", "Arrested for voting in 1872.", "Co-founded a women's suffrage association with Elizabeth Cady Stanton.", "Her image later appeared on a U.S. dollar coin.", "A leader of the women's suffrage movement."]}, {"n": "Sacagawea", "a": ["Sacajawea"], "g": "1800s", "f": "1800s", "c": ["A young Shoshone woman.", "Helped with interpretation and diplomacy.", "Traveled with an infant.", "Joined the Lewis and Clark expedition.", "Appears on a dollar coin."]}, {"n": "Marie Curie", "a": ["Madame Curie", "Maria Sklodowska"], "g": "1900s and later", "f": "1900s and later", "c": ["Moved from Poland to Paris to study.", "Coined the term radioactivity.", "First woman to win a Nobel Prize.", "Won Nobel Prizes in two different sciences.", "Discovered polonium and radium."]}, {"n": "Albert Einstein", "a": ["Einstein"], "g": "1900s and later", "f": "1900s and later", "c": ["Worked in a patent office when he published groundbreaking papers.", "Famous for the equation E = mc squared.", "Won a Nobel Prize for explaining the photoelectric effect.", "Fled Nazi Germany.", "Developed the theory of relativity."]}, {"n": "Mahatma Gandhi", "a": ["Gandhi", "Mohandas Gandhi"], "g": "1900s and later", "f": "1900s and later", "c": ["Trained as a lawyer in London.", "Led a march to the sea to protest a tax on salt.", "Championed nonviolent resistance.", "Led India to independence from Britain.", "Assassinated in 1948."]}, {"n": "Winston Churchill", "a": ["Churchill"], "g": "1900s and later", "f": "1900s and later", "c": ["Was a war correspondent before politics.", "Won a Nobel Prize in Literature.", "Famous for wartime speeches.", "Prime minister of Britain during World War II.", "Often photographed flashing a V for victory."]}, {"n": "Martin Luther King Jr.", "a": ["Martin Luther King", "MLK", "Dr. King"], "g": "1900s and later", "f": "1900s and later", "c": ["A pastor who became a national leader at 26.", "Led the Montgomery bus boycott.", "Wrote a letter from a Birmingham jail.", "Delivered the I Have a Dream speech.", "Won the 1964 Nobel Peace Prize; killed in Memphis."]}, {"n": "Nelson Mandela", "a": ["Mandela"], "g": "1900s and later", "f": "1900s and later", "c": ["A lawyer who joined a liberation movement.", "Spent 27 years in prison.", "Freed in 1990.", "Shared a Nobel Peace Prize with the president who released him.", "First Black president of South Africa."]}, {"n": "Rosa Parks", "a": [], "g": "1900s and later", "f": "1900s and later", "c": ["Worked as a seamstress and civil rights activist.", "Refused to give up a bus seat in 1955.", "Her arrest sparked a major boycott.", "The protest took place in Montgomery, Alabama.", "Called the mother of the civil rights movement."]}, {"n": "Amelia Earhart", "a": ["Earhart"], "g": "1900s and later", "f": "1900s and later", "c": ["Broke records in a new field in the 1920s and 30s.", "First woman to fly solo across the Atlantic.", "Attempted to fly around the globe.", "Vanished over the Pacific in 1937.", "Her navigator was Fred Noonan."]}, {"n": "Franklin D. Roosevelt", "a": ["FDR", "Franklin Roosevelt", "Roosevelt"], "g": "1900s and later", "f": "1900s and later", "c": ["Overcame an illness that left him unable to walk unaided.", "Elected president four times.", "Launched the New Deal.", "Reached the public through radio fireside chats.", "32nd U.S. president during the Depression and most of World War II."]}, {"n": "Neil Armstrong", "a": ["Armstrong"], "g": "1900s and later", "f": "1900s and later", "c": ["A former naval aviator and test pilot.", "Commanded Gemini 8.", "Commander of Apollo 11.", "The first human on the Moon.", "Spoke of one small step for man."]}, {"n": "Anne Frank", "a": [], "g": "1900s and later", "f": "1900s and later", "c": ["A teen writer whose diary became world-famous.", "Born in Germany, she moved to Amsterdam.", "Her family hid in a secret annex.", "Died in a concentration camp in 1945.", "Author of The Diary of a Young Girl."]}, {"n": "Muhammad Ali", "a": ["Cassius Clay"], "g": "1900s and later", "f": "1900s and later", "c": ["Born with a different name.", "Won Olympic gold in 1960.", "Refused to be drafted during the Vietnam War.", "Said to float like a butterfly and sting like a bee.", "Heavyweight boxing champion who called himself the Greatest."]}], LS = CFG.key + '-v1', PTS = [100, 70, 45, 25, 10], HINT_COST = 8, HINT_NAMES = [CFG.closeNoun, 'Letters', 'Starts with'];
+function norm(s) { var x = String(s || '').toLowerCase(); if (x.normalize) x = x.normalize('NFD').replace(/[̀-ͯ]/g, ''); x = x.replace(/&/g, ' and ').replace(/^(the|a|an)\s+/, ''); return x.replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim(); }
+DATA.forEach(function (d, i) { d.i = i; d.keys = [d.n].concat(d.a || []).map(norm); });
+var store = (function () { var o = {}; try { o = JSON.parse(localStorage.getItem(LS) || '{}'); } catch (e) {} o.d = o.d || { played: 0, won: 0, streak: 0, best: 0, last: '' }; o.f = o.f || { played: 0, won: 0, pts: 0 }; o.filter = o.filter || 'All'; return o; })();
+function save() { try { localStorage.setItem(LS, JSON.stringify(store)); } catch (e) {} }
+function toast(m) { var t = $('toast'); t.textContent = m; t.classList.add('show'); clearTimeout(toast._t); toast._t = setTimeout(function () { t.classList.remove('show'); }, 2600); }
+function dayKey(d) { return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York' }).format(d || new Date()); }
+function hash(s) { var h = 2166136261; for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+function rng32(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; var t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
+var tab = 'daily', games = {};
+function cur() { return games[tab]; }
+function newGame(mode, item) { return { mode: mode, item: item, stage: 0, hist: [], hints: 0, done: false, won: false, closeFound: false, score: 0 }; }
+function dailyItem() { var r = rng32(hash(CFG.key + '-' + dayKey())); return DATA[Math.floor(r() * DATA.length)]; }
+function freeItem(prev) { var pool = DATA.filter(function (d) { return store.filter === 'All' || d.f === store.filter; }); if (pool.length > 1 && prev != null) pool = pool.filter(function (d) { return d.i !== prev; }); return pool[Math.floor(Math.random() * pool.length)]; }
+function startFree() { var prev = games.free && games.free.item.i; games.free = newGame('free', freeItem(prev)); }
+function initDaily() {
+  var it = dailyItem(), d = store.daily, g = games.daily = newGame('daily', it);
+  if (d && d.date === dayKey() && d.i === it.i) { (d.hist || []).forEach(function (x) { apply(g, x, true); }); g.hints = d.hints || 0; if (g.done) g.score = g.won ? score(g, g.hist.length - 1) : 0; }
+}
+function saveDaily(g) { store.daily = { date: dayKey(), i: g.item.i, hist: g.hist, hints: g.hints }; save(); }
+function score(g, idx) { return Math.max(5, PTS[idx] - g.hints * HINT_COST); }
+
+function apply(g, gu, replay) {
+  if (g.done) return;
+  var n = g.hist.length;
+  if (gu.k === 's') { g.hist.push({ k: 's' }); g.stage++; }
+  else {
+    var d = DATA[gu.i], ok = d.i === g.item.i, close = !ok && d.g === g.item.g;
+    g.hist.push({ k: 'g', i: gu.i, ok: ok, close: close }); if (close) g.closeFound = true;
+    if (ok) { g.closeFound = true; return finish(g, true, n, replay); } g.stage++;
+  }
+  if (g.stage >= 5) return finish(g, false, n, replay);
+  if (!replay) { if (g.mode === 'daily') saveDaily(g); if (g === cur()) { render(); if (g.hist[n].close) toast('Right ' + CFG.closeNoun.toLowerCase() + ', wrong answer.'); } }
+}
+function finish(g, won, idx, replay) {
+  g.done = true; g.won = won; g.score = won ? score(g, idx) : 0;
+  if (!replay) {
+    if (g.mode === 'daily') { var s = store.d, today = dayKey(), y = dayKey(new Date(Date.now() - 864e5)); s.played++; if (won) { s.won++; s.streak = (s.last === y || s.last === today) ? s.streak + 1 : 1; if (s.streak > s.best) s.best = s.streak; } else s.streak = 0; s.last = today; saveDaily(g); }
+    else { store.f.played++; if (won) { store.f.won++; store.f.pts += g.score; } }
+    save();
+  }
+  if (g === cur()) { render(); if (!replay) setTimeout(function () { $('result').scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 80); }
+}
+function shareText(g) { var sq = g.hist.map(function (h) { return h.k === 's' ? '-' : h.ok ? 'O' : h.close ? 'A' : 'X'; }); while (sq.length < 5) sq.push('.'); var n = g.hist.length; return CFG.name + ' ' + dayKey() + '\n[' + sq.slice(0, 5).join(' ') + ']\n' + (g.won ? n + '/5, ' + g.score + ' pts' : 'X/5'); }
+function hintBody(g, k) {
+  var n = g.item.n;
+  if (k === 0) return esc(g.item.g);
+  if (k === 1) return '<code>' + n.split(' ').map(function (w) { return new Array(w.replace(/[^A-Za-z0-9]/g, '').length + 1).join('_'); }).join('&nbsp;&nbsp;') + '</code>';
+  return esc(n.charAt(0).toUpperCase());
+}
+
+/* search */
+var sT = 0, sList = [], sSel = -1, sQ = '';
+function rank(q, d) { var s = 0; d.keys.forEach(function (k, j) { var v = 0; if (k === q) v = 100; else if (k.indexOf(q) === 0) v = 80; else if (k.split(' ').some(function (w) { return w.indexOf(q) === 0; })) v = 60; else if (k.indexOf(q) >= 0) v = 40; if (j === 0) v += 2; if (v > s) s = v; }); return s; }
+function search(q) {
+  var nq = norm(q); if (nq.length < 1) return [];
+  return DATA.map(function (d) { return { d: d, s: rank(nq, d) }; }).filter(function (x) { return x.s > 0; }).sort(function (a, b) { return b.s - a.s || a.d.n.localeCompare(b.d.n); }).slice(0, 8).map(function (x) { return x.d; });
+}
+function hl(text, q) { var t = String(text), i = t.toLowerCase().indexOf(String(q).trim().toLowerCase()); if (!q.trim() || i < 0) return esc(t); return esc(t.slice(0, i)) + '<mark>' + esc(t.slice(i, i + q.trim().length)) + '</mark>' + esc(t.slice(i + q.trim().length)); }
+function hideRes() { $('res').hidden = true; $('q').setAttribute('aria-expanded', 'false'); sSel = -1; }
+function showRes() {
+  var b = $('res'); if (!sList.length) { b.innerHTML = '<div class="msg">No match. Check the spelling or try fewer letters.</div>'; }
+  else b.innerHTML = sList.map(function (d, i) { return '<button type="button" role="option" data-i="' + i + '" class="' + (i === sSel ? 'on' : '') + '"><span><b>' + hl(d.n, sQ) + '</b><small>' + esc(d.g) + '</small></span></button>'; }).join('');
+  b.hidden = false; $('q').setAttribute('aria-expanded', 'true');
+}
+$('q').addEventListener('input', function () { sQ = this.value; sSel = -1; if (!sQ.trim()) { hideRes(); return; } clearTimeout(sT); sT = setTimeout(function () { sList = search(sQ); showRes(); }, 60); });
+$('q').addEventListener('keydown', function (e) {
+  if (e.key === 'Enter') { e.preventDefault(); submit(); return; }
+  if ($('res').hidden || !sList.length) return;
+  if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); sSel = (sSel + (e.key === 'ArrowDown' ? 1 : -1) + sList.length) % sList.length; showRes(); var on = $('res').querySelector('.on'); if (on) on.scrollIntoView({ block: 'nearest' }); }
+  else if (e.key === 'Escape') hideRes();
+});
+$('res').addEventListener('mousedown', function (e) { e.preventDefault(); });
+$('res').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; sSel = +b.dataset.i; submit(); });
+document.addEventListener('click', function (e) { if (!e.target.closest('.sw')) hideRes(); });
+function submit() {
+  var g = cur(); if (!g || g.done) return;
+  var text = $('q').value.trim(), sel = sSel >= 0 ? sList[sSel] : null;
+  if (!sel && !text) { toast('Search for an answer and pick it first.'); return; }
+  if (!sel) { var nt = norm(text); sel = DATA.filter(function (d) { return d.keys.indexOf(nt) >= 0; })[0] || null; }
+  if (!sel) { var l = search(text); if (l.length === 1) sel = l[0]; }
+  if (!sel) { // naming the group (era, author...) is free
+    var ng = norm(text); if (ng.length > 2 && norm(g.item.g).indexOf(ng) >= 0) { g.closeFound = true; $('q').value = ''; hideRes(); render(); toast('Yes, that is the right ' + CFG.closeNoun.toLowerCase() + '.'); return; }
+    toast('Pick one of the suggestions to guess.'); return;
+  }
+  if (g.hist.some(function (h) { return h.k === 'g' && h.i === sel.i; })) { toast('You already guessed that.'); return; }
+  $('q').value = ''; sList = []; hideRes(); apply(g, { k: 'g', i: sel.i });
+}
+$('bSubmit').onclick = submit;
+$('bSkip').onclick = function () { var g = cur(); if (g && !g.done) apply(g, { k: 's' }); };
+$('bHint').onclick = function () { var g = cur(); if (!g || g.done || g.hints >= 3) return; g.hints++; if (g.mode === 'daily') saveDaily(g); render(); };
+
+function render() {
+  var g = cur(), live = !!(g && !g.done);
+  document.querySelectorAll('#tabs button').forEach(function (b) { b.classList.toggle('on', b.dataset.m === tab); });
+  $('settings').hidden = tab !== 'free';
+  var shown = g ? (g.done ? 5 : Math.min(g.stage, 4) + 1) : 1, h = '';
+  for (var i = 0; i < 5; i++) h += i < shown ? '<li class="clue' + (i === shown - 1 && live && i > 0 ? ' new' : '') + '"><span class="n">' + (i + 1) + '</span><span>' + esc(g.item.c[i]) + '</span></li>' : '<li class="clue lock"><span class="n">' + (i + 1) + '</span><span class="t">LOCKED</span></li>';
+  $('clues').innerHTML = h;
+  $('mL').innerHTML = g && g.done ? (g.won ? 'Solved' : 'Round over') : 'Clue <b>' + shown + '</b> of 5';
+  $('mR').innerHTML = g && g.mode === 'daily' ? esc(dayKey()) : '';
+  var r = '';
+  for (var j = 0; j < 5; j++) {
+    var x = g && g.hist[j];
+    if (x) { var tag = x.k === 's' ? '<span class="tag skip">Skipped</span>' : x.ok ? '<span class="tag ok">Correct</span>' : x.close ? '<span class="tag art">Right ' + esc(CFG.closeNoun.toLowerCase()) + '</span>' : '<span class="tag bad">Wrong</span>'; r += '<li><span class="n">' + (j + 1) + '</span><span class="t">' + (x.k === 's' ? 'Skipped' : esc(DATA[x.i].n)) + '</span>' + tag + '</li>'; }
+    else r += '<li class="' + (live && j === g.hist.length ? 'cur' : 'empty') + '"><span class="n">' + (j + 1) + '</span><span class="t"><small>' + (live && j === g.hist.length ? 'Your guess' : '') + '</small></span></li>';
+  }
+  $('rows').innerHTML = r;
+  var f = $('found'); f.hidden = !(g && g.closeFound && !g.done); if (!f.hidden) f.innerHTML = 'Right ' + esc(CFG.closeNoun.toLowerCase()) + ': <b>' + esc(g.item.g) + '</b>. Now find the exact answer.';
+  var hh = ''; if (g) for (var k = 0; k < g.hints; k++) hh += '<div class="hint"><em>' + esc(HINT_NAMES[k]) + '</em><span>' + hintBody(g, k) + '</span></div>'; $('hints').innerHTML = hh;
+  $('bHint').innerHTML = g && g.hints >= 3 ? 'No more hints' : 'Hint <small style="opacity:.6">(-' + HINT_COST + ')</small>';
+  $('bHint').disabled = !live || g.hints >= 3; $('bSkip').disabled = !live; $('bSubmit').disabled = !live; $('q').disabled = !live;
+  $('q').placeholder = live ? 'Search for the ' + CFG.noun : 'Round over';
+  var res = $('result');
+  if (g && g.done) {
+    res.hidden = false;
+    res.innerHTML = '<div class="verdict ' + (g.won ? 'w' : 'l') + '">' + (g.won ? 'Solved in ' + g.hist.length + (g.hist.length === 1 ? ' try, ' : ' tries, ') + g.score + ' points' : 'Out of chances') + '</div><div class="ans"><h2>' + esc(g.item.n) + '</h2><p>' + esc(g.item.g) + (g.item.f && g.item.f !== g.item.g ? ' · ' + esc(g.item.f) : '') + '</p></div><div class="acts">' + (g.mode === 'daily' ? '<button class="btn sm pri" data-act="share" type="button">Share result</button>' : '<button class="btn sm pri" data-act="next" type="button">Next ' + CFG.noun + '</button>') + '</div>' + (g.mode === 'daily' ? '<div class="note" style="margin-top:12px">A new daily ' + CFG.noun + ' arrives at midnight Eastern. Try Free play for more rounds.</div>' : '');
+  } else res.hidden = true;
+}
+$('result').addEventListener('click', function (e) {
+  var b = e.target.closest('[data-act]'); if (!b) return; var g = cur();
+  if (b.dataset.act === 'next') { startFree(); render(); }
+  else { var t = shareText(g); if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(function () { toast('Result copied.'); }, function () { toast(t); }); else toast(t); }
+});
+$('tabs').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b || b.dataset.m === tab) return; hideRes(); $('q').value = ''; tab = b.dataset.m; if (tab === 'free' && !games.free) startFree(); render(); });
+(function () {
+  var s = $('sF'); s.innerHTML = '<option>All</option>' + CFG.filters.map(function (f) { return '<option>' + esc(f) + '</option>'; }).join(''); s.value = store.filter;
+  s.onchange = function () { store.filter = s.value; save(); startFree(); render(); };
+  $('bNew').onclick = function () { startFree(); render(); };
+})();
+function openDlg(d) { if (d.showModal) d.showModal(); else d.setAttribute('open', ''); }
+$('bHelp').onclick = function () { openDlg($('dHelp')); };
+$('bStats').onclick = function () {
+  var d = store.d, f = store.f;
+  var box = function (a) { return '<div class="stats">' + a.map(function (x) { return '<div class="st"><b>' + x[1] + '</b><span>' + x[0] + '</span></div>'; }).join('') + '</div>'; };
+  $('statBody').innerHTML = '<span class="lbl">Daily</span>' + box([['Played', d.played], ['Win %', d.played ? Math.round(d.won / d.played * 100) : 0], ['Streak', d.streak], ['Best', d.best]]) + '<span class="lbl" style="margin-top:14px">Free play</span>' + box([['Played', f.played], ['Solved', f.won], ['Points', f.pts], ['Win %', f.played ? Math.round(f.won / f.played * 100) : 0]]);
+  openDlg($('dStats'));
+};
+document.querySelectorAll('[data-close]').forEach(function (b) { b.onclick = function () { b.closest('dialog').close(); }; });
+document.querySelectorAll('dialog').forEach(function (d) { d.addEventListener('click', function (e) { if (e.target === d) d.close(); }); });
+try { if (!store.seen) { store.seen = 1; save(); setTimeout(function () { openDlg($('dHelp')); }, 400); } } catch (e) {}
+initDaily(); render();
+})();
+</script>
+</body>
+</html>
