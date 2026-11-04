@@ -254,8 +254,17 @@ const BORDER_FX = {
 };
 const Settings = {
   autopause: true, confirmLeave: true, wide: false, fx: true,
-  load() { try { Object.assign(this, JSON.parse(localStorage.getItem('wastelandGrid.settings')) || {}); } catch (e) { /* defaults */ } },
-  save() { try { localStorage.setItem('wastelandGrid.settings', JSON.stringify({ autopause: this.autopause, confirmLeave: this.confirmLeave, wide: this.wide, fx: this.fx })); } catch (e) { /* ignore */ } },
+  ui: 'auto', pix: 'auto', scan: true, parts: 1, fps: 60, motion: true, showFps: false,       // graphics (see display.js)
+  KEYS: ['autopause', 'confirmLeave', 'wide', 'fx', 'ui', 'pix', 'scan', 'parts', 'fps', 'motion', 'showFps'],
+  load() {
+    try {
+      const o = JSON.parse(localStorage.getItem('wastelandGrid.settings')) || {};
+      for (const k of this.KEYS) if (k in o) this[k] = o[k];
+      if (this.ui !== 'auto' && !(+this.ui >= 0.5 && +this.ui <= 3)) this.ui = 'auto';
+      if (!['auto', 'crisp', 'fill'].includes(this.pix)) this.pix = 'auto';
+    } catch (e) { /* defaults */ }
+  },
+  save() { try { const o = {}; for (const k of this.KEYS) o[k] = this[k]; localStorage.setItem('wastelandGrid.settings', JSON.stringify(o)); } catch (e) { /* ignore */ } },
 };
 Settings.load();
 // numbers the simulation reads every tick (recomputed by world.js from difficulty, accords and the union tier)

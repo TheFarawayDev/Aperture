@@ -17,17 +17,25 @@ const Scenes = {
 };
 
 // Size each canvas to the space that is really free (no overflow, sidebar always visible).
-function fit() {
-  const cw = document.documentElement.clientWidth, ch = document.documentElement.clientHeight, cur = Scenes.cur;
+function fit(again) {
+  if (again !== true) fit.cap = Infinity;
+  Display.apply();
+  const cw = Display.vw, ch = Display.vh, cur = Scenes.cur;                      // size of the window in interface pixels (after UI zoom)
   const panel = cur === 'game' ? 352 + 14 : cur === 'map' ? (Settings.wide ? 0 : 340 + 14) : 0, stacked = cw <= 1000;
-  const availW = cw - (stacked ? 0 : panel) - 40, availH = ch - (cur === 'game' ? 178 : cur === 'map' ? (Settings.wide ? 118 : 150) : 60) - (stacked ? 110 : 0);
+  const availW = cw - (stacked ? 0 : panel) - (cw < 700 ? 20 : 40); let availH = ch - (cur === 'game' ? 178 : cur === 'map' ? (Settings.wide ? 118 : 150) : 60) - (stacked ? 110 : 0);
+  availH = Math.min(availH, fit.cap);
   document.querySelectorAll('canvas.px').forEach(c => {
-    let s = Math.min(availW / c.width, availH / c.height);
-    if (c.id !== 'usmap') s = Math.max(1, Math.floor(s)); else s = Math.max(0.6, Math.floor(s * 8) / 8);   // the map may scale in quarters
-    c.style.width = Math.round(c.width * s) + 'px'; c.style.height = Math.round(c.height * s) + 'px';
+    const s = Display.canvasScale(c, availW, Math.max(120, availH));
+    c.style.width = Math.round(c.width * s * 1000) / 1000 + 'px'; c.style.height = Math.round(c.height * s * 1000) / 1000 + 'px';
   });
   const g = $('game'), side = $('side'); if (side && g) side.style.maxHeight = stacked ? 'none' : (parseInt(g.style.height || '270') + 120) + 'px';
   const mp = $('mappanel'), u = $('usmap'); if (mp && u && !stacked) mp.style.minHeight = (parseInt(u.style.height || '340') + 8) + 'px';
+  // the header can wrap onto a second row on narrower windows: if the page now overflows the screen, shrink the picture by the overflow (once)
+  if (again !== true && !stacked && (cur === 'game' || cur === 'map')) {
+    const over = (document.documentElement.scrollHeight - document.documentElement.clientHeight) / Display.z;
+    const pc = $(cur === 'game' ? 'game' : 'usmap');
+    if (over > 2 && over < 300 && pc) { fit.cap = parseFloat(pc.style.height) - Math.ceil(over); fit(true); }
+  }
 }
 addEventListener('resize', fit);
 
@@ -105,7 +113,12 @@ function drawMenuBg(now) {
   }
   for (let i = 0; i < 90; i++) mpx(((i * 53) % W), GY + 3 + ((i * 29) % (H - GY - 4)), 2, 1, i % 3 ? 1 : 9);
 }
-function menuLoop(now) { if (Scenes.is('menu')) { drawMenuBg(now); drawLogo(now); } requestAnimationFrame(menuLoop); }
+let menuDrawn = 0;
+function menuLoop(now) {
+  requestAnimationFrame(menuLoop);
+  if (!Scenes.is('menu') || Display.skip('menu', now) || (!Settings.motion && now - menuDrawn < 500)) return;
+  menuDrawn = now; drawMenuBg(now); drawLogo(now);
+}
 
 // ---------- icons for the HUD (tiny pixel pictures drawn in code) ----------
 function initIcons() {

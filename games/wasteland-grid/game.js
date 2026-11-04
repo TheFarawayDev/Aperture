@@ -812,6 +812,7 @@ function label(txt, cx, y, col) {                       // tiny 3x5 pixel text, 
 let miniT = 0, hudT = 0, startT = 0;
 function frame(now) {
   requestAnimationFrame(frame);
+  if (Display.skip('g', now)) return;
   if (!Builder.active || document.hidden) { frame.last = now; return; }
   const t = now / 1000, dt = Math.min(0.05, (now - (frame.last || now)) / 1000); frame.last = now;
   if (speed > 0) { acc += dt * speed; while (acc >= 1) { acc -= 1; tick(); } }

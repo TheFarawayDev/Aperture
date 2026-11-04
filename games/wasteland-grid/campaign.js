@@ -321,6 +321,7 @@ $('btn-log').onclick = openLog; $('log-close').onclick = () => { $('log').style.
 // --- drawing ---
 function mapFrame(now) {
   requestAnimationFrame(mapFrame);
+  if (Display.skip('m', now)) return;
   if (anim) {
     const k = Math.min(1, (now - anim.t0) / anim.ms), e = ease(k);
     cam.z = anim.from.z + (anim.to.z - anim.from.z) * e; cam.cx = anim.from.cx + (anim.to.cx - anim.from.cx) * e; cam.cy = anim.from.cy + (anim.to.cy - anim.from.cy) * e;

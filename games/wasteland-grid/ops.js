@@ -52,7 +52,8 @@ function reportSurplus() {
 
 // ---------- effects (sparks, smoke, explosions) ----------
 function burst(tx, ty, kind) {
-  const x = tx * T, y = ty * T, add = (n, f) => { for (let i = 0; i < n; i++) fx.push(f(i)); };
+  const x = tx * T, y = ty * T, add = (n, f) => { n = Math.round(n * Settings.parts); for (let i = 0; i < n; i++) fx.push(f(i)); };
+  if (Settings.parts <= 0) return;
   if (kind === 'boom') {
     fx.push({ k: 'ring', x, y, life: 0.7, max: 0.7 });
     add(30, () => { const a = Math.random() * 6.283, s = 20 + Math.random() * 60; return { k: 'dot', x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s - 20, life: 0.6 + Math.random() * 0.8, max: 1.2, c: [5, 6, 7, 8, 3][Math.random() * 5 | 0], g: 90 }; });
@@ -64,8 +65,8 @@ function burst(tx, ty, kind) {
 }
 function drawFx(t, cx, cy, dt) {
   for (const q of seqs) {                                  // critical machines smoke and spark
-    if (q.kind === 'melt' && q.e && Math.random() < 0.25) fx.push({ k: 'smoke', x: (q.e.x + q.e.w / 2) * T + Math.random() * 6 - 3, y: q.e.y * T + 2, vx: Math.random() * 6 - 3, vy: -14, life: 1.2, max: 1.2 });
-    if (q.kind === 'melt' && q.e && Math.random() < 0.12) burst(q.e.x + Math.random() * q.e.w, q.e.y + Math.random() * q.e.h, 'spark');
+    if (q.kind === 'melt' && q.e && Math.random() < 0.25 * Settings.parts) fx.push({ k: 'smoke', x: (q.e.x + q.e.w / 2) * T + Math.random() * 6 - 3, y: q.e.y * T + 2, vx: Math.random() * 6 - 3, vy: -14, life: 1.2, max: 1.2 });
+    if (q.kind === 'melt' && q.e && Math.random() < 0.12 * Settings.parts) burst(q.e.x + Math.random() * q.e.w, q.e.y + Math.random() * q.e.h, 'spark');
   }
   for (let i = fx.length - 1; i >= 0; i--) {
     const p = fx[i]; p.life -= dt; if (p.life <= 0) { fx.splice(i, 1); continue; }
