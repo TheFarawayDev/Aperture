@@ -478,7 +478,7 @@ function tick() {
       if (d.partsOut) stock.parts += d.partsOut; if (d.partsUse) stock.parts -= d.partsUse;
       if (d.rp) { Meta.rp += d.rp; Meta.dirty = true; }
     } else if (e.isHub && e.active) { if (d.partsOut) stock.parts += d.partsOut; if (d.rp) { Meta.rp += d.rp; Meta.dirty = true; } }
-    if (d.maint && e.cond > 0 && DISTRICTS.some(x => x.restored)) e.cond = Math.max(0, e.cond - d.maint);
+    if (d.maint && e.cond > 0 && DISTRICTS.some(x => x.restored)) e.cond = Math.max(0, e.cond - d.maint * WMOD.wear);
   }
   stock.fuel = Math.max(0, Math.min(fuelCap, stock.fuel)); stock.parts = Math.max(0, stock.parts);
   for (const dep of ents) {                            // maintenance crews
@@ -488,8 +488,8 @@ function tick() {
   }
   if (activeMods.has('link')) { Meta.rp += 1.5; Meta.dirty = true; }
   if (activeMods.has('repair')) ents.forEach(e => { if (BUILD[e.type].maint && e.cond > 0 && e.cond < 100) e.cond = Math.min(100, e.cond + 0.15); });
-  if (eventsOn && DISTRICTS.some(x => x.restored) && --evT <= 0) { fireEvent(); evT = (70 + Math.random() * 80) * (activeMods.has('forecast') ? 1.3 : 1); }
-  scrap = Math.max(0, scrap + income - upkeep);
+  if (eventsOn && DISTRICTS.some(x => x.restored) && --evT <= 0) { fireEvent(); evT = (70 + Math.random() * 80) * (activeMods.has('forecast') ? 1.3 : 1) * WMOD.ev; }
+  scrap = Math.max(0, scrap + income * WMOD.inc - upkeep);
   checkOutage();
   if (Meta.dirty && gameT % 5 === 0) Meta.save();
   opsTick();
@@ -917,7 +917,7 @@ function checkOutage() {
 }
 
 // ---------- per-county autosave ----------
-const SAVE_PREFIX = 'wastelandGrid.c4.';
+const SAVE_PREFIX = 'wastelandGrid.c5.';
 const b64 = u8 => { let s = ''; for (let i = 0; i < u8.length; i++) s += String.fromCharCode(u8[i]); return btoa(s); };
 const unb64 = (s, n) => { const a = atob(s), u = new Uint8Array(n); for (let i = 0; i < n && i < a.length; i++) u[i] = a.charCodeAt(i); return u; };
 function saveCounty() {
@@ -977,7 +977,7 @@ const HINT_START = 'Your home generator, pump and router are cut off from the hu
 $('keep').onclick = () => { $('win').style.display = 'none'; };
 $('tomap').onclick = async () => {
   const p = progressInfo();
-  if (!p.full) {
+  if (!p.full && Settings.confirmLeave) {
     const msg = p.partial ? 'This county is more than half restored, so its light will already spread to the neighbours. It autosaves - come back any time to finish it.' : 'This county autosaves, so you can come back to it any time.';
     if (!await uiConfirm(msg, 'LEAVE THIS COUNTY?', 'LEAVE', 'STAY')) return;
   }
@@ -1059,6 +1059,10 @@ $('tut-next').onclick = () => Tutorial.advance(); $('tut-skip').onclick = () => 
 const GUIDE = [
   ['MULTI LINE', 'Pick MULTI LINE (key =) and choose which line types to lay at once, or use a preset: LOCAL x3 lays power, water and net together; TRUNK x3 lays HV, main and fiber side by side. Dragging over existing lines erases them. Trunk lines now share a tile as three parallel lanes.'],
   ['INTERTIES & STATION LINKS', 'A county with an ONLINE control station exports its surplus. Neighbouring counties get that offered as imports: build INTERTIES on your trunk lines to take it. Linked counties also give a starting scrap bonus. Restore stations in a chain and every new county starts half-built.'],
+  ['THE UNION', 'Open the <b>UNION</b> screen on the map (key U). <b>Unity</b> is 25 points each for coverage, stable station links, signed accords and open borders. Higher tiers give permanent bonuses: more start scrap, faster link recovery, power that crosses three counties, research income, and slower Dimmers. At 96% with every county lit, the grid is truly one.'],
+  ['FACTIONS & COMPACTS', 'Every region has a faction: Haven Ridge Compact, Prairie Syndicate, Northern Line, Linea Sur, League of Two Seas, Sila Collective. Restoring their counties and keeping borders friendly raises <b>trust</b>; outages and Dimmer sabotage lower it. At 60 trust you can <b>sign a compact</b> (research points) for a permanent perk. Even the Dimmers will talk: build trust for a truce, then make them Keepers.'],
+  ['BORDERS', 'Each frontier between countries is <b>OPEN</b>, a <b>CHECKPOINT</b> or <b>CLOSED</b>. Open borders share everything and build trust, but Dimmers cross them. Checkpoints share 60%, slow Dimmers and pay a little research. Closed borders stop imports, light and Dimmers alike. Change them in the UNION screen or on a county panel.'],
+  ['STABLE LINKS', 'Where two online control stations touch, a <b>link</b> forms. Links have a <b>stability</b>: STABLE (60+) carries full power, UNSTABLE halves it, DROPPED carries nothing. Storms and nearby Dimmers wear them down. <b>Fix</b> a link for 6 RP, or <b>upgrade</b> it (Relay, Hardened, Backbone) for faster recovery and more capacity. Imports travel several hops, losing a little at each.'],
   ['FAILURE SEQUENCES', 'Failures now unfold. <b>Grid strain</b> (demand above supply for ten seconds) warns, trips your substations, then cascades. A machine below 12% condition goes <b>critical</b> and explodes in 14 seconds unless repaired. The red ribbon above the map shows the countdown - act before it hits zero.'],
   ['THE DIMMERS', 'The Dimmers hold some counties and slowly expand, sabotaging your restored neighbours. Liberate a Dimmer-held county to push them back. Inside threatened counties raiders strike with a short warning: build SECURITY POSTS (or slot a sentry module).'],
   ['LINE TYPES', 'Each utility has a thin LOCAL line (houses, small machines) and a thick TRUNK line: <b>HV</b> power, <b>water mains</b> and <b>fiber</b>. Big producers - plants and hydro - and the control station connect to trunks. A <b>transformer</b> (substation, pressure station, net exchange) joins a trunk to the local line next to it.'],

@@ -19,11 +19,11 @@ const Scenes = {
 // Size each canvas to the space that is really free (no overflow, sidebar always visible).
 function fit() {
   const cw = document.documentElement.clientWidth, ch = document.documentElement.clientHeight, cur = Scenes.cur;
-  const panel = cur === 'game' ? 352 + 14 : cur === 'map' ? 340 + 14 : 0, stacked = cw <= 1000;
-  const availW = cw - (stacked ? 0 : panel) - 40, availH = ch - (cur === 'game' ? 178 : cur === 'map' ? 150 : 60) - (stacked ? 110 : 0);
+  const panel = cur === 'game' ? 352 + 14 : cur === 'map' ? (Settings.wide ? 0 : 340 + 14) : 0, stacked = cw <= 1000;
+  const availW = cw - (stacked ? 0 : panel) - 40, availH = ch - (cur === 'game' ? 178 : cur === 'map' ? (Settings.wide ? 118 : 150) : 60) - (stacked ? 110 : 0);
   document.querySelectorAll('canvas.px').forEach(c => {
     let s = Math.min(availW / c.width, availH / c.height);
-    if (c.id !== 'usmap') s = Math.max(1, Math.floor(s)); else s = Math.max(0.6, Math.floor(s * 4) / 4);   // the map may scale in quarters
+    if (c.id !== 'usmap') s = Math.max(1, Math.floor(s)); else s = Math.max(0.6, Math.floor(s * 8) / 8);   // the map may scale in quarters
     c.style.width = Math.round(c.width * s) + 'px'; c.style.height = Math.round(c.height * s) + 'px';
   });
   const g = $('game'), side = $('side'); if (side && g) side.style.maxHeight = stacked ? 'none' : (parseInt(g.style.height || '270') + 120) + 'px';
@@ -123,16 +123,20 @@ function initIcons() {
 }
 
 // ---------- menu buttons ----------
-function refreshMenu() { $('btn-continue').style.display = hasSave() ? 'flex' : 'none'; }
+function refreshMenu() {
+  const b = $('btn-continue'); b.style.display = hasSave() ? 'flex' : 'none';
+  try { const s = JSON.parse(localStorage.getItem(SAVE_KEY)); b.textContent = 'CONTINUE  ' + Object.keys(s.restored || {}).length + ' COUNTIES - ' + fmtTime(s.play); } catch (e) { b.textContent = 'CONTINUE'; }
+}
 $('btn-new').onclick = async () => {
   if (hasSave() && !await uiConfirm('Your saved progress, research and counties will be erased.', 'START A NEW CAMPAIGN?', 'ERASE AND START', 'KEEP MY GAME')) return;
-  newCampaign(); beep(440, 0.1); Scenes.show('map'); Story.play('prologue');
+  const dsel = await pickDifficulty(); if (dsel < 0) return;
+  newCampaign(); save.diff = dsel; writeSave(); recalcMods(); beep(440, 0.1); Scenes.show('map'); Story.play('prologue');
 };
 $('btn-continue').onclick = () => { loadSave(); beep(440, 0.1); Scenes.show('map'); };
 $('btn-how').onclick = () => { $('how').style.display = 'flex'; };
 $('how-close').onclick = () => { $('how').style.display = 'none'; };
 $('btn-map-menu').onclick = () => Scenes.show('menu');
 
-initIcons();
+initIcons(); worldInit();
 requestAnimationFrame(menuLoop);
 Scenes.show('menu');

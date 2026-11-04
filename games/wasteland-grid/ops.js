@@ -5,14 +5,15 @@
 //  Loaded after game.js; game.js calls into these at a few hooks.
 // ============================================================
 
-let IMPORTS = { p: 0, w: 0, n: 0, links: 0 }, HOSTILE = false, THREAT = 0, surplusCb = null, importedTotal = [0, 0, 0];
+let refreshCb = null, impT = 0;
+let IMPORTS = { p: 0, w: 0, n: 0, links: 0, list: [] }, HOSTILE = false, THREAT = 0, surplusCb = null, importedTotal = [0, 0, 0];
 let multiLayers = [0, 1, 2];
 let seqs = [], strain = 0, fx = [], raidT = 90, raid = null;
 const seqNotice = (msg, snd = true) => { toast(msg); if (snd) beep(130, 0.35, 'sawtooth', 0.05); };
 
 function opsInit(opts) {
-  IMPORTS = Object.assign({ p: 0, w: 0, n: 0, links: 0 }, opts.imports || {}); HOSTILE = !!opts.hostile; THREAT = opts.threat || 0; surplusCb = opts.onSurplus || null;
-  seqs = []; fx = []; strain = 0; raid = null; raidT = HOSTILE ? 50 : 150; importedTotal = [0, 0, 0]; multiLayers = [0, 1, 2];
+  IMPORTS = Object.assign({ p: 0, w: 0, n: 0, links: 0 }, opts.imports || {}); HOSTILE = !!opts.hostile; THREAT = opts.threat || 0; surplusCb = opts.onSurplus || null; refreshCb = opts.refresh || null; impT = 0;
+  seqs = []; fx = []; strain = 0; raid = null; raidT = (HOSTILE ? 50 : 150) * WMOD.raid * WMOD.def; importedTotal = [0, 0, 0]; multiLayers = [0, 1, 2];
 }
 
 // ---------- multi-line: lay several line types in one drag ----------
@@ -87,6 +88,7 @@ function opsMini() {
 // ---------- night lighting: lights are max-blended so overlaps never pile up into a blob ----------
 const lightCv = document.createElement('canvas'); lightCv.width = W; lightCv.height = H; const lg2 = lightCv.getContext('2d');
 function drawLights(night, cx, cy, x0, y0, x1, y1) {
+  if (!Settings.fx) night *= 0.5;
   g.globalAlpha = night; px(0, 0, W, H, 0); g.globalAlpha = 1;
   if (radUntil > gameT) { g.globalAlpha = 0.12; px(0, 0, W, H, 11); g.globalAlpha = 1; }
   lg2.globalCompositeOperation = 'source-over'; lg2.fillStyle = '#000'; lg2.fillRect(0, 0, W, H); lg2.globalCompositeOperation = 'lighten';
@@ -129,6 +131,10 @@ function resolveRaid() {
   burst(r.x, r.y, 'boom'); seqNotice('RAID! The Dimmers cut ' + n + ' lines and sabotaged ' + hit + ' machine(s). Repair it and build a security post.'); recompute(); storyEv('raid');
 }
 function opsTick() {
+  if (refreshCb && ++impT >= 10) {                          // live imports: the link network changes while you play
+    impT = 0; const n = refreshCb();
+    if (n) { const before = IMPORTS.links; IMPORTS = Object.assign({ p: 0, w: 0, n: 0, links: 0, list: [] }, n); if (n.links < before) toast('A feeder county stopped exporting. Imports fell.'); else if (n.links > before) toast('A new feeder county is sending you power.'); }
+  }
   const anyRest = DISTRICTS.some(d => d.restored), tp = totals[0];
   // 1) grid strain -> protection trip -> cascade
   const over = anyRest && tp.dem > tp.sup * 1.05 + 0.5;
@@ -159,7 +165,7 @@ function opsTick() {
   }
   // 3) raiders
   if (eventsOn && (HOSTILE || THREAT > 0) && (anyRest || HOSTILE)) {
-    if (!raid && --raidT <= 0) { startRaid(); raidT = HOSTILE ? 45 + Math.random() * 40 : (170 / Math.max(1, THREAT)) + Math.random() * 90; }
+    if (!raid && --raidT <= 0) { startRaid(); raidT = (HOSTILE ? 45 + Math.random() * 40 : (170 / Math.max(1, THREAT)) + Math.random() * 90) * WMOD.raid * WMOD.def; }
   }
   if (raid && --raid.left <= 0) resolveRaid();
   // 4) station modules
@@ -183,6 +189,6 @@ function opsHud() {
   }
   const gi = $('gridinfo'); if (gi) {
     const nInt = ents.filter(e => BUILD[e.type].importer && e.cond > 0).length, on = stationEnt && stationEnt.run;
-    gi.innerHTML = `STATION ${on ? '<span class="pos">ONLINE</span>' : '<span class="neg">offline</span>'} - LINKED COUNTIES ${IMPORTS.links}<br>INTERTIES ${nInt}: +${Math.round(importedTotal[0])}P +${Math.round(importedTotal[1])}W +${Math.round(importedTotal[2])}N <small>(offered ${Math.round(IMPORTS.p)}/${Math.round(IMPORTS.w)}/${Math.round(IMPORTS.n)})</small>${HOSTILE ? '<br><span class="neg">HOSTILE COUNTY - raids are frequent</span>' : THREAT ? '<br><span class="neg">DIMMERS NEARBY - raids possible</span>' : ''}`;
+    gi.innerHTML = `STATION ${on ? '<span class="pos">ONLINE</span>' : '<span class="neg">offline</span>'} - LINKED COUNTIES ${IMPORTS.links}<br>INTERTIES ${nInt}: +${Math.round(importedTotal[0])}P +${Math.round(importedTotal[1])}W +${Math.round(importedTotal[2])}N <small>(offered ${Math.round(IMPORTS.p)}/${Math.round(IMPORTS.w)}/${Math.round(IMPORTS.n)})</small>${IMPORTS.list && IMPORTS.list.length ? '<br><small>FEEDERS: ' + IMPORTS.list.slice(0, 3).map(x => x.name + ' ' + Math.round(x.eff * 100) + '%' + (x.hop > 1 ? ' (' + x.hop + ' hops)' : '')).join(', ') + '</small>' : ''}${HOSTILE ? '<br><span class="neg">HOSTILE COUNTY - raids are frequent</span>' : THREAT ? '<br><span class="neg">DIMMERS NEARBY - raids possible</span>' : ''}`;
   }
 }

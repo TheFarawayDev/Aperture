@@ -49,6 +49,18 @@ function genCounty(c, diff) {
       sites.push({ kind, x, y }); break;
     }
   }
+  for (const kind of ['power', 'water', 'data', 'station']) {                          // cramped counties (islands, ice): relax the spacing until every site fits
+    if (sites.some(s => s.kind === kind)) continue;
+    for (const [fw, fh, gap] of [[14, 12, 9], [10, 9, 7], [7, 7, 5]]) {
+      let ok = false;
+      for (let tries = 0; tries < 600 && !ok; tries++) {
+        const x = mx0 + (r() * (mx1 - mx0 - 4) | 0), y = my0 + (r() * (my1 - my0 - 4) | 0);
+        if (!far(x - 4, y - 4, fw, fh) || sites.some(s => Math.abs(s.x - x) < gap && Math.abs(s.y - y) < gap)) continue;
+        sites.push({ kind, x, y }); ok = true;
+      }
+      if (ok) break;
+    }
+  }
   const B = c.biome;
   return {
     seed: c.id * 104729 + 17, WW, WH, districts, start, ponds, sites, coast, biome: B, diff, county: c.name,

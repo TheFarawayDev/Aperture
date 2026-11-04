@@ -10,7 +10,7 @@
 // ============================================================
 
 let MAPW = 420, MAPH = 340;                 // the grid is sized automatically from the geography below
-const MC = 1, MAPSC = 366.5;               // pixels per cell, cells per projected unit      // map cells, pixels per cell
+const MC = 1, MAPSC = 392;               // pixels per cell, cells per projected unit      // map cells, pixels per cell
 
 const STATES = [
   ['AL', 'ALABAMA', 52, [[32.8, -86.8]], 'US'], ['AZ', 'ARIZONA', 114, [[34.3, -111.7]], 'US'],
@@ -64,8 +64,14 @@ const STATES = [
   ['GRO', 'GUERRERO', 25, [[17.6, -100.0]], 'MX'], ['OAX', 'OAXACA', 36, [[17.0, -96.7]], 'MX'],
   ['CHP', 'CHIAPAS', 29, [[16.5, -92.5]], 'MX'], ['YUC', 'YUCATAN', 50, [[20.5, -88.9]], 'MX'],
   ['CMX', 'CENTRAL MEXICO', 20, [[19.3, -98.4]], 'MX'], ['TAB', 'TABASCO', 14, [[18.0, -92.5]], 'MX'],
+  // ---- the far north-east: Ellesmere is Canadian, Greenland is its own country ----
+  ['EL', 'ELLESMERE', 45, [[79.6, -84.0]], 'CA'],
+  ['GLN', 'NORTH GREENLAND', 90, [[78.0, -40.0], [77.0, -62.0]], 'GL'], ['GLW', 'WEST GREENLAND', 80, [[67.5, -50.0]], 'GL'],
+  ['GLE', 'EAST GREENLAND', 70, [[70.0, -26.0]], 'GL'], ['GLS', 'SOUTH GREENLAND', 40, [[61.8, -45.0], [64.0, -41.0]], 'GL'],
+  // ---- Hawaii (drawn as an inset in the Pacific, like on every US map) ----
+  ['HI', 'HAWAII', 20, [[23.4, -122.0], [25.9, -126.0], [26.9, -129.0], [28.2, -131.7]], 'US'],
 ];
-const COUNTRY_NAME = { US: 'UNITED STATES', CA: 'CANADA', MX: 'MEXICO', CM: 'CENTRAL AMERICA', CB: 'THE CARIBBEAN', AK: 'ALASKA' };
+const COUNTRY_NAME = { US: 'UNITED STATES', CA: 'CANADA', MX: 'MEXICO', CM: 'CENTRAL AMERICA', CB: 'THE CARIBBEAN', AK: 'ALASKA', GL: 'GREENLAND' };
 
 // Rough outline of the lower 48 as [lon, lat]
 const OUTLINE = [
@@ -114,6 +120,20 @@ const ISLANDS = [
   [[-78.35, 18.4], [-77.2, 18.5], [-76.2, 18.2], [-76.8, 17.85], [-77.8, 18.0]],   // Jamaica
   [[-67.2, 18.5], [-65.6, 18.4], [-65.8, 18.0], [-67.2, 18.0]],   // Puerto Rico
 ];
+const GL_INSET = { dx: 0.30, dy: -0.33, s: 0.82 };
+const GREENLAND = [
+  [-44.0, 59.8], [-43.0, 60.5], [-41.5, 61.8], [-40.5, 63.2], [-38.5, 65.2], [-35.0, 66.3], [-33.0, 67.8], [-28.0, 68.5], [-25.0, 69.5], [-22.5, 70.5], [-22.0, 72.5], [-20.0, 74.5],
+  [-19.0, 76.5], [-18.5, 78.0], [-18.0, 80.0], [-17.0, 81.5], [-22.0, 83.0], [-33.0, 83.6], [-45.0, 83.0], [-60.0, 82.0], [-66.0, 81.0], [-70.0, 79.5], [-72.0, 78.0], [-70.0, 76.8],
+  [-67.0, 76.0], [-61.0, 75.2], [-57.5, 74.0], [-55.5, 72.5], [-54.0, 70.5], [-53.5, 68.8], [-52.5, 66.0], [-51.5, 64.2], [-50.5, 62.5], [-48.5, 61.0], [-46.0, 60.2],
+];
+// the Hawaiian islands, moved and enlarged to sit in the Pacific off Baja
+const HAWAII = [
+  [[-123.6, 22.0], [-120.8, 22.2], [-120.2, 23.6], [-121.2, 25.0], [-123.0, 25.2], [-124.0, 23.8]],
+  [[-127.0, 25.0], [-125.2, 24.8], [-124.9, 26.0], [-126.0, 26.9], [-127.4, 26.2]],
+  [[-130.0, 26.4], [-128.3, 26.2], [-128.0, 27.3], [-129.2, 28.0], [-130.2, 27.4]],
+  [[-132.6, 27.6], [-131.0, 27.4], [-130.8, 28.4], [-131.8, 29.1], [-132.8, 28.5]],
+];
+ISLANDS.push([[-90.5, 76.4], [-85.0, 76.2], [-80.0, 76.3], [-79.0, 77.4], [-77.5, 78.6], [-75.5, 79.6], [-72.0, 80.6], [-69.0, 81.8], [-64.0, 82.6], [-70.0, 83.0], [-80.0, 83.1], [-90.0, 82.2], [-92.5, 80.5], [-91.0, 78.5]]);   // Ellesmere
 // Mexico's outer edge, replacing the Rio Grande / southern border
 const MX_DETOUR = [
   [-97.6, 24.0], [-97.8, 22.5], [-97.3, 21.0], [-96.5, 19.7], [-96.1, 19.0], [-95.2, 18.6], [-94.5, 18.2], [-93.5, 18.4],
@@ -143,6 +163,8 @@ function mulberry(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let 
 
 // climate by position -> the look of the county map
 function biomeAt(lat, lon, cn) {
+  if (cn === 'GL') return lat > 72 ? 'tundra' : 'mountain';
+  if (cn === 'US' && lon < -119.5 && lat < 31) return 'forest';          // Hawaii
   if (cn === 'CA') { if (lat >= 56) return 'tundra'; if (lat >= 53.5 && lon > -125) return 'tundra'; if (lon < -118) return 'mountain'; if (lon > -112 && lon < -96 && lat < 53) return 'plains'; return 'forest'; }
   if (cn === 'AK') return lat >= 66 ? 'tundra' : lat < 60 ? 'forest' : lon > -148 ? 'mountain' : 'tundra';
   if (cn === 'CM' || cn === 'CB') return lat < 10.5 ? 'swamp' : 'forest';
@@ -164,13 +186,18 @@ function buildUS() {
   const p1 = 29.5 * rad, p2 = 45.5 * rad, p0 = 37.5 * rad, l0 = -96 * rad;
   const n = (Math.sin(p1) + Math.sin(p2)) / 2, C = Math.cos(p1) ** 2 + 2 * n * Math.sin(p1);
   const rho0 = Math.sqrt(C - 2 * n * Math.sin(p0)) / n;
-  const proj = (lon, lat) => { const rho = Math.sqrt(C - 2 * n * Math.sin(lat * rad)) / n, th = n * (lon * rad - l0); return [rho * Math.sin(th), rho0 - rho * Math.cos(th)]; };
+  const proj0 = (lon, lat) => { const rho = Math.sqrt(C - 2 * n * Math.sin(lat * rad)) / n, th = n * (lon * rad - l0); return [rho * Math.sin(th), rho0 - rho * Math.cos(th)]; };
+  // Greenland is drawn as an inset (moved down into the Atlantic and shrunk) so the map stays wide instead of tall
+  const GLX = { dx: GL_INSET.dx, dy: GL_INSET.dy, s: GL_INSET.s, cx: 0.45, cy: 0.66 };
+  const glProj = (lon, lat) => { const [x, y] = proj0(lon, lat); return [(x - GLX.cx) * GLX.s + GLX.cx + GLX.dx, (y - GLX.cy) * GLX.s + GLX.cy + GLX.dy]; };
+  let projMode = false;
+  const proj = (lon, lat) => projMode ? glProj(lon, lat) : proj0(lon, lat);
   // outline of the mainland: US outline with Canada / Mexico / Central America detours spliced in
   const i1 = OUTLINE.findIndex(p => p[0] === -67.0 && p[1] === 44.8);
   const i3 = OUTLINE.findIndex(p => p[0] === -97.2 && p[1] === 25.9);
   const i4 = OUTLINE.findIndex(p => p[0] === -117.1 && p[1] === 32.5);
   const NA = [OUTLINE[0], ...CA_DETOUR, ...OUTLINE.slice(i1, i3 + 1), ...MX_DETOUR, ...OUTLINE.slice(i4)];
-  const pts = [...NA, ...ALASKA, ...ISLANDS.flat()].map(([lo, la]) => proj(lo, la));
+  const pts = [...NA, ...ALASKA, ...HAWAII.flat(), ...ISLANDS.flat()].map(([lo, la]) => proj(lo, la)).concat(GREENLAND.map(([lo, la]) => glProj(lo, la)));
   const minx = Math.min(...pts.map(p => p[0])), maxx = Math.max(...pts.map(p => p[0]));
   const miny = Math.min(...pts.map(p => p[1])), maxy = Math.max(...pts.map(p => p[1]));
   const sc = MAPSC;
@@ -195,21 +222,24 @@ function buildUS() {
     }
     return m;
   };
-  const mNA = raster(NA), mUS = raster(OUTLINE), mAK = raster(ALASKA), lake = new Uint8Array(GW * GH);
+  const mNA = raster(NA), mUS = raster(OUTLINE), mAK = raster(ALASKA), mGL = (projMode = true, raster(GREENLAND)), mHI = new Uint8Array(GW * GH), lake = new Uint8Array(GW * GH);
+  projMode = false;
+  HAWAII.forEach(pl => { const m = raster(pl); for (let i = 0; i < m.length; i++) if (m[i]) mHI[i] = 1; });
   ISLANDS.forEach(pl => { const m = raster(pl); for (let i = 0; i < m.length; i++) if (m[i]) mNA[i] = 1; });
   LAKES.forEach(l => { const m = raster(l); for (let i = 0; i < m.length; i++) if (m[i]) lake[i] = 1; });
 
   // land cells -> state / province / country (area weighted nearest anchor)
   const stateOf = new Int16Array(GW * GH).fill(-1), countyOf = new Int16Array(GW * GH).fill(-1), isLake = lake;
-  const anchors = STATES.map(s => s[3].map(([la, lo]) => toGrid(lo, la)));
+  const anchors = STATES.map(s => { projMode = s[4] === 'GL'; const r = s[3].map(([la, lo]) => toGrid(lo, la)); projMode = false; return r; });
   const idxOf = f => STATES.map((s, i) => i).filter(i => f(STATES[i][4]));
-  const pools = { US: idxOf(c => c === 'US'), AK: idxOf(c => c === 'AK'), REST: idxOf(c => c !== 'US' && c !== 'AK') };
+  const hiIdx = STATES.findIndex(s => s[0] === 'HI');
+  const pools = { US: idxOf(c => c === 'US').filter(i => i !== hiIdx), AK: idxOf(c => c === 'AK'), GL: idxOf(c => c === 'GL'), HI: [hiIdx], REST: idxOf(c => c !== 'US' && c !== 'AK' && c !== 'GL') };
   const stateCells = STATES.map(() => []);
   for (let y = 0; y < GH; y++) for (let x = 0; x < GW; x++) {
     const i = y * GW + x;
-    const isAK = mAK[i] && !lake[i], isUS = mUS[i] && !lake[i], isOther = mNA[i] && !lake[i];
-    if (!isAK && !isUS && !isOther) continue;
-    const pool = isAK ? pools.AK : isUS ? pools.US : pools.REST;
+    const isAK = mAK[i] && !lake[i], isUS = mUS[i] && !lake[i], isOther = mNA[i] && !lake[i], isGL = mGL[i] && !isOther, isHI = mHI[i] && !isOther;
+    if (!isAK && !isUS && !isOther && !isGL && !isHI) continue;
+    const pool = isAK ? pools.AK : isUS ? pools.US : isHI ? pools.HI : isGL ? pools.GL : pools.REST;
     let best = -1, bd = 1e9;
     for (const si of pool) {
       const w = Math.pow(STATES[si][2], 0.45);
@@ -222,7 +252,7 @@ function buildUS() {
   const counties = [], states = [];
   STATES.forEach((s, si) => {
     const cells = stateCells[si], rnd = mulberry(99 + si * 13), cn = s[4];
-    let cnt = Math.max(1, Math.min(26, Math.round(cells.length / (cn === 'US' ? 150 : (cn === 'MX' || cn === 'CM' || cn === 'CB') ? 170 : 270))));
+    let cnt = Math.max(1, Math.min(26, Math.round(cells.length / (s[0] === 'HI' ? 140 : cn === 'GL' ? 330 : cn === 'US' ? 150 : (cn === 'MX' || cn === 'CM' || cn === 'CB') ? 170 : 270))));
     cnt = Math.max(1, Math.min(cnt, Math.floor(cells.length / 14) || 1));
     const seeds = [];
     for (let k = 0; k < cnt && cells.length; k++) {
@@ -263,6 +293,7 @@ function buildUS() {
     c.water = { n: Math.min(1, wt.n / c.bw), s: Math.min(1, wt.s / c.bw), w: Math.min(1, wt.w / c.bh), e: Math.min(1, wt.e / c.bh) };
     const [la, lo] = inv(c.gx + 0.5, c.gy + 0.5);
     c.lat = la; c.lon = lo; c.biome = biomeAt(la, lo, c.country);
+    if (c.country === 'GL') c.biome = /^GL[NE]$/.test(STATES[c.state][0]) ? 'tundra' : 'mountain';
   });
   states.forEach(s => {
     let ax = 0, ay = 0;
@@ -278,13 +309,15 @@ function buildUS() {
       if (b >= 0 && b !== a) set.add(Math.min(a, b) + '-' + Math.max(a, b));
     }
   }
-  const linked = new Set(); set.forEach(k => k.split('-').forEach(v => linked.add(+v)));
-  counties.forEach(c => {                               // islands (Newfoundland...) link across the water to the nearest county
-    if (linked.has(c.id)) return;
-    let best = -1, bd = 1e9;
-    counties.forEach(o => { if (o !== c && linked.has(o.id)) { const d = Math.hypot(o.gx - c.gx, o.gy - c.gy); if (d < bd) { bd = d; best = o.id; } } });
-    if (best >= 0) set.add(Math.min(best, c.id) + '-' + Math.max(best, c.id));
-  });
+  const parent = counties.map((_, i) => i), find = x => parent[x] === x ? x : (parent[x] = find(parent[x]));
+  set.forEach(k => { const [a, b] = k.split('-').map(Number); parent[find(a)] = find(b); });
+  for (let guard = 0; guard < 80; guard++) {                      // join each isolated land mass to its nearest neighbour across the water
+    const groups = new Map(); counties.forEach(c => { const r = find(c.id); if (!groups.has(r)) groups.set(r, []); groups.get(r).push(c); });
+    if (groups.size < 2) break;
+    const smallest = [...groups.values()].sort((a, b) => a.length - b.length)[0]; let best = null, bd = 1e9;
+    smallest.forEach(c => counties.forEach(o => { if (find(o.id) !== find(c.id)) { const dd = Math.hypot(o.gx - c.gx, o.gy - c.gy) + (o.country !== c.country ? 40 : 0); if (dd < bd) { bd = dd; best = [c.id, o.id]; } } }));
+    set.add(Math.min(best[0], best[1]) + '-' + Math.max(best[0], best[1])); parent[find(best[0])] = find(best[1]);
+  }
   const edges = [...set].map(k => k.split('-').map(Number));
   edges.forEach(([a, b]) => { counties[a].nb.push(b); counties[b].nb.push(a); });
   return { GW, GH, stateOf, countyOf, counties, states, edges, isLake };

@@ -173,6 +173,31 @@
   #multi { display:none; margin-top:8px; border-top:2px solid var(--dusk); padding-top:8px; } #multi .mrow { display:flex; gap:4px; margin-bottom:5px; flex-wrap:wrap; } #multi button { font-size:15px; padding:5px 7px; flex:1; }
   #multi .mchip { border-bottom:4px solid var(--c); min-width:44px; } #multi .mchip.on { background:linear-gradient(#3a3140,#2a2231); color:var(--glow); border-color:var(--glow); border-bottom-color:var(--c); } #multi .mchip.locked { opacity:.4; } #multi small { color:var(--dust); font-size:15px; }
   #gridinfo { font-size:16px; line-height:1.25; color:var(--dust); margin-top:6px; border-top:2px solid var(--dusk); padding-top:6px; } #gridinfo small { font-size:14px; }
+  /* world map extras */
+  #maphint { font-size:15px; color:var(--ash); margin-top:2px; } #maptoast { position:absolute; left:50%; top:10px; transform:translate(-50%,-6px); max-width:70%; background:rgba(13,11,14,.94); border:2px solid var(--glow); color:var(--glow); font-size:20px; padding:6px 14px; text-align:center; opacity:0; pointer-events:none; transition:opacity .25s, transform .25s; z-index:4; }
+  #maptoast.show { opacity:1; transform:translate(-50%,0); }
+  #widecard { display:none; position:absolute; right:10px; bottom:10px; z-index:3; gap:10px; align-items:center; background:rgba(13,11,14,.94); border:2px solid var(--dusk); padding:6px 10px; } #widecard b { font-weight:normal; font-size:19px; color:var(--glow); }
+  #mappanel.wide { width:0; } #mappanel.wide .panel { display:none; } #mappanel.wide #mapmsg { position:fixed; left:50%; bottom:12px; transform:translateX(-50%); width:min(900px,90vw); background:rgba(13,11,14,.92); border:2px solid var(--dusk); padding:8px 14px; z-index:5; text-align:center; min-height:0; }
+  #cextra { font-size:17px; line-height:1.3; margin-top:6px; border-top:2px solid var(--dusk); padding-top:6px; } #cextra:empty { display:none; } .cx { display:flex; justify-content:space-between; align-items:center; gap:8px; color:var(--bone); margin-bottom:3px; } .cx small { color:var(--dust); font-size:15px; } .cx.lk { color:var(--dust); font-size:16px; }
+  button.mini { font-size:15px; padding:3px 8px; } button.mini.open { color:var(--rad); } button.mini.check { color:var(--glow); } button.mini.closed { color:var(--rust); } .warn { color:var(--glow); }
+  #viewmap button { font-size:16px; padding:6px 8px; } #maptop button { font-size:17px; }
+  #msearch { width:150px; background:var(--void); color:var(--bone); border:2px solid var(--dusk); font-family:inherit; font-size:17px; padding:5px 8px; } #msearch:focus { outline:none; border-color:var(--glow); }
+  #set-data { display:flex; gap:8px; } #set-data button { flex:1; font-size:17px; } #sv-info { font-size:16px; color:var(--dust); }
+  /* union screen */
+  #union { gap:10px; } #un-head { width:min(1280px,96vw); padding:10px 16px 12px; text-align:left; } .un-top { display:flex; align-items:baseline; gap:18px; } .un-big { font-family:'Press Start 2P',monospace; font-size:13px; color:var(--bone); } .un-big b { color:var(--glow); font-size:24px; font-weight:normal; } .un-tier { font-family:'Press Start 2P',monospace; font-size:11px; color:var(--rad); }
+  .ub { height:10px; background:var(--void); border:2px solid var(--dusk); } .ub i { display:block; height:100%; } .un-bigbar { position:relative; margin:8px 0 22px; } .un-bigbar .ub { height:16px; } .tk { position:absolute; top:0; transform:translateX(-50%); } .tk i { display:block; width:2px; height:16px; background:var(--bone); opacity:.5; margin:0 auto; } .tk small { font-size:13px; color:var(--dust); position:absolute; top:18px; left:50%; transform:translateX(-50%); white-space:nowrap; }
+  .un-desc { font-size:19px !important; color:var(--bone); max-width:none !important; text-align:left; margin:-8px 0 8px !important; } .un-parts { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; font-size:16px; color:var(--dust); } .un-parts > div { display:grid; gap:3px; } .un-parts b { font-weight:normal; color:var(--bone); } .un-perks { margin-top:8px; font-size:17px; color:var(--amber); }
+  #un-body { width:min(1280px,96vw); max-height:50vh; overflow-y:auto; display:grid; grid-template-columns:1.15fr 1fr 1fr; gap:10px; text-align:left; align-items:start; }
+  .col { background:var(--deep); border:2px solid var(--dusk); padding:8px 10px; display:flex; flex-direction:column; gap:7px; } .ch { font-family:'Press Start 2P',monospace; font-size:9px; color:var(--rad); letter-spacing:1px; display:flex; } .ch .r { margin-left:auto; font-family:'VT323',monospace; font-size:16px; color:var(--dust); letter-spacing:0; } .dim { font-size:16px !important; color:var(--dust) !important; margin:0; max-width:none !important; text-align:left; }
+  .fc { border:2px solid var(--dusk); border-left:6px solid var(--c); padding:6px 8px; display:flex; flex-direction:column; gap:3px; background:var(--night); } .fh { display:flex; justify-content:space-between; font-size:19px; } .fh b { font-weight:normal; color:var(--c); } .fh span { color:var(--dust); font-size:16px; } .fc small { font-size:15px; color:var(--dust); } .fc .pk { color:var(--bone); } .fa { display:flex; gap:6px; align-items:center; flex-wrap:wrap; } .fa button { font-size:16px; padding:4px 8px; }
+  .bd { border:2px solid var(--dusk); padding:6px 8px; display:flex; flex-direction:column; gap:4px; background:var(--night); } .bd b { font-weight:normal; font-size:18px; color:var(--bone); } .bd small { font-size:15px; color:var(--dust); } .bd .seg button { font-size:15px; padding:4px 7px; flex:1; }
+  .lk2 { border:2px solid var(--dusk); padding:5px 8px; display:flex; flex-direction:column; gap:3px; background:var(--night); } .lh { display:flex; justify-content:space-between; font-size:17px; } .lh b { font-weight:normal; } .la { display:flex; justify-content:space-between; align-items:center; } .la small { font-size:14px; color:var(--dust); } .la button { font-size:14px; padding:3px 6px; margin-left:4px; }
+  .nw { font-size:16px; color:var(--bone); border-left:3px solid var(--dusk); padding:2px 8px; }
+  #un-foot { width:min(1280px,96vw); display:flex; align-items:center; gap:14px; } #un-msg { flex:1; text-align:left; color:var(--rust); font-size:19px; } .rpbox { font-size:19px; color:var(--dust); } .rpbox b { color:var(--glow); font-weight:normal; }
+  /* settings / difficulty */
+  #set-box { width:min(620px,94vw); padding:0 16px 14px; text-align:left; display:flex; flex-direction:column; gap:7px; } #set-diff small { display:block; font-size:17px; color:var(--dust); margin-top:6px; } #set-diff .seg button { flex:1; font-size:17px; }
+  #dp-list { display:grid; grid-template-columns:repeat(2, minmax(0,320px)); gap:12px; } .dcard { display:flex; flex-direction:column; gap:6px; text-align:left; padding:12px 14px; } .dcard b { font-family:'Press Start 2P',monospace; font-size:12px; color:var(--glow); font-weight:normal; } .dcard span { font-size:19px; color:var(--bone); line-height:1.2; } .dcard small { font-size:15px; color:var(--dust); } .dcard.rec { border-color:#4f7a4a; }
+  @media (max-width:1100px) { #un-body { grid-template-columns:1fr; } .un-parts { grid-template-columns:1fr 1fr; } #dp-list { grid-template-columns:1fr; } }
   /* no visible scroll bars anywhere (everything still scrolls) */
   * { scrollbar-width:none !important; -ms-overflow-style:none; } *::-webkit-scrollbar { display:none !important; width:0; height:0; }
   @media (max-width:1000px) { #gamebody, #mapWrap { flex-direction:column; align-items:center; } #side, #mappanel { width:100%; max-width:800px; } #techs, #guide-body { grid-template-columns:1fr; } #story-portrait { width:84px; height:84px; } #story-text { font-size:22px; } }
@@ -186,14 +211,15 @@
     <canvas id="menubg" class="px" width="480" height="270"></canvas>
     <div class="menu-ui">
       <canvas id="logo" width="330" height="118"></canvas>
-      <div class="tag">THE CASCADE KILLED THE GRID.<br>RELIGHT NORTH AMERICA, ONE COUNTY AT A TIME.</div>
+      <div class="tag">THE CASCADE KILLED THE GRID.<br>UNITED UNDER ONE. DIVIDED UNDER NONE.</div>
       <div class="menu-btns">
         <button id="btn-continue">CONTINUE</button>
         <button id="btn-new">NEW GAME</button>
         <button id="btn-how">HOW TO PLAY</button>
+        <button id="btn-settings">SETTINGS</button>
       </div>
     </div>
-    <div class="ver l">a game about turning the lights back on</div><div class="ver">v4 - runs offline in your browser</div>
+    <div class="ver l">a game about turning the lights back on</div><div class="ver">v5 - runs offline in your browser</div>
   </div>
 </div>
 
@@ -204,22 +230,27 @@
     <button id="btn-map-menu">&lt; MENU</button>
     <div id="chapter"></div>
     <div id="mapstats"></div>
-    <button id="btn-log">RADIO LOG</button>
+    <span class="seg" id="viewmap" title="Map view (V)"><button data-v="status" class="on">STATUS</button><button data-v="fac">FACTIONS</button><button data-v="links">LINKS</button></span>
+    <input id="msearch" placeholder="FIND COUNTY (/)" autocomplete="off"><button id="btn-wide" title="Wide map (F)">WIDE</button><button id="btn-union" class="primary" title="Union (U)">UNION</button><button id="btn-settings2" title="Settings (O)">SETTINGS</button><button id="btn-log" title="Radio log (L)">RADIO LOG</button>
   </div>
   <div id="mapWrap">
     <div id="mapframe">
-      <div class="crt"><canvas id="usmap" class="px" width="420" height="340"></canvas></div>
+      <div class="crt"><canvas id="usmap" class="px" width="591" height="481"></canvas></div>
       <div id="mapzoom"><button id="mz-in">+</button><button id="mz-out">-</button><button id="mz-home">o</button></div>
       <div id="maphover">&nbsp;</div>
+      <div id="maphint">WASD PAN - +/- ZOOM - TAB NEXT - N TROUBLE - ENTER OPEN - U UNION - V VIEW - F WIDE - DOUBLE-CLICK TO OPEN</div>
+      <div id="maptoast"></div>
+      <div id="widecard"><b id="wc-name"></b><button id="wc-go" class="primary">OPEN</button></div>
     </div>
     <aside id="mappanel">
       <div class="panel"><div class="ph">COUNTY <span class="r" id="cwhere"></span></div>
-        <div id="cname"></div><div id="cstars"></div><div id="cmeta"></div><div id="cstatus"></div>
+        <div id="cname"></div><div id="cstars"></div><div id="cmeta"></div><div id="cstatus"></div><div id="cextra"></div>
         <button id="enter" class="primary">RESTORE COUNTY &gt;</button>
       </div>
       <div class="panel"><div class="ph">PROGRESS</div><div id="mapprog"></div></div>
       <div class="panel"><div class="ph">LEGEND</div>
-        <div class="legend"><i style="background:#8a6a4e"></i><span>adjacent: ready to restore</span><i style="background:#1f1a24"></i><span>offline</span><i style="background:#4f7a4a"></i><span>restored (brighter = more support)</span><i style="background:#2c6a7a"></i><span>partly restored: finish it later</span><i style="background:#b5502b"></i><span>outage: go back and repair it</span><i style="background:#2f4a3a"></i><span>locked until the USA is lit</span><i style="background:#1a0f12;border-color:#b5502b"></i><span>held by the Dimmers: liberate it</span><i style="background:#d8e6e0"></i><span>linked control stations</span></div>
+        <div class="legend" id="legend2" style="display:none"></div>
+        <div class="legend" id="legend"><i style="background:#8a6a4e"></i><span>adjacent: ready to restore</span><i style="background:#1f1a24"></i><span>offline</span><i style="background:#4f7a4a"></i><span>restored (brighter = more support)</span><i style="background:#2c6a7a"></i><span>partly restored: finish it later</span><i style="background:#b5502b"></i><span>outage: go back and repair it</span><i style="background:#2f4a3a"></i><span>locked until the USA is lit</span><i style="background:#1a0f12;border-color:#b5502b"></i><span>held by the Dimmers: liberate it</span><i style="background:#d8e6e0"></i><span>stable station link (amber = unstable, rust = dropped)</span></div>
       </div>
       <div id="mapmsg"></div>
     </aside>
@@ -301,8 +332,38 @@
     </div>
     <p>Generators burn fuel. Everything wears out, and storms, surges and breakdowns strike once a district is restored. Leave a county half-restored and come back later: it spreads the light and it keeps its save.</p>
     <label class="chk"><input type="checkbox" id="chk-events" checked> random faults and storms</label>
-    <button id="help-close" class="big">OK</button>
+    <div><button id="btn-settings3" class="big">SETTINGS</button> <button id="help-close" class="big">OK</button></div>
   </div>
+</div>
+
+<!-- ===== UNION / SETTINGS / DIFFICULTY ===== -->
+<div class="overlay" id="union">
+  <h2>THE UNION</h2>
+  <div id="un-head" class="panel"></div>
+  <div id="un-body"></div>
+  <div id="un-foot"><span id="un-msg"></span><span class="rpbox">RESEARCH <b id="un-rp">0</b> RP</span><button id="un-close" class="big">CLOSE</button></div>
+</div>
+<div class="overlay" id="settings">
+  <h2>SETTINGS</h2>
+  <div class="panel" id="set-box">
+    <div class="ph">DIFFICULTY</div><div id="set-diff"></div>
+    <div class="ph" style="margin-top:12px">GAME</div>
+    <label class="chk"><input type="checkbox" id="set-autopause"> pause a county when the tab is hidden</label>
+    <label class="chk"><input type="checkbox" id="set-confirm"> ask before leaving an unfinished county</label>
+    <label class="chk"><input type="checkbox" id="set-events"> random faults and storms</label>
+    <label class="chk"><input type="checkbox" id="set-sound"> sound</label>
+    <label class="chk"><input type="checkbox" id="set-fx"> full night darkness</label>
+    <label class="chk"><input type="checkbox" id="set-wide"> wide map (hides the side panel)</label>
+    <div class="ph" style="margin-top:12px">SAVE DATA</div>
+    <div id="set-data"><button id="sv-export">EXPORT SAVE</button><button id="sv-import">IMPORT SAVE</button><button id="sv-reset">ERASE ALL</button></div>
+    <small id="sv-info"></small><input type="file" id="sv-file" accept=".json,application/json" style="display:none">
+  </div>
+  <button id="set-close" class="big">CLOSE</button>
+</div>
+<div class="overlay" id="diffpick">
+  <h2>CHOOSE YOUR DIFFICULTY</h2>
+  <div id="dp-list"></div>
+  <button id="dp-cancel" class="big">BACK</button>
 </div>
 
 <!-- ===== STORY ===== -->
@@ -328,7 +389,8 @@
 <!-- ===== HOW TO PLAY ===== -->
 <div class="overlay" id="how">
   <h2>HOW TO PLAY</h2>
-  <p>1. On the map, pick a county to restore. Its light then spreads to neighbouring counties. Win the USA first, then help Canada and Mexico.<br>
+  <p>1. On the map, pick a county to restore. Its light then spreads to neighbouring counties. Win the USA first, then help Canada, Mexico, Alaska, Central America, the islands and Greenland.<br>
+     1b. Press U for the UNION screen: sign compacts with factions, set each border open / checkpoint / closed, and keep your station links stable. Pick a difficulty when you start (change it any time in SETTINGS).<br>
      2. In a county, lay POWER, WATER and NET lines to every district hub. Left-drag to build, WASD or right-drag to look around.<br>
      3. Generators burn fuel, so build a refinery. Houses and workshops earn scrap; workshops also make parts for repairs.<br>
      4. Research new buildings (Y). Watch ALERTS: breakdowns, storms and fuel shortages will test you.<br>
@@ -347,6 +409,7 @@
 <script src="game.js"></script>
 <script src="ops.js"></script>
 <script src="campaign.js"></script>
+<script src="world.js"></script>
 <script src="story.js"></script>
 <script src="menu.js"></script>
 </body>

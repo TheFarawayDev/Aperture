@@ -210,3 +210,53 @@ const TOOLS = [
   { cat: 'TOOLS', name: 'SALVAGE', key: 'x', kind: 'salvage', color: '#d8e6e0', desc: 'Remove rubble (+3 scrap), lines or buildings (half refund).' },
   { cat: 'TOOLS', name: 'INSPECT', key: 'c', kind: 'inspect', color: '#d8e6e0', desc: 'Click a building for status. Click a transformer to toggle it. Restore dormant plants and the station here.' },
 ];
+
+// ============================================================
+//  WORLD DATA - difficulties, factions, union tiers, link levels, settings.
+//  (The logic that uses these lives in world.js.)
+// ============================================================
+const DIFFS = [
+  { id: 'settler', name: 'SETTLER', blurb: 'Gentle. Rich starts, rare storms, slow Dimmers, forgiving neighbours.', scrap: 1.4, ev: 1.5, wear: 0.7, raid: 1.6, dark: 1.7, darkCap: 0.06, trust: 1.4, linkDecay: 0.6 },
+  { id: 'survivor', name: 'SURVIVOR', blurb: 'The intended game. Storms, raids and Dimmers at a steady pace.', scrap: 1, ev: 1, wear: 1, raid: 1, dark: 1, darkCap: 0.1, trust: 1, linkDecay: 1 },
+  { id: 'winter', name: 'IRON WINTER', blurb: 'Lean starts, frequent faults, aggressive Dimmers, wary factions.', scrap: 0.75, ev: 0.7, wear: 1.3, raid: 0.7, dark: 0.7, darkCap: 0.16, trust: 0.8, linkDecay: 1.3 },
+  { id: 'blackout', name: 'BLACKOUT', blurb: 'Brutal. Little scrap, constant failures, Dimmers everywhere, links fray fast.', scrap: 0.55, ev: 0.5, wear: 1.6, raid: 0.5, dark: 0.5, darkCap: 0.24, trust: 0.6, linkDecay: 1.6 },
+];
+
+// regional factions (the Dimmers are handled separately in world.js)
+const FACTIONS = {
+  compact: { name: 'HAVEN RIDGE COMPACT', who: 'MARA', color: '#8fbf5a', region: 'the eastern United States', cost: 30, perk: 'Compact funds: +12% scrap when you start a county', mod: { scrap: 0.12 } },
+  syndicate: { name: 'PRAIRIE SYNDICATE', who: 'BRAM', color: '#b59cf0', region: 'the western United States', cost: 35, perk: 'Shared research: +1 research point a minute, links recover faster', mod: { rpMin: 1, linkRegen: 0.25 } },
+  north: { name: 'NORTHERN LINE', who: 'ELOISE', color: '#f5c95a', region: 'Canada and Alaska', cost: 40, perk: 'Cold-proofing: machines wear 25% slower', mod: { wear: 0.75 } },
+  sur: { name: 'LINEA SUR', who: 'DIEGO', color: '#e08a3c', region: 'Mexico', cost: 40, perk: 'Sun contracts: +15% scrap income in every county', mod: { inc: 1.15 } },
+  seas: { name: 'LEAGUE OF TWO SEAS', who: 'ISABEL', color: '#5fc4d0', region: 'Central America and the Caribbean', cost: 45, perk: 'Shipping lanes: +15% imports, links recover faster', mod: { imp: 0.15, linkRegen: 0.2 } },
+  sila: { name: 'SILA COLLECTIVE', who: 'SILA', color: '#d8e6e0', region: 'Greenland', cost: 50, perk: 'Ice watch: Dimmer raids are 50% rarer', mod: { def: 1.5 } },
+};
+const FAC_IDS = ['compact', 'syndicate', 'north', 'sur', 'seas', 'sila'];
+const DIMMER_FAC = { name: 'THE DIMMERS', who: 'WARDEN', color: '#b5502b' };
+
+const TIERS = [
+  { n: 'DIVIDED', min: 0, d: 'Scattered lights. Every county stands alone.' },
+  { n: 'ALLIANCE', min: 20, d: 'Neighbours trade. Linked counties start faster.' },
+  { n: 'COMPACT', min: 40, d: 'Shared standards. +4% scrap per tier, links recover faster.' },
+  { n: 'FEDERATION', min: 60, d: 'Power flows three hops. +1 research point a minute.' },
+  { n: 'UNION', min: 80, d: 'One network. Dimmers spread half as fast.' },
+  { n: 'ONE GRID', min: 96, d: 'United under one, divided under none.' },
+];
+const LINK_LV = [
+  { n: 'RELAY', regen: 0.10, eff: 0.70, cap: 1.0, up: 0 },
+  { n: 'HARDENED', regen: 0.30, eff: 0.80, cap: 1.4, up: 30 },
+  { n: 'BACKBONE', regen: 0.60, eff: 0.90, cap: 1.9, up: 70 },
+];
+const BORDER_FX = {
+  open: { n: 'OPEN', imp: 1, cross: 1, toll: 0, d: 'Full sharing. Dimmers can cross freely.' },
+  check: { n: 'CHECKPOINT', imp: 0.6, cross: 0.35, toll: 0.02, d: '60% sharing, Dimmers rarely cross, small trade income.' },
+  closed: { n: 'CLOSED', imp: 0, cross: 0, toll: 0, d: 'No sharing and no spreading light. Dimmers cannot cross.' },
+};
+const Settings = {
+  autopause: true, confirmLeave: true, wide: false, fx: true,
+  load() { try { Object.assign(this, JSON.parse(localStorage.getItem('wastelandGrid.settings')) || {}); } catch (e) { /* defaults */ } },
+  save() { try { localStorage.setItem('wastelandGrid.settings', JSON.stringify({ autopause: this.autopause, confirmLeave: this.confirmLeave, wide: this.wide, fx: this.fx })); } catch (e) { /* ignore */ } },
+};
+Settings.load();
+// numbers the simulation reads every tick (recomputed by world.js from difficulty, accords and the union tier)
+let WMOD = { wear: 1, inc: 1, def: 1, scrap: 1, linkRegen: 0, imp: 0, rpMin: 0, depth: 2, ev: 1, raid: 1 };
