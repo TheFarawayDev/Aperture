@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Wasteland Grid</title>
+<!-- Works offline: just double-click this file. The fonts are optional (they fall back to a monospace font). -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<style>
+  :root { --void:#0d0b0e; --night:#1f1a24; --deep:#17131b; --raised:#241d2b; --dusk:#3a3140; --ash:#5c4a4a; --dust:#8a6a4e; --rust:#b5502b; --amber:#e08a3c; --glow:#f5c95a;
+          --rad:#8fbf5a; --volt:#5fc4d0; --bone:#d8e6e0; --violet:#b59cf0; }
+  * { box-sizing:border-box; }
+  html { background:var(--void); }
+  body { margin:0; background:radial-gradient(ellipse at 50% -10%, #231c2c 0%, var(--void) 62%); color:var(--bone); font-family:'VT323','Courier New',monospace; font-size:19px; line-height:1.15; min-height:100vh; user-select:none; }
+  .pxf { font-family:'Press Start 2P',monospace; }
+  .scene { min-height:100vh; flex-direction:column; align-items:center; justify-content:center; gap:10px; padding:10px; }
+  #scene-menu { display:flex; } #scene-map, #scene-game { display:none; }
+  canvas { display:block; image-rendering:pixelated; image-rendering:crisp-edges; cursor:crosshair; }
+  .neg { color:var(--rust) !important; } .pos { color:var(--rad); }
+
+  /* ---------- design system: panels, buttons, chips ---------- */
+  .panel { position:relative; background:var(--deep); border:2px solid var(--dusk); box-shadow:inset 0 0 0 1px var(--void), inset 0 3px 0 rgba(255,255,255,.035), 0 6px 0 rgba(0,0,0,.35);
+    background-image:linear-gradient(var(--ash),var(--ash)),linear-gradient(var(--ash),var(--ash)),linear-gradient(var(--ash),var(--ash)),linear-gradient(var(--ash),var(--ash));
+    background-size:3px 3px; background-repeat:no-repeat; background-position:4px 4px, calc(100% - 4px) 4px, 4px calc(100% - 4px), calc(100% - 4px) calc(100% - 4px); }
+  .ph { font-family:'Press Start 2P',monospace; font-size:8px; letter-spacing:1px; color:var(--rad); padding:8px 10px 7px; margin:-2px -2px 8px; background:linear-gradient(#2a2231,#211a27); border-bottom:2px solid var(--dusk); display:flex; align-items:center; gap:8px; }
+  .ph::before { content:''; width:6px; height:6px; background:var(--glow); box-shadow:0 0 6px rgba(245,201,90,.7); }
+  .ph .r { margin-left:auto; color:var(--dust); font-family:'VT323',monospace; font-size:16px; letter-spacing:0; }
+  .crt { position:relative; border:3px solid var(--dusk); box-shadow:0 0 0 2px var(--void), 0 0 26px rgba(95,196,208,.09), inset 0 0 44px rgba(0,0,0,.45); background:#000; }
+  .crt::after { content:''; position:absolute; inset:0; pointer-events:none; background:repeating-linear-gradient(to bottom, rgba(0,0,0,.14) 0 1px, transparent 1px 3px), radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,.35)); }
+  button { font-family:inherit; font-size:18px; line-height:1; background:linear-gradient(#2c2433,#221b28); color:var(--amber); border:2px solid var(--dusk); padding:7px 11px; cursor:pointer;
+           box-shadow:inset 0 -3px 0 rgba(0,0,0,.4), inset 0 2px 0 rgba(255,255,255,.04); letter-spacing:.5px; transition:background .08s, border-color .08s; }
+  button:hover:not(:disabled) { background:linear-gradient(#3a3140,#2c2433); color:var(--glow); border-color:var(--dust); }
+  button:active:not(:disabled) { box-shadow:inset 0 2px 0 rgba(0,0,0,.45); transform:translateY(1px); }
+  button:disabled { opacity:.35; cursor:default; }
+  button.on { border-color:var(--glow); color:var(--glow); background:linear-gradient(#3a3140,#2a2231); box-shadow:inset 0 -3px 0 rgba(0,0,0,.4), 0 0 8px rgba(245,201,90,.18); }
+  button.primary { border-color:#4f7a4a; color:var(--rad); background:linear-gradient(#27382a,#1d2a20); } button.primary:hover:not(:disabled) { background:linear-gradient(#34503a,#27382a); color:#c8f08a; border-color:var(--rad); }
+  button.big { font-size:23px; padding:11px 22px; }
+  .seg { display:inline-flex; } .seg button { margin-left:-2px; padding:6px 9px; font-size:17px; }
+  .chip { display:flex; align-items:center; gap:8px; background:var(--void); border:2px solid var(--dusk); padding:3px 10px 3px 6px; white-space:nowrap; min-height:38px; }
+  .chip img { width:24px; height:24px; image-rendering:pixelated; } .chip b { display:block; font-weight:normal; font-size:23px; color:var(--bone); line-height:.9; } .chip small { display:block; font-size:14px; color:var(--dust); line-height:1; }
+  .overlay { display:none; position:fixed; inset:0; background:rgba(10,8,12,.93); align-items:center; justify-content:center; flex-direction:column; gap:14px; text-align:center; z-index:9; padding:18px; }
+  .overlay h2 { font-family:'Press Start 2P',monospace; color:var(--rad); font-size:18px; margin:0; text-shadow:0 3px 0 #1b3a22, 3px 3px 0 var(--void); letter-spacing:2px; }
+  .overlay p { font-size:21px; line-height:1.3; max-width:700px; color:var(--bone); margin:0; }
+  .keys { text-align:left; font-size:19px; line-height:1.5; color:var(--bone); column-count:2; column-gap:36px; max-width:800px; } .keys b { color:var(--glow); font-weight:normal; }
+  label.chk { font-size:19px; color:var(--bone); cursor:pointer; } label.chk input { accent-color:#8fbf5a; }
+
+  /* ---------- main menu ---------- */
+  .stage { position:relative; }
+  .menu-ui { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; padding-top:3.5%; gap:10px; }
+  #logo { cursor:default; width:min(660px,86%); height:auto; filter:drop-shadow(0 0 16px rgba(143,191,90,.28)); }
+  .tag { font-size:clamp(14px,2vw,22px); color:var(--bone); letter-spacing:1px; text-shadow:2px 2px 0 var(--void); text-align:center; line-height:1.2; margin-top:-2px; }
+  .menu-btns { display:flex; flex-direction:column; gap:9px; margin-top:6px; align-items:stretch; width:min(330px,70%); }
+  .menu-btns button { font-size:clamp(18px,2.1vw,25px); padding:11px 22px; background:linear-gradient(rgba(36,29,43,.94),rgba(23,19,27,.94)); border-color:var(--rust); text-align:left; display:flex; align-items:center; gap:12px; }
+  .menu-btns button::before { content:'>'; color:var(--rust); font-family:'Press Start 2P',monospace; font-size:11px; }
+  .menu-btns button:hover { border-color:var(--glow); } .menu-btns button:hover::before { color:var(--glow); }
+  #btn-continue { display:none; border-color:var(--rad); color:var(--rad); } #btn-continue::before { color:var(--rad); }
+  .ver { position:absolute; right:10px; bottom:7px; font-size:15px; color:var(--ash); } .ver.l { left:10px; right:auto; }
+
+  /* ---------- world map ---------- */
+  #mapOuter { display:flex; flex-direction:column; gap:10px; align-items:stretch; max-width:100%; }
+  #maptop { display:flex; align-items:center; gap:12px; width:100%; }
+  #chapter { font-family:'Press Start 2P',monospace; font-size:11px; color:var(--glow); letter-spacing:1px; text-shadow:2px 2px 0 var(--void); } #mapstats { font-size:18px; color:var(--dust); margin-left:auto; }
+  #mapWrap { display:flex; gap:12px; align-items:flex-start; justify-content:center; }
+  #mapframe { position:relative; } #mapzoom { position:absolute; left:8px; top:8px; display:flex; flex-direction:column; gap:3px; z-index:3; } #mapzoom button { width:28px; padding:4px 0; font-size:20px; }
+  #maphover { font-size:18px; color:var(--dust); min-height:20px; margin-top:4px; }
+  #mappanel { flex:none; width:340px; display:flex; flex-direction:column; gap:10px; background:transparent; border:0; box-shadow:none; background-image:none; padding:0; }
+  #mappanel .panel { padding:2px 12px 12px; }
+  #cname { font-size:28px; color:var(--glow); line-height:1; } #cmeta { font-size:19px; color:var(--bone); line-height:1.3; min-height:88px; margin-top:4px; }
+  #cstars { font-size:26px; letter-spacing:3px; color:var(--glow); min-height:24px; } #cstars i { color:#3a3140; font-style:normal; }
+  #cstatus { font-size:19px; color:var(--dust); margin-top:2px; } #cstatus.restored { color:var(--rad); } #cstatus.partial { color:var(--volt); } #cstatus.frontier, #cstatus.landing { color:var(--glow); } #cstatus.locked, #cstatus.outage { color:var(--rust); }
+  #enter { display:none; font-size:23px; padding:11px; width:100%; margin-top:8px; }
+  .prow { display:grid; grid-template-columns:124px 1fr auto; gap:8px; align-items:center; font-size:18px; margin-bottom:5px; color:var(--bone); }
+  .pbar { height:9px; background:var(--void); border:2px solid var(--dusk); } .pbar i { display:block; height:100%; background:var(--rad); }
+  #mapmsg { font-size:19px; line-height:1.25; color:var(--bone); min-height:50px; }
+  .legend { display:grid; grid-template-columns:14px 1fr; gap:4px 8px; font-size:16px; color:var(--dust); align-items:center; } .legend i { display:block; width:12px; height:12px; border:1px solid #000; }
+  #mapbtns { display:flex; gap:6px; flex-wrap:wrap; }
+
+  /* ---------- county builder ---------- */
+  #scene-game { justify-content:flex-start; padding:8px 10px; }
+  #gameWrap { display:flex; flex-direction:column; gap:8px; align-items:stretch; max-width:100%; }
+  #topbar { display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:6px 8px; }
+  #topbar .grow { flex:1; }
+  #loc { padding:0 8px 0 2px; min-width:150px; } #where { font-size:24px; color:var(--glow); line-height:.95; white-space:nowrap; } #sub { font-size:15px; color:var(--dust); display:flex; gap:8px; margin-top:2px; }
+  #sub span { border:1px solid var(--dusk); padding:0 5px; } #diffTag { color:var(--amber); }
+  .chips { display:flex; gap:6px; flex-wrap:wrap; }
+  #dchip { flex-direction:column; align-items:stretch; gap:3px; padding:3px 10px; min-width:112px; } #dcount { font-size:16px; color:var(--bone); } .pb { display:block; height:7px; background:#000; border:1px solid var(--dusk); } .pb u { display:block; height:100%; width:0; background:var(--rad); text-decoration:none; }
+  #gamebody { display:flex; gap:10px; align-items:flex-start; }
+  #stage { flex:none; display:flex; flex-direction:column; align-items:center; gap:7px; }
+  #pausetag { display:none; position:absolute; left:50%; top:46%; transform:translate(-50%,-50%); font-family:'Press Start 2P',monospace; font-size:20px; color:var(--glow); text-shadow:3px 3px 0 var(--void); pointer-events:none; z-index:2; }
+  #banner { position:absolute; left:50%; top:12px; transform:translate(-50%,-8px); max-width:72%; background:rgba(13,11,14,.94); border:2px solid var(--glow); box-shadow:0 0 14px rgba(245,201,90,.25); color:var(--glow); font-size:21px; padding:6px 14px; text-align:center; opacity:0; pointer-events:none; transition:opacity .2s, transform .2s; z-index:2; }
+  #banner.show { opacity:1; transform:translate(-50%,0); }
+  #bar { width:0; min-width:100%; padding:7px 10px; display:flex; flex-direction:column; gap:4px; }
+  #info { font-size:18px; color:var(--dust); height:20px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  #msgrow { display:flex; align-items:center; gap:10px; min-height:46px; }
+  #msgtag { flex:none; font-family:'Press Start 2P',monospace; font-size:8px; color:var(--void); background:var(--glow); padding:5px 6px; }
+  #msg { flex:1; font-size:20px; line-height:1.15; color:var(--bone); max-height:46px; overflow:hidden; text-align:left; } #msg.flash { color:var(--glow); }
+  #msgbtns { flex:none; display:none; gap:6px; } #msgbtns button { font-size:16px; padding:5px 8px; }
+  #msgrow.tutorial #msgtag { background:var(--rad); }
+  /* sidebar */
+  #side { flex:none; width:352px; display:flex; flex-direction:column; gap:8px; overflow-y:auto; scrollbar-width:thin; scrollbar-color:var(--dusk) var(--deep); padding-right:2px; }
+  #side .panel { padding:2px 10px 10px; }
+  #minimap { display:block; width:100%; image-rendering:pixelated; background:#000; border:2px solid var(--dusk); cursor:pointer; }
+  .mmkey { font-size:14px; color:var(--dust); margin-top:5px; } .mmkey i { display:inline-block; width:8px; height:8px; margin:0 3px 0 6px; vertical-align:middle; border:1px solid #000; }
+  #tabs { display:flex; gap:0; } #tabs button { flex:1; margin-left:-2px; font-family:'Press Start 2P',monospace; font-size:8px; padding:9px 4px; position:relative; }
+  #tabs button:first-child { margin-left:0; } #badge { position:absolute; top:-6px; right:-2px; background:var(--rust); color:#fff; font-family:'VT323',monospace; font-size:16px; min-width:18px; padding:1px 4px; display:none; }
+  .tab { display:none; } .tab.on { display:block; }
+  .meter { display:grid; grid-template-columns:56px 1fr auto; gap:8px; align-items:center; font-size:18px; margin-bottom:6px; }
+  .meter .bar { height:11px; background:var(--void); border:2px solid var(--dusk); } .meter .bar i { display:block; height:100%; width:0; transition:width .2s; }
+  .meter .num { color:var(--bone); min-width:84px; text-align:right; }
+  #econ, #tooldesc { font-size:17px; line-height:1.2; color:var(--dust); } #tooldesc { margin-top:10px; min-height:58px; color:var(--bone); border-top:2px solid var(--dusk); padding:8px 4px 0; }
+  #cats { display:grid; grid-template-columns:repeat(4, 1fr); gap:5px; margin-bottom:10px; } #cats button { font-size:16px; padding:7px 0 5px; border-bottom-width:4px; text-align:center; width:100%; letter-spacing:0; }
+  #tools .grid { display:grid; grid-template-columns:1fr 1fr; gap:6px; align-items:stretch; }
+  #tools button { position:relative; display:grid; grid-template-columns:40px 1fr; grid-template-rows:auto auto; align-items:center; text-align:left; padding:5px 6px 5px 5px; gap:0 7px; min-height:56px; width:100%; border-left:5px solid var(--c, var(--dusk)); }
+  #tools button img { grid-row:1 / 3; width:38px; height:38px; image-rendering:pixelated; object-fit:contain; }
+  #tools button .ico { grid-row:1 / 3; display:block; margin:0 auto; font-size:26px; line-height:38px; text-align:center; } #tools button .ico[style*="background"] { height:5px; width:28px; line-height:0; }
+  #tools .nm { font-size:17px; line-height:1; color:var(--bone); } #tools small { font-size:15px; color:var(--dust); }
+  #tools .ky { position:absolute; right:4px; top:2px; font-size:14px; color:var(--ash); }
+  #tools button.on { background:linear-gradient(#3a3140,#2a2231); } #tools button.on .nm { color:var(--glow); } #tools button.locked { opacity:.5; } #tools button.locked small { color:var(--rust); }
+  #inspect { font-size:18px; line-height:1.3; color:var(--bone); min-height:34px; } #inspect b { color:var(--glow); font-weight:normal; font-size:21px; } #inspect button { margin:5px 4px 0 0; font-size:16px; }
+  #alerts { display:flex; flex-direction:column; gap:4px; } #alerts button { text-align:left; font-size:16px; line-height:1.15; border-color:#6a3a24; color:var(--bone); } #alerts b { color:var(--amber); font-weight:normal; }
+  #alerts .ok { font-size:18px; color:var(--rad); } .more { font-size:17px; color:var(--dust); }
+  #districts { display:flex; flex-direction:column; gap:4px; } #districts button { text-align:left; color:var(--ash); font-size:16px; padding:5px 8px; display:flex; justify-content:space-between; }
+  #districts button.done { color:var(--rad); border-color:#4f7a4a; } #districts button.site { color:var(--volt); border-color:#2c6a7a; }
+  /* research / guide / story */
+  #techs { display:grid; grid-template-columns:repeat(2, 1fr); gap:8px; max-width:940px; width:100%; max-height:60vh; overflow-y:auto; }
+  .tech { text-align:left; display:flex; flex-direction:column; gap:3px; padding:8px 10px; font-size:18px; } .tech b { color:var(--bone); font-weight:normal; font-size:21px; } .tech span { color:var(--glow); } .tech small { font-size:16px; color:var(--dust); line-height:1.15; }
+  .tech.done { border-color:#4f7a4a; } .tech.done b, .tech.done span { color:var(--rad); } .tech.avail { border-color:var(--glow); } .tech.lock { opacity:.55; }
+  #guide-body { max-width:940px; width:100%; max-height:62vh; overflow-y:auto; text-align:left; display:grid; grid-template-columns:1fr 1fr; gap:10px 22px; scrollbar-width:thin; }
+  #guide-body section { background:var(--deep); border:2px solid var(--dusk); padding:8px 10px; } #guide-body h4 { margin:0 0 4px; font-size:22px; color:var(--glow); font-weight:normal; } #guide-body p { font-size:18px; line-height:1.25; margin:0; color:var(--bone); } #guide-body b { color:var(--amber); font-weight:normal; }
+  #logbody { max-width:820px; width:100%; max-height:64vh; overflow-y:auto; text-align:left; display:flex; flex-direction:column; gap:8px; scrollbar-width:thin; }
+  #logbody .entry { background:var(--deep); border-left:5px solid var(--c, var(--dusk)); border-top:2px solid var(--dusk); border-right:2px solid var(--dusk); border-bottom:2px solid var(--dusk); padding:7px 12px; } #logbody .entry b { font-weight:normal; color:var(--c, var(--glow)); font-size:20px; display:block; } #logbody .entry p { font-size:19px; text-align:left; }
+  #story { background:radial-gradient(ellipse at 50% 55%, rgba(14,11,18,.55), rgba(4,3,5,.96)); justify-content:flex-end; padding:0 0 5vh; cursor:pointer; }
+  #story-bg { position:absolute; inset:0; width:100%; height:100%; opacity:.5; cursor:pointer; image-rendering:pixelated; }
+  #story::before, #story::after { content:''; position:absolute; left:0; right:0; height:9vh; background:#000; z-index:1; } #story::before { top:0; } #story::after { bottom:0; }
+  #story-card { position:relative; z-index:2; width:min(980px,94vw); display:flex; gap:16px; padding:14px 18px; text-align:left; background:rgba(21,17,25,.97); border:3px solid var(--dusk); box-shadow:0 0 0 2px var(--void), 0 0 34px rgba(245,201,90,.1); }
+  #story-portrait { flex:none; width:132px; height:132px; border:3px solid var(--dusk); background:#000; image-rendering:pixelated; align-self:flex-start; cursor:default; }
+  #story-main { flex:1; min-width:0; } #story-who { font-family:'Press Start 2P',monospace; font-size:11px; color:var(--glow); margin-bottom:8px; letter-spacing:1px; } #story-sub { font-size:17px; color:var(--dust); margin:-4px 0 6px; }
+  #story-text { font-size:27px; line-height:1.28; color:var(--bone); min-height:116px; }
+  #story-choices { display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; } #story-choices button { font-size:21px; padding:9px 14px; text-align:left; }
+  #story-foot { display:flex; justify-content:space-between; align-items:center; margin-top:8px; } #story-hint { font-size:16px; color:var(--dust); animation:blink 1.2s steps(2) infinite; }
+  @keyframes blink { 50% { opacity:.2; } }
+  #card { position:fixed; inset:0; display:none; align-items:center; justify-content:center; flex-direction:column; background:#000; z-index:11; gap:10px; cursor:pointer; text-align:center; }
+  #card small { font-family:'Press Start 2P',monospace; font-size:10px; color:var(--dust); letter-spacing:3px; } #card h1 { font-family:'Press Start 2P',monospace; font-size:clamp(18px,3.6vw,38px); margin:0; color:var(--glow); text-shadow:0 4px 0 #6a2e12, 0 0 26px rgba(245,201,90,.4); letter-spacing:3px; }
+  #card p { font-size:24px; color:var(--bone); max-width:640px; margin:6px 0 0; }
+
+  /* in-game dialog (replaces the browser's confirm / alert boxes) */
+  #dialog { z-index:30; background:rgba(8,6,10,.88); }
+  #dlg-box { flex:none; width:min(560px,92vw); text-align:left; padding:0 0 16px; animation:dlgIn .14s ease-out; }
+  #dlg-title { font-family:'Press Start 2P',monospace; font-size:10px; color:var(--glow); letter-spacing:1px; padding:12px 16px 10px; background:linear-gradient(#2a2231,#211a27); border-bottom:2px solid var(--dusk); display:flex; gap:10px; align-items:center; }
+  #dlg-title::before { content:''; width:7px; height:7px; background:var(--glow); box-shadow:0 0 6px rgba(245,201,90,.7); }
+  #dlg-text { font-size:23px; line-height:1.3; color:var(--bone); padding:16px 18px 6px; }
+  #dlg-btns { display:flex; gap:10px; justify-content:flex-end; padding:10px 16px 0; } #dlg-btns button { min-width:130px; font-size:21px; padding:9px 14px; }
+  @keyframes dlgIn { from { transform:translateY(8px); opacity:0; } to { transform:none; opacity:1; } }
+
+  /* research tree */
+  #techview { width:min(1240px,96vw); height:54vh; overflow:auto; background:#0d0b0e; border:2px solid var(--dusk); position:relative; scrollbar-width:thin; cursor:grab; }
+  #techcanvas { position:relative; padding:14px; display:inline-block; } #techlines { position:absolute; left:14px; top:14px; pointer-events:none; } #technodes { position:relative; }
+  .tn { position:absolute; width:184px; height:58px; text-align:left; padding:6px 8px 6px 10px; border-left:6px solid var(--c); display:flex; flex-direction:column; justify-content:center; gap:3px; }
+  .tn b { font-weight:normal; font-size:17px; line-height:1; color:var(--bone); white-space:normal; } .tn span { font-size:15px; color:var(--dust); }
+  .tn.done { background:linear-gradient(#27382a,#1d2a20); border-color:#4f7a4a; border-left-color:var(--c); } .tn.done span { color:var(--rad); }
+  .tn.can { border-color:var(--glow); box-shadow:0 0 10px rgba(245,201,90,.35); } .tn.can span { color:var(--glow); } .tn.avail span { color:var(--amber); }
+  .tn.lock { opacity:.5; } .tn.sel { outline:2px solid var(--bone); outline-offset:1px; }
+  #techinfo { max-width:1000px; width:100%; min-height:64px; font-size:19px; line-height:1.25; text-align:left; padding:10px 14px; } #techinfo b { font-weight:normal; font-size:22px; } #techinfo button { margin-left:10px; }
+  /* control station modules */
+  .stn { margin-top:6px; border-top:2px solid var(--dusk); padding-top:6px; } .slot { border:2px solid var(--dusk); padding:4px 7px; margin:4px 0; font-size:16px; } .slot.full { border-color:#4f7a4a; } .slot small { display:block; font-size:15px; color:var(--dust); }
+  .slot button { margin-top:4px; font-size:15px; padding:3px 7px; }
+
+  /* failure ribbon, multi-line chips, grid info */
+  #seq { display:none; position:absolute; left:50%; top:46px; transform:translateX(-50%); z-index:3; font-family:'Press Start 2P',monospace; font-size:9px; letter-spacing:1px; padding:8px 14px; border:2px solid var(--amber); background:rgba(23,19,27,.94); color:var(--amber); white-space:nowrap; pointer-events:none; }
+  #seq.on { display:block; animation:seqblink .7s steps(2) infinite; } #seq.red { border-color:var(--rust); color:#f08a6a; box-shadow:0 0 18px rgba(181,80,43,.55); }
+  @keyframes seqblink { 50% { background:rgba(70,26,16,.96); } }
+  #multi { display:none; margin-top:8px; border-top:2px solid var(--dusk); padding-top:8px; } #multi .mrow { display:flex; gap:4px; margin-bottom:5px; flex-wrap:wrap; } #multi button { font-size:15px; padding:5px 7px; flex:1; }
+  #multi .mchip { border-bottom:4px solid var(--c); min-width:44px; } #multi .mchip.on { background:linear-gradient(#3a3140,#2a2231); color:var(--glow); border-color:var(--glow); border-bottom-color:var(--c); } #multi .mchip.locked { opacity:.4; } #multi small { color:var(--dust); font-size:15px; }
+  #gridinfo { font-size:16px; line-height:1.25; color:var(--dust); margin-top:6px; border-top:2px solid var(--dusk); padding-top:6px; } #gridinfo small { font-size:14px; }
+  /* no visible scroll bars anywhere (everything still scrolls) */
+  * { scrollbar-width:none !important; -ms-overflow-style:none; } *::-webkit-scrollbar { display:none !important; width:0; height:0; }
+  @media (max-width:1000px) { #gamebody, #mapWrap { flex-direction:column; align-items:center; } #side, #mappanel { width:100%; max-width:800px; } #techs, #guide-body { grid-template-columns:1fr; } #story-portrait { width:84px; height:84px; } #story-text { font-size:22px; } }
+</style>
+</head>
+<body>
+
+<!-- ===== MAIN MENU ===== -->
+<div class="scene" id="scene-menu">
+  <div class="crt stage">
+    <canvas id="menubg" class="px" width="480" height="270"></canvas>
+    <div class="menu-ui">
+      <canvas id="logo" width="330" height="118"></canvas>
+      <div class="tag">THE CASCADE KILLED THE GRID.<br>RELIGHT NORTH AMERICA, ONE COUNTY AT A TIME.</div>
+      <div class="menu-btns">
+        <button id="btn-continue">CONTINUE</button>
+        <button id="btn-new">NEW GAME</button>
+        <button id="btn-how">HOW TO PLAY</button>
+      </div>
+    </div>
+    <div class="ver l">a game about turning the lights back on</div><div class="ver">v4 - runs offline in your browser</div>
+  </div>
+</div>
+
+<!-- ===== WORLD MAP ===== -->
+<div class="scene" id="scene-map">
+  <div id="mapOuter">
+  <div id="maptop">
+    <button id="btn-map-menu">&lt; MENU</button>
+    <div id="chapter"></div>
+    <div id="mapstats"></div>
+    <button id="btn-log">RADIO LOG</button>
+  </div>
+  <div id="mapWrap">
+    <div id="mapframe">
+      <div class="crt"><canvas id="usmap" class="px" width="420" height="340"></canvas></div>
+      <div id="mapzoom"><button id="mz-in">+</button><button id="mz-out">-</button><button id="mz-home">o</button></div>
+      <div id="maphover">&nbsp;</div>
+    </div>
+    <aside id="mappanel">
+      <div class="panel"><div class="ph">COUNTY <span class="r" id="cwhere"></span></div>
+        <div id="cname"></div><div id="cstars"></div><div id="cmeta"></div><div id="cstatus"></div>
+        <button id="enter" class="primary">RESTORE COUNTY &gt;</button>
+      </div>
+      <div class="panel"><div class="ph">PROGRESS</div><div id="mapprog"></div></div>
+      <div class="panel"><div class="ph">LEGEND</div>
+        <div class="legend"><i style="background:#8a6a4e"></i><span>adjacent: ready to restore</span><i style="background:#1f1a24"></i><span>offline</span><i style="background:#4f7a4a"></i><span>restored (brighter = more support)</span><i style="background:#2c6a7a"></i><span>partly restored: finish it later</span><i style="background:#b5502b"></i><span>outage: go back and repair it</span><i style="background:#2f4a3a"></i><span>locked until the USA is lit</span><i style="background:#1a0f12;border-color:#b5502b"></i><span>held by the Dimmers: liberate it</span><i style="background:#d8e6e0"></i><span>linked control stations</span></div>
+      </div>
+      <div id="mapmsg"></div>
+    </aside>
+  </div>
+  </div>
+</div>
+
+<!-- ===== COUNTY BUILDER ===== -->
+<div class="scene" id="scene-game">
+  <div id="gameWrap">
+    <header id="topbar" class="panel">
+      <button id="tomap">&lt; MAP</button>
+      <div id="loc"><div id="where"></div><div id="sub"><span id="biome"></span><span id="diffTag"></span></div></div>
+      <div class="chips">
+        <div class="chip" title="Scrap: the currency"><img data-ic="scrap" alt=""><div><b id="scrap">0</b><small id="income"></small></div></div>
+        <div class="chip" title="Fuel burned by generators and plants"><img data-ic="fuel" alt=""><div><b id="fuel">0</b><small>FUEL</small></div></div>
+        <div class="chip" title="Parts for repairs and advanced buildings"><img data-ic="parts" alt=""><div><b id="parts">0</b><small>PARTS</small></div></div>
+        <div class="chip" title="Research points (Y)"><img data-ic="rp" alt=""><div><b id="rp">0</b><small>RESEARCH</small></div></div>
+      </div>
+      <div class="chip" id="dchip" title="Restored districts"><span id="dcount"></span><i class="pb"><u id="dbar"></u></i></div>
+      <span class="grow"></span>
+      <button id="btn-research">RESEARCH</button>
+      <span class="seg" id="viewseg" title="Show only one layer (L)">
+        <button data-f="-1" class="on">ALL</button><button data-f="0">PWR</button><button data-f="1">H2O</button><button data-f="2">NET</button>
+      </span>
+      <span class="seg" id="speedseg" title="Space = pause, [ ] = speed">
+        <button data-s="0">||</button><button data-s="1" class="on">1x</button><button data-s="2">2x</button><button data-s="4">4x</button>
+      </span>
+      <button id="btn-undo" title="Ctrl+Z">UNDO</button><button id="btn-guide">GUIDE</button><button id="btn-mute">SND ON</button><button id="btn-help">?</button>
+    </header>
+    <div id="gamebody">
+      <div id="stage">
+        <div class="crt"><canvas id="game" class="px" width="480" height="270"></canvas><div id="pausetag">PAUSED</div><div id="seq"></div><div id="banner"></div></div>
+        <div id="bar" class="panel">
+          <div id="info">&nbsp;</div>
+          <div id="msgrow"><span id="msgtag">TIP</span><span id="msg"></span><span id="msgbtns"><button id="tut-next">NEXT</button><button id="tut-skip">SKIP</button></span></div>
+        </div>
+      </div>
+      <aside id="side">
+        <div class="panel"><div class="ph">MINIMAP <span class="r" id="mmcoords"></span></div><canvas id="minimap" width="200" height="140"></canvas>
+          <div class="mmkey"><i style="background:#c8f08a"></i>hub on <i style="background:#b5502b"></i>hub off <i style="background:#d8e6e0"></i>plant <i style="background:#b5502b;border-radius:50%"></i>fault</div></div>
+        <div id="tabs"><button data-tab="build" class="on">BUILD</button><button data-tab="status">STATUS<span id="badge"></span></button><button data-tab="sites">SITES</button></div>
+        <div class="panel tab on" id="tab-build"><div class="ph">BUILD</div><div id="cats"></div><div id="tools"></div><div id="multi"></div><div id="tooldesc"></div></div>
+        <div class="tab" id="tab-status">
+          <div class="panel"><div class="ph">RESOURCES</div><div id="meters"></div><div id="econ"></div><div id="gridinfo"></div></div>
+          <div class="panel" style="margin-top:8px"><div class="ph">ALERTS</div><div id="alerts"></div></div>
+          <div class="panel" style="margin-top:8px"><div class="ph">SELECTED</div><div id="inspect"></div></div>
+        </div>
+        <div class="panel tab" id="tab-sites"><div class="ph">DISTRICTS &amp; PLANTS</div><div id="districts"></div></div>
+      </aside>
+    </div>
+  </div>
+
+  <div class="overlay" id="win">
+    <h2 id="win-title">COUNTY RESTORED</h2>
+    <p id="win-text">Every district hums with power, clean water and a working network.</p>
+    <div id="win-stars" class="pxf" style="font-size:22px;color:var(--glow);letter-spacing:6px"></div>
+    <div><button id="towin" class="big primary">BACK TO THE MAP</button> <button id="keep" class="big">KEEP BUILDING</button></div>
+  </div>
+  <div class="overlay" id="research">
+    <h2>RESEARCH TREE</h2>
+    <p>Research points <b style="color:var(--glow)" id="rp-have">0</b> - made by Research Labs, schools and campus hubs. Research carries over to every county.</p>
+    <div id="techview"><div id="techcanvas"><svg id="techlines"></svg><div id="technodes"></div></div></div>
+    <div id="techinfo" class="panel"></div>
+    <button id="research-close" class="big">CLOSE (Y)</button>
+  </div>
+  <div class="overlay" id="guide">
+    <h2>FIELD GUIDE</h2>
+    <div id="guide-body"></div>
+    <div><button id="guide-replay" class="big">REPLAY TUTORIAL</button> <button id="guide-close" class="big">CLOSE</button></div>
+  </div>
+  <div class="overlay" id="help">
+    <h2>CONTROLS</h2>
+    <div class="keys">
+      <b>WASD / ARROWS</b> move camera<br><b>RIGHT-DRAG</b> pan<br><b>LEFT-DRAG</b> build / lay lines<br><b>SHIFT</b> straight lines<br>
+      <b>1 2 3</b> power / water / net line<br><b>4-0</b> generator, solar, wind, battery, pump, tower, router<br><b>Q E R</b> substation, valve, net node<br>
+      <b>F G O</b> house, workshop, clinic<br><b>B N U I</b> lab, depot, fuel depot, refinery<br><b>H</b> hydro turbine (on a river)<br><b>V</b> repair<br><b>X</b> salvage<br><b>C</b> inspect<br><b>T</b> toggle switch<br>
+      <b>CTRL+Z</b> undo<br><b>SPACE</b> pause<br><b>[ ]</b> slower / faster<br><b>L</b> cycle layer view<br><b>TAB</b> next sidebar tab<br><b>Y</b> research<br><b>J</b> guide<br><b>HOME</b> jump home<br><b>M</b> sound<br><b>ESC</b> inspect / close
+    </div>
+    <p>Generators burn fuel. Everything wears out, and storms, surges and breakdowns strike once a district is restored. Leave a county half-restored and come back later: it spreads the light and it keeps its save.</p>
+    <label class="chk"><input type="checkbox" id="chk-events" checked> random faults and storms</label>
+    <button id="help-close" class="big">OK</button>
+  </div>
+</div>
+
+<!-- ===== STORY ===== -->
+<div class="overlay" id="story">
+  <canvas id="story-bg" width="480" height="270"></canvas>
+  <div id="story-card">
+    <canvas id="story-portrait" width="32" height="32"></canvas>
+    <div id="story-main">
+      <div id="story-who"></div><div id="story-sub"></div>
+      <div id="story-text"></div>
+      <div id="story-choices"></div>
+      <div id="story-foot"><span id="story-hint">CLICK OR PRESS SPACE</span><button id="story-skip">SKIP</button></div>
+    </div>
+  </div>
+</div>
+<div id="card"><small id="card-kicker"></small><h1 id="card-title"></h1><p id="card-text"></p></div>
+<div class="overlay" id="log">
+  <h2>RADIO LOG</h2>
+  <div id="logbody"></div>
+  <button id="log-close" class="big">CLOSE</button>
+</div>
+
+<!-- ===== HOW TO PLAY ===== -->
+<div class="overlay" id="how">
+  <h2>HOW TO PLAY</h2>
+  <p>1. On the map, pick a county to restore. Its light then spreads to neighbouring counties. Win the USA first, then help Canada and Mexico.<br>
+     2. In a county, lay POWER, WATER and NET lines to every district hub. Left-drag to build, WASD or right-drag to look around.<br>
+     3. Generators burn fuel, so build a refinery. Houses and workshops earn scrap; workshops also make parts for repairs.<br>
+     4. Research new buildings (Y). Watch ALERTS: breakdowns, storms and fuel shortages will test you.<br>
+     5. You can leave a county half-restored and come back. Restored counties can suffer outages: go back and repair them.<br>
+     Counties autosave when you leave. Press ? in a county for every shortcut.</p>
+  <button id="how-close" class="big">OK</button>
+</div>
+
+<!-- ===== DIALOG ===== -->
+<div class="overlay" id="dialog"><div class="panel" id="dlg-box"><div id="dlg-title">NOTICE</div><div id="dlg-text"></div><div id="dlg-btns"><button id="dlg-cancel">CANCEL</button><button id="dlg-ok" class="primary">OK</button></div></div></div>
+
+<script src="art.js"></script>
+<script src="usmap.js"></script>
+<script src="county.js"></script>
+<script src="data.js"></script>
+<script src="game.js"></script>
+<script src="ops.js"></script>
+<script src="campaign.js"></script>
+<script src="story.js"></script>
+<script src="menu.js"></script>
+</body>
+</html>
