@@ -402,7 +402,7 @@ window.APERTURE = {
   var script = document.currentScript;
   if (!cfg || !script) return;
 
-  var ROOT = new URL(document.documentElement.getAttribute('data-root') || './', location.href);                       // …/assets/nav.js → site root
+  var ROOT = new URL(document.documentElement.getAttribute('data-root') || './', location.href);                        // …/assets/nav.js → site root
   // Links are written without ".html" (cleaner URLs). Opening straight from disk (file://) still needs the extension.
   var NOEXT = location.protocol !== 'file:';
   var url = function (p) {
@@ -647,7 +647,7 @@ var GAMES = [
   { id: 'fnaf-ps',     name: "Freddy Fazbear's Pizzeria Simulator", repo: 'irv77/hd_fnaf',               ref: 'main',     dir: 'ps',    entry: 'index.html', tag: 'Simulation', license: 'Proprietary', desc: 'Design your own restaurant by day and salvage rogue animatronics by night.' },
   { id: 'fnaf-ucn',    name: 'Ultimate Custom Night',             repo: 'irv77/hd_fnaf',                 ref: 'main',     dir: 'ucn',   entry: 'index.html', tag: 'Survival', license: 'Proprietary', desc: 'Customize and face off against up to 50 selectable animatronic characters.' },
   { id: 'fnaf-world',  name: 'FNAF World',                        repo: 'irv77/hd_fnaf',                 ref: 'main',     dir: 'w',     entry: 'index.html', tag: 'RPG',      license: 'Proprietary', desc: 'Lead an animatronic party on an animated turn-based RPG adventure through Village and beyond.' },
-  { id: 'polytrack',   name: 'PolyTrack',                         repo: 'htmlunblockedgames/polytrack-0.5.2-clean',  ref: 'main',     dir: '',     entry: 'index.html', tag: 'Racing',      license: 'Proprietary', desc: 'A fast-paced racing game with unique track designs.' },
+  { id: 'polytrack',   name: 'PolyTrack',                         repo: 'htmlunblockedgames/polytrack-0.5.2-clean', ref: 'main',     dir: '',     entry: 'index.html', tag: 'Racing',      license: 'Proprietary', desc: 'A fast-paced racing game with unique track designs.' },
   { id: 'buckshot-roulette', name: 'Buckshot Roulette',                 repo: 'StaticQuasar931/buckshot-roulette', ref: 'main',     dir: '',     entry: 'index.html', tag: 'Arcade',      license: 'Proprietary', desc: 'A thrilling game of chance and strategy.' },
   { id: 'repo', name: 'R.E.P.O.', repo: 'bandit968thegamer-ops/undertale', ref: 'main', dir: 'repo', entry: 'index.html', tag: 'Adventure', license: 'Proprietary', desc: 'An adventure game based on the Undertale universe.' },
   { id: 'silksong-hollow-knight', name: 'Hollow Knight: Silksong', repo: 'web-ports/hollow-knight-silksong', ref: 'master', dir: '', entry: 'index.html', tag: 'Adventure', license: 'Proprietary', desc: 'Explore the world of Hallownest in this action-adventure game.' },
@@ -657,6 +657,12 @@ var GAMES = [
   { id: 'terraria', name: 'Terraria', repo: 'web-ports/terraria', ref: 'main', dir: '', entry: 'index.html', tag: 'Adventure', license: 'Proprietary', desc: 'Welcome to the 2D world of Terraria where anything is possible!' }
 ];
 var CDN = 'https://cdn.jsdelivr.net/gh/';
+var JSDELIVR_MIRRORS = [
+  'https://cdn.jsdelivr.net/gh/',
+  'https://fastly.jsdelivr.net/gh/',
+  'https://gcore.jsdelivr.net/gh/',
+  'https://testingcf.jsdelivr.net/gh/'
+];
 
 var $ = function (id) { return document.getElementById(id); };
 var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
@@ -666,23 +672,49 @@ store.fav = store.fav || {}; store.recent = store.recent || [];
 var cat = 'All';
 function color(s) { var h = 0; for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0; return 'hsl(' + (h % 360) + ' 55% 68%)'; }
 function tile(el, g) { if (!g) return; el.style.background = color(g.name); el.style.color = '#0e1620'; el.textContent = g.name.charAt(0).toUpperCase(); }
-function base(g) { return CDN + g.repo + '@' + g.ref + '/' + (g.dir ? g.dir.replace(/^\/|\/$/g, '') + '/' : ''); }
-function url(g) { return base(g) + g.entry; }
+function base(g, cdnRoot) { return (cdnRoot || CDN) + g.repo + '@' + g.ref + '/' + (g.dir ? g.dir.replace(/^\/|\/$/g, '') + '/' : ''); }
+function url(g, cdnRoot) { return base(g, cdnRoot) + g.entry; }
 function byId(id) { for (var i = 0; i < GAMES.length; i++) if (GAMES[i].id === id) return GAMES[i]; return null; }
+
+/* Fetch helper with automatic jsDelivr mirror rotation on 403 / rate-limit */
+function fetchFromJsDelivr(g) {
+  var idx = 0;
+  function attempt() {
+    var currentCdn = JSDELIVR_MIRRORS[idx % JSDELIVR_MIRRORS.length];
+    var targetUrl = url(g, currentCdn);
+    return fetch(targetUrl, { cache: 'default' }).then(function (res) {
+      if (!res.ok) {
+        if (idx < JSDELIVR_MIRRORS.length * 2 - 1) {
+          idx++;
+          return attempt();
+        }
+        throw new Error('HTTP ' + res.status + ' fetching ' + targetUrl);
+      }
+      return res.text().then(function (html) {
+        return { html: html, cdn: currentCdn };
+      });
+    }).catch(function (err) {
+      if (idx < JSDELIVR_MIRRORS.length * 2 - 1) {
+        idx++;
+        return attempt();
+      }
+      throw err;
+    });
+  }
+  return attempt();
+}
 
 /* ═════════ ABOUT:BLANK FETCH & EMBED ENGINE ═════════
    Opens an about:blank tab synchronously on click, fetches the raw index.html
-   from jsDelivr, injects <base href="..."> so all relative scripts/CSS/images/audio
-   resolve from the CDN, and writes the document directly into about:blank. */
+   from jsDelivr, injects <base href="..."> plus a concurrency-throttled &
+   mirror-fallback jsDelivr network shim so multipart chunks (.zip.part*)
+   never fail with HTTP 403. */
 function openInAboutBlank(g) {
   var win = window.open('about:blank', '_blank');
   if (!win) {
     alert('Popup blocked! Please allow popups for this site so the game can open in about:blank.');
     return;
   }
-
-  var gameBase = base(g);
-  var gameUrl = url(g);
 
   // Write a clean loading state into about:blank while fetching index.html
   win.document.open();
@@ -697,19 +729,109 @@ function openInAboutBlank(g) {
   );
   win.document.close();
 
-  fetch(gameUrl)
-    .then(function (res) {
-      if (!res.ok) throw new Error('HTTP ' + res.status + ' fetching ' + gameUrl);
-      return res.text();
-    })
-    .then(function (html) {
+  fetchFromJsDelivr(g)
+    .then(function (result) {
       if (!win || win.closed) return;
+
+      var html = result.html;
+      var gameBase = base(g, result.cdn);
+      var repoPath = g.repo + '@' + g.ref + '/' + (g.dir ? g.dir.replace(/^\/|\/$/g, '') + '/' : '');
 
       // Normalize root-relative asset references (e.g. href="/style.css" -> href="style.css")
       // so they obey our <base> tag inside about:blank
       html = html.replace(/\b(href|src)=["']\/(?![\/])/gi, '$1="');
 
-      var headInject = '<base href="' + esc(gameBase) + '">';
+      // Inject a jsDelivr-only network queue + mirror retry shim to prevent 403 Forbidden
+      // when games simultaneously download 10+ split archive parts (e.g. resources.zip.part1..13)
+      var netShim =
+        '<script>' +
+        '(function(){' +
+        '  var MIRRORS = ' + JSON.stringify(JSDELIVR_MIRRORS) + ';' +
+        '  var REPO_PATH = ' + JSON.stringify(repoPath) + ';' +
+        '  var BASE = ' + JSON.stringify(gameBase) + ';' +
+        '  var MAX_CONCURRENT = 3;' +
+        '  var active = 0;' +
+        '  var queue = [];' +
+        '  function next(){' +
+        '    if(active >= MAX_CONCURRENT || !queue.length) return;' +
+        '    active++;' +
+        '    var task = queue.shift();' +
+        '    task().then(function(){ active--; next(); }, function(){ active--; next(); });' +
+        '  }' +
+        '  function enqueue(fn){' +
+        '    return new Promise(function(resolve, reject){' +
+        '      queue.push(function(){ return fn().then(resolve, reject); });' +
+        '      next();' +
+        '    });' +
+        '  }' +
+        '  function toMirrorUrl(rawUrl, mirrorIdx){' +
+        '    var m = MIRRORS[mirrorIdx % MIRRORS.length];' +
+        '    if(typeof rawUrl !== "string") return rawUrl;' +
+        '    if(/^(data:|blob:|mailto:|javascript:)/i.test(rawUrl)) return rawUrl;' +
+        '    for(var i = 0; i < MIRRORS.length; i++){' +
+        '      if(rawUrl.indexOf(MIRRORS[i]) === 0){' +
+        '        return m + rawUrl.slice(MIRRORS[i].length);' +
+        '      }' +
+        '    }' +
+        '    if(/^(https?:|\/\/)/i.test(rawUrl)) return rawUrl;' +
+        '    var clean = rawUrl.replace(/^\\.?\\/+/, "");' +
+        '    return m + REPO_PATH + clean;' +
+        '  }' +
+        '  function isJsDelivrTarget(u){' +
+        '    if(typeof u !== "string") return false;' +
+        '    if(!/^(https?:|\/\/|data:|blob:)/i.test(u)) return true;' +
+        '    for(var i = 0; i < MIRRORS.length; i++) if(u.indexOf(MIRRORS[i]) === 0) return true;' +
+        '    return false;' +
+        '  }' +
+        '  var origFetch = window.fetch;' +
+        '  if(origFetch){' +
+        '    window.fetch = function(input, init){' +
+        '      var rawUrl = (typeof input === "string") ? input : (input && input.url ? input.url : "");' +
+        '      if(!isJsDelivrTarget(rawUrl)) return origFetch.call(window, input, init);' +
+        '      return enqueue(function(){' +
+        '        var attempt = 0;' +
+        '        var maxAttempts = MIRRORS.length * 3;' +
+        '        function tryFetch(){' +
+        '          var targetUrl = toMirrorUrl(rawUrl, attempt);' +
+        '          var reqInit = init ? Object.assign({}, init) : {};' +
+        '          return origFetch.call(window, targetUrl, reqInit).then(function(res){' +
+        '            if((res.status === 403 || res.status === 429 || res.status >= 500) && attempt < maxAttempts - 1){' +
+        '              attempt++;' +
+        '              return new Promise(function(r){ setTimeout(r, 150 * attempt); }).then(tryFetch);' +
+        '            }' +
+        '            return res;' +
+        '          }).catch(function(err){' +
+        '            if(attempt < maxAttempts - 1){' +
+        '              attempt++;' +
+        '              return new Promise(function(r){ setTimeout(r, 150 * attempt); }).then(tryFetch);' +
+        '            }' +
+        '            throw err;' +
+        '          });' +
+        '        }' +
+        '        return tryFetch();' +
+        '      });' +
+        '    };' +
+        '  }' +
+        '  var origOpen = XMLHttpRequest.prototype.open;' +
+        '  var origSend = XMLHttpRequest.prototype.send;' +
+        '  XMLHttpRequest.prototype.open = function(method, url, async, user, password){' +
+        '    this.__apRawUrl = url;' +
+        '    this.__apMethod = method;' +
+        '    this.__apAsync = async !== false;' +
+        '    var resolved = isJsDelivrTarget(url) ? toMirrorUrl(url, 0) : url;' +
+        '    return origOpen.call(this, method, resolved, this.__apAsync, user, password);' +
+        '  };' +
+        '  XMLHttpRequest.prototype.send = function(body){' +
+        '    var xhr = this;' +
+        '    if(!xhr.__apAsync || !isJsDelivrTarget(xhr.__apRawUrl) || !window.fetch){' +
+        '      return origSend.call(xhr, body);' +
+        '    }' +
+        '    return origSend.call(xhr, body);' +
+        '  };' +
+        '})();' +
+        '<\/script>';
+
+      var headInject = '<meta name="referrer" content="no-referrer">\n<base href="' + esc(gameBase) + '">\n' + netShim;
       if (/<head[^>]*>/i.test(html)) {
         html = html.replace(/<head[^>]*>/i, function (m) { return m + '\n' + headInject; });
       } else if (/<html[^>]*>/i.test(html)) {
