@@ -202,6 +202,7 @@
   * { scrollbar-width:none !important; -ms-overflow-style:none; } *::-webkit-scrollbar { display:none !important; width:0; height:0; }
   html.w1000 #gamebody, html.w1000 #mapWrap { flex-direction:column; align-items:center; } html.w1000 #side, html.w1000 #mappanel { width:100%; max-width:800px; } html.w1000 #techs, html.w1000 #guide-body { grid-template-columns:1fr; } html.w1000 #story-portrait { width:84px; height:84px; } html.w1000 #story-text { font-size:22px; }
 
+  #gzoom { position:absolute; right:6px; top:6px; display:flex; gap:2px; z-index:3; opacity:.55; transition:opacity .15s; } #gzoom:hover { opacity:1; } #gzoom button { padding:3px 8px; font-size:17px; min-width:28px; background:rgba(13,11,14,.85); }
   /* ---------- screen adaptation + graphics (display.js) ---------- */
   :root { --z:1; --evw:1px; --evh:1px; }
   body.noscan .crt::after { display:none; }
@@ -303,7 +304,7 @@
     </header>
     <div id="gamebody">
       <div id="stage">
-        <div class="crt"><canvas id="game" class="px" width="480" height="270"></canvas><div id="pausetag">PAUSED</div><div id="seq"></div><div id="banner"></div></div>
+        <div class="crt"><canvas id="game" class="px" width="480" height="270"></canvas><div id="gzoom"><button id="gz-in" title="Zoom in (+ or mouse wheel)">+</button><button id="gz-lbl" title="Reset zoom (\ key)">1x</button><button id="gz-out" title="Zoom out (- or mouse wheel)">-</button></div><div id="pausetag">PAUSED</div><div id="seq"></div><div id="banner"></div></div>
         <div id="bar" class="panel">
           <div id="info">&nbsp;</div>
           <div id="msgrow"><span id="msgtag">TIP</span><span id="msg"></span><span id="msgbtns"><button id="tut-next">NEXT</button><button id="tut-skip">SKIP</button></span></div>
@@ -345,7 +346,7 @@
   <div class="overlay" id="help">
     <h2>CONTROLS</h2>
     <div class="keys">
-      <b>WASD / ARROWS</b> move camera<br><b>RIGHT-DRAG</b> pan<br><b>LEFT-DRAG</b> build / lay lines<br><b>SHIFT</b> straight lines<br>
+      <b>WASD / ARROWS</b> move camera (SHIFT = faster)<br><b>WHEEL / + -</b> zoom the play area (<b>\</b> resets)<br><b>RIGHT-DRAG</b> pan<br><b>LEFT-DRAG</b> build / lay lines<br><b>SHIFT</b> straight lines<br>
       <b>1 2 3</b> power / water / net line<br><b>4-0</b> generator, solar, wind, battery, pump, tower, router<br><b>Q E R</b> substation, valve, net node<br>
       <b>F G O</b> house, workshop, clinic<br><b>B N U I</b> lab, depot, fuel depot, refinery<br><b>H</b> hydro turbine (on a river)<br><b>V</b> repair<br><b>X</b> salvage<br><b>C</b> inspect<br><b>T</b> toggle switch<br>
       <b>CTRL+Z</b> undo<br><b>SPACE</b> pause<br><b>[ ]</b> slower / faster<br><b>L</b> cycle layer view<br><b>TAB</b> next sidebar tab<br><b>Y</b> research<br><b>J</b> guide<br><b>HOME</b> jump home<br><b>M</b> sound<br><b>ESC</b> inspect / close

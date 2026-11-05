@@ -139,12 +139,16 @@ try { if (localStorage.getItem('wastelandGrid.gfxInit') == null) { localStorage.
     } else if (e.touches.length === 2 && gt) {
       clearTimeout(gtimer);
       if (gt.started) { window.dispatchEvent(new MouseEvent('mouseup', { bubbles: true })); gt.started = false; }
-      gt.pan = true; gt.m = mid(e.touches); dn(cv, 'mousedown', gt.m, 2);
+      gt.pan = true; gt.m = mid(e.touches); gt.d = dist(e.touches); dn(cv, 'mousedown', gt.m, 2);
     }
   }, { passive: false });
   cv.addEventListener('touchmove', e => {
     e.preventDefault(); if (!gt) return;
-    if (gt.pan && e.touches.length >= 2) { gt.m = mid(e.touches); fire('mousemove', gt.m); }
+    if (gt.pan && e.touches.length >= 2) {
+      const d = dist(e.touches), ratio = d / (gt.d || d), m = mid(e.touches);
+      if (ratio > 1.3 || ratio < 0.77) { const s = toScreen({ clientX: m.x, clientY: m.y }); stepZoom(ratio > 1 ? 1 : -1, s.x, s.y); gt.d = d; }      // pinch = zoom
+      gt.m = m; fire('mousemove', gt.m);
+    }
     else if (!gt.pan && e.touches.length === 1) { gt.last = pt(e.touches[0]); if (!gt.started) { clearTimeout(gtimer); startPaint(gt.last); } fire('mousemove', gt.last); }
   }, { passive: false });
   const gend = e => {
@@ -155,6 +159,8 @@ try { if (localStorage.getItem('wastelandGrid.gfxInit') == null) { localStorage.
   };
   cv.addEventListener('touchend', gend, { passive: false }); cv.addEventListener('touchcancel', gend, { passive: false });
 
+  $('gz-in').onclick = () => stepZoom(1); $('gz-out').onclick = () => stepZoom(-1); $('gz-lbl').onclick = () => setZoom(1);
+  { const l = $('gz-lbl'); l.textContent = (camZ === 0.75 ? '.75' : camZ) + 'x'; }
   // ----- minimap -----
   const mmt = e => { e.preventDefault(); if (Builder.active && e.touches[0]) mmGo(e.touches[0]); };
   mm.addEventListener('touchstart', mmt, { passive: false }); mm.addEventListener('touchmove', mmt, { passive: false });

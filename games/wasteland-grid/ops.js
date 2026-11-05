@@ -90,9 +90,10 @@ function opsMini() {
 const lightCv = document.createElement('canvas'); lightCv.width = W; lightCv.height = H; const lg2 = lightCv.getContext('2d');
 function drawLights(night, cx, cy, x0, y0, x1, y1) {
   if (!Settings.fx) night *= 0.5;
-  g.globalAlpha = night; px(0, 0, W, H, 0); g.globalAlpha = 1;
-  if (radUntil > gameT) { g.globalAlpha = 0.12; px(0, 0, W, H, 11); g.globalAlpha = 1; }
-  lg2.globalCompositeOperation = 'source-over'; lg2.fillStyle = '#000'; lg2.fillRect(0, 0, W, H); lg2.globalCompositeOperation = 'lighten';
+  const lw = Math.ceil(VW), lh = Math.ceil(VH); if (lightCv.width !== lw || lightCv.height !== lh) { lightCv.width = lw; lightCv.height = lh; }
+  g.globalAlpha = night; px(0, 0, VW + 1, VH + 1, 0); g.globalAlpha = 1;
+  if (radUntil > gameT) { g.globalAlpha = 0.12; px(0, 0, VW + 1, VH + 1, 11); g.globalAlpha = 1; }
+  lg2.globalCompositeOperation = 'source-over'; lg2.fillStyle = '#000'; lg2.fillRect(0, 0, lw, lh); lg2.globalCompositeOperation = 'lighten';
   for (const e of sortedEnts) {
     if (!(e.run || e.active) || e.x > x1 + 2 || e.y > y1 + 2 || e.x + e.w < x0 - 2 || e.y + e.h < y0 - 2) continue;
     const mx = (e.x + e.w / 2) * T - cx, my = (e.y + e.h / 2) * T - cy, half = Math.max(e.w, e.h) * T / 2;
@@ -170,7 +171,8 @@ function opsTick() {
   }
   if (raid && --raid.left <= 0) resolveRaid();
   // 4) station modules
-  if (activeMods.has('autoswitch')) ents.forEach(e => { if (BUILD[e.type].bridge !== undefined && !e.on && !e.manual) { e.tripT = (e.tripT || 0) + 1; if (e.tripT >= 6) { e.on = true; e.tripT = 0; toast(BUILD[e.type].name + ' re-closed automatically.'); recompute(); } } else e.tripT = 0; });
+  { const lim = activeMods.has('autoswitch') ? 3 : 10;                              // tripped transformers close again by themselves (faster with the module); only ones YOU switched off stay off
+  ents.forEach(e => { if (BUILD[e.type].bridge !== undefined && !e.on && !e.manual) { e.tripT = (e.tripT || 0) + 1; if (e.tripT >= lim) { e.on = true; e.tripT = 0; toast(BUILD[e.type].name + ' re-closed automatically.'); recompute(); } } else e.tripT = 0; }); }
   if (activeMods.has('forecast') && evT === 10) seqNotice('FORECAST: severe weather in 10 seconds.', false);
 }
 function opsAlerts() {

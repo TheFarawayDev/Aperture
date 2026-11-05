@@ -145,7 +145,7 @@ $('btn-new').onclick = async () => {
   const dsel = await pickDifficulty(); if (dsel < 0) return;
   newCampaign(); save.diff = dsel; writeSave(); recalcMods(); beep(440, 0.1); Scenes.show('map'); Story.play('prologue');
 };
-$('btn-continue').onclick = () => { loadSave(); beep(440, 0.1); Scenes.show('map'); };
+$('btn-continue').onclick = () => { loadSave(); graceTimers(90000); beep(440, 0.1); Scenes.show('map'); };
 $('btn-how').onclick = () => { $('how').style.display = 'flex'; };
 $('how-close').onclick = () => { $('how').style.display = 'none'; };
 $('btn-map-menu').onclick = () => Scenes.show('menu');

@@ -66,7 +66,8 @@ function setBorder(k, m) {
   save.borders = save.borders || {}; const was = save.borders[k] || 'check'; if (was === m) return;
   save.borders[k] = m; const [a, b] = k.split('-');
   say(`BORDER ${cName(a)} / ${cName(b)}: ${BORDER_FX[m].n}. ${BORDER_FX[m].d}`);
-  if (m === 'closed') Story.event('border-closed'); if (m === 'open') Story.event('border-open');
+  const litA = US.counties.some(c => c.country === a && isLit(c)), litB = US.counties.some(c => c.country === b && isLit(c));
+  if (litA && litB) { if (m === 'closed' && was !== 'closed') Story.event('border-closed'); else if (m === 'open' && was === 'closed') Story.event('border-open'); }       // only for a border that matters, and only a real change
   facDirty = true; wDirty = true; writeSave(); refreshLinks(); afterChange(); storySoon();
 }
 const nextMode = m => m === 'open' ? 'check' : m === 'check' ? 'closed' : 'open';
@@ -96,8 +97,8 @@ function linkChanged(a, b, was, now) {
 }
 function linkStorm() {
   const pool = liveLinks.filter(l => l.L.lv < 3); if (liveLinks.length < 2 || !pool.length) return;
-  const l = pool[Math.random() * pool.length | 0], A = US.counties[l.a], B = US.counties[l.b], hit = l.L.lv === 1 ? 45 : 20;
-  l.L.st = Math.max(3, l.L.st - hit);
+  const l = pool[Math.random() * pool.length | 0], A = US.counties[l.a], B = US.counties[l.b], hit = l.L.lv === 1 ? 28 : 14;
+  l.L.st = Math.max(Math.min(l.L.st, 28), l.L.st - hit);                       // a storm can fray a link but never drop it outright
   say(`STORM on the ${A.name} / ${B.name} line: stability down ${hit} points.`);
 }
 function reinforce(key) { const L = save.links[key]; if (!L) return false; if (!spend(6)) return false; L.st = Math.min(100, L.st + 35); return true; }
@@ -203,6 +204,7 @@ function worldTick() {
   borderPairs().forEach(k => { const [a, b] = k.split('-'); if (litBy[a] && litBy[b]) toll += BORDER_FX[borderMode(a, b)].toll; });
   Meta.rp += toll + WMOD.rpMin / 60; if (toll || WMOD.rpMin) Meta.dirty = true; if (wtick % 10 === 0 && Meta.dirty) Meta.save();
   if (wtick % 5 === 0) { refreshLinks(); checkTier(); if (wDirty && mapActive && !anim) { wDirty = false; bakeMap(); updateStats(); } }
+  if (mapActive && !Story.cur && !anim) { if (Story.queue.length) Story.pump(); else if (save.pending && Object.keys(save.pending).length && !overlayOpen()) Story.check(); }      // waiting stories play at the next quiet moment on the map
   if (Scenes.cur !== 'menu') save.play = (save.play || 0) + 1;
   if (mapActive && !backupNagged && (save.play || 0) - (save.lastBackup || 0) > 3600) { backupNagged = true; say('It has been an hour since your last backup. Settings > EXPORT SAVE keeps your campaign safe.'); }
   if (wtick % 15 === 0) writeSave();
@@ -226,8 +228,9 @@ function worldDark() {
     announceDark(`THE DIMMERS HAVE CLAIMED ${c.name} COUNTY, ${US.states[c.state].ab}. They will spread unless you push them back.`); Story.event('dark'); if (mapActive) Story.check(); return;
   }
   const keys = Object.keys(save.dark).map(Number), src = US.counties[keys[Math.random() * keys.length | 0]];
-  const victims = src.nb.map(n => US.counties[n]).filter(o => isRestored(o) && !save.outage[o.id] && Builder.hasSave(o.id) && crossRoll(src.country, o.country));
-  if (victims.length && !fac('dimmers').signed && Math.random() < 0.45) {
+  const here = Builder.active ? countyId : -1;                                  // never sabotage the county you are standing in
+  const victims = src.nb.map(n => US.counties[n]).filter(o => o.id !== here && isRestored(o) && !save.outage[o.id] && Builder.hasSave(o.id) && crossRoll(src.country, o.country));
+  if (victims.length && !fac('dimmers').signed && outageCount() < outageCap() && Math.random() < 0.45) {
     const v = victims[Math.random() * victims.length | 0]; save.outage[v.id] = 1; save.support[v.id] = (save.support[v.id] || 0) * 0.5; writeSave();
     announceDark(`DIMMER SABOTAGE at ${v.name} COUNTY! Its grid is down - go back and repair it.`); Story.event('sabotage'); trustHit(facOf(v), 4); return;
   }

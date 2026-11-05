@@ -6,6 +6,9 @@
 // ============================================================
 
 const W = 480, H = 270, T = 8;
+const ZOOMS = [0.5, 0.75, 1, 1.5, 2, 3, 4];                      // play-area zoom levels (the view shows W/zoom x H/zoom world pixels)
+let camZ = 1, VW = W, VH = H;
+try { const z = +localStorage.getItem('wastelandGrid.zoom'); if (ZOOMS.includes(z)) { camZ = z; VW = W / z; VH = H / z; } } catch (e) { /* default */ }
 let WW = 100, WH = 70, N = WW * WH;
 let DISTRICTS = [], START_BUILDINGS = [], FORCED_PONDS = [], SITES = [], SPEC = null;
 const HOUSE_RADIUS = 10;         // how far from a restored hub houses / workshops may be built
@@ -392,7 +395,7 @@ function initWorld() {
   goHome();
 }
 function goHome() { const home = DISTRICTS.find(d => d.home) || DISTRICTS[0]; centerOn(home.x + 1, home.y + 1); }
-function centerOn(tx, ty) { camX = tx * T - W / 2; camY = ty * T - H / 2; clampCam(); }
+function centerOn(tx, ty) { camX = tx * T - VW / 2; camY = ty * T - VH / 2; clampCam(); }
 
 // ---------- the simulation ----------
 function recompute() { needSolve = true; }
@@ -416,13 +419,14 @@ function solveNow() {
   solvePass(); solvePass();
   fuelCap = 100; income = 0; upkeep = 0; alerts = [];
   const anyRestored = DISTRICTS.some(x => x.restored);
+  for (const e of ents) e.linked = isLinked(e);
   const clinics = ents.filter(e => e.type === 'clinic' && e.cond > 0 && e.ok.every(Boolean));
   for (const e of ents) {
     const d = BUILD[e.type], needs = d.dem[0] + d.dem[1] + d.dem[2] > 0, allOk = d.dem.every((v, L) => v === 0 || e.ok[L]);
     e.active = needs && allOk && e.cond > 0;
-    e.run = e.cond > 0 && allOk && (!d.fuel || stock.fuel > 0) && (!d.partsUse || stock.parts > 0);
+    e.run = e.linked && e.cond > 0 && allOk && (!d.fuel || stock.fuel > 0) && (!d.partsUse || stock.parts > 0);
     if (d.fuelCap && e.cond > 0) fuelCap += d.fuelCap;
-    if (d.upkeep && anyRestored) upkeep += d.upkeep * (Meta.has('logistics') ? 0.75 : 1);
+    if (d.upkeep && anyRestored && e.run) upkeep += d.upkeep * (Meta.has('logistics') ? 0.75 : 1);      // idle or unwired machines cost nothing
     if (e.active && d.income) {
       income += d.income;
       if (e.type === 'house' && clinics.some(c => Math.abs(c.x - e.x) <= 8 && Math.abs(c.y - e.y) <= 8)) income += 1;
@@ -478,7 +482,7 @@ function tick() {
       if (d.partsOut) stock.parts += d.partsOut; if (d.partsUse) stock.parts -= d.partsUse;
       if (d.rp) { Meta.rp += d.rp; Meta.dirty = true; }
     } else if (e.isHub && e.active) { if (d.partsOut) stock.parts += d.partsOut; if (d.rp) { Meta.rp += d.rp; Meta.dirty = true; } }
-    if (d.maint && e.cond > 0 && DISTRICTS.some(x => x.restored)) e.cond = Math.max(0, e.cond - d.maint * WMOD.wear);
+    if (d.maint && e.cond > 0 && e.run && DISTRICTS.some(x => x.restored)) e.cond = Math.max(0, e.cond - d.maint * WMOD.wear);   // only working machines wear
   }
   stock.fuel = Math.max(0, Math.min(fuelCap, stock.fuel)); stock.parts = Math.max(0, stock.parts);
   for (const dep of ents) {                            // maintenance crews
@@ -583,6 +587,7 @@ function salvageAt(x, y) {
   if (e) {
     const d = BUILD[e.type];
     if (d.fixed) return warnOnce('CAN\'T SALVAGE THAT');
+    if (d.central || d.isStation) return warnOnce('THE ' + d.name + ' CAN\'T BE SALVAGED');
     const refund = Math.floor((d.cost || 100) / 2), snap = { type: e.type, x: e.x, y: e.y, on: e.on, charge: e.charge, cond: e.cond };
     scrap += refund; removeEntity(e);
     note(() => { scrap -= refund; addEntity(snap.type, snap.x, snap.y, { on: snap.on, charge: snap.charge, cond: snap.cond }); });
@@ -629,9 +634,19 @@ function act(x, y, first) {
 // ---------- input ----------
 const keys = {};
 let drag = null;
-function toGame(ev) { const r = cv.getBoundingClientRect(), s = r.width / W; return { x: (ev.clientX - r.left) / s, y: (ev.clientY - r.top) / s }; }
+function toGame(ev) { const r = cv.getBoundingClientRect(), s = r.width / W * camZ; return { x: (ev.clientX - r.left) / s, y: (ev.clientY - r.top) / s }; }      // view coordinates (zoom already removed)
+const toScreen = ev => { const r = cv.getBoundingClientRect(), s = r.width / W; return { x: (ev.clientX - r.left) / s, y: (ev.clientY - r.top) / s }; };
+function setZoom(z, sx, sy) {                                  // keep the world point under (sx, sy) [canvas pixels] where it is
+  if (!ZOOMS.includes(z) || z === camZ) return;
+  if (sx === undefined) { sx = W / 2; sy = H / 2; }
+  const wx = sx / camZ + camX, wy = sy / camZ + camY;
+  camZ = z; VW = W / z; VH = H / z; camX = wx - sx / z; camY = wy - sy / z; clampCam();
+  try { localStorage.setItem('wastelandGrid.zoom', String(z)); } catch (e) { /* ignore */ }
+  const l = $('gz-lbl'); if (l) l.textContent = (z === 0.75 ? '.75' : z) + 'x'; dirty.mini = true;
+}
+function stepZoom(dir, sx, sy) { setZoom(ZOOMS[Math.max(0, Math.min(ZOOMS.length - 1, ZOOMS.indexOf(camZ) + dir))], sx, sy); }
 const overMini = () => false;
-function clampCam() { camX = Math.max(0, Math.min(Math.max(0, WW * T - W), camX)); camY = Math.max(0, Math.min(Math.max(0, WH * T - H), camY)); }
+function clampCam() { camX = Math.max(0, Math.min(Math.max(0, WW * T - VW), camX)); camY = Math.max(0, Math.min(Math.max(0, WH * T - VH), camY)); }
 function lineTiles(x0, y0, x1, y1, fn) {
   const dx = Math.abs(x1 - x0), dy = -Math.abs(y1 - y0), sx = x0 < x1 ? 1 : -1, sy = y0 < y1 ? 1 : -1; let err = dx + dy;
   for (; ;) { fn(x0, y0); if (x0 === x1 && y0 === y1) break; const e2 = 2 * err; if (e2 >= dy) { err += dy; x0 += sx; } if (e2 <= dx) { err += dx; y0 += sy; } }
@@ -641,17 +656,17 @@ cv.addEventListener('contextmenu', e => e.preventDefault());
 cv.addEventListener('mousedown', e => {
   if (!Builder.active) return;
   const p = toGame(e);
-  if (e.button === 2 || e.button === 1) { drag = { mode: 'pan', px: p.x, py: p.y }; return; }
+  if (e.button === 2 || e.button === 1) { e.preventDefault(); drag = { mode: 'pan', px: p.x, py: p.y, sx: p.x, sy: p.y, btn: e.button }; cv.style.cursor = 'grabbing'; return; }
   if (overMini(p)) { drag = { mode: 'mini' }; miniTo(p); return; }
   const tx = Math.floor((p.x + camX) / T), ty = Math.floor((p.y + camY) / T);
   drag = { mode: 'paint', last: { x: tx, y: ty }, start: { x: tx, y: ty } };
   beginStroke(); act(tx, ty, true);
 });
 addEventListener('mousemove', e => {
-  const p = toGame(e); mouse.x = p.x; mouse.y = p.y; mouse.in = p.x >= 0 && p.y >= 0 && p.x < W && p.y < H;
+  const p = toGame(e); mouse.x = p.x; mouse.y = p.y; mouse.in = p.x >= 0 && p.y >= 0 && p.x < VW && p.y < VH;
   hover = { x: Math.floor((p.x + camX) / T), y: Math.floor((p.y + camY) / T) };
   if (!drag) return;
-  if (drag.mode === 'pan') { camX -= p.x - drag.px; camY -= p.y - drag.py; drag.px = p.x; drag.py = p.y; clampCam(); }
+  if (drag.mode === 'pan') { if (Math.hypot(p.x - drag.sx, p.y - drag.sy) > 3) drag.moved = true; camX -= p.x - drag.px; camY -= p.y - drag.py; drag.px = p.x; drag.py = p.y; clampCam(); }
   else if (drag.mode === 'mini') miniTo(p);
   else if (tool.kind === 'cable' || tool.kind === 'multi' || tool.kind === 'salvage' || tool.kind === 'repair') {
     let tx = hover.x, ty = hover.y;
@@ -660,16 +675,34 @@ addEventListener('mousemove', e => {
     drag.last = { x: tx, y: ty };
   }
 });
-addEventListener('mouseup', () => { if (drag && drag.mode === 'paint') endStroke(); drag = null; });
+addEventListener('mouseup', () => {
+  if (drag && drag.mode === 'paint') endStroke();
+  if (drag && drag.mode === 'pan' && drag.btn === 2 && !drag.moved && Builder.active && tool.kind !== 'inspect') selectTool(TOOLS.find(t => t.kind === 'inspect'));      // a plain right-click drops the current tool
+  drag = null; cv.style.cursor = '';
+});
+let wheelAcc = 0;
+cv.addEventListener('wheel', e => {                              // mouse wheel / trackpad: zoom the play area around the pointer
+  e.preventDefault(); if (!Builder.active) return;
+  wheelAcc += e.deltaY * (e.deltaMode === 1 ? 33 : e.deltaMode === 2 ? 400 : 1);
+  if (Math.abs(wheelAcc) < 40) return;
+  const s = toScreen(e); stepZoom(wheelAcc < 0 ? 1 : -1, s.x, s.y); wheelAcc = 0;
+}, { passive: false });
+cv.addEventListener('mousedown', e => { if (e.button === 1) e.preventDefault(); });
+cv.addEventListener('dblclick', e => { if (Builder.active && tool.kind === 'inspect') { const p = toGame(e); if (!occ[Math.floor((p.y + camY) / T) * WW + Math.floor((p.x + camX) / T)]) setZoom(1); } });
 addEventListener('keydown', e => {
   if (!Builder.active) return;
-  const k = e.key.toLowerCase(); keys[k] = true;
+  const k = e.key.toLowerCase();
+  if ([...document.querySelectorAll('.overlay')].some(o => o.style.display === 'flex') && !['escape', '?', '/', 'j', 'y'].includes(k)) return;   // dialogs open: don't change tools or pan underneath them
+  keys[k] = true;
   if (e.ctrlKey || e.metaKey) { if (k === 'z') { e.preventDefault(); undo(); } return; }
   if ($('research').style.display === 'flex') { if (k === 'escape' || k === 'y') closeResearch(); return; }
   const t = TOOLS.find(t => t.key === k); if (t) selectTool(t);
   if (k === 'escape') { $('guide').style.display = 'none'; selectTool(TOOLS.find(t => t.kind === 'inspect')); sel = null; dirty.ui = true; $('help').style.display = 'none'; }
   if (k === ' ') { e.preventDefault(); setSpeed(speed === 0 ? 1 : 0); }
   if (k === 't' && mouse.in && inb(hover.x, hover.y)) toggleSwitch(occ[hover.y * WW + hover.x]);
+  if (k === '+' || k === '=' && e.shiftKey || k === 'add') { e.preventDefault(); stepZoom(1); }
+  if (k === '-' || k === '_' || k === 'subtract') { e.preventDefault(); stepZoom(-1); }
+  if (k === '\\') setZoom(1);
   if (k === 'home') goHome(); if (k === 'tab') { e.preventDefault(); cycleTab(); } if (k === 'l') setFocus(focus >= 2 ? -1 : focus + 1); if (k === 'm') toggleMute(); if (k === 'y') openResearch();
   if (k === '?' || k === '/') $('help').style.display = $('help').style.display === 'flex' ? 'none' : 'flex';
   if (k === '[') setSpeed(speed === 4 ? 2 : speed === 2 ? 1 : speed);
@@ -796,8 +829,8 @@ function drawMinimap(t) {
   for (const s of SITES) { const x = (s.x + 1.5) * 2, y = (s.y + 1.5) * 2; mmg.fillStyle = '#000'; mmg.fillRect(x - 3, y - 3, 7, 7); mmg.fillStyle = PAL[15]; mmg.fillRect(x - 2, y - 1, 5, 3); mmg.fillRect(x - 1, y - 2, 3, 5); }
   if (Math.floor(t * 2) % 2) for (const a of alerts) if (a.e && a.miss[0] === 'FAILED') { mmg.fillStyle = '#000'; mmg.fillRect((a.e.x + 1) * 2 - 3, (a.e.y + 1) * 2 - 3, 6, 6); mmg.fillStyle = PAL[5]; mmg.fillRect((a.e.x + 1) * 2 - 2, (a.e.y + 1) * 2 - 2, 4, 4); }
   opsMini();
-  mmg.lineWidth = 1; mmg.strokeStyle = '#000'; mmg.strokeRect(camX / T * 2 - 0.5, camY / T * 2 - 0.5, Math.min(w, W / T * 2) + 2, Math.min(h, H / T * 2) + 2);
-  mmg.strokeStyle = PAL[8]; mmg.strokeRect(camX / T * 2 + 0.5, camY / T * 2 + 0.5, Math.min(w - 1, W / T * 2), Math.min(h - 1, H / T * 2));
+  mmg.lineWidth = 1; mmg.strokeStyle = '#000'; mmg.strokeRect(camX / T * 2 - 0.5, camY / T * 2 - 0.5, Math.min(w, VW / T * 2) + 2, Math.min(h, VH / T * 2) + 2);
+  mmg.strokeStyle = PAL[8]; mmg.strokeRect(camX / T * 2 + 0.5, camY / T * 2 + 0.5, Math.min(w - 1, VW / T * 2), Math.min(h - 1, VH / T * 2));
 }
 function mmGo(e) { const r = mm.getBoundingClientRect(); centerOn((e.clientX - r.left) / r.width * WW, (e.clientY - r.top) / r.height * WH); }
 mm.addEventListener('mousedown', e => { if (!Builder.active) return; mmDrag = true; mmGo(e); });
@@ -812,20 +845,21 @@ function label(txt, cx, y, col) {                       // tiny 3x5 pixel text, 
 let miniT = 0, hudT = 0, startT = 0;
 function frame(now) {
   requestAnimationFrame(frame);
-  if (Display.skip('g', now)) return;
+  if (typeof Display !== 'undefined' && Display.skip('g', now)) return;
   if (!Builder.active || document.hidden) { frame.last = now; return; }
   const t = now / 1000, dt = Math.min(0.05, (now - (frame.last || now)) / 1000); frame.last = now;
   if (speed > 0) { acc += dt * speed; while (acc >= 1) { acc -= 1; tick(); } }
   if (needSolve) solveNow();
-  const sp = 170 * dt;
+  const sp = 170 * dt / camZ * (keys['shift'] ? 2 : 1);
   if (keys['a'] || keys['arrowleft']) camX -= sp; if (keys['d'] || keys['arrowright']) camX += sp;
   if (keys['w'] || keys['arrowup']) camY -= sp; if (keys['s'] || keys['arrowdown']) camY += sp;
   clampCam();
   if (dirty.cab) bakeCables();
   if (dirty.sort) { sortedEnts = [...ents].sort((a, b) => (a.y + a.h) - (b.y + b.h)); dirty.sort = false; }
   const cx = Math.round(camX), cy = Math.round(camY);
-  const x0 = Math.max(0, Math.floor(cx / T)), y0 = Math.max(0, Math.floor(cy / T)), x1 = Math.min(WW - 1, Math.floor((cx + W) / T)), y1 = Math.min(WH - 1, Math.floor((cy + H) / T));
-  px(0, 0, W, H, 0);
+  const x0 = Math.max(0, Math.floor(cx / T)), y0 = Math.max(0, Math.floor(cy / T)), x1 = Math.min(WW - 1, Math.floor((cx + VW) / T)), y1 = Math.min(WH - 1, Math.floor((cy + VH) / T));
+  g.setTransform(camZ, 0, 0, camZ, 0, 0); g.imageSmoothingEnabled = false;                // everything below is drawn in world pixels; the transform does the zoom
+  px(0, 0, VW + 1, VH + 1, 0);
   g.drawImage(terrainCv, -cx, -cy);
   // water shimmer
   const wf = Math.floor(t * 2);
@@ -874,7 +908,7 @@ function frame(now) {
   drawFx(t, cx, cy, dt);
   const night = Math.max(0, Math.sin((t - startT) / 40 + 3.3)) * 0.32;
   if (night > 0.03) drawLights(night, cx, cy, x0, y0, x1, y1);
-  else if (radUntil > gameT) { g.globalAlpha = 0.1; px(0, 0, W, H, 11); g.globalAlpha = 1; }
+  else if (radUntil > gameT) { g.globalAlpha = 0.1; px(0, 0, VW + 1, VH + 1, 11); g.globalAlpha = 1; }
   if (mouse.in && !overMini(mouse) && inb(hover.x, hover.y)) {
     const hx = hover.x * T - cx, hy = hover.y * T - cy;
     if (tool.kind === 'build') {
@@ -885,6 +919,7 @@ function frame(now) {
     } else { g.strokeStyle = PAL[tool.kind === 'cable' ? LAYERS[tool.L].live : 15]; g.strokeRect(hx + 0.5, hy + 0.5, T - 1, T - 1); }
   }
   if (sel && ents.includes(sel)) { g.strokeStyle = PAL[8]; g.strokeRect(sel.x * T - cx - 0.5, sel.y * T - cy - 0.5, sel.w * T + 1, sel.h * T + 1); }
+  g.setTransform(1, 0, 0, 1, 0, 0);
   if (dirty.mini && now - miniT > 400) { bakeMini(); miniT = now; }
   drawMinimap(t);
   if (now - hudT > 200) {
@@ -907,7 +942,7 @@ const exitResult = () => Object.assign(progressInfo(), { stars: starRating() });
 function applyOutage() {
   let n = 0; for (let L = 0; L < NL; L++) for (let i = 0; i < N; i++) if (cab[L][i] === 1 && Math.random() < 0.16) { cab[L][i] = 2; n++; }
   const mach = ents.filter(e => BUILD[e.type].maint && e.cond > 0 && !BUILD[e.type].fixed); for (let k = 0; k < 2 && mach.length; k++) mach.splice(Math.random() * mach.length | 0, 1)[0].cond = 0;
-  ents.forEach(e => { if (BUILD[e.type].sw !== undefined) e.on = false; });
+  ents.forEach(e => { if (BUILD[e.type].sw !== undefined) { e.on = false; e.manual = false; e.tripT = 0; } });
   outageActive = true; recompute(); toast('OUTAGE! A storm tore through this county: ' + n + ' lines down, machines failed, switches tripped. Repair it (V) and switch things back on (T).'); beep(100, 0.6, 'sawtooth', 0.05);
 }
 function checkOutage() {
@@ -921,15 +956,30 @@ function checkOutage() {
 const SAVE_PREFIX = 'wastelandGrid.c5.';
 const b64 = u8 => { let s = ''; for (let i = 0; i < u8.length; i++) s += String.fromCharCode(u8[i]); return btoa(s); };
 const unb64 = (s, n) => { const a = atob(s), u = new Uint8Array(n); for (let i = 0; i < n && i < a.length; i++) u[i] = a.charCodeAt(i); return u; };
+// cable layers are mostly empty: store them as run-lengths ("R" + value + length in base 36) so hundreds of counties fit in browser storage
+function rleEnc(u8) {
+  let any = false; for (let i = 0; i < u8.length; i++) if (u8[i]) { any = true; break; }
+  if (!any) return '';
+  let out = 'R', i = 0; while (i < u8.length) { const v = u8[i]; let j = i + 1; while (j < u8.length && u8[j] === v) j++; out += v + (j - i).toString(36) + '.'; i = j; }
+  return out;
+}
+function rleDec(s, n) {
+  if (!s) return new Uint8Array(n);
+  if (s[0] !== 'R') return unb64(s, n);                                  // older saves
+  const u = new Uint8Array(n); let p = 0; const re = /(\d)([0-9a-z]+)\./g; let m;
+  while ((m = re.exec(s))) { const len = parseInt(m[2], 36), v = +m[1]; if (v) u.fill(v, p, Math.min(n, p + len)); p += len; }
+  return u;
+}
+let saveWarned = false;
 function saveCounty() {
   if (countyId === null || !Builder.active) return;
   try {
     localStorage.setItem(SAVE_PREFIX + countyId, JSON.stringify({
-      scrap: Math.floor(scrap), stock, evT, cab: cab.map(b64), rub: [...cleared],
-      ents: ents.filter(e => !BUILD[e.type].fixed).map(e => ({ t: e.type, x: e.x, y: e.y, on: e.on, c: Math.round(e.charge), q: Math.round(e.cond), m: e.mods })),
+      scrap: Math.floor(scrap), stock, evT, cab: cab.map(rleEnc), rub: [...cleared],
+      ents: ents.filter(e => !BUILD[e.type].fixed).map(e => ({ t: e.type, x: e.x, y: e.y, on: e.on, c: Math.round(e.charge), q: Math.round(e.cond), m: e.mods, mn: e.manual ? 1 : 0 })),
       rest: DISTRICTS.map(d => d.restored ? 1 : 0), ou: outageActive ? 1 : 0,
     }));
-  } catch (e) { /* storage blocked */ }
+  } catch (e) { if (!saveWarned) { saveWarned = true; toast('SAVE FAILED: browser storage is full. Open Settings on the map and EXPORT SAVE, then free some space.'); } }
 }
 function loadCounty(id) {
   let s; try { s = JSON.parse(localStorage.getItem(SAVE_PREFIX + id)); } catch (e) { return false; }
@@ -937,11 +987,11 @@ function loadCounty(id) {
   restoring = true;
   ents.filter(e => !BUILD[e.type].fixed).forEach(removeEntity);
   s.rub.forEach(i => { terrain[i] = 0; cleared.add(i); tileTerrain(i % WW, (i / WW) | 0); });
-  cab = Array.from({ length: NL }, (_, L) => s.cab[L] ? unb64(s.cab[L], N) : new Uint8Array(N));
+  cab = Array.from({ length: NL }, (_, L) => rleDec(s.cab[L], N));
   s.ents.forEach(o => {
     const d = BUILD[o.t]; if (!d || !inb(o.x, o.y)) return;
     for (let j = 0; j < d.h; j++) for (let i = 0; i < d.w; i++) { const q = occ[(o.y + j) * WW + o.x + i]; if (q && String(q.type).startsWith('dormant')) removeEntity(q); }
-    addEntity(o.t, o.x, o.y, { on: o.on, charge: o.c, cond: o.q ?? 100, mods: o.m || [] });
+    addEntity(o.t, o.x, o.y, { on: o.on, charge: o.c, cond: o.q ?? 100, mods: o.m || [], manual: !!o.mn });
   });
   scrap = s.scrap; if (s.stock) stock = s.stock; evT = s.evT || 80; s.rest.forEach((r, k) => { if (DISTRICTS[k]) DISTRICTS[k].restored = !!r; });
   outageActive = !!s.ou; solveNow(); restoring = false; refreshDistrictButtons();
@@ -963,7 +1013,7 @@ const Builder = {
     $('win').style.display = 'none'; $('help').style.display = 'none'; $('research').style.display = 'none';
     initWorld(); solveNow(); refreshDistrictButtons();
     outageActive = false; outageCb = opts.onOutageCleared || null;
-    const loaded = countyId !== null && loadCounty(countyId);
+    let loaded = false; try { loaded = countyId !== null && loadCounty(countyId); } catch (err) { console.error('county save unreadable', err); restoring = false; loaded = false; if (countyId !== null) { this.clearSave(countyId); initWorld(); solveNow(); toast('That county\'s save was damaged, so it starts fresh.'); } }
     if (opts.outage && !outageActive) applyOutage();
     buildToolbar(); setSpeed(1); setFocus(-1); updateUndoBtn();
     $('where').textContent = opts.where || ''; $('biome').textContent = (spec.biome || '').toUpperCase() + ' - ' + (opts.sub || '');
@@ -1081,7 +1131,8 @@ const GUIDE = [
   ['STORAGE', 'Batteries and water towers charge from surplus and cover shortages at 6 per second. Build them before storms and surges, not after.'],
   ['RESEARCH', 'Research labs (power + net) and campus hubs make research points. Spend them with Y. Research carries over to every county for the whole campaign.'],
   ['THE MAP', 'Restore every county of a country to win it. The light spreads to neighbours. Restore the whole <b>United States</b> first - then Canada and Mexico call for help.'],
-  ['SHORTCUTS', 'WASD pan, 1-3 lines, 4-0 power/water/net buildings, Q E R switches, F G O town, B N U I ops, V repair, X salvage, C inspect, T toggle, Y research, SPACE pause, CTRL+Z undo, J this guide.'],
+  ['ZOOM & CAMERA', 'Scroll the <b>mouse wheel</b> (or press <b>+</b> and <b>-</b>) to zoom the play area around the pointer; <b>\\</b> or double-click empty ground resets it. Zoom out to plan big networks, zoom in for fine work. Pan with WASD or the arrows (hold SHIFT to go faster), right-drag or middle-drag. On a touch screen pinch to zoom and drag with two fingers.'],
+  ['SHORTCUTS', 'WASD pan, + - zoom, 1-3 lines, 4-0 power/water/net buildings, Q E R switches, F G O town, B N U I ops, V repair, X salvage, C inspect, T toggle, Y research, SPACE pause, CTRL+Z undo, J this guide.'],
 ];
 function openGuide() { $('guide-body').innerHTML = GUIDE.map(([h, p]) => `<section><h4>${h}</h4><p>${p}</p></section>`).join(''); $('guide').style.display = 'flex'; }
 $('btn-guide').onclick = openGuide; $('guide-close').onclick = () => { $('guide').style.display = 'none'; };
@@ -1103,6 +1154,19 @@ const uses = (e, L) => {                                   // does this building
 function conductive(L, i) {
   if (cab[L][i] === 1) return true;
   const e = occ[i]; return !!e && uses(e, L);
+}
+// is this building wired to anything? (a line or another building touching it on a layer it uses)
+function isLinked(e) {
+  const d = BUILD[e.type]; if (d.fixed || d.isHub) return true;
+  for (let R = 0; R < 3; R++) {
+    if (!(d.sup[R] > 0 || d.dem[R] > 0 || d.importer || (d.store && d.store.L === R))) continue;
+    const L = R + 3 * tierOf(e, R);
+    for (let j = -1; j <= e.h; j++) for (let i = -1; i <= e.w; i++) {
+      if ((i >= 0 && i < e.w) && (j >= 0 && j < e.h)) continue; if ((i < 0 || i === e.w) && (j < 0 || j === e.h)) continue;
+      const x = e.x + i, y = e.y + j; if (inb(x, y) && conductive(L, y * WW + x)) return true;
+    }
+  }
+  return false;
 }
 function grpOf(e, R) { const L = R + 3 * tierOf(e, R), c = comp[L][e.y * WW + e.x]; return c >= 0 ? info[L][c] : null; }
 
@@ -1150,9 +1214,10 @@ function solvePass() {
       if (!hasS && !hasD && !hasSt) continue;
       const L = R + 3 * tierOf(e, R), c = comp[L][e.y * WW + e.x]; if (c < 0) continue;
       const gp = info[L][c], sup = imp ? (e.imp ? e.imp[R] : 0) : d.sup[R] * e.mult;
-      gp.base += sup; gp.demand += d.dem[R]; tot[R].sup += sup;
+      const need = (d.maint && e.cond <= 0) ? 0 : d.dem[R];                  // a broken machine draws nothing
+      gp.base += sup; gp.demand += need; tot[R].sup += sup;
       if (hasSt) { gp.stores.push(e); tot[R].charge += e.charge; tot[R].cap += d.store.cap; if (e.charge > 0 && e.cond > 0) gp.sto += d.store.rate * storeMult(); }
-      if (!(e.isHub && !e.district.restored)) tot[R].dem += d.dem[R];
+      if (!(e.isHub && !e.district.restored)) tot[R].dem += need;
     }
   }
   for (const gp of groups) gp.supply = gp.base + gp.sto;
@@ -1300,7 +1365,7 @@ function updateInspector() {
   if (d.income) h += `EARNS ${d.income}/s ${e.active ? '' : '(inactive)'}<br>`;
   if (d.isStation) h += stationHtml(e);
   if (d.maint) h += '<button id="i-rep">REPAIR</button> ';
-  if (!d.fixed) h += '<button id="i-sal">SALVAGE</button>';
+  if (!d.fixed && !d.central && !d.isStation) h += '<button id="i-sal">SALVAGE</button>';
   box.innerHTML = h;
   const a = (id, fn) => { const el = $(id); if (el) el.onclick = fn; };
   a('i-tog', () => toggleSwitch(e)); a('i-rep', () => repairEntity(e)); a('i-res', () => restoreSite(e)); a('i-sal', () => { beginStroke(); salvageAt(e.x, e.y); endStroke(); });

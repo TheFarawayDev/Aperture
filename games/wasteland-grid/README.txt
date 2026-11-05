@@ -23,3 +23,7 @@ Notes
 
 Map keys: WASD pan, +/- zoom, TAB next target, N next trouble spot, ENTER open, / find county,
 U union, V map view, F wide map, O settings (graphics and export/import saves), L radio log, ? help.
+
+In a county: WASD / arrows pan (SHIFT faster), mouse wheel or + / - zoom the play area (\ resets, or use the buttons on the
+view), right-drag or middle-drag pans, a plain right-click drops the current tool, ? shows every shortcut.
+Touch: pinch to zoom, two fingers to pan.

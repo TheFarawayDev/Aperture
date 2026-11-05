@@ -264,6 +264,7 @@ function chapterIndex() {
 function chapterName() { const i = chapterIndex(); return i === 0 ? 'PROLOGUE - THE DARK' : CHAPTERS[i].k + ' - ' + CHAPTERS[i].t; }
 
 // ---------- portraits (32x32 pixel faces, drawn in code) ----------
+const MAP_MINI = new Set(['outage', 'sabotage', 'liberated', 'partial']);
 const PORTRAIT_ALIAS = { NANOOK: 'ELOISE', ISABEL: 'MARA', RAFAEL: 'DIEGO', BRAM: 'DIEGO', SILA: 'ELOISE', KEALOHA: 'MARA' };
 function portrait(who) {
   who = PORTRAIT_ALIAS[who] || who;
@@ -355,7 +356,12 @@ const Story = {
   play(id) { const e = STORY.find(x => x.id === id); if (e && !this.seen(id) && !this.queue.includes(e) && e !== this.cur) this.queue.push(e); this.pump(); },
   event(name) {
     STORY.filter(e => e.ev === name && !this.seen(e.id)).forEach(e => {
-      if (e.mini) { this.mark(e); if (Builder.active) { toast(WHO[e.who].name.split(' -')[0] + ': ' + e.pages[0]); beep(740, 0.06); beep(990, 0.08, 'square', 0.03, 0.07); } return; }
+      if (e.mini) {                                                          // short radio notes: only said where they make sense, and only marked as heard once they are
+        const line = WHO[e.who].name.split(' -')[0] + ': ' + e.pages[0];
+        if (Builder.active) { this.mark(e); toast(line); beep(740, 0.06); beep(990, 0.08, 'square', 0.03, 0.07); }
+        else if (MAP_MINI.has(name)) { this.mark(e); say(line); }
+        return;
+      }
       if (this.queue.includes(e) || e === this.cur) return;
       if (e.live && Builder.active) this.queue.push(e);                       // plays right now (the game pauses)
       else { save.pending = save.pending || {}; save.pending[e.id] = 1; writeSave(); }   // plays next time you are on the map
@@ -382,6 +388,7 @@ const Story = {
   resumeGame() { if (this.prevSpeed !== undefined) { if (Builder.active) setSpeed(this.prevSpeed || 1); this.prevSpeed = undefined; } },
   pump() {
     if (this.cur || $('card').style.display === 'flex') return;
+    if (!Builder.active && (!Scenes.is('map') || overlayOpen() || (typeof anim !== 'undefined' && anim))) return;      // never cut across the union screen, settings or a zoom
     const idx = Builder.active ? this.queue.findIndex(e => e.live) : (this.queue.length ? 0 : -1);   // in a county only live beats may interrupt
     if (idx < 0) return;
     this.cur = this.queue.splice(idx, 1)[0]; this.page = 0; this.choiceShown = false; this.pauseGame();

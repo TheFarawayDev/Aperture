@@ -18,7 +18,7 @@ const freshSave = () => ({ v: 5, diff: 1, borders: {}, links: {}, fac: {}, expor
 let save = freshSave();
 
 function loadSave() { try { const s = JSON.parse(localStorage.getItem(SAVE_KEY)); if (s && s.v === 5) { save = Object.assign(freshSave(), s); return true; } } catch (e) { /* no save */ } return false; }
-function writeSave() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch (e) { /* storage blocked */ } }
+function writeSave() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch (e) { if (!writeSave.warned) { writeSave.warned = true; try { say('SAVE FAILED: browser storage is full or blocked. Use Settings > EXPORT SAVE to keep your campaign.', true); } catch (x) { /* ignore */ } } } }
 function hasSave() { try { const s = JSON.parse(localStorage.getItem(SAVE_KEY)); return !!(s && s.v === 5 && s.start >= 0); } catch (e) { return false; } }
 function newCampaign() {
   try { Object.keys(localStorage).filter(k => k.startsWith('wastelandGrid.c')).forEach(k => localStorage.removeItem(k)); } catch (e) { /* ignore */ }
@@ -47,6 +47,7 @@ function statusOf(c) {
   if (isRestored(c)) return 'restored';
   if (save.dark[c.id]) return litNb(c) ? 'dark' : 'darkfar';
   if (save.partial[c.id]) return 'partial';
+  if (c.id === save.start) return 'frontier';                       // your landing site is always open, even if you left it unfinished
   if (save.start < 0) return c.country === 'US' ? 'landing' : 'locked';
   if (c.country !== 'US' && !usDone()) return 'locked';
   return litNb(c) ? 'frontier' : 'dead';
@@ -256,7 +257,7 @@ function leaveCounty(c, r) {
     msg = wasLit ? `${c.name} COUNTY: progress saved.` : `${c.name} COUNTY IS PARTLY RESTORED. The light already spreads to its neighbours - come back to finish it.`;
   } else if (!wasLit && !msg.includes('LIBERATED')) msg = `${c.name} COUNTY: progress saved. Restore at least half its districts for the light to spread.`;
   if (US.counties.every(isRestored)) msg = 'EVERY COUNTY IS CONNECTED. NORTH AMERICA HAS A GRID AGAIN.';
-  refreshLinks(); recalcMods(); checkTier(); writeSave(); bakeMap(); selected = c.id; updatePanel(); updateStats();
+  graceTimers(60000); refreshLinks(); recalcMods(); checkTier(); writeSave(); bakeMap(); selected = c.id; updatePanel(); updateStats();
   if (isLit(c) && !wasLit) { cam.z = 8; cam.cx = c.px; cam.cy = c.py; zoomTo(HOME.z, HOME.cx, HOME.cy, 2200); [392, 523, 659].forEach((f, k) => beep(f, 0.2, 'square', 0.04, k * 0.12)); }
   else { cam.z = HOME.z; cam.cx = HOME.cx; cam.cy = HOME.cy; }
   $('mapmsg').textContent = msg;
@@ -284,11 +285,19 @@ function maybeOutage(onShow) {
   if (now < save.nextOutage) return;
   const pool = US.counties.filter(c => isRestored(c) && !save.outage[c.id] && Builder.hasSave(c.id));
   save.nextOutage = now + (240 + Math.random() * 240) * 1000 * D().ev;
-  if (Object.keys(save.restored).length < 4 || !pool.length) { writeSave(); return; }
+  if (Object.keys(save.restored).length < 6 || !pool.length || outageCount() >= outageCap()) { writeSave(); return; }
   const c = pool[Math.random() * pool.length | 0];
   save.outage[c.id] = 1; save.support[c.id] = (save.support[c.id] || 0) * 0.5; trustHit(facOf(c), 3); refreshLinks(); news(`Outage at ${c.name} County.`); writeSave();
   if (onShow || mapActive) { bakeMap(); updateStats(); $('mapmsg').textContent = `OUTAGE at ${c.name} COUNTY, ${US.states[c.state].ab}! A storm tore through its grid. Go back and repair it.`; beep(110, 0.5, 'sawtooth', 0.05); selected = c.id; updatePanel(); }
   Story.event('outage');
+}
+const outageCount = () => Object.keys(save.outage).length;
+const outageCap = () => Math.min(4, 1 + Math.floor(Object.keys(save.restored).length / 12));          // storms never take down more than a few counties at once
+function graceTimers(ms) {                                          // after loading or leaving a county, nothing strikes for a little while
+  const t = Date.now() + ms;
+  if (!save.nextOutage || save.nextOutage < t) save.nextOutage = t;
+  if (!save.nextDark || save.nextDark < t) save.nextDark = t;
+  if (save.nextLinkEv && save.nextLinkEv < t) save.nextLinkEv = t;
 }
 function darkCount() { return Object.keys(save.dark).length; }
 function announceDark(text) {
@@ -321,7 +330,7 @@ $('btn-log').onclick = openLog; $('log-close').onclick = () => { $('log').style.
 // --- drawing ---
 function mapFrame(now) {
   requestAnimationFrame(mapFrame);
-  if (Display.skip('m', now)) return;
+  if (typeof Display !== 'undefined' && Display.skip('m', now)) return;
   if (anim) {
     const k = Math.min(1, (now - anim.t0) / anim.ms), e = ease(k);
     cam.z = anim.from.z + (anim.to.z - anim.from.z) * e; cam.cx = anim.from.cx + (anim.to.cx - anim.from.cx) * e; cam.cy = anim.from.cy + (anim.to.cy - anim.from.cy) * e;
