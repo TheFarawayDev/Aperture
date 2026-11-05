@@ -101,6 +101,7 @@ let dirty = { cab: true, mini: true, ui: true, sort: true };
 try { eventsOn = localStorage.getItem('wastelandGrid.events') !== '0'; } catch (e) { /* ignore */ }
 const terrainCv = document.createElement('canvas'), tg = terrainCv.getContext('2d');
 const cabCv = Array.from({ length: NL }, () => document.createElement('canvas')), cabG = cabCv.map(c => c.getContext('2d'));
+const cabAllCv = document.createElement('canvas'), cabAllG = cabAllCv.getContext('2d');      // every line layer merged: one blit per frame instead of six
 const miniCv = document.createElement('canvas');
 const mm = $('minimap'), mmg = mm.getContext('2d');
 let mmDrag = false;
@@ -112,6 +113,8 @@ const BIOME = {
   waste: { base: 2, alt: 1, a: 1, b: 3, shore: 4 }, desert: { base: 4, alt: 3, a: 3, b: 5, shore: 3 }, plains: { base: 9, alt: 2, a: 2, b: 10, shore: 4 },
   forest: { base: 1, alt: 9, a: 2, b: 9, shore: 3 }, swamp: { base: 9, alt: 2, a: 1, b: 10, shore: 3 }, tundra: { base: 3, alt: 2, a: 2, b: 15, shore: 2 },
   mountain: { base: 3, alt: 2, a: 2, b: 1, shore: 4 },
+  jungle: { base: 9, alt: 10, a: 1, b: 11, shore: 3 }, taiga: { base: 9, alt: 10, a: 1, b: 15, shore: 3 },
+  steppe: { base: 4, alt: 10, a: 3, b: 11, shore: 4 }, badlands: { base: 5, alt: 4, a: 3, b: 2, shore: 4 },
 };
 let tnoise = valueNoise(1);
 const CATCOL = { LINES: '#d8e6e0', POWER: '#f5c95a', WATER: '#5fc4d0', NET: '#8fbf5a', CONTROL: '#b59cf0', TOWN: '#e08a3c', OPS: '#e6dd9a', TOOLS: '#8a6a4e' };
@@ -120,7 +123,7 @@ const LORE = {
   ind: ['The old foundry coughs, then roars.', 'Sparks fly from a lathe nobody has touched in eleven years.', 'The shift whistle blows. People remember how to line up.'],
   farm: ['Pumps shudder and the dead fields drink.', 'Irrigation lines hiss. Someone plants the first row.', 'Green. Actual green. Just a thread of it.'],
   med: ['A monitor beeps. The room goes quiet, then everyone cheers.', 'The clinic lights flicker on. Someone in the dark starts to cry with relief.', 'Cold storage hums. The medicine will keep.'],
-  campus: ['Screens glow in the old lecture hall. Students gather.', 'The campus mainframe spins up and finds a signal.', 'A radio crackles with voices from another county.'],
+  campus: ['Screens glow in the old lecture hall. Students gather.', 'The campus mainframe spins up and finds a signal.', 'The first signals from other counties arrive.'],
 };
 // ---- terrain renderer v2: per-pixel ground blending, autotiled roads and bridges, crumbling pavement ----
 const PALRGB = PAL.map(h => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)]);
@@ -130,7 +133,8 @@ const ROADISH = q => q === 3 || q === 5;
 const nb4 = (tx, ty) => [ty > 0 ? terrain[(ty - 1) * WW + tx] : 1, tx < WW - 1 ? terrain[ty * WW + tx + 1] : 1, ty < WH - 1 ? terrain[(ty + 1) * WW + tx] : 1, tx > 0 ? terrain[ty * WW + tx - 1] : 1]; // N E S W
 
 function groundNoise(wx, wy, bm) {                     // organic two-tone + bare-earth patches, stippled at the borders
-  const n = tnoise(wx, wy, 40) * 0.68 + tnoise(wx, wy, 12) * 0.32, th = bay(wx, wy) - 0.5;
+  const el = ELEV && ELEV.length === N ? ELEV[((wy / T) | 0) * WW + ((wx / T) | 0)] / 255 : 0.5;
+  const n = tnoise(wx, wy, 40) * 0.68 + tnoise(wx, wy, 12) * 0.32 + (el - 0.5) * 0.3, th = bay(wx, wy) - 0.5;      // higher ground drifts toward the light tone, hollows toward the dark one
   if (n > 0.56 + th * 0.16) return bm.alt;
   if (n < 0.30 + th * 0.12) return bm.a;
   return bm.base;
@@ -253,12 +257,28 @@ function tileTerrain(tx, ty, skipBase) {
     return;
   }
 
-  const dec = s();
+  const dv = VEG && VEG.length === N ? VEG[ty * WW + tx] / 128 : 1, dec = s() / Math.max(0.1, dv);      // groves and clearings: vegetation density varies across the county
   if (t === 0) {
     if (B === 'desert') {
       if (dec < 0.04) { P(3, 1, 2, 6, 10); P(1, 3, 2, 1, 10); P(1, 2, 1, 2, 10); P(5, 4, 2, 1, 10); P(5, 3, 1, 1, 10); P(3, 7, 2, 1, 0); P(3, 1, 1, 1, 11); }
       else if (dec < 0.13) { const yy = 2 + (s() * 4 | 0); P(1, yy, 5, 1, 5); P(2, yy + 1, 3, 1, 3); }
       else if (dec < 0.15) { P(2, 3, 3, 2, 15); P(2, 3, 1, 1, 0); P(4, 3, 1, 1, 0); P(3, 5, 1, 1, 15); }
+    } else if (B === 'badlands') {
+      if (dec < 0.05) { P(3, 2, 2, 5, 10); P(1, 3, 2, 1, 10); P(5, 4, 2, 1, 10); P(3, 7, 2, 1, 0); }
+      else if (dec < 0.2) { const yy = 1 + (s() * 5 | 0); P(0, yy, 8, 1, s() < 0.5 ? 5 : 3); P(1, yy + 1, 6, 1, 4); }
+      else if (dec < 0.24) { P(2, 3, 4, 3, 3); P(2, 3, 4, 1, 4); P(3, 6, 3, 1, 0); }
+    } else if (B === 'steppe') {
+      if (dec < 0.22) { const a = s() * 6 | 0, b = s() * 4 | 0; P(a, b + 2, 1, 3, 10); P(a + 1, b + 1, 1, 4, 4); P(a + 2, b + 2, 1, 3, 10); P(a + 3, b + 1, 1, 3, 4); }
+      else if (dec < 0.27) { P(2, 4, 4, 2, 10); P(3, 3, 2, 1, 10); P(2, 6, 4, 1, 0); }
+      else if (dec < 0.29) { P(3, 3, 1, 4, 3); P(2, 3, 3, 1, 4); }
+    } else if (B === 'taiga') {
+      if (dec < 0.38) { P(3, 0, 2, 1, s() < 0.3 ? 15 : 9); P(2, 1, 4, 1, 9); P(2, 2, 4, 1, 10); P(1, 3, 6, 1, 9); P(1, 4, 6, 1, 10); P(0, 5, 8, 1, 9); P(3, 6, 2, 2, 0); }
+      else if (dec < 0.44) { P(2, 5, 4, 2, 15); P(1, 6, 6, 1, 3); }
+      else if (dec < 0.5) { P(3, 3, 1, 4, 9); P(2, 4, 3, 1, 10); }
+    } else if (B === 'jungle') {
+      if (dec < 0.5) { const c = dec < 0.25 ? 9 : 10; P(0, 1, 8, 5, c); P(1, 0, 6, 1, c); P(2, 1, 2, 2, 11); P(5, 2, 2, 2, 11); P(0, 6, 8, 1, 9); P(3, 5, 2, 3, 0); P(2, 3, 1, 3, 9); }
+      else if (dec < 0.62) { const a = s() * 4 | 0; P(a, 2, 3, 5, 10); P(a + 3, 1, 2, 6, 9); P(a + 1, 1, 1, 2, 12); }
+      else if (dec < 0.66) { P(1, 4, 6, 2, 13); P(2, 4, 3, 1, 14); }
     } else if (B === 'forest') {
       if (dec < 0.32) { const c = dec < 0.16 ? 9 : 10; P(1, 0, 6, 5, c); P(2, 0, 4, 1, 9); P(0, 2, 8, 2, c); P(3, 5, 2, 3, 0); P(1, 1, 2, 2, 11); P(4, 4, 3, 1, 0); P(0, 4, 8, 1, 9); P(5, 1, 1, 1, 12); }
       else if (dec < 0.42) { const a = s() * 6 | 0; P(a, 5, 1, 2, 10); P(a + 1, 4, 1, 3, 9); P(a + 2, 5, 1, 2, 11); }
@@ -286,74 +306,156 @@ function tileTerrain(tx, ty, skipBase) {
   if (t === 6 && dec < 0.14) { P(2, 3, 3, 1, 15); P(3, 4, 1, 1, 3); }
 }
 
-function generateWorld() {
-  terrain = new Uint8Array(N);
-  const r = mulberry(SPEC.seed), noise = valueNoise(SPEC.seed + 5), noise2 = valueNoise(SPEC.seed + 9);
-  const blob = (cx, cy, rad, v, only) => {
-    for (let y = Math.max(0, cy - rad - 2 | 0); y < Math.min(WH, cy + rad + 3); y++) for (let x = Math.max(0, cx - rad - 2 | 0); x < Math.min(WW, cx + rad + 3); x++)
-      if ((!only || terrain[y * WW + x] === only) && Math.hypot(x - cx, y - cy) + r() * 0.9 < rad) terrain[y * WW + x] = v;
-  };
-  for (let k = 0; k < SPEC.pondCount; k++) blob(3 + r() * (WW - 6), 3 + r() * (WH - 6), 2 + r() * 2.6, 1);
-  // rock outcrops follow smooth noise so they form ridges / clusters
-  const rd = SPEC.rockDensity, thr = 0.80 - rd * 0.18;
-  for (let y = 0; y < WH; y++) for (let x = 0; x < WW; x++) {
-    const n = noise(x, y, 9) * 0.65 + noise2(x, y, 4) * 0.35;
-    if (n > thr && terrain[y * WW + x] === 0) terrain[y * WW + x] = 4;
-  }
-  for (let k = 0; k < SPEC.rubbleClusters; k++) {
-    const cx = r() * WW | 0, cy = r() * WH | 0, n = 3 + (r() * 6 | 0);
-    for (let j = 0; j < n; j++) { const x = cx + (r() * 6 - 3) | 0, y = cy + (r() * 6 - 3) | 0; if (inb(x, y) && terrain[y * WW + x] === 0) terrain[y * WW + x] = 2; }
-  }
-  for (let i = 0; i < N; i++) if (terrain[i] === 0 && r() < 0.025) terrain[i] = 2;
-  // rivers: wandering water from one edge to the other
-  for (let k = 0; k < SPEC.rivers; k++) {
-    const vert = r() < 0.5; let x = vert ? 10 + r() * (WW - 20) : 0, y = vert ? 0 : 8 + r() * (WH - 16);
-    const tx = vert ? 10 + r() * (WW - 20) : WW - 1, ty = vert ? WH - 1 : 8 + r() * (WH - 16), wid = 1.3 + r() * 0.9;
-    for (let step = 0; step < 600; step++) {
-      const dx = tx - x, dy = ty - y, d = Math.hypot(dx, dy) || 1;
-      x += dx / d * 0.9 + Math.sin(step * 0.13 + k * 3) * 0.75 + (r() - 0.5) * 0.5; y += dy / d * 0.9 + Math.cos(step * 0.11 + k) * 0.75 + (r() - 0.5) * 0.5;
-      blob(x, y, wid, 1);
-      if (x < -2 || y < -2 || x > WW + 2 || y > WH + 2 || d < 1.5) break;
+// ---- terrain generator v3: elevation field, lakes in the lows, rivers that flow downhill, ridges, road routing, town sprawl, vegetation density ----
+let ELEV = null, VEG = null;
+// per-biome recipe: relief (hilliness), lake (fraction of land that is water), rivers [min,max], rock (fraction of land), ridged (long ridge lines),
+// veg (vegetation density, 1 = normal), clump (0 even .. 1 groves and clearings), riparian (extra growth beside water), rubble (extra ruin sprawl)
+const BIOME_GEN = {
+  waste: { relief: 0.5, lake: 0.015, rivers: [0, 1], rock: 0.05, ridged: false, veg: 0.4, clump: 0.4, riparian: 0.8, rubble: 1.2 },
+  desert: { relief: 0.5, lake: 0.004, rivers: [0, 0], rock: 0.09, ridged: false, veg: 0.3, clump: 0.6, riparian: 3.0, rubble: 0.8 },
+  badlands: { relief: 0.95, lake: 0.003, rivers: [0, 1], rock: 0.22, ridged: true, veg: 0.22, clump: 0.5, riparian: 2.5, rubble: 0.7 },
+  plains: { relief: 0.22, lake: 0.025, rivers: [1, 2], rock: 0.008, ridged: false, veg: 0.75, clump: 0.3, riparian: 1.3, rubble: 1.2 },
+  steppe: { relief: 0.28, lake: 0.012, rivers: [1, 1], rock: 0.02, ridged: false, veg: 0.65, clump: 0.35, riparian: 1.6, rubble: 1.0 },
+  forest: { relief: 0.4, lake: 0.035, rivers: [1, 2], rock: 0.035, ridged: false, veg: 1.05, clump: 0.65, riparian: 0.8, rubble: 1.0 },
+  taiga: { relief: 0.45, lake: 0.06, rivers: [1, 2], rock: 0.06, ridged: false, veg: 1.1, clump: 0.55, riparian: 0.6, rubble: 0.9 },
+  jungle: { relief: 0.45, lake: 0.03, rivers: [2, 2], rock: 0.025, ridged: false, veg: 1.6, clump: 0.25, riparian: 0.4, rubble: 0.8 },
+  swamp: { relief: 0.12, lake: 0.13, rivers: [2, 3], rock: 0, ridged: false, veg: 1.1, clump: 0.5, riparian: 0.5, rubble: 0.9 },
+  tundra: { relief: 0.35, lake: 0.07, rivers: [1, 1], rock: 0.08, ridged: false, veg: 0.6, clump: 0.5, riparian: 1.0, rubble: 0.9 },
+  mountain: { relief: 1.0, lake: 0.03, rivers: [1, 2], rock: 0.3, ridged: true, veg: 0.5, clump: 0.5, riparian: 1.0, rubble: 0.7 },
+};
+const smooth01 = t => { t = Math.max(0, Math.min(1, t)); return t * t * (3 - 2 * t); };
+
+// route a road (or anything) across the grid: A* with a turn penalty so runs stay straight. cost(i) < 0 = blocked.
+function gridRoute(sx, sy, gx, gy, cost, turn) {
+  const NS = N * 5, g = new Float32Array(NS).fill(Infinity), from = new Int32Array(NS).fill(-1), heap = [];
+  const push = (f, s) => { heap.push([f, s]); let k = heap.length - 1; while (k > 0) { const p = (k - 1) >> 1; if (heap[p][0] <= heap[k][0]) break; [heap[p], heap[k]] = [heap[k], heap[p]]; k = p; } };
+  const pop = () => { const top = heap[0], last = heap.pop(); if (heap.length) { heap[0] = last; let k = 0; for (; ;) { const l = 2 * k + 1, r2 = l + 1; let m = k; if (l < heap.length && heap[l][0] < heap[m][0]) m = l; if (r2 < heap.length && heap[r2][0] < heap[m][0]) m = r2; if (m === k) break; [heap[m], heap[k]] = [heap[k], heap[m]]; k = m; } } return top; };
+  const h = (x, y) => Math.abs(x - gx) + Math.abs(y - gy) * 1, s0 = (sy * WW + sx) * 5 + 4; g[s0] = 0; push(h(sx, sy), s0);
+  const DX = [0, 1, 0, -1], DY = [-1, 0, 1, 0]; let end = -1, guard = 0;
+  while (heap.length && guard++ < 90000) {
+    const [f, s] = pop(), i = (s / 5) | 0, d = s % 5, x = i % WW, y = (i / WW) | 0;
+    if (f - h(x, y) > g[s] + 1e-3) continue;
+    if (x === gx && y === gy) { end = s; break; }
+    for (let nd = 0; nd < 4; nd++) {
+      const nx = x + DX[nd], ny = y + DY[nd]; if (!inb(nx, ny)) continue; const ni = ny * WW + nx, c = cost(ni); if (c < 0) continue;
+      const ng = g[s] + c + (d !== 4 && d !== nd ? turn : 0), ns = ni * 5 + nd; if (ng < g[ns]) { g[ns] = ng; from[ns] = s; push(ng + h(nx, ny), ns); }
     }
   }
-  // coasts / great lakes on the sides that touch water on the world map
-  const co = SPEC.coast;
+  if (end < 0) return null;
+  const path = []; for (let s = end; s >= 0; s = from[s]) { const i = (s / 5) | 0; path.push([i % WW, (i / WW) | 0]); } return path.reverse();
+}
+
+function generateWorld() {
+  terrain = new Uint8Array(N);
+  const r = mulberry(SPEC.seed), n1 = valueNoise(SPEC.seed + 5), n2 = valueNoise(SPEC.seed + 9), n3 = valueNoise(SPEC.seed + 31), n4 = valueNoise(SPEC.seed + 47);
+  const G = BIOME_GEN[SPEC.biome] || BIOME_GEN.waste, co = SPEC.coast, wet = [co.n, co.s, co.w, co.e].some(v => v > 0);
+  const blob = (cx, cy, rad, v, only) => {
+    for (let y = Math.max(0, cy - rad - 2 | 0); y < Math.min(WH, cy + rad + 3); y++) for (let x = Math.max(0, cx - rad - 2 | 0); x < Math.min(WW, cx + rad + 3); x++)
+      if ((!only || terrain[y * WW + x] === only) && Math.hypot(x - cx, y - cy) + r() * 0.7 < rad) terrain[y * WW + x] = v;
+  };
+  // 1) elevation: big landforms + hills + texture. Mountains use ridged noise (sharp crests), the rest rolling noise. Land slopes down toward any coast.
+  const el = new Float32Array(N), ridge = new Float32Array(N);
   for (let y = 0; y < WH; y++) for (let x = 0; x < WW; x++) {
-    const jitter = noise(x * (y > x ? 1 : 1), y, 6) * 6 - 3, jx = noise2(x, y, 7) * 5 - 2.5;
+    const a = n1(x, y, 46), b = n2(x, y, 21), c = n3(x, y, 10), d = n4(x, y, 5);
+    let e = a * 0.5 + b * 0.28 + c * 0.16 + d * 0.06;
+    const rg = 1 - Math.abs(2 * (n2(x + 17, y + 5, 26) * 0.6 + n3(x, y + 9, 13) * 0.4) - 1);          // ridge lines
+    ridge[y * WW + x] = rg;
+    e = (e - 0.5) * (0.6 + G.relief) + 0.5; if (G.ridged) e = e * 0.55 + rg * 0.45 * (0.4 + G.relief * 0.6);
+    if (co.n) e += 0.28 * Math.min(1, y / (WH * 0.6)); if (co.s) e += 0.28 * Math.min(1, (WH - 1 - y) / (WH * 0.6));
+    if (co.w) e += 0.28 * Math.min(1, x / (WW * 0.6)); if (co.e) e += 0.28 * Math.min(1, (WW - 1 - x) / (WW * 0.6));
+    el[y * WW + x] = e;
+  }
+  const sorted = Float32Array.from(el).sort(), pct = f => sorted[Math.max(0, Math.min(N - 1, Math.floor(f * N)))];
+  // 2) lakes fill the lowest ground: organic shapes, small puddles drained, edges smoothed
+  if (G.lake > 0) { const th = pct(G.lake); for (let i = 0; i < N; i++) if (el[i] < th) terrain[i] = 1; }
+  for (let pass = 0; pass < 2; pass++) {                                                                            // majority filter: no jagged single-tile spurs
+    const nt = terrain.slice();
+    for (let y = 1; y < WH - 1; y++) for (let x = 1; x < WW - 1; x++) { let w = 0; for (let j = -1; j <= 1; j++) for (let k = -1; k <= 1; k++) if (terrain[(y + j) * WW + x + k] === 1) w++; if (w >= 6) nt[y * WW + x] = 1; else if (w <= 2) nt[y * WW + x] = 0; }
+    terrain = nt;
+  }
+  { const seen = new Uint8Array(N), minSize = SPEC.biome === 'swamp' ? 3 : 9;                                         // drain tiny puddles
+    for (let i = 0; i < N; i++) if (terrain[i] === 1 && !seen[i]) { const q = [i], comp = [i]; seen[i] = 1; while (q.length) { const c = q.pop(), x = c % WW, y = (c / WW) | 0; for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const nx = x + dx, ny = y + dy; if (!inb(nx, ny)) continue; const j = ny * WW + nx; if (terrain[j] === 1 && !seen[j]) { seen[j] = 1; q.push(j); comp.push(j); } } } if (comp.length < minSize) comp.forEach(j => { terrain[j] = 0; }); } }
+  // 3) rivers: start in the highlands, follow the slope downhill (with some meander), widen as they go, end at water or the edge
+  const rc = G.rivers[0] + (r() * (G.rivers[1] - G.rivers[0] + 1) | 0), elAt = (x, y) => el[Math.max(0, Math.min(WH - 1, Math.round(y))) * WW + Math.max(0, Math.min(WW - 1, Math.round(x)))];
+  const hi = pct(0.72);
+  for (let k = 0; k < rc; k++) {
+    let sx = 0, sy = 0, ok = false;
+    for (let t = 0; t < 120 && !ok; t++) { sx = 6 + r() * (WW - 12); sy = 6 + r() * (WH - 12); if (elAt(sx, sy) > hi && terrain[Math.round(sy) * WW + Math.round(sx)] !== 1) ok = true; }
+    if (!ok) { sx = r() * WW; sy = r() < 0.5 ? 0 : WH - 1; }
+    let x = sx, y = sy, vx = 0, vy = 0, len = 0, flat = 0, wid = 0.8;
+    for (let step = 0; step < 520; step++) {
+      const gx = (elAt(x + 2, y) - elAt(x - 2, y)) / 4, gy = (elAt(x, y + 2) - elAt(x, y - 2)) / 4, gm = Math.hypot(gx, gy);
+      flat = gm < 0.004 ? flat + 1 : 0; if (flat > 10) { blob(x, y, 2.6, 1); break; }                              // a basin: the river ends in a small lake
+      const ang = (n3(x * 3 + k * 50, y * 3, 9) - 0.5) * 1.6;                                                  // gentle meander
+      let nvx = vx * 0.72 - gx / (gm || 1) * 0.55, nvy = vy * 0.72 - gy / (gm || 1) * 0.55; nvx += Math.cos(ang) * 0.14; nvy += Math.sin(ang) * 0.14;
+      const nm = Math.hypot(nvx, nvy) || 1; vx = nvx / nm; vy = nvy / nm; x += vx; y += vy; len++; wid = Math.min(1.9, 0.8 + len * 0.012);
+      blob(x, y, wid, 1);
+      if (x < -1 || y < -1 || x > WW || y > WH) break;
+      if (len > 12 && terrain[Math.max(0, Math.min(N - 1, Math.round(y) * WW + Math.round(x)))] === 1 && el[Math.round(y) * WW + Math.round(x)] < pct(G.lake + 0.01)) break;
+    }
+  }
+  // 4) coasts / great lakes on the sides that touch water on the world map (unchanged: they have to match the world map)
+  for (let y = 0; y < WH; y++) for (let x = 0; x < WW; x++) {
+    const jitter = n1(x, y, 6) * 6 - 3, jx = n2(x, y, 7) * 5 - 2.5;
     const dn = y - (co.n + jx), ds = (WH - 1 - y) - (co.s + jx), dw = x - (co.w + jitter), de = (WW - 1 - x) - (co.e + jitter);
     const dist = Math.min(co.n ? dn : 99, co.s ? ds : 99, co.w ? dw : 99, co.e ? de : 99);
     if (dist < 0) terrain[y * WW + x] = 1;
     else if (dist < 2.4 && terrain[y * WW + x] !== 1) terrain[y * WW + x] = 6;
   }
+  // 5) rock: the highest ground (or the ridge crests), so it forms believable ranges, mesas and boulder fields
+  if (G.rock > 0) {
+    const key = new Float32Array(N); for (let i = 0; i < N; i++) key[i] = G.ridged ? ridge[i] * 0.6 + el[i] * 0.4 : el[i] + n4(i % WW, (i / WW) | 0, 3) * 0.05;
+    const ks = Float32Array.from(key).sort(), th = ks[Math.floor((1 - G.rock * 1.1) * N)];
+    for (let i = 0; i < N; i++) if (terrain[i] === 0 && key[i] > th) terrain[i] = 4;
+  }
   const clear = (x0, y0, x1, y1) => { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) if (inb(x, y)) terrain[y * WW + x] = 0; };
   for (const d of DISTRICTS) clear(d.x - 6, d.y - 5, d.x + 7, d.y + 6);
   for (const s of SITES) { const z = s.kind === 'station' ? 5 : 4; clear(s.x - 2, s.y - 2, s.x + z, s.y + z); }
   for (const p of FORCED_PONDS) for (let y = 0; y < WH; y++) for (let x = 0; x < WW; x++) if (Math.hypot(x - p.x, y - p.y) < p.r) terrain[y * WW + x] = 1;
-  // old roads between districts (bridges where they cross water)
+  // 6) old roads: routed around lakes and rock (bridges only where water can't be avoided), merging into each other like a real network
   const nearForced = (x, y) => FORCED_PONDS.some(p => Math.hypot(x - p.x, y - p.y) < p.r + 1.5);
-  const road = (x, y) => { if (!inb(x, y) || nearForced(x, y)) return; const i = y * WW + x; if (terrain[i] === 1) terrain[i] = 5; else if (terrain[i] !== 5) terrain[i] = 3; };
+  const isRoad = new Uint8Array(N);
+  const road = (x, y) => { if (!inb(x, y) || nearForced(x, y)) return; const i = y * WW + x; if (terrain[i] === 1) terrain[i] = 5; else if (terrain[i] !== 5) terrain[i] = 3; isRoad[i] = 1; };
+  const rcost = i => { const t = terrain[i]; if (t === 3 || t === 5 || isRoad[i]) return 0.35; if (t === 1) { const x = i % WW, y = (i / WW) | 0; return nearForced(x, y) ? -1 : 9; } if (t === 4) return 28; if (t === 6) return 1.4; return 1 + n3(i % WW, (i / WW) | 0, 5) * 0.5; };
   const links = [];
   DISTRICTS.forEach((d, i) => { if (!i) return; let b = 0, bd = 1e9; for (let j = 0; j < i; j++) { const dd = Math.abs(DISTRICTS[j].x - d.x) + Math.abs(DISTRICTS[j].y - d.y); if (dd < bd) { bd = dd; b = j; } } links.push([DISTRICTS[b], d]); });
+  if (DISTRICTS.length > 3) { const a = DISTRICTS[1 + (r() * (DISTRICTS.length - 1) | 0)], b = DISTRICTS[(DISTRICTS.indexOf(a) + 2) % DISTRICTS.length]; if (a !== b) links.push([a, b]); }   // a ring road
   SITES.forEach(s => { let b = DISTRICTS[0], bd = 1e9; DISTRICTS.forEach(d => { const dd = Math.abs(d.x - s.x) + Math.abs(d.y - s.y); if (dd < bd) { bd = dd; b = d; } }); links.push([b, { x: s.x - 1, y: s.y + 1 }]); });
   for (const [a, b] of links) {
-    let x = a.x + 1, y = a.y + 3, dir = Math.abs(b.x - a.x) >= Math.abs(b.y - a.y) ? 'h' : 'v', run = 0, guard = 0;
-    const ex = b.x + 1, ey = b.y + 3;
-    while ((x !== ex || y !== ey) && guard++ < 900) {                 // long straight runs with occasional turns
-      road(x, y);
-      const dx = ex - x, dy = ey - y;
-      if (dx === 0) dir = 'v'; else if (dy === 0) dir = 'h'; else if (run >= 3 + (r() * 5 | 0)) { dir = dir === 'h' ? 'v' : 'h'; run = 0; }
-      if (dir === 'h') x += Math.sign(dx); else y += Math.sign(dy);
-      run++;
-    }
-    road(ex, ey);
+    const sx = Math.max(0, Math.min(WW - 1, a.x + 1)), sy = Math.max(0, Math.min(WH - 1, a.y + 3)), ex = Math.max(0, Math.min(WW - 1, b.x + 1)), ey = Math.max(0, Math.min(WH - 1, b.y + 3));
+    const p = gridRoute(sx, sy, ex, ey, rcost, 1.1);
+    if (p) p.forEach(([x, y]) => road(x, y));
   }
   tnoise = valueNoise(SPEC.seed + 21);
+  // 7) ruins: town sprawl around every district and rubble beside the roads, plus scattered wreckage (more on harder counties)
+  const rub = (x, y) => { if (inb(x, y) && terrain[y * WW + x] === 0) terrain[y * WW + x] = 2; };
+  for (const d of DISTRICTS) for (let k = 0, n = Math.round((22 + SPEC.diff * 2) * G.rubble); k < n; k++) { const a = r() * 6.283, rad = 7 + r() * 7; rub(Math.round(d.x + Math.cos(a) * rad * 1.3), Math.round(d.y + Math.sin(a) * rad)); if (r() < 0.5) rub(Math.round(d.x + Math.cos(a) * rad * 1.3) + 1, Math.round(d.y + Math.sin(a) * rad)); }
+  for (let i = 0; i < N; i++) if (isRoad[i] && r() < 0.035 * G.rubble) { const x = i % WW, y = (i / WW) | 0, s = r() < 0.5 ? 2 : -2; rub(x, y + s); rub(x + (r() < 0.5 ? 1 : 0), y + s); }
+  for (let k = 0; k < SPEC.rubbleClusters * 0.5 * G.rubble; k++) {
+    const cx = r() * WW | 0, cy = r() * WH | 0, n = 3 + (r() * 5 | 0);
+    for (let j = 0; j < n; j++) rub(cx + (r() * 6 - 3) | 0, cy + (r() * 6 - 3) | 0);
+  }
   for (const d of DISTRICTS) for (let y = d.y - 2; y <= d.y + 4; y++) for (let x = d.x - 3; x <= d.x + 4; x++) if (inb(x, y) && terrain[y * WW + x] === 0) terrain[y * WW + x] = 7;
   for (const q of SITES) { const z = q.kind === 'station' ? 4 : 3; for (let y = q.y - 1; y <= q.y + z; y++) for (let x = q.x - 1; x <= q.x + z; x++) if (inb(x, y) && terrain[y * WW + x] === 0) terrain[y * WW + x] = 7; }
   const bank = [];
   for (let y = 0; y < WH; y++) for (let x = 0; x < WW; x++) if (terrain[y * WW + x] === 0 && (hash(x, y) % 100) < 75 && [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => inb(x + dx, y + dy) && terrain[(y + dy) * WW + x + dx] === 1)) bank.push(y * WW + x);
   bank.forEach(i => { terrain[i] = 6; });
   waterTiles = []; for (let i = 0; i < N; i++) if (terrain[i] === 1) waterTiles.push(i);
+  // 8) the living layers: distance to water (moisture) and vegetation density, used to place trees, grass, reeds and bare patches
+  const wd = new Uint8Array(N).fill(255), q = []; for (const i of waterTiles) { wd[i] = 0; q.push(i); }
+  for (let h = 0; h < q.length; h++) { const c = q[h], x = c % WW, y = (c / WW) | 0, dd = wd[c]; if (dd >= 14) continue; for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const nx = x + dx, ny = y + dy; if (!inb(nx, ny)) continue; const j = ny * WW + nx; if (wd[j] > dd + 1) { wd[j] = dd + 1; q.push(j); } } }
+  ELEV = new Uint8Array(N); VEG = new Uint8Array(N);
+  const emin = sorted[0], emax = sorted[N - 1];
+  for (let y = 0; y < WH; y++) for (let x = 0; x < WW; x++) {
+    const i = y * WW + x, e01 = (el[i] - emin) / (emax - emin || 1); ELEV[i] = Math.round(e01 * 255);
+    const clump = n3(x + 11, y + 3, 15) * 0.6 + n2(x + 3, y + 29, 7) * 0.4, shape = 1 + (smooth01((clump - 0.38) / 0.28) * 1.9 - 1) * G.clump;
+    let v = G.veg * shape;
+    const near = Math.max(0, (7 - wd[i]) / 7); v *= 1 + near * G.riparian * (SPEC.biome === 'desert' || SPEC.biome === 'badlands' ? 1 : 0.5);
+    if (SPEC.biome === 'desert' || SPEC.biome === 'badlands') v *= wd[i] <= 3 ? 3 : 1;                          // oases
+    if (SPEC.biome === 'mountain') v *= 1.3 - e01 * 1.5;                                                         // the tree line
+    if (isRoad[i]) v *= 0.3;
+    VEG[i] = Math.max(0, Math.min(255, Math.round(v * 128)));
+  }
   bakeBaseAll();
   for (let y = 0; y < WH; y++) for (let x = 0; x < WW; x++) tileTerrain(x, y, true);
 }
@@ -378,7 +480,7 @@ function initWorld() {
   WW = SPEC.WW; WH = SPEC.WH; N = WW * WH; qbuf = new Int32Array(N);
   compBuf = Array.from({ length: NL }, () => new Int32Array(N));
   terrainCv.width = WW * T; terrainCv.height = WH * T;
-  cabCv.forEach(c => { c.width = WW * T; c.height = WH * T; });
+  cabCv.forEach(c => { c.width = WW * T; c.height = WH * T; }); cabAllCv.width = WW * T; cabAllCv.height = WH * T;
   mm.width = WW * 2; mm.height = WH * 2;
   miniCv.width = WW; miniCv.height = WH;
   occ = new Array(N).fill(null);
@@ -421,7 +523,7 @@ function solveNow() {
   needSolve = false; computeImports();
   for (const e of ents) if (e.isHub === undefined) e.isHub = !!BUILD[e.type].isHub;
   solvePass(); solvePass();
-  fuelCap = 100; income = 0; upkeep = 0; alerts = [];
+  fuelCap = 100 + (typeof qmLvl === 'function' ? 25 * qmLvl('tank') : 0) + (CUR.kitFuel ? 50 : 0); income = 0; upkeep = 0; alerts = [];
   const anyRestored = DISTRICTS.some(x => x.restored);
   for (const e of ents) e.linked = isLinked(e);
   const clinics = ents.filter(e => e.type === 'clinic' && e.cond > 0 && e.ok.every(Boolean));
@@ -463,7 +565,7 @@ function solveNow() {
   }
   if (!won && !restoring && DISTRICTS.length && DISTRICTS.every(d => d.restored)) {
     won = true; $('win').style.display = 'flex'; $('win-title').textContent = Builder.name + ' RESTORED';
-    const sr = starRating(); $('win-stars').textContent = '★'.repeat(sr) + '☆'.repeat(3 - sr); $('win-text').textContent = sr === 3 ? 'Flawless. Every machine runs and every plant is awake.' : 'Every district hums with power, clean water and a working network. Repair every fault and wake the plants for more stars.';
+    const sr = starRating(); $('win-stars').innerHTML = starsHtml(sr); $('win-text').textContent = sr === 3 ? 'Flawless. Every machine runs and every plant is awake.' : 'Every district hums with power, clean water and a working network. Repair every fault and wake the plants for more stars.';
   }
   if (!transformerFired && !restoring && ents.some(e => BUILD[e.type].bridge !== undefined && e.live && e.on && e.cond > 0)) { transformerFired = true; setTimeout(() => storyEv('transformer'), 1200); }
   dirty.cab = dirty.mini = dirty.ui = true;
@@ -500,6 +602,7 @@ function tick() {
   if (activeMods.has('repair')) ents.forEach(e => { if (BUILD[e.type].maint && e.cond > 0 && e.cond < 100) e.cond = Math.min(100, e.cond + 0.15); });
   if (eventsOn && TM().ev !== 0 && DISTRICTS.some(x => x.restored) && --evT <= 0) { fireEvent(); evT = (70 + Math.random() * 80) * (activeMods.has('forecast') ? 1.3 : 1) * WMOD.ev * (TM().ev || 1); }
   scrap = Math.max(0, scrap + income * WMOD.inc * (TM().income || 1) - upkeep);
+  Flows.tick();
   Variety.tick();
   checkOutage();
   if (Meta.dirty && gameT % 5 === 0) Meta.save();
@@ -570,8 +673,31 @@ function updateUndoBtn() { $('btn-undo').disabled = !hist.length; }
 // ---------- tool actions ----------
 let lastToast = 0;
 let toastUntil = 0, tipIdx = 0, tipT = 0;
+// ---------- the news feed: every message, tagged and timestamped ----------
+const Feed = {
+  items: [], flt: 'all', seq: 0,
+  kind(m) {
+    if (/^TIP:/.test(m)) return 'tip';
+    if (/RAID|STORM|FAILED|CASCADE|EXPLOD|STRAIN|JAMM|ARSON|OUTAGE|SABOTAGE|WARBAND|TRIP|FLOOD|NOT ENOUGH|CAN'T|CANNOT|NO ROUTE|SAVE FAILED|FIRE|CRITICAL|LOW|ASSAULT FAILS|SCAVENGER/i.test(m)) return 'alert';
+    if (/GOAL|OBJECTIVE|FOUND|CAMP DESTROYED|credits|CONTRACT|REPELLED|RESTORED|BONUS|SUPPLY|LAID|SOLD|BOUGHT|CLEARED|MENDED|UNLOADED/i.test(m)) return 'good';
+    return 'info';
+  },
+  clock() { const t = Math.floor(typeof gameT === 'number' ? gameT : 0); return String(Math.floor(t / 60)).padStart(2, '0') + ':' + String(t % 60).padStart(2, '0'); },
+  push(msg) {
+    const last = this.items[0]; if (last && last.m === msg && performance.now() - last.p < 3000) return;
+    this.items.unshift({ m: msg, k: this.kind(msg), t: this.clock(), p: performance.now(), n: ++this.seq }); if (this.items.length > 60) this.items.pop(); this.render();
+  },
+  clear() { this.items = []; this.render(); },
+  render() {
+    const box = $('newsfeed'); if (!box) return; const list = this.items.filter(x => this.flt === 'all' || x.k === 'alert').slice(0, 24);
+    const tag = { alert: 'ALERT', good: 'GOOD', tip: 'TIP', info: 'INFO' };
+    box.innerHTML = list.length ? list.map((x, i) => `<div class="nw k-${x.k} ${i > 1 ? 'old' : ''} ${i === 0 && performance.now() - x.p < 1500 ? 'fresh' : ''}"><i>${x.t}</i><b>${tag[x.k]}</b><span>${x.m.replace(/^TIP: /, '').replace(/&/g, '&amp;').replace(/</g, '&lt;')}</span></div>`).join('') : '<div class="nw k-info"><i>--:--</i><b>INFO</b><span>' + (this.flt === 'alert' ? 'No alerts. Good.' : 'Nothing has happened yet.') + '</span></div>';
+    const c = $('newscount'); if (c) c.textContent = this.items.length ? this.items.length + ' MSG' : '';
+  },
+};
+document.addEventListener('click', e => { const b = e.target.closest('#newsflt button'); if (!b) return; Feed.flt = b.dataset.nf; document.querySelectorAll('#newsflt button').forEach(x => x.classList.toggle('on', x === b)); Feed.render(); });
 function toast(msg) {
-  const m = $('msg'); m.textContent = msg; m.classList.add('flash'); $('msgtag').textContent = 'NEWS'; $('msgrow').classList.remove('tutorial'); $('msgbtns').style.display = 'none';
+  Feed.push(msg);
   $('banner').textContent = msg; $('banner').classList.add('show');
   toastUntil = performance.now() + 5200;
   clearTimeout(toast.t); toast.t = setTimeout(() => { $('banner').classList.remove('show'); refreshTip(true); }, 5200);
@@ -624,6 +750,7 @@ function act(x, y, first) {
     if (first) paintMode = cab[tool.L][y * WW + x] === 1 ? 'erase' : cab[tool.L][y * WW + x] === 2 ? 'fix' : 'paint';
     if (paintMode === 'fix') repairCable(x, y); else cableAt(tool.L, x, y, paintMode);
   } else if (tool.kind === 'multi') multiAct(x, y, first);
+  else if (tool.kind === 'route') { if (first) Route.click(x, y); }
   else if (tool.kind === 'salvage') salvageAt(x, y);
   else if (tool.kind === 'repair') { const e = occ[y * WW + x]; if (e && first) repairEntity(e); else repairCable(x, y); }
   else if (tool.kind === 'inspect' && first) {
@@ -697,6 +824,7 @@ addEventListener('mouseup', () => {
   if (drag && drag.mode === 'paint') endStroke();
   if (drag && drag.mode === 'pan') {
     if (drag.moved) { if (performance.now() - drag.lt < 90 && Math.hypot(drag.vx, drag.vy) > 0.7) glide = { vx: -drag.vx, vy: -drag.vy }; }                    // let go while moving: the view keeps gliding
+    else if (drag.btn === 2 && Builder.active && tool.kind === 'route' && Route.a) { Route.a = null; Route.path = null; toast('Route cancelled.'); }
     else if (drag.btn === 2 && Builder.active && tool.kind !== 'inspect') selectTool(TOOLS.find(t => t.kind === 'inspect'));                                 // a plain right-click drops the current tool
     else if (drag.btn === 0 && drag.tile && Builder.active) { beginStroke(); act(drag.tile.x, drag.tile.y, true); endStroke(); }                           // a plain click selects / flips a switch
   }
@@ -747,60 +875,84 @@ function iconCanvas(type) {
 function iconFor(t) {
   const c = t.kind === 'build' ? iconCanvas(t.type) : null, m = c && c.width === 8 ? 4 : 2;
   return c ? `<img src="${c.toDataURL()}" width="${c.width * m}" height="${c.height * m}" alt="">`
-    : `<span class="ico" style="${t.kind === 'cable' ? 'background:' + t.color : 'color:' + t.color}">${t.kind === 'multi' ? '≡' : t.kind === 'salvage' ? '✂' : t.kind === 'inspect' ? '?' : t.kind === 'repair' ? '+' : ''}</span>`;
+    : `<span class="ico" style="${t.kind === 'cable' ? 'background:' + t.color : 'color:' + t.color}">${t.kind === 'multi' ? pxi('multi') : t.kind === 'route' ? pxi('route') : t.kind === 'salvage' ? pxi('cut') : t.kind === 'inspect' ? pxi('look') : t.kind === 'repair' ? pxi('plus') : ''}</span>`;
 }
 const CATS = [...new Set(TOOLS.map(t => t.cat))];
-const TABS = ['build', 'status', 'sites'];
-function showTab(n) { curTab = n; document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === n)); TABS.forEach(t => { const el = $('tab-' + t); if (el) el.classList.toggle('on', t === n); }); }
+const TABS = ['build', 'status', 'sites', 'goals'];
+function showTab(n) { curTab = n; if (n === 'status') setTimeout(() => { lastAlertKey = ''; updateAlerts(); }, 0); document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === n)); TABS.forEach(t => { const el = $('tab-' + t); if (el) el.classList.toggle('on', t === n); }); }
 function cycleTab() { showTab(TABS[(TABS.indexOf(curTab) + 1) % TABS.length]); }
 document.querySelectorAll('#tabs button').forEach(b => { b.onclick = () => showTab(b.dataset.tab); });
+let toolQuery = '';
 function buildToolbar() {
   const cats = $('cats'); cats.innerHTML = '';
-  CATS.forEach(c => { const b = document.createElement('button'); b.textContent = c; b.dataset.cat = c; b.style.borderBottomColor = CATCOL[c]; b.onclick = () => { activeCat = c; renderTools(); selectTool(TOOLS.find(t => t.cat === c)); }; cats.appendChild(b); });
+  CATS.forEach(c => { const b = document.createElement('button'); b.innerHTML = `<span>${c}</span><small>${TOOLS.filter(t => t.cat === c).length}</small>`; b.dataset.cat = c; b.style.setProperty('--cc', CATCOL[c] || '#343e46'); b.onclick = () => { toolQuery = ''; $('toolsearch').value = ''; activeCat = c; renderTools(); selectTool(TOOLS.find(t => t.cat === c)); }; cats.appendChild(b); });
   renderTools(); selectTool(TOOLS[0]);
 }
+function toolList() { const q = toolQuery.trim().toLowerCase(); return q ? TOOLS.filter(t => (t.name + ' ' + t.cat + ' ' + (t.desc || '')).toLowerCase().includes(q)) : TOOLS.filter(t => t.cat === activeCat); }
 function renderTools() {
   const bar = $('tools'); bar.innerHTML = ''; const box = document.createElement('div'); box.className = 'grid'; bar.appendChild(box);
-  TOOLS.filter(t => t.cat === activeCat).forEach(t => {
+  const list = toolList(); $('toolcount').textContent = toolQuery.trim() ? list.length + ' FOUND' : list.length + ' IN ' + activeCat;
+  if (!list.length) box.innerHTML = '<div class="none">Nothing matches that.</div>';
+  list.forEach(t => {
     const b = document.createElement('button');
-    b.innerHTML = `${iconFor(t)}<span class="nm">${t.name}</span><span class="ky">${t.key.toUpperCase()}</span><small></small>`;
-    b.title = t.desc; b.dataset.name = t.name; b.onclick = () => selectTool(t); b._t = t; b.style.setProperty('--c', CATCOL[t.cat] || '#3a3140'); box.appendChild(b);
+    b.innerHTML = `${iconFor(t)}<span class="nm">${t.name}</span><span class="sub"></span><span class="ky">${t.key ? t.key.toUpperCase() : ''}</span><em class="ct"></em>`;
+    b.title = t.desc + (t.kind === 'build' && !unlocked(t.type) && TECH[BUILD[t.type].tech] ? ' [Research: ' + TECH[BUILD[t.type].tech].name + ']' : ''); b.dataset.name = t.name; b.onclick = () => selectTool(t); b._t = t; b.style.setProperty('--c', CATCOL[t.cat] || '#343e46'); box.appendChild(b);
   });
-  document.querySelectorAll('#cats button').forEach(b => b.classList.toggle('on', b.dataset.cat === activeCat));
+  document.querySelectorAll('#cats button').forEach(b => b.classList.toggle('on', !toolQuery.trim() && b.dataset.cat === activeCat));
   refreshToolbar();
 }
+const RES3 = ['PWR', 'H2O', 'NET'];
+function statChips(d) {
+  const c = []; d.sup.forEach((v, L) => { if (v > 0) c.push(`<span class="st sup">+${v} ${RES3[L]}</span>`); }); d.dem.forEach((v, L) => { if (v > 0) c.push(`<span class="st dem">needs ${v} ${RES3[L]}</span>`); });
+  if (d.store) c.push(`<span class="st sup">stores ${d.store.cap}</span>`); if (d.fuel) c.push(`<span class="st dem">${d.fuel} fuel/s</span>`);
+  if (d.income) c.push(`<span class="st sup">+${d.income} scrap/s</span>`); if (d.rp) c.push(`<span class="st sup">+${d.rp} RP/s</span>`); if (d.upkeep) c.push(`<span class="st dem">${d.upkeep} upkeep</span>`);
+  c.push(`<span class="st">${d.w}x${d.h} tiles</span>`); return c.join('');
+}
 function refreshToolbar() {
+  const counts = {}; for (const e of ents) counts[e.type] = (counts[e.type] || 0) + 1;
   document.querySelectorAll('#tools button').forEach(b => {
-    const t = b._t, lock = t.kind === 'build' && !unlocked(t.type);
-    b.classList.toggle('locked', lock);
-    b.querySelector('small').textContent = lock ? 'LOCKED' : t.kind === 'build' ? costText(BUILD[t.type]) : (t.cost || '');
+    const t = b._t, lock = t.kind === 'build' && !unlocked(t.type), d = t.kind === 'build' ? BUILD[t.type] : null, poor = !lock && d && (scrap < d.cost || stock.parts < (d.parts || 0));
+    b.classList.toggle('locked', lock); b.classList.toggle('poor', !!poor);
+    const sub = b.querySelector('.sub'); sub.innerHTML = lock ? pxi('lock') + ' LOCKED' : d ? costText(d) : (t.cost || '');
+    const ct = b.querySelector('.ct'); ct.textContent = d && counts[t.type] ? 'x' + counts[t.type] : '';
   });
 }
+function toolCard(t) {
+  const lock = t.kind === 'build' && !unlocked(t.type), d = t.kind === 'build' ? BUILD[t.type] : null;
+  let h = `<div class="tcard"><div class="tc-top">${iconFor(t)}<div><b>${t.name}</b><small>${t.cat}${t.key ? ' - KEY ' + t.key.toUpperCase() : ''}</small></div></div>`;
+  if (d) h += `<div class="tc-chips"><span class="st cost">${d.cost} scrap</span>${d.parts ? `<span class="st cost">${d.parts} parts</span>` : ''}${statChips(d)}</div>`;
+  h += `<p>${t.desc}</p>`; if (lock) h += `<div class="lk">LOCKED: research ${TECH[d.tech].name} (Y)</div>`;
+  return h + '</div>';
+}
 function selectTool(t) {
-  tool = t; if (t.cat !== activeCat) { activeCat = t.cat; renderTools(); }
+  tool = t; if (t.cat !== activeCat && !toolQuery.trim()) { activeCat = t.cat; renderTools(); }
   document.querySelectorAll('#tools button').forEach(b => b.classList.toggle('on', b.dataset.name === t.name));
-  $('tooldesc').textContent = t.desc + (t.kind === 'build' && !unlocked(t.type) ? '  [LOCKED: research ' + TECH[BUILD[t.type].tech].name + ']' : '');
+  if (t.kind !== 'inspect') sel = null; dirty.ui = true; updateInspector();
   if (t.kind !== 'inspect' && curTab !== 'build') showTab('build');
   if (typeof renderMulti === 'function') renderMulti();
 }
+document.addEventListener('input', e => { if (e.target.id === 'toolsearch') { toolQuery = e.target.value; renderTools(); } });
+document.addEventListener('keydown', e => { if (e.target && e.target.id === 'toolsearch') { e.stopPropagation(); if (e.key === 'Escape') { e.target.value = ''; toolQuery = ''; e.target.blur(); renderTools(); } else if (e.key === 'Enter') { const f = toolList()[0]; if (f) { selectTool(f); e.target.blur(); } } } }, true);
 function refreshDistrictButtons() {
   const box = $('districts'); box.innerHTML = '';
   DISTRICTS.forEach(d => {
     const b = document.createElement('button');
-    b.textContent = (d.restored ? '■ ' : '□ ') + d.name + ' ' + ({ res: '', ind: '[IND]', farm: '[FARM]', med: '[MED]', campus: '[LAB]' })[d.kind || 'res']; b.className = d.restored ? 'done' : '';
+    b.innerHTML = pxi(d.restored ? 'sq' : 'sqo') + ' ' + d.name + ' ' + ({ res: '', ind: '[IND]', farm: '[FARM]', med: '[MED]', campus: '[LAB]' })[d.kind || 'res']; b.className = d.restored ? 'done' : '';
     b.onclick = () => centerOn(d.x + 1, d.y + 1); box.appendChild(b);
   });
-  SITES.forEach(s => { const e = ents.find(q => q.x === s.x && q.y === s.y); const b = document.createElement('button'); const live = e && !String(e.type).startsWith('dormant'); b.textContent = '◆ ' + SITE_NAME[s.kind] + (s.kind === 'station' ? '' : ' PLANT') + (live ? ' ✓' : ''); b.className = live ? 'done' : 'site'; b.onclick = () => centerOn(s.x + 1, s.y + 1); box.appendChild(b); });
+  SITES.forEach(s => { const e = ents.find(q => q.x === s.x && q.y === s.y); const b = document.createElement('button'); const live = e && !String(e.type).startsWith('dormant'); b.innerHTML = pxi('dia') + ' ' + SITE_NAME[s.kind] + (s.kind === 'station' ? '' : ' PLANT') + (live ? ' ' + pxi('check') : ''); b.className = live ? 'done' : 'site'; b.onclick = () => centerOn(s.x + 1, s.y + 1); box.appendChild(b); });
 }
 function buildMeters() {
   $('meters').innerHTML = RESOURCES.map((l, i) => `<div class="meter"><span class="lab" style="color:${l.css}">${l.name}</span><div class="bar"><i id="mb${i}" style="background:${l.css}"></i></div><span class="num" id="mt${i}"></span></div>`).join('');
 }
+let alertTrimT = 0;
 function updateHud() {
-  $('scrap').textContent = Math.floor(scrap);
+  if (curTab === 'status' && ++alertTrimT % 4 === 0) { lastAlertKey = ''; updateAlerts(); }
+  $('scrap').textContent = Math.floor(scrap) + '/' + Flows.scrapCap(); Credits.show(); if (curTab === 'status') Flows.render();
   const net = income - upkeep; $('income').textContent = (net >= 0 ? '+' : '') + Math.round(net * 10) / 10 + '/s'; $('income').className = net < 0 ? 'neg' : 'pos';
   $('fuel').textContent = Math.floor(stock.fuel) + '/' + fuelCap; $('fuel').className = stock.fuel < 20 ? 'neg' : '';
   $('parts').textContent = Math.floor(stock.parts); $('rp').textContent = Math.floor(Meta.rp);
-  $('econ').textContent = `INCOME +${income}   UPKEEP -${upkeep}` + (radUntil > gameT ? '   ☢ RADIATION STORM' : '');
+  $('econ').textContent = `INCOME +${income}   UPKEEP -${upkeep}` + (radUntil > gameT ? '   RADIATION STORM' : '');
   const dr = DISTRICTS.filter(d => d.restored).length; $('dcount').textContent = 'DISTRICTS ' + dr + '/' + DISTRICTS.length; $('dbar').style.width = (DISTRICTS.length ? dr / DISTRICTS.length * 100 : 0) + '%';
   for (let L = 0; L < 3; L++) {
     const t = totals[L], ratio = t.sup > 0 ? t.dem / t.sup : (t.dem > 0 ? 2 : 0), bar = $('mb' + L);
@@ -814,12 +966,18 @@ function updateAlerts() {
   const key = alerts.map(a => a.label + a.miss.join()).join('|'); if (key === lastAlertKey) return; lastAlertKey = key;
   const box = $('alerts'); box.innerHTML = '';
   if (!alerts.length) { box.innerHTML = '<div class="ok">ALL SYSTEMS NOMINAL</div>'; return; }
-  alerts.slice(0, 8).forEach(a => {
+  alerts.slice(0, 12).forEach(a => {
     const b = document.createElement('button'); b.innerHTML = `<b>${a.label}</b> ${a.miss.join(' ')}`;
     b.onclick = () => { if (a.e) { centerOn(a.e.x + 1, a.e.y + 1); sel = a.e; dirty.ui = true; } else if (a.cable !== undefined) centerOn(a.cable % WW, (a.cable / WW) | 0); };
     box.appendChild(b);
   });
-  if (alerts.length > 8) { const d = document.createElement('div'); d.className = 'more'; d.textContent = '+' + (alerts.length - 8) + ' more'; box.appendChild(d); }
+  let shown = Math.min(alerts.length, 12); const ab = $('alertbox');
+  if (ab && ab.offsetHeight > 0) {                                          // show as many alerts as fit: nothing in the sidebar ever needs scrolling
+    const lim = ab.getBoundingClientRect().bottom - 6, kids = [...box.children];
+    while (kids.length > 1 && kids[kids.length - 1].getBoundingClientRect().bottom > lim - (shown < alerts.length ? 18 : 0)) { kids.pop().remove(); shown--; }
+    if (shown < alerts.length) while (kids.length > 1 && kids[kids.length - 1].getBoundingClientRect().bottom > lim - 18) { kids.pop().remove(); shown--; }
+  }
+  if (alerts.length > shown) { const d = document.createElement('div'); d.className = 'more'; d.textContent = '+' + (alerts.length - shown) + ' more (press . to jump through them)'; box.appendChild(d); }
 }
 let lastInfo = '', alertIdx = 0;
 function jumpAlert(dir) {
@@ -893,7 +1051,7 @@ function frame(now) {
   g.drawImage(terrainCv, -cx, -cy);
   // water shimmer
   const wf = Math.floor(t * 2);
-  for (const i of waterTiles) { const x = i % WW, y = (i / WW) | 0; if (x < x0 || x > x1 || y < y0 || y > y1) continue; if ((x * 7 + y * 13 + wf) % 11 === 0) px(x * T - cx + 2 + (wf & 3), y * T - cy + 3, 3, 1, 14); }
+  if (!Settings.lite) for (const i of waterTiles) { const x = i % WW, y = (i / WW) | 0; if (x < x0 || x > x1 || y < y0 || y > y1) continue; if ((x * 7 + y * 13 + wf) % 11 === 0) px(x * T - cx + 2 + (wf & 3), y * T - cy + 3, 3, 1, 14); }
   if (tool.kind === 'build') {
     const bd = BUILD[tool.type];
     if (bd.needWater) {
@@ -907,10 +1065,11 @@ function frame(now) {
     }
     if (bd.town) { g.strokeStyle = PAL[12]; g.globalAlpha = 0.5; for (const d of DISTRICTS) if (d.restored) g.strokeRect(((d.x - HOUSE_RADIUS) * T - cx) + 0.5, ((d.y - HOUSE_RADIUS) * T - cy) + 0.5, (HOUSE_RADIUS * 2 + 2) * T, (HOUSE_RADIUS * 2 + 2) * T); g.globalAlpha = 1; }
   }
-  for (let L = 0; L < NL; L++) { g.globalAlpha = focus < 0 || focus === LAYERS[L].res ? 1 : 0.2; g.drawImage(cabCv[L], -cx, -cy); }
+  if (focus < 0) g.drawImage(cabAllCv, -cx, -cy);
+  else for (let L = 0; L < NL; L++) { g.globalAlpha = focus === LAYERS[L].res ? 1 : 0.2; g.drawImage(cabCv[L], -cx, -cy); }
   g.globalAlpha = 1;
   const ph = Math.floor(t * 14);
-  for (const p of pulses) {
+  if (!Settings.lite) for (const p of pulses) {
     if (p.tx < x0 || p.tx > x1 || p.ty < y0 || p.ty > y1 || (focus >= 0 && focus !== LAYERS[p.L].res)) continue;
     const k = LAYERS[p.L].lane, d = 2 + (ph + p.i * 3) % 6, sx = p.tx * T - cx, sy = p.ty * T - cy;
     if (p.arms & 1) px(sx + k, sy + k - d, 1, 1, 8); else if (p.arms & 2) px(sx + k + d, sy + k, 1, 1, 8); else if (p.arms & 4) px(sx + k, sy + k + d, 1, 1, 8); else px(sx + k - d, sy + k, 1, 1, 8);
@@ -922,7 +1081,7 @@ function frame(now) {
   for (const e of sortedEnts) {
     if (e.x > x1 || e.y > y1 || e.x + e.w < x0 || e.y + e.h < y0) continue;
     const ex = e.x * T - cx, ey = e.y * T - cy, d = BUILD[e.type];
-    g.globalAlpha = 0.5; px(ex - 1, ey + 1, e.w * T + 2, e.h * T + 1, 0); g.globalAlpha = 0.35; px(ex + 2, ey + e.h * T, e.w * T, 2, 0); g.globalAlpha = 1;      // foundation + shadow
+    if (Settings.lite) px(ex, ey + e.h * T - 1, e.w * T, 2, 0); else { g.globalAlpha = 0.5; px(ex - 1, ey + 1, e.w * T + 2, e.h * T + 1, 0); g.globalAlpha = 0.35; px(ex + 2, ey + e.h * T, e.w * T, 2, 0); g.globalAlpha = 1; }      // foundation + shadow
     g.drawImage(spriteFor(e, t), ex, ey);
     if (e.type === 'generator' && e.run) for (let k = 0; k < 2; k++) { const u = (t * 6 + k * 3 + e.x) % 8; px(ex + 11 + k * 2 + (Math.sin(u) > 0 ? 1 : 0), ey - 1 - u, 1, 1, u < 4 ? 3 : 2); }
     if ((e.type === 'workshop' || e.type === 'refinery') && e.run) for (let k = 0; k < 3; k++) { const u = (t * 5 + k * 2.5) % 9; px(ex + 10 + (Math.sin(u + k) > 0 ? 1 : 0), ey + 1 - u, 2, 1, u < 5 ? 3 : 2); }
@@ -939,7 +1098,7 @@ function frame(now) {
   Loot.draw(t, cx, cy); Camp.draw(t, cx, cy);
   drawFx(t, cx, cy, dt);
   const night = Math.max(0, Math.sin((t - startT) / 40 + 3.3)) * 0.32;
-  if (night > 0.03) drawLights(night, cx, cy, x0, y0, x1, y1);
+  if (night > 0.03) { if (Settings.lite) { g.globalAlpha = night * 0.55; px(0, 0, VW + 1, VH + 1, 0); g.globalAlpha = 1; } else drawLights(night, cx, cy, x0, y0, x1, y1); }
   else if (radUntil > gameT) { g.globalAlpha = 0.1; px(0, 0, VW + 1, VH + 1, 11); g.globalAlpha = 1; }
   if (mouse.in && !overMini(mouse) && inb(hover.x, hover.y)) {
     const hx = hover.x * T - cx, hy = hover.y * T - cy;
@@ -950,6 +1109,7 @@ function frame(now) {
       g.strokeStyle = PAL[bad ? 5 : 12]; g.strokeRect(hx + 0.5, hy + 0.5, d.w * T - 1, d.h * T - 1);
     } else { g.strokeStyle = PAL[tool.kind === 'cable' ? LAYERS[tool.L].live : 15]; g.strokeRect(hx + 0.5, hy + 0.5, T - 1, T - 1); }
   }
+  if (tool.kind === 'route') Route.draw(cx, cy);
   if (sel && ents.includes(sel)) { g.strokeStyle = PAL[8]; g.strokeRect(sel.x * T - cx - 0.5, sel.y * T - cy - 0.5, sel.w * T + 1, sel.h * T + 1); }
   g.setTransform(1, 0, 0, 1, 0, 0);
   if (dirty.mini && now - miniT > 400) { bakeMini(); miniT = now; }
@@ -1274,6 +1434,7 @@ function bakeCables() {
       if (state === 1 && arms) pulses.push({ L, tx, ty, arms, i }); if (state === 2) warns.push({ L, tx, ty });
     }
   }
+  cabAllG.clearRect(0, 0, WW * T, WH * T); for (let L = 0; L < NL; L++) cabAllG.drawImage(cabCv[L], 0, 0);
   dirty.cab = false;
 }
 function bakeMini() {
@@ -1295,13 +1456,14 @@ function cableAt(L, x, y, mode) {
   if (!lineUnlocked(L)) return warnOnce('RESEARCH ' + TECH[LAYERS[L].tech].name + ' FIRST (Y)');
   if (mode === 'erase') { if (cab[L][i]) { const was = cab[L][i]; cab[L][i] = 0; scrap += cost; note(() => { cab[L][i] = was; scrap -= cost; }); recompute(); } return; }
   if (cab[L][i]) return;
-  if (terrain[i] === 1) return warnOnce('CAN\'T LAY LINE ON WATER (USE A BRIDGE OR GO AROUND)');
+  if (terrain[i] === 1 && !Meta.has('spans')) return warnOnce('CAN\'T LAY LINE ON WATER: RESEARCH BRIDGE SPANS (Y) OR GO AROUND');
   if (terrain[i] === 2) return warnOnce('RUBBLE IN THE WAY - SALVAGE IT (X)');
   if (terrain[i] === 4) return warnOnce('ROCK IN THE WAY - GO AROUND');
   if (occ[i]) return;
-  if (scrap < cost) return warnOnce('NOT ENOUGH SCRAP');
-  scrap -= cost; cab[L][i] = 1; note(() => { cab[L][i] = 0; scrap += cost; });
-  beep(300 + L * 70, 0.03, 'square', 0.02); recompute();
+  const cst = terrain[i] === 1 ? cost * 5 : cost;
+  if (scrap < cst) return warnOnce('NOT ENOUGH SCRAP');
+  scrap -= cst; cab[L][i] = 1; note(() => { cab[L][i] = 0; scrap += cst; });
+  if (!Route.busy) beep(300 + L * 70, 0.03, 'square', 0.02); recompute();
   if (LAYERS[L].trunk) storyEv('trunk');
 }
 function restoreSite(e) {
@@ -1345,7 +1507,8 @@ function stationHtml(e) {
 
 function updateInspector() {
   const box = $('inspect');
-  if (!sel || !ents.includes(sel)) { box.innerHTML = '<div class="more">Nothing selected. Use INSPECT (C) and click a building.</div>'; return; }
+  const hint = $('inspecthint'); if (hint) hint.textContent = sel && ents.includes(sel) ? 'SELECTED' : 'TOOL';
+  if (!sel || !ents.includes(sel)) { box.innerHTML = toolCard(tool); return; }
   const e = sel, d = BUILD[e.type]; let h = `<b>${d.name}</b>${e.district ? ' - ' + e.district.name : ''}<br>`;
   if (d.maint) h += `CONDITION <span class="${e.cond < 30 ? 'neg' : ''}">${Math.round(e.cond)}%</span>${e.cond <= 0 ? ' FAILED' : ''}<br>`;
   if (e.type === 'dormant') h += `A dormant ${SITE_NAME[e.site]} plant. Restore: 120 scrap + 8 parts, needs HEAVY INDUSTRY. It connects to the TRUNK lines.<br><button id="i-res">RESTORE</button> `;

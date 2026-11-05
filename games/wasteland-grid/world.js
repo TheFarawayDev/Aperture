@@ -436,7 +436,7 @@ $('wc-go').onclick = () => $('enter').click();
 document.addEventListener('visibilitychange', () => { if (document.hidden && Settings.autopause && Builder.active && speed > 0) setSpeed(0); });
 
 // ---------- keyboard on the map ----------
-const overlayOpen = () => [...document.querySelectorAll('.overlay')].some(o => o.style.display === 'flex') || $('card').style.display === 'flex';
+const overlayOpen = () => [...document.querySelectorAll('.overlay')].some(o => o.style.display === 'flex');
 function jumpTo(c, z) { selected = c.id; updatePanel(); zoomTo(Math.max(cam.z, z || 3), c.px, c.py, 450); }
 function cycleTargets(onlyTrouble) {
   const order = { outage: 0, dark: 1, partial: 2, frontier: 3, landing: 3 };
@@ -447,13 +447,13 @@ function cycleTargets(onlyTrouble) {
 addEventListener('keydown', e => {
   if (!Scenes.is('map') || e.ctrlKey || e.metaKey || e.altKey || anim) return;
   if (e.target && e.target.tagName === 'INPUT') return;
-  if (overlayOpen()) { if (e.key === 'Escape') { ['union', 'settings', 'log', 'how', 'skills', 'hq'].forEach(id => { $(id).style.display = 'none'; }); } return; }
+  if (overlayOpen()) { if (e.key === 'Escape') { ['union', 'settings', 'log', 'how', 'skills', 'hq', 'qm'].forEach(id => { $(id).style.display = 'none'; }); } return; }
   const k = e.key.toLowerCase(), pan = 26 / cam.z; let used = true;
   if (k === 'w' || k === 'arrowup') cam.cy -= pan; else if (k === 's' || k === 'arrowdown') cam.cy += pan; else if (k === 'a' || k === 'arrowleft') cam.cx -= pan; else if (k === 'd' || k === 'arrowright') cam.cx += pan;
   else if (k === '+' || k === '=') zoomBy(1.4); else if (k === '-' || k === '_') zoomBy(1 / 1.4); else if (k === 'h' || k === '0' || k === 'home') $('mz-home').click();
   else if (k === 'enter' || k === 'e') { if ($('enter').style.display !== 'none') $('enter').click(); }
   else if (k === 'tab') cycleTargets(false); else if (k === 'n') cycleTargets(true);
-  else if (k === 'q') openHQ(); else if (k === 'k') openSkills(); else if (k === 'u') openUnion(); else if (k === 'l') openLog(); else if (k === 'o') openSettings(); else if (k === 'f') $('btn-wide').click();
+  else if (k === 'b') openQM(); else if (k === 'q') openHQ(); else if (k === 'k') openSkills(); else if (k === 'u') openUnion(); else if (k === 'l') openLog(); else if (k === 'o') openSettings(); else if (k === 'f') $('btn-wide').click();
   else if (k === 'v') setMapView(mapView === 'status' ? 'fac' : mapView === 'fac' ? 'links' : 'status');
   else if (k === 'escape') { selected = -1; updatePanel(); } else if (k === '/') $('msearch').focus(); else if (k === '?') mapHelp(); else used = false;
   if (used) { e.preventDefault(); clampCamMap(); }

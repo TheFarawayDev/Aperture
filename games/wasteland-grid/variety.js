@@ -20,6 +20,10 @@ const TRAITS = {
   quiet: { n: 'QUIET VALLEY', d: 'No random faults here, but income is 15% lower.', mod: { income: 0.85, ev: 0 } },
 };
 const TRAIT_POOL = {
+  jungle: ['river', 'river', 'fertile', 'scrapyard', 'quiet', 'archive'],
+  taiga: ['freeze', 'freeze', 'windswept', 'quiet', 'archive', 'foundry'],
+  steppe: ['windswept', 'windswept', 'fertile', 'foundry', 'outpost', 'scrapyard'],
+  badlands: ['sunbaked', 'foundry', 'scrapyard', 'outpost', 'archive', 'quiet'],
   desert: ['sunbaked', 'sunbaked', 'sunbaked', 'foundry', 'scrapyard', 'quiet', 'outpost'],
   tundra: ['freeze', 'freeze', 'freeze', 'windswept', 'quiet', 'archive'],
   mountain: ['windswept', 'river', 'foundry', 'archive', 'outpost', 'freeze'],
@@ -107,6 +111,7 @@ const Variety = {
     raidT *= CUR.mod.raid || 1;
     Orders.render();
     const tt = $('traitTag'); if (tt) { tt.textContent = t ? TRAITS[t].n : ''; tt.title = t ? TRAITS[t].d : ''; tt.style.display = t ? '' : 'none'; }
+    Flows.reset(); Feed.clear(); if (!loaded) Kits.landing();
     this.render();
   },
   announce() {
@@ -145,7 +150,7 @@ const Variety = {
       if (def.limit && gameT > def.limit && !g.fail) { g.fail = 1; changed = true; continue; }
       if (g.fail) continue;
       if (def.f()) {
-        g.done = 1; changed = true; bump('goals'); Meta.rp += def.rp; Meta.dirty = true; scrap += def.rp * 6;
+        g.done = 1; changed = true; bump('goals'); Credits.add(Math.ceil(def.rp * 1.2)); Meta.rp += def.rp; Meta.dirty = true; scrap += def.rp * 6;
         toast('BONUS GOAL: ' + def.t + '  (+' + def.rp + ' research, +' + def.rp * 6 + ' scrap)'); beep(660, 0.1, 'square', 0.04); beep(990, 0.14, 'square', 0.04, 0.1);
       }
     }
@@ -154,8 +159,9 @@ const Variety = {
   },
   render() {
     const box = $('goals'); if (!box) return;
-    box.innerHTML = CUR.goals.map(g => { const d = GOAL_POOL.find(x => x.id === g.id); return d ? `<div class="goal ${g.done ? 'done' : g.fail ? 'fail' : ''}"><i>${g.done ? '✓' : g.fail ? '✗' : '○'}</i><span>${d.t}</span><b>+${d.rp}</b></div>` : ''; }).join('');
+    box.innerHTML = CUR.goals.map(g => { const d = GOAL_POOL.find(x => x.id === g.id); return d ? `<div class="goal ${g.done ? 'done' : g.fail ? 'fail' : ''}"><i>${pxi(g.done ? 'check' : g.fail ? 'cross' : 'ring')}</i><span>${d.t}</span><b>+${d.rp}</b></div>` : ''; }).join('');
     const n = CUR.goals.filter(g => g.done).length; const r = $('goalrp'); if (r) r.textContent = n + '/' + CUR.goals.length;
+    const gb = $('goalbadge'); if (gb) { const left = CUR.goals.length - n - CUR.goals.filter(g => g.fail).length; gb.textContent = left; gb.style.display = left > 0 ? 'block' : 'none'; }
   },
   doneCount() { return CUR.goals.filter(g => g.done).length; },
   // ----- random events beyond storms: some of them ask you to decide -----
@@ -239,7 +245,7 @@ const Contracts = {
     for (let i = L.length - 1; i >= 0; i--) {
       const k = L[i];
       if (this.done(k)) {
-        L.splice(i, 1); changed = true; k.rp = Math.round(k.rp * (Mods.world().contractRP || 1)); Meta.rp += k.rp; Meta.dirty = true; save.cdone = (save.cdone || 0) + 1;
+        L.splice(i, 1); changed = true; k.rp = Math.round(k.rp * (Mods.world().contractRP || 1)); Meta.rp += k.rp; Meta.dirty = true; save.cdone = (save.cdone || 0) + 1; Credits.add(Math.round(k.rp * 1.5));
         if (k.fac && k.trust) { const f = fac(k.fac); if (!f.signed) f.t = Math.min(100, f.t + k.trust); }
         say(`CONTRACT COMPLETE: ${k.text}. +${k.rp} research${k.trust ? ' and a little trust' : ''}.`); beep(523, 0.12, 'square', 0.04); beep(784, 0.2, 'square', 0.04, 0.1);
       } else if ((k.k === 'restore' && statusOf(US.counties[k.c]) !== 'frontier' && !isRestored(US.counties[k.c]))) { L.splice(i, 1); changed = true; }   // no longer reachable: drop it quietly
@@ -252,6 +258,6 @@ const Contracts = {
     const box = $('contracts'); if (!box) return;
     const L = this.list();
     box.onclick = e => { const el = e.target.closest('[data-c]'); if (el && typeof jumpTo === 'function') { const c = US.counties[+el.dataset.c]; if (c) jumpTo(c, 3); } };
-    box.innerHTML = (L.length ? L.map(k => `<div class="goal" ${k.c !== undefined && k.c !== 'x' ? `data-c="${k.c}" style="cursor:pointer" title="Click to find it on the map"` : ''}><i>◆</i><span>${k.text}</span><b>+${k.rp}</b></div>`).join('') : '<p class="dim">No open contracts. New jobs arrive every minute or so.</p>') + (save.cdone ? `<small class="dim">${save.cdone} completed</small>` : '');
+    box.innerHTML = (L.length ? L.map(k => `<div class="goal" ${k.c !== undefined && k.c !== 'x' ? `data-c="${k.c}" style="cursor:pointer" title="Click to find it on the map"` : ''}><i>${pxi('dia')}</i><span>${k.text}</span><b>+${k.rp}</b></div>`).join('') : '<p class="dim">No open contracts. New jobs arrive every minute or so.</p>') + (save.cdone ? `<small class="dim">${save.cdone} completed</small>` : '');
   },
 };

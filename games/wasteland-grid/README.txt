@@ -52,3 +52,29 @@ More in this version:
  * Dimmers: raids come in five kinds (saboteurs, scavengers, jammers, arsonists, warbands) and walk in from where they hide.
    Some counties hide a DIMMER CAMP: click it to send a strike team. Held counties have WARLORDS; take their last county to break them.
  * Camera: drag with the left button on the inspect tool, hold SPACE and drag with any tool, or right-drag. Release to glide.
+
+Latest version:
+ * The storyline is gone (no cutscenes, radio chatter or chapters). The old radio log is now a plain EVENT LOG.
+ * Performance: the world map no longer recomputes whole-map questions every frame (map frames are ~10x cheaper and the
+   once-a-second world update went from ~100 ms to ~6 ms). New LITE mode and a MINIMAL (20 fps) preset strip glows, shadows,
+   water shimmer, line pulses and night lighting. AUTOMATIC QUALITY watches real frame times and lowers the preset by itself
+   (Settings > Graphics). Line layers are merged into one blit per frame.
+ * CREDITS (¢): a second currency from counties, goals, caches, camps and selling surplus scrap (the warehouse caps scrap).
+   Spend them at the QUARTERMASTER (map, key B / SUPPLY): supply kits for the next county, instant buys, permanent depot upgrades.
+ * Resources: the STATUS tab has a FLOWS panel (per-second flows, time until fuel runs out, top earners and costs). Scrap has a
+   warehouse cap; fuel tanks and warehouse can be upgraded.
+ * Lines: AUTO ROUTE tool (key ;) lays the chosen line types along the cheapest path with a cost preview. New BRIDGE SPANS
+   research lets lines (and routes) cross water.
+ * Tutorial: new steps for auto route, flows and credits, a progress bar, Enter to continue, and one-time TIP messages that
+   appear exactly when a situation first matters (turn them off in Settings).
+
+Control panel + terrain update:
+ * The whole interface is now a control panel: steel plates with screws, hardware-style keys with LEDs, green LCD readouts for
+   resources, segmented LED meters and a row of STATUS LAMPS in the header (PWR / H2O / NET / FUEL / RAID / ALRT: green = fine,
+   amber = watch it, red = act now). Touch devices get bigger targets, notches/safe areas are respected, and portrait phones keep
+   a compact minimap.
+ * Terrain generation was rebuilt: an elevation map with lakes in the low ground, rivers that start in the highlands and flow
+   downhill (widening as they go), ridge lines and mesas for rock, roads routed around lakes and rock (bridges only when needed,
+   with a ring road), town sprawl and rubble beside roads, groves and clearings, oases, and a tree line on mountains.
+ * Four new biomes: JUNGLE (Amazon, Central America, Hawaii), TAIGA (northern Canada, Alaska, Scandinavia), STEPPE (Great Plains,
+   pampas, Patagonia, Meseta, Eastern Europe) and BADLANDS (the Southwest, Andalusia). Each has its own look, traits and recipe.

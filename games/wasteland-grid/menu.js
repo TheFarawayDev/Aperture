@@ -22,14 +22,15 @@ function fit(again) {
   Display.apply();
   const cw = Display.vw, ch = Display.vh, cur = Scenes.cur;                      // size of the window in interface pixels (after UI zoom)
   const panel = cur === 'game' ? 352 + 14 : cur === 'map' ? (Settings.wide ? 0 : 340 + 14) : 0, stacked = cw <= 1000;
-  const availW = cw - (stacked ? 0 : panel) - (cw < 700 ? 20 : 40); let availH = ch - (cur === 'game' ? 178 : cur === 'map' ? (Settings.wide ? 118 : 150) : 60) - (stacked ? 110 : 0);
+  const availW = cw - (stacked ? 0 : panel) - (cw < 700 ? 20 : 40); const tb = $('topbar'), ub = $('under'), chrome = cur === 'game' && tb && ub && tb.offsetHeight ? tb.offsetHeight + ub.offsetHeight + 62 : 178;
+  let availH = ch - (cur === 'game' ? chrome : cur === 'map' ? (Settings.wide ? 118 : 150) : 60) - (stacked ? 110 : 0);
   availH = Math.min(availH, fit.cap);
   document.querySelectorAll('canvas.px').forEach(c => {
     const s = Display.canvasScale(c, availW, Math.max(120, availH));
     c.style.width = Math.round(c.width * s * 1000) / 1000 + 'px'; c.style.height = Math.round(c.height * s * 1000) / 1000 + 'px';
   });
-  const g = $('game'), side = $('side'); if (side && g) side.style.maxHeight = stacked ? 'none' : (parseInt(g.style.height || '270') + 120) + 'px';
-  const mp = $('mappanel'), u = $('usmap'); if (mp && u && !stacked) mp.style.minHeight = (parseInt(u.style.height || '340') + 8) + 'px';
+  const mp = $('mappanel'), u = $('usmap'); if (mp && u && !stacked) mp.style.height = (parseInt(u.style.height || '340') + 14) + 'px'; else if (mp) mp.style.height = '';
+  syncSide();
   // the header can wrap onto a second row on narrower windows: if the page now overflows the screen, shrink the picture by the overflow (once)
   if (again !== true && !stacked && (cur === 'game' || cur === 'map')) {
     const over = (document.documentElement.scrollHeight - document.documentElement.clientHeight) / Display.z;

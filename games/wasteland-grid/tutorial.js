@@ -23,10 +23,10 @@ const Coach = {
   },
   render(o, s) {
     this.owner = o; const c = $('coach'); c.style.display = 'block'; c.classList.toggle('right', this.side === 'right');
-    $('coach-step').textContent = (o.idx + 1) + '/' + o.steps.length; $('coach-title').textContent = s.title; $('coach-text').innerHTML = s.text;
+    $('coach-step').textContent = (o.idx + 1) + '/' + o.steps.length; { const b = $('coach-bar'); if (b && b.firstChild) b.firstChild.style.width = Math.round((o.idx + 1) / o.steps.length * 100) + '%'; } $('coach-title').textContent = s.title; $('coach-text').innerHTML = s.text;
     const sat = !!o.sat, need = $('coach-need');
-    need.className = sat ? 'ok' : ''; need.textContent = sat ? '✓ DONE' : s.ack ? '' : (s.need ? '▶ ' + s.need : '');
-    need.style.display = need.textContent ? 'block' : 'none';
+    need.className = sat ? 'ok' : ''; need.innerHTML = sat ? pxi('check') + ' DONE' : s.ack ? '' : (s.need ? pxi('arrow') + ' ' + s.need : '');
+    need.style.display = need.innerHTML ? 'block' : 'none';
     $('coach-next').style.display = (s.ack || sat || o.hold) ? '' : 'none'; $('coach-next').textContent = o.idx === o.steps.length - 1 ? 'FINISH' : 'NEXT';
     $('coach-back').style.display = o.idx > 0 ? '' : 'none';
     const els = []; (s.hl || []).forEach(h => { const r = typeof h === 'function' ? h() : h; (Array.isArray(r) ? r : [r]).forEach(x => { if (!x) return; const el = typeof x === 'string' ? document.querySelector(x) : x; if (el) els.push([el, el._coachLabel || '']); }); });
@@ -167,7 +167,13 @@ const COUNTY_STEPS = [
   { title: 'SUPPLY CACHES', ack: true, on: () => { const l = Loot.list.find(x => !x.open); if (l) centerOn(l.x, l.y); },
     text: 'Look for glowing <b>supply caches</b> hidden in every county. <b>Click one</b> (with any tool) to open it: scrap, parts, research, <b>skill chips</b> and rare <b>blueprints</b> for your headquarters. They also show as blinking dots on the minimap.',
     world: () => Loot.list.filter(l => !l.open).map(l => ({ x: l.x, y: l.y, w: 1, h: 1, l: 'CACHE' })), hl: ['#minimap'], labels: ['MINIMAP'] },
-  { title: 'BONUS GOALS AND TRAITS', ack: true, hl: ['#goalbox', '#traitTag'], labels: ['GOALS', 'TRAIT'], on: () => { goHome(); },
+  { title: 'AUTO ROUTE', need: 'Choose AUTO ROUTE (key ;), click the generator, then click the hub.', hl: [catBtn('LINES'), toolBtn('AUTO ROUTE')], on: () => { showTab('build'); showCat('LINES'); Tutorial.routed = false; },
+    text: 'Laying lines by hand is fine, but <b>AUTO ROUTE</b> does it for you: click a start (or any machine), then an end. Every line type chosen in the box below the tools is laid along the cheapest path around rubble, rock and machines, and a preview shows the exact cost first. With the Bridge Spans research it can even cross water.', check: () => Tutorial.routed },
+  { title: 'FLOWS AND STORAGE', ack: true, hl: ['#flows', '#scrap'], labels: ['FLOWS', 'SCRAP / CAP'], on: () => { showTab('status'); },
+    text: 'The <b>FLOWS</b> panel (STATUS tab) shows every resource per second: scrap income and upkeep, how long your <b>fuel</b> will last, parts and research trends, and which machines earn or cost the most. Scrap is limited by your <b>warehouse</b> (the number after the slash).' },
+  { title: 'CREDITS', ack: true, hl: ['#crchip'], labels: ['CREDITS'], on: () => { showTab('build'); },
+    text: 'When the warehouse is full, surplus scrap is <b>sold for credits</b> (CR). You also earn credits from finishing counties, bonus goals, supply caches and Dimmer camps. Spend them at the <b>QUARTERMASTER</b> on the map (press <kbd>B</kbd>) on supply kits for your next county, instant buys and permanent depot upgrades. Short <b>TIP</b> messages will appear the first time something matters.' },
+  { title: 'BONUS GOALS AND TRAITS', ack: true, hl: ['#goalbox', '#traitTag'], labels: ['GOALS', 'TRAIT'], on: () => { goHome(); showTab('goals'); },
     text: 'Every county is different. A <b>trait</b> (shown in the header when it has one) changes the numbers, some counties start in odd states (a derelict grid, a black start), and three optional <b>BONUS GOALS</b> pay research points and scrap.' },
   { title: 'FINISHING A COUNTY', ack: true, hl: ['#tomap'], text: 'Restore every district to finish the county. Even <b>half</b> of them makes the light spread to neighbours. When you are done, press <b>&lt; MAP</b> to return to the world. Your county autosaves. The tutorial ends here - GUIDE has all of this again.' },
 ];
@@ -177,7 +183,7 @@ Tutorial.cam0 = null; Tutorial.repaired = false;
 
 const MAP_STEPS = [
   { title: 'CHOOSE A LANDING SITE', need: 'Click any county in the United States.', hl: ['#usmap'], when: () => save.start < 0 && !overlayOpen(),
-    text: 'This is <b>North America</b>, dark since the Cascade. Pick any <b>American county</b> as your landing site: from there the light spreads outward. Hover to see names, scroll to zoom, drag to pan.', check: () => selected >= 0 },
+    text: 'This is <b>North America</b>, still dark. Pick any <b>American county</b> as your landing site: from there the light spreads outward. Hover to see names, scroll to zoom, drag to pan.', check: () => selected >= 0 },
   { title: 'LAND', need: 'Press LAND HERE.', hl: ['#enter'], when: () => save.start < 0 && !overlayOpen(),
     text: 'Press <b>LAND HERE</b>. You will enter the county and the builder tutorial begins.', check: () => save.start >= 0 },
   { title: 'BACK ON THE MAP', ack: true, hl: ['#usmap'], when: () => save.start >= 0 && Scenes.is('map') && !anim && !overlayOpen(),
@@ -191,12 +197,14 @@ const MAP_STEPS = [
   { title: 'THE UNION', need: 'Click UNION (or press U).', hl: ['#btn-union'], when: () => Scenes.is('map') && !anim && !overlayOpen(),
     text: 'The <b>UNION</b> screen is the heart of the campaign: <b>factions</b> to befriend and sign accords with, <b>borders</b> to open or close, <b>stable station links</b> between counties, and the <b>Dimmers</b> to talk to. Open it.', check: () => $('union').style.display === 'flex' },
   { title: 'UNITY', ack: true, hl: ['#un-head'], text: 'Four things add up to your <b>unity</b> score: coverage, stable links, signed accords and open borders. Higher tiers give permanent bonuses. Close this screen when you are done reading.' },
+  { title: 'THE QUARTERMASTER', ack: true, hl: ['#btn-qm'], labels: ['SUPPLY'], when: () => Scenes.is('map') && !anim && !overlayOpen() && save.start >= 0,
+    text: 'Press <kbd>B</kbd> (or SUPPLY) to visit the <b>QUARTERMASTER</b>. Credits buy <b>supply kits</b> that are unloaded in the next county you enter (extra scrap, parts, fuel, a quiet start, an engineer team), plus permanent <b>depot upgrades</b>: more kit slots, fuel tanks, a bigger warehouse and a better broker.' },
   { title: 'SKILL POINTS', ack: true, hl: ['#btn-skills'], when: () => Scenes.is('map') && !anim && !overlayOpen() && (save.sp > 0 || Object.keys(save.restored).length >= 1),
     text: 'Restoring places earns <b>skill points</b>: 1 for every 3 counties, plus bonuses for states, countries and flawless counties. Press <kbd>K</kbd> and spend them on permanent upgrades. You cannot afford everything, so choose a direction.' },
   { title: 'HEADQUARTERS', ack: true, hl: ['#btn-hq'], when: () => !!save.hq && Scenes.is('map') && !anim && !overlayOpen(),
     text: 'Your landing county is now <b>HEADQUARTERS</b>: the place everything leads back to. Press <kbd>Q</kbd> to open it. First pick a <b>doctrine</b> (Forge, Bulwark, Frontier or Scholar), then spend research on ten departments. Some unlock <b>orders</b> you can call down inside a county (supply drops, grid restarts, surveys). The better a county is connected to HQ, the more it helps. If HQ itself has an outage, the benefits stop.' },
-  { title: 'EVERYTHING ELSE', ack: true, hl: ['#btn-settings2', '#btn-log', '#btn-wide'], labels: ['SETTINGS', 'RADIO LOG', 'WIDE MAP'], when: () => Scenes.is('map') && !anim && !overlayOpen(),
-    text: '<b>SETTINGS</b> has difficulty, graphics and <b>save export / import</b>. The <b>RADIO LOG</b> keeps every message. <b>WIDE</b> hides the side panel for a bigger map. Press <kbd>?</kbd> on the map for every shortcut. Good luck, Engineer.' },
+  { title: 'EVERYTHING ELSE', ack: true, hl: ['#btn-settings2', '#btn-log', '#btn-wide'], labels: ['SETTINGS', 'EVENT LOG', 'WIDE MAP'], when: () => Scenes.is('map') && !anim && !overlayOpen(),
+    text: '<b>SETTINGS</b> has difficulty, graphics and <b>save export / import</b>. The <b>EVENT LOG</b> keeps every event. <b>WIDE</b> hides the side panel for a bigger map. Press <kbd>?</kbd> on the map for every shortcut. Good luck, Engineer.' },
 ];
 const MapTutorial = new Tutor('wastelandGrid.mtut', MAP_STEPS, () => mapActive);
 MapTutorial.z0 = 1;
@@ -215,3 +223,11 @@ setInterval(() => { Tutorial.update(); MapTutorial.update(); if (!Builder.active
 $('tut-replay-c').onclick = () => { Tutorial.restart(); $('settings').style.display = 'none'; if (!Builder.active) uiAlert('The county tutorial will start the next time you enter a county.', 'TUTORIAL'); };
 $('tut-replay-m').onclick = () => { MapTutorial.restart(); $('settings').style.display = 'none'; if (!mapActive) uiAlert('The map tutorial will start the next time you are on the world map.', 'TUTORIAL'); };
 addEventListener('resize', () => { const o = Coach.owner; if (o && o.active()) Coach.render(o, o.step()); });
+
+addEventListener('keydown', e => {                                   // ENTER advances the coach when its NEXT button is showing
+  if (e.key !== 'Enter' || e.ctrlKey || e.metaKey || e.altKey) return;
+  const c = $('coach'); if (!c || c.style.display !== 'block' || $('coach-next').style.display === 'none') return;
+  if (e.target && /INPUT|TEXTAREA|BUTTON/.test(e.target.tagName)) return;
+  if ([...document.querySelectorAll('.overlay')].some(o => o.style.display === 'flex')) return;
+  e.preventDefault(); $('coach-next').click();
+});

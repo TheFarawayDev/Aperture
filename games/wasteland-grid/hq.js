@@ -158,9 +158,10 @@ const Loot = {
     const owned = Object.keys(BLUEPRINTS).filter(id => save.items[id]), missing = Object.keys(BLUEPRINTS).filter(id => !save.items[id]);
     if (x < bpChance && missing.length) return { k: 'bp', id: missing[r() * missing.length | 0] };
     const y = r();
-    if (x < 0.5) return { k: 'scrap', n: Math.round((40 + r() * 120) * val * (1 + hops * 0.02)) };
-    if (x < 0.72) return { k: 'parts', n: Math.round((3 + r() * 7) * val) };
-    if (x < 0.88) return { k: 'rp', n: Math.round((6 + r() * 16) * val) };
+    if (x < 0.38) return { k: 'scrap', n: Math.round((40 + r() * 120) * val * (1 + hops * 0.02)) };
+    if (x < 0.58) return { k: 'cr', n: Math.round((12 + r() * 28) * val) };
+    if (x < 0.76) return { k: 'parts', n: Math.round((3 + r() * 7) * val) };
+    if (x < 0.9) return { k: 'rp', n: Math.round((6 + r() * 16) * val) };
     if (x < 0.95 || !missing.length) return { k: 'sp', n: 1 };
     return { k: 'rp', n: 25 + (y * 10 | 0) };
   },
@@ -168,6 +169,7 @@ const Loot = {
     const l = this.at(tx, ty); if (!l) return false;
     l.open = true; bump('caches'); CUR.looted = (CUR.looted || 0) + 1; const it = this.roll(l); burst(tx, ty, 'spark'); burst(tx, ty, 'spark'); let msg;
     if (it.k === 'scrap') { scrap += it.n; msg = `a SUPPLY CACHE: +${it.n} scrap.`; }
+    else if (it.k === 'cr') { const got = Credits.add(it.n); msg = `a SUPPLY CACHE: +${got} credits.`; }
     else if (it.k === 'parts') { stock.parts += it.n; msg = `a SUPPLY CACHE: +${it.n} parts.`; }
     else if (it.k === 'rp') { Meta.rp += it.n; Meta.dirty = true; msg = `a SUPPLY CACHE: +${it.n} research points.`; }
     else if (it.k === 'sp') { ensureMeta(); save.sp += 1; writeSave(); msg = 'a TECH CHIP: +1 skill point! (K on the map)'; }
@@ -188,26 +190,51 @@ const Loot = {
   left() { return this.list.filter(l => !l.open).length; },
 };
 
-// ---------- skill tree screen ----------
-function renderSkills() {
-  ensureMeta(); const tree = $('sk-tree');
-  $('sk-top').innerHTML = `<span class="spbig">${save.sp} <small>SKILL POINTS</small></span><span>Earn them by restoring places: 1 for every 3 counties, plus states, countries and flawless counties. Supply caches may hold chips too.</span>`;
-  tree.innerHTML = Object.keys(SK_BRANCH).map(b => {
-    const B = SK_BRANCH[b], rows = SKILLS.filter(s => s.br === b).sort((a, c) => a.t - c.t);
-    return `<div class="skcol" style="--c:${B.c}"><div class="skhead">${B.n}</div>${rows.map(s => {
-      const r = skRank(s.id), open = skOpen(s), maxed = r >= s.max, can = open && !maxed && save.sp >= s.cost;
-      const need = (s.need || []).filter(n => skRank(n) < 1).map(n => SKILLS.find(x => x.id === n).n).join(', ');
-      return `<button class="sknode ${maxed ? 'max' : r ? 'has' : ''} ${can ? 'can' : ''} ${open ? '' : 'lock'}" data-sk="${s.id}" ${open ? '' : 'disabled'}><b>${s.n}</b><span class="pips">${'●'.repeat(r)}${'○'.repeat(s.max - r)}</span><i>${s.d}</i><em>${maxed ? 'MAXED' : open ? s.cost + ' SP' : 'needs ' + need}</em></button>`;
-    }).join('')}</div>`;
-  }).join('');
+// ---------- skill tree screen: a real tree (branches as columns, tiers as rows, lines between prerequisites) plus an inspector ----------
+let skSel = null;
+const SK_W = 70, SK_H = 64, SK_GAP = 8, SK_COLW = 2 * SK_W + 3 * SK_GAP, SK_ROWH = 104, SK_TOP = 38;
+function skPos() {
+  const pos = {}; Object.keys(SK_BRANCH).forEach((b, bi) => {
+    for (let t = 0; t <= 2; t++) { const row = SKILLS.filter(s => s.br === b && s.t === t); row.forEach((s, k) => { pos[s.id] = { x: bi * SK_COLW + SK_COLW / 2 + (k - (row.length - 1) / 2) * (SK_W + SK_GAP) - SK_W / 2, y: SK_TOP + t * SK_ROWH }; }); }
+  });
+  return pos;
 }
-function openSkills() { renderSkills(); $('skills').style.display = 'flex'; }
-$('sk-tree').onclick = e => {
-  const b = e.target.closest('[data-sk]'); if (!b) return; const s = SKILLS.find(x => x.id === b.dataset.sk); ensureMeta();
-  if (!s || !skOpen(s) || skRank(s.id) >= s.max) return; if (save.sp < s.cost) { $('sk-msg').textContent = 'Not enough skill points. Restore more places.'; return; }
+const skState = s => { const r = skRank(s.id), open = skOpen(s), maxed = r >= s.max; return { r, open, maxed, can: open && !maxed && save.sp >= s.cost }; };
+function renderSkills() {
+  ensureMeta(); const pos = skPos(), brs = Object.keys(SK_BRANCH), W = brs.length * SK_COLW, H = SK_TOP + 2 * SK_ROWH + SK_H + 12;
+  const spent = SKILLS.reduce((a, s) => a + skRank(s.id) * s.cost, 0), ranks = SKILLS.reduce((a, s) => a + skRank(s.id), 0);
+  $('sk-top').innerHTML = `<span class="spbig">${save.sp} <small>SKILL POINTS</small></span><span>SPENT <b>${spent}</b></span><span>RANKS <b>${ranks}/${SKILLS.reduce((a, s) => a + s.max, 0)}</b></span><span class="dim">1 point per 3 counties, plus states, countries, flawless counties and caches.</span>`;
+  let svg = '', html = brs.map((b, bi) => `<div class="skhead" style="left:${bi * SK_COLW}px;width:${SK_COLW}px;--c:${SK_BRANCH[b].c}">${SK_BRANCH[b].n}</div>`).join('');
+  SKILLS.forEach(s => (s.need || []).forEach(n => {
+    const a = pos[n], c = pos[s.id], p = SKILLS.find(x => x.id === n), x1 = a.x + SK_W / 2, y1 = a.y + SK_H, x2 = c.x + SK_W / 2, y2 = c.y, my = (y1 + y2) / 2, lit = skRank(n) >= 1;
+    svg += `<path d="M${x1} ${y1} C${x1} ${my}, ${x2} ${my}, ${x2} ${y2}" stroke="${lit ? SK_BRANCH[s.br].c : '#2a3238'}" stroke-width="${lit ? 3 : 2}" fill="none" ${lit && skRank(s.id) < 1 ? 'stroke-dasharray="5 4"' : ''}/>`;
+  }));
+  SKILLS.forEach(s => {
+    const p = pos[s.id], st = skState(s), words = s.n.split(' ');
+    html += `<button class="skn ${st.maxed ? 'max' : st.r ? 'has' : ''} ${st.can ? 'can' : ''} ${st.open ? '' : 'lock'} ${skSel === s.id ? 'sel' : ''}" data-sk="${s.id}" style="left:${p.x}px;top:${p.y}px;width:${SK_W}px;height:${SK_H}px;--c:${SK_BRANCH[s.br].c}"><b>${s.n}</b><span class="pips">${pips(st.r, s.max)}</span></button>`;
+  });
+  $('sk-tree').innerHTML = `<div id="sk-canvas" style="width:${W}px;height:${H}px"><svg width="${W}" height="${H}">${svg}</svg>${html}</div>`;
+  renderSkInfo();
+}
+function renderSkInfo() {
+  const box = $('sk-info'); if (!skSel) { box.innerHTML = '<div class="ph">INSPECTOR</div><p class="dim">Pick a skill. Lines show what leads to what: a dashed line means the next skill is unlocked and waiting for a point. Double-click a skill to buy a rank.</p>'; return; }
+  const s = SKILLS.find(x => x.id === skSel), st = skState(s), B = SK_BRANCH[s.br];
+  const reqs = (s.need || []).map(n => { const q = SKILLS.find(x => x.id === n), ok = skRank(n) >= 1; return `<li class="${ok ? 'ok' : 'no'}">${pxi(ok ? 'check' : 'cross')} ${q.n}</li>`; }).join('') || '<li class="ok">' + pxi('check') + ' none</li>';
+  const why = st.maxed ? 'MAXED' : !st.open ? 'LOCKED' : save.sp < s.cost ? `NEED ${s.cost} POINT${s.cost > 1 ? 'S' : ''}` : `BUY RANK ${st.r + 1} - ${s.cost} SP`;
+  box.innerHTML = `<div class="ph" style="color:${B.c}">${B.n}</div><h3 style="color:${B.c}">${s.n}</h3><div class="pips big" style="color:${B.c}">${pips(st.r, s.max)}</div><p>${s.d}</p>
+    <div class="kv"><span>RANK</span><b>${st.r}/${s.max}</b><span>COST</span><b>${s.cost} SP</b></div><div class="rq">REQUIRES</div><ul>${reqs}</ul>
+    <button id="sk-buy" class="${st.can ? 'primary' : ''}" ${st.can ? '' : 'disabled'}>${why}</button>`;
+  $('sk-buy').onclick = () => skBuy(s.id);
+}
+function skBuy(id) {
+  const s = SKILLS.find(x => x.id === id); ensureMeta(); if (!s || !skOpen(s) || skRank(s.id) >= s.max) return;
+  if (save.sp < s.cost) { $('sk-msg').textContent = 'Not enough skill points. Restore more places.'; return; }
   save.sp -= s.cost; save.sk[s.id] = skRank(s.id) + 1; $('sk-msg').textContent = `${s.n} rank ${save.sk[s.id]}.`; beep(660, 0.08, 'square', 0.04); beep(990, 0.1, 'square', 0.04, 0.07);
-  recalcMods(); writeSave(); renderSkills(); if (mapActive) updateStats();
-};
+  recalcMods(); writeSave(); renderSkills(); if (mapActive) updateStats(); if (typeof Objectives !== 'undefined') Objectives.check();
+}
+function openSkills() { if (!skSel) skSel = SKILLS[0].id; renderSkills(); $('skills').style.display = 'flex'; }
+$('sk-tree').onclick = e => { const b = e.target.closest('[data-sk]'); if (!b) return; skSel = b.dataset.sk; renderSkills(); };
+$('sk-tree').ondblclick = e => { const b = e.target.closest('[data-sk]'); if (b) skBuy(b.dataset.sk); };
 $('sk-reset').onclick = async () => {
   ensureMeta(); const spent = SKILLS.reduce((a, s) => a + skRank(s.id) * s.cost, 0); if (!spent) { $('sk-msg').textContent = 'Nothing to reset.'; return; }
   if (Meta.rp < SKILL_RESET_RP) { $('sk-msg').textContent = `A reset costs ${SKILL_RESET_RP} research points.`; return; }
@@ -313,7 +340,7 @@ const Objectives = {
       if (cur >= o.goal) { save.obj[o.id] = 1; rp += o.rew.rp || 0; sp += o.rew.sp || 0; names.push(o.txt); }
     }
     if (!names.length) return;
-    if (rp) { Meta.rp += rp; Meta.dirty = true; } if (sp) save.sp += sp;
+    if (rp) { Meta.rp += rp; Meta.dirty = true; } if (sp) save.sp += sp; Credits.add(Math.round(rp * 0.8 + sp * 15));
     const t = `OBJECTIVE DONE: ${names[0]}${names.length > 1 ? ' (+' + (names.length - 1) + ' more)' : ''}  ${rewText({ rp, sp })}`; toast(t); news(t); say(t);
     beep(660, 0.1, 'square', 0.04); beep(880, 0.1, 'square', 0.04, 0.09); beep(1320, 0.16, 'square', 0.04, 0.18); writeSave();
     this.render();
@@ -345,19 +372,22 @@ const MOD_NAMES = { genOut: 'power output', fuel: 'fuel use', waterOut: 'water o
 function hqEffectText(m, L) { const fx = m.fx(L), out = []; for (const k in fx) { const v = fx[k], nm = MOD_NAMES[k] || k; if (ADD_KEYS.has(k)) { if (v) out.push(nm + ' +' + (Math.round(v * 100) / 100)); } else if (Math.abs(v - 1) > 0.001) out.push(nm + ' ' + (v > 1 ? '+' : '') + Math.round((v - 1) * 100) + '%'); } return out.join(', ') || 'nothing yet'; }
 function renderHQ() {
   ensureMeta(); const used = hqUsed(), cap = hqCap(), on = HQ.online(); HQ.refresh(); const doc = save.hq.doc;
-  $('hq-top').innerHTML = `<span class="${on ? 'pos' : 'neg'}">${on ? 'ONLINE' : 'OFFLINE - repair the outage at ' + HQ.county().name + ' COUNTY'}</span><span>RANK <b>${hqRank()}</b></span><span>SUPPLY LINES <b>${HQ.reach.size}</b> counties</span><span>CAPACITY <b>${used}/${cap}</b></span><span>RESEARCH <b>${Math.floor(Meta.rp)}</b> RP</span>`;
-  $('hq-doc').innerHTML = '<div class="hqsec">DOCTRINE <small>' + (doc ? 'what kind of headquarters are you? Switching costs ' + DOC_SWITCH_RP + ' RP.' : 'choose one: it shapes everything. The first pick is free.') + '</small></div><div class="hqdocs">' +
-    Object.keys(DOCTRINES).map(id => { const D2 = DOCTRINES[id]; return `<button class="hqdoc ${doc === id ? 'sel' : ''}" data-doc="${id}" style="--c:${D2.c}"><b>${D2.n}</b><i>${D2.d}</i><em>${doc === id ? 'ACTIVE' : !doc ? 'CHOOSE (free)' : 'SWITCH - ' + DOC_SWITCH_RP + ' RP'}</em></button>`; }).join('') + '</div>';
-  $('hq-grid').innerHTML = '<div class="hqsec" style="grid-column:1/-1">DEPARTMENTS <small>capacity is limited: level N costs N capacity. Levels 4 and 5 need a blueprint from the wild.</small></div>' + HQMODS.map(m => {
-    const L = hqLevel(m.id), nx = L + 1, cost = hqCost(nx), needBP = nx >= 4, hasBP = !!save.items[m.bp];
-    const why = L >= HQ_MAXL ? 'MAX' : needBP && !hasBP ? 'needs blueprint: ' + BLUEPRINTS[m.bp] : used + cost.cap > cap ? 'capacity short (' + cost.cap + ')' : Meta.rp < cost.rp ? cost.rp + ' RP' : '';
-    const ord = ORDERS.filter(o => o.mod === m.id).map(o => `<span class="ordtag ${L >= o.lvl ? 'on' : ''}">${o.n}${L >= o.lvl ? '' : ' (L' + o.lvl + ')'}</span>`).join('');
-    return `<div class="hqmod ${hqSel === m.id ? 'sel' : ''} ${L ? 'built' : ''}" data-m="${m.id}" style="--c:${m.c}"><div class="hqn"><b>${m.n}</b><span class="pips">${'●'.repeat(L)}${'○'.repeat(HQ_MAXL - L)}</span></div><i>${m.d}</i><div class="hqnow">${L ? 'NOW: ' + hqEffectText(m, L) : 'not built'}</div>${L < HQ_MAXL ? `<div class="hqnext">NEXT: ${hqEffectText(m, nx)}</div>` : ''}${ord ? `<div>${ord}</div>` : ''}
-      <div class="hqbtns"><button data-up="${m.id}" ${why ? 'disabled' : ''}>${L >= HQ_MAXL ? 'MAXED' : (L ? 'UPGRADE' : 'BUILD') + ' - ' + cost.rp + ' RP, ' + cost.cap + ' CAP'}</button><button data-down="${m.id}" ${L ? '' : 'disabled'} title="Refund the capacity and half the research">-</button></div>${why && L < HQ_MAXL ? `<small class="hqwhy">${why}</small>` : ''}</div>`;
+  $('hq-top').innerHTML = `<span class="${on ? 'pos' : 'neg'}">${on ? 'ONLINE' : 'OFFLINE - repair ' + HQ.county().name + ' COUNTY'}</span><span>RANK <b>${hqRank()}</b></span><span>SUPPLY LINES <b>${HQ.reach.size}</b></span><span>CAPACITY <b>${used}/${cap}</b></span><span>RESEARCH <b>${Math.floor(Meta.rp)}</b> RP</span>`;
+  $('hq-doc').innerHTML = '<div class="ph">DOCTRINE</div><div class="hqhint">' + (doc ? 'Switching costs ' + DOC_SWITCH_RP + ' RP.' : 'Choose one. The first pick is free.') + '</div>' +
+    Object.keys(DOCTRINES).map(id => { const D2 = DOCTRINES[id]; return `<button class="hqdoc ${doc === id ? 'sel' : ''}" data-doc="${id}" style="--c:${D2.c}"><b>${D2.n}</b><i>${D2.d}</i><em>${doc === id ? 'ACTIVE' : !doc ? 'CHOOSE (free)' : 'SWITCH - ' + DOC_SWITCH_RP + ' RP'}</em></button>`; }).join('');
+  $('hq-grid').innerHTML = HQMODS.map(m => {
+    const L = hqLevel(m.id), ord = ORDERS.some(o => o.mod === m.id && L >= o.lvl), nxBP = L >= 3 && L < HQ_MAXL && !save.items[m.bp];
+    return `<button class="hqtile ${hqSel === m.id ? 'sel' : ''} ${L ? 'built' : ''}" data-m="${m.id}" style="--c:${m.c}"><b>${m.n}</b><span class="pips">${pips(L, HQ_MAXL)}</span><small>${L ? hqEffectText(m, L).split(',')[0] : 'not built'}</small>${ord ? '<u class="ordled" title="Unlocks an order"></u>' : ''}${nxBP ? '<u class="bpled" title="Needs a blueprint"></u>' : ''}</button>`;
   }).join('');
-  $('hq-orders').innerHTML = '<b>ORDERS</b> <small>called down inside a county (buttons in the side panel). They need HQ online and cool down in real time.</small>' + ORDERS.map(o => { const L = hqLevel(o.mod), un = L >= o.lvl; return `<div class="ordrow ${un ? 'on' : ''}"><b>${o.n}</b><span>${un ? 'READY TO USE' : HQMODS.find(m => m.id === o.mod).n + ' level ' + o.lvl}</span><i>${o.d(Math.max(1, L))} Cooldown ${Math.round(Orders.cdMs(o) / 1000)}s.</i></div>`; }).join('');
+  const m = HQMODS.find(x => x.id === hqSel) || HQMODS[0], L = hqLevel(m.id), nx = L + 1, cost = hqCost(nx), hasBP = !!save.items[m.bp];
+  const why = L >= HQ_MAXL ? 'MAXED' : nx >= 4 && !hasBP ? 'needs blueprint: ' + BLUEPRINTS[m.bp] : used + cost.cap > cap ? 'capacity short (needs ' + cost.cap + ')' : Meta.rp < cost.rp ? 'needs ' + cost.rp + ' RP' : '';
+  const ord = ORDERS.filter(o => o.mod === m.id).map(o => `<span class="ordtag ${L >= o.lvl ? 'on' : ''}">${o.n}${L >= o.lvl ? '' : ' (L' + o.lvl + ')'}</span>`).join('');
+  $('hq-info').innerHTML = `<div class="ph" style="color:${m.c}">DEPARTMENT</div><h3 style="color:${m.c}">${m.n}</h3><div class="pips big" style="color:${m.c}">${pips(L, HQ_MAXL)}</div><p>${m.d}</p>
+    <div class="kv"><span>NOW</span><b>${L ? hqEffectText(m, L) : 'not built'}</b>${L < HQ_MAXL ? `<span>NEXT</span><b class="nx">${hqEffectText(m, nx)}</b>` : ''}<span>BLUEPRINT</span><b class="${hasBP ? 'pos' : ''}">${hasBP ? BLUEPRINTS[m.bp] : 'not found (needed for levels 4-5)'}</b></div>${ord ? `<div class="ordline">${ord}</div>` : ''}
+    <div class="hqbtns"><button data-up="${m.id}" class="${why ? '' : 'primary'}" ${why ? 'disabled' : ''}>${L >= HQ_MAXL ? 'MAXED' : (L ? 'UPGRADE' : 'BUILD') + ' - ' + cost.rp + ' RP, ' + cost.cap + ' CAP'}</button><button data-down="${m.id}" ${L ? '' : 'disabled'} title="Refund the capacity and half the research">DOWNGRADE</button></div>${why && L < HQ_MAXL ? `<small class="hqwhy">${why}</small>` : ''}`;
+  $('hq-orders').innerHTML = '<div class="ph">ORDERS</div><div class="hqhint">Called down inside a county. They need HQ online and cool down in real time.</div>' + ORDERS.map(o => { const lv = hqLevel(o.mod), un = lv >= o.lvl; return `<div class="ordrow ${un ? 'on' : ''}"><b>${o.n}</b><span>${un ? 'READY' : HQMODS.find(q => q.id === o.mod).n + ' L' + o.lvl}</span><i>${o.d(Math.max(1, lv))} Cooldown ${Math.round(Orders.cdMs(o) / 1000)}s.</i></div>`; }).join('');
   const have = Object.keys(BLUEPRINTS).filter(id => save.items[id]);
-  $('hq-bp').innerHTML = '<b>BLUEPRINTS</b> ' + Object.keys(BLUEPRINTS).map(id => `<span class="bp ${save.items[id] ? 'got' : ''}">${save.items[id] ? BLUEPRINTS[id] : '? ? ?'}</span>`).join('') + `<small>${have.length}/${Object.keys(BLUEPRINTS).length} found. Look for glowing supply caches in every county and for Dimmer camps, which guard good loot.</small>`;
+  $('hq-bp').innerHTML = '<div class="ph">BLUEPRINTS <span class="r">' + have.length + '/' + Object.keys(BLUEPRINTS).length + '</span></div><div class="bpwrap">' + Object.keys(BLUEPRINTS).map(id => `<span class="bp ${save.items[id] ? 'got' : ''}">${save.items[id] ? BLUEPRINTS[id] : '? ? ?'}</span>`).join('') + '</div><div class="hqhint">Found in glowing supply caches and Dimmer camps.</div>';
 }
 function openHQ() { if (!save.hq) { say('Restore your landing county first: it becomes your headquarters.'); return; } renderHQ(); $('hq').style.display = 'flex'; hqLoop(); }
 $('hq-doc').onclick = async e => {
@@ -365,7 +395,7 @@ $('hq-doc').onclick = async e => {
   if (cur) { if (Meta.rp < DOC_SWITCH_RP) { say(`Switching doctrine costs ${DOC_SWITCH_RP} research points.`); return; } if (!await uiConfirm(`Change doctrine from ${DOCTRINES[cur].n} to ${DOCTRINES[id].n} for ${DOC_SWITCH_RP} research points?`, 'CHANGE DOCTRINE?', 'CHANGE', 'KEEP')) return; Meta.rp -= DOC_SWITCH_RP; Meta.dirty = true; Meta.save(); }
   save.hq.doc = id; recalcMods(); writeSave(); beep(440, 0.1, 'square', 0.05); beep(660, 0.14, 'square', 0.05, 0.1); renderHQ(); if (mapActive) updateStats();
 };
-$('hq-grid').onclick = e => {
+$('hq-main').onclick = e => {
   const up = e.target.closest('[data-up]'), down = e.target.closest('[data-down]'), card = e.target.closest('[data-m]');
   if (up) { const m = HQMODS.find(x => x.id === up.dataset.up), L = hqLevel(m.id) + 1, c = hqCost(L); if (L > HQ_MAXL || Meta.rp < c.rp || hqUsed() + c.cap > hqCap() || (L >= 4 && !save.items[m.bp])) return;
     Meta.rp -= c.rp; Meta.dirty = true; Meta.save(); save.hq.mods[m.id] = L; hqSel = m.id; recalcMods(); writeSave(); beep(440, 0.1, 'square', 0.05); beep(660, 0.14, 'square', 0.05, 0.1); Objectives.check(); renderHQ(); if (mapActive) updateStats(); return; }

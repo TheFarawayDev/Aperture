@@ -93,6 +93,7 @@ const TECH = {
   turbines: { br: 'POWER', name: 'GAS TURBINES', cost: 65, req: ['efficiency'], desc: 'Gas turbines: +18 power for 0.5 fuel/s.' },
   // water
   towers: { br: 'WATER', name: 'WATER STORAGE', cost: 25, req: ['workshop'], desc: 'Water towers cover shortages.' },
+  spans: { br: 'GRID', name: 'BRIDGE SPANS', cost: 55, req: ['hv'], desc: 'Lines can cross water, at five times the cost per tile. AUTO ROUTE uses spans too.' },
   mains: { br: 'GRID', name: 'WATER MAINS', cost: 40, req: ['towers'], desc: 'Water mains and PRESSURE STATIONS. Plants feed the main; pressure stations feed local pipes.' },
   pumps2: { br: 'WATER', name: 'DEEP BORES', cost: 45, req: ['towers'], desc: 'Pumps deliver 25% more water.' },
   desal: { br: 'WATER', name: 'DESALINATION', cost: 60, req: ['mains', 'hv'], desc: 'Desalination plants: +12 water from sea or lake.' },
@@ -207,6 +208,7 @@ const TOOLS = [
   { cat: 'LINES', name: 'HV LINE', key: 'k', kind: 'cable', L: 3, cost: '3/tile', color: '#fff1b5', desc: 'Thick high-voltage trunk. Power plants and hydro connect here. A substation steps it down to local power lines.' },
   { cat: 'LINES', name: 'WATER MAIN', key: 'p', kind: 'cable', L: 4, cost: '3/tile', color: '#d8e6e0', desc: 'Thick water trunk. Water plants connect here. A pressure station feeds it into local pipes.' },
   { cat: 'LINES', name: 'FIBER LINE', key: 'z', kind: 'cable', L: 5, cost: '3/tile', color: '#c8f08a', desc: 'Thick fiber trunk. Data centers and the control station connect here. A net exchange feeds local cable.' },
+  { cat: 'LINES', name: 'AUTO ROUTE', key: ';', kind: 'route', cost: 'varies', color: '#ffd27a', desc: 'Click a start (or a machine), then an end: every line type chosen below is laid along the cheapest path around obstacles. The preview shows the cost. ESC or right-click cancels.' },
   { cat: 'LINES', name: 'MULTI LINE', key: '=', kind: 'multi', cost: 'varies', color: '#d8e6e0', desc: 'Lay several line types in one drag. Choose which ones with the buttons below, or use a preset.' },
   { cat: 'POWER', name: 'GENERATOR', key: '4', kind: 'build', type: 'generator', desc: '+8 power. Burns 0.25 fuel/s and 1 scrap/s. Wears out.' },
   { cat: 'POWER', name: 'GAS TURBINE', key: '', kind: 'build', type: 'gasturbine', desc: '+18 power for 0.5 fuel/s and 2 scrap/s upkeep.' },
@@ -285,8 +287,8 @@ const BORDER_FX = {
 };
 const Settings = {
   autopause: true, confirmLeave: true, wide: false, fx: true,
-  ui: 'auto', pix: 'auto', scan: true, parts: 1, fps: 60, motion: true, showFps: false,       // graphics (see display.js)
-  KEYS: ['autopause', 'confirmLeave', 'wide', 'fx', 'ui', 'pix', 'scan', 'parts', 'fps', 'motion', 'showFps'],
+  ui: 'auto', pix: 'auto', scan: true, parts: 1, fps: 60, motion: true, showFps: false, lite: false, autoq: true, hints: true,       // graphics (see display.js)
+  KEYS: ['autopause', 'confirmLeave', 'wide', 'fx', 'ui', 'pix', 'scan', 'parts', 'fps', 'motion', 'showFps', 'lite', 'autoq', 'hints'],
   load() {
     try {
       const o = JSON.parse(localStorage.getItem('wastelandGrid.settings')) || {};

@@ -9,10 +9,12 @@
 // ============================================================
 const UI_SCALES = ['auto', 0.75, 1, 1.25, 1.5, 2];
 const PRESETS = {
-  LOW: { scan: false, parts: 0.4, fps: 30, motion: false, fx: false },
-  MEDIUM: { scan: false, parts: 0.4, fps: 60, motion: true, fx: true },
-  HIGH: { scan: true, parts: 1, fps: 60, motion: true, fx: true },
+  MINIMAL: { scan: false, parts: 0, fps: 20, motion: false, fx: false, lite: true },
+  LOW: { scan: false, parts: 0.4, fps: 30, motion: false, fx: false, lite: true },
+  MEDIUM: { scan: false, parts: 0.4, fps: 60, motion: true, fx: true, lite: false },
+  HIGH: { scan: true, parts: 1, fps: 60, motion: true, fx: true, lite: false },
 };
+const QUALITY_LADDER = ['HIGH', 'MEDIUM', 'LOW', 'MINIMAL'];
 const Display = {
   z: 1, dpr: 1, vw: 1280, vh: 760, next: {},
   auto(cw, ch) {
@@ -29,7 +31,8 @@ const Display = {
     root.style.setProperty('--z', z); root.style.setProperty('--evw', (this.vw / 100) + 'px'); root.style.setProperty('--evh', (this.vh / 100) + 'px');
     root.classList.toggle('w1100', this.vw <= 1100); root.classList.toggle('w1000', this.vw <= 1000);
     root.classList.toggle('w700', this.vw <= 700); root.classList.toggle('short', this.vh <= 620);
-    document.body.classList.toggle('noscan', !Settings.scan); document.body.classList.toggle('nomotion', !Settings.motion);
+    document.body.classList.toggle('noscan', !Settings.scan); document.body.classList.toggle('nomotion', !Settings.motion); document.body.classList.toggle('lite', !!Settings.lite);
+    root.classList.toggle('touch', !!(window.matchMedia && matchMedia('(pointer:coarse)').matches));
     const fb = $('fpsbox'); if (fb) fb.style.display = Settings.showFps ? 'block' : 'none';
   },
   // size (in CSS px, before UI zoom) for a canvas of w x h that must fit in availW x availH
@@ -48,6 +51,15 @@ const Display = {
   },
   preset() { for (const k in PRESETS) if (Object.keys(PRESETS[k]).every(p => Settings[p] === PRESETS[k][p])) return k; return 'CUSTOM'; },
   setPreset(k) { Object.assign(Settings, PRESETS[k]); },
+  // automatic quality: if the game cannot keep up for a few seconds, drop to the next lighter preset (and say so)
+  degrade() {
+    let i = QUALITY_LADDER.indexOf(this.preset()); if (i < 0) i = Settings.lite ? 2 : 0; if (i >= QUALITY_LADDER.length - 1) return false;
+    const k = QUALITY_LADDER[i + 1]; this.setPreset(k); Settings.save(); this.apply(); if (typeof fit === 'function') fit();
+    const msg = `The game was struggling to keep up, so graphics were lowered to ${k}. You can change this in Settings (O) > Graphics.`;
+    try { if (typeof mapActive !== 'undefined' && mapActive && typeof mapToast === 'function') mapToast(msg); else if (typeof toast === 'function') toast(msg); } catch (e) { /* ignore */ }
+    if ($('settings') && $('settings').style.display === 'flex') renderGfx();
+    return true;
+  },
   toggleFull() {
     try { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen().catch(() => { }); } catch (e) { /* not supported */ }
   },
@@ -69,9 +81,9 @@ function renderGfx() {
   seg('g-ui', UI_SCALES, Settings.ui, 'ui', o => o === 'auto' ? 'AUTO' : Math.round(o * 100) + '%');
   seg('g-pix', ['auto', 'crisp', 'fill'], Settings.pix, 'pix', o => o.toUpperCase());
   seg('g-parts', [1, 0.4, 0], Settings.parts, 'parts', o => o === 1 ? 'FULL' : o === 0 ? 'OFF' : 'LESS');
-  seg('g-fps', [30, 60, 0], Settings.fps, 'fps', o => o ? o + ' FPS' : 'NONE');
+  seg('g-fps', [20, 30, 60, 0], Settings.fps, 'fps', o => o ? o + ' FPS' : 'NONE');
   const set = (id, v) => { $(id).checked = v; };
-  set('set-scan', Settings.scan); set('set-motion', Settings.motion); set('set-showfps', Settings.showFps); set('set-fx', Settings.fx);
+  set('set-scan', Settings.scan); set('set-lite', Settings.lite); set('set-autoq', Settings.autoq); set('set-motion', Settings.motion); set('set-showfps', Settings.showFps); set('set-fx', Settings.fx);
   const full = !!document.fullscreenElement;
   $('g-full').textContent = full ? 'EXIT FULLSCREEN' : 'FULLSCREEN';
   $('g-info').textContent = `Screen ${innerWidth}x${innerHeight} (x${Display.dpr.toFixed(2).replace(/\.?0+$/, '')} pixel ratio). Interface zoom ${Math.round(Display.z * 100)}%${Settings.ui === 'auto' ? ' (auto)' : ''}.`;
@@ -80,13 +92,34 @@ function commitGfx() { Settings.save(); Display.apply(); fit(); renderGfx(); }
 const _rsGfx = renderSettings; renderSettings = function () { _rsGfx(); renderGfx(); };
 $('set-scan').onchange = e => { Settings.scan = e.target.checked; commitGfx(); };
 $('set-motion').onchange = e => { Settings.motion = e.target.checked; commitGfx(); };
+$('set-lite').onchange = e => { Settings.lite = e.target.checked; commitGfx(); };
+$('set-autoq').onchange = e => { Settings.autoq = e.target.checked; commitGfx(); };
 $('set-showfps').onchange = e => { Settings.showFps = e.target.checked; commitGfx(); };
 const _fxChange = $('set-fx').onchange; $('set-fx').onchange = e => { _fxChange(e); renderGfx(); };
 $('g-full').onclick = () => Display.toggleFull();
 $('g-reset').onclick = () => { Object.assign(Settings, { ui: 'auto', pix: 'auto' }, PRESETS.HIGH); commitGfx(); };
 document.addEventListener('fullscreenchange', () => { fit(); if ($('settings').style.display === 'flex') renderGfx(); });
 // first run on a small screen: start on a light preset (the player can change it)
-try { if (localStorage.getItem('wastelandGrid.gfxInit') == null) { localStorage.setItem('wastelandGrid.gfxInit', '1'); if (Math.min(screen.width, screen.height) < 600 || (navigator.hardwareConcurrency || 8) <= 2) { Display.setPreset('MEDIUM'); Settings.save(); Display.apply(); } } } catch (e) { /* ignore */ }
+try { if (localStorage.getItem('wastelandGrid.gfxInit') == null) { localStorage.setItem('wastelandGrid.gfxInit', '1'); if (Math.min(screen.width, screen.height) < 600 || (navigator.hardwareConcurrency || 8) <= 2 || (navigator.deviceMemory || 8) <= 2) { Display.setPreset('LOW'); Settings.save(); Display.apply(); } } } catch (e) { /* ignore */ }
+
+// ---------- automatic quality: watch how long frames really take (browser paint included) ----------
+(function perfWatch() {
+  let last = 0, sum = 0, n = 0, slow = 0, warm = 0;
+  const f = now => {
+    requestAnimationFrame(f);
+    const live = typeof Scenes !== 'undefined' && (Scenes.is('map') || Scenes.is('game') || Scenes.is('menu')) && !document.hidden;
+    if (!Settings.autoq || !live) { last = 0; sum = n = 0; return; }
+    if (!last) { last = now; return; }
+    const dt = now - last; last = now; if (dt > 400) { sum = n = 0; warm = 0; return; }     // a pause, tab switch or loading hitch: not a measurement
+    if (++warm < 90) return;                                                                 // ignore the first moments after a scene change
+    sum += dt; n++;
+    if (n >= 150) {
+      const avg = sum / n, target = Settings.fps ? Math.max(1000 / Settings.fps, 1000 / 60) : 1000 / 60; sum = n = 0;
+      if (avg > target * 1.5 + 6) { if (++slow >= 2) { slow = 0; warm = 0; Display.degrade(); } } else slow = Math.max(0, slow - 1);
+    }
+  };
+  requestAnimationFrame(f);
+})();
 
 // ---------- FPS counter ----------
 (function fpsLoop() {
@@ -164,4 +197,33 @@ try { if (localStorage.getItem('wastelandGrid.gfxInit') == null) { localStorage.
   // ----- minimap -----
   const mmt = e => { e.preventDefault(); if (Builder.active && e.touches[0]) mmGo(e.touches[0]); };
   mm.addEventListener('touchstart', mmt, { passive: false }); mm.addEventListener('touchmove', mmt, { passive: false });
+})();
+
+// ---------- the minimap lives on the play area: small / big / hidden ----------
+(function miniBox() {
+  const box = $('minibox'); if (!box) return;
+  let st = 'small'; try { st = localStorage.getItem('wastelandGrid.mini') || 'small'; } catch (e) { /* ignore */ }
+  const apply = () => { box.classList.toggle('big', st === 'big'); box.classList.toggle('hid', st === 'hid'); $('mm-hide').textContent = st === 'hid' ? '+' : '-'; $('mm-size').style.display = st === 'hid' ? 'none' : ''; try { localStorage.setItem('wastelandGrid.mini', st); } catch (e) { /* ignore */ } };
+  $('mm-size').onclick = () => { st = st === 'big' ? 'small' : 'big'; apply(); };
+  $('mm-hide').onclick = () => { st = st === 'hid' ? 'small' : 'hid'; apply(); };
+  ['mousedown', 'touchstart'].forEach(ev => box.addEventListener(ev, e => e.stopPropagation()));
+  apply();
+})();
+
+// ---------- no-scroll sidebar: it is exactly as tall as the stage; the map panel is tabbed ----------
+function syncSide() {
+  const side = $('side'), st = $('stage'); if (!side || !st) return;
+  const stacked = Display.vw <= 1000; if (stacked) { side.style.height = ''; return; }
+  const h = st.getBoundingClientRect().height / (Display.z || 1); if (h > 100) side.style.height = Math.round(h) + 'px';
+}
+(function sideWatch() {
+  const st = $('stage'); if (st && window.ResizeObserver) new ResizeObserver(() => syncSide()).observe(st);
+  addEventListener('load', syncSide);
+  document.querySelectorAll('#maptabs button').forEach(b => { b.onclick = () => { document.querySelectorAll('#maptabs button').forEach(x => x.classList.toggle('on', x === b)); document.querySelectorAll('#mapbody > .mt').forEach(p => p.classList.toggle('on', p.id === b.dataset.mt)); }; });
+})();
+
+(function chromeWatch() {                                           // if the header or the news bar change height, refit the picture so nothing scrolls
+  if (!window.ResizeObserver) return; let t = 0;
+  const go = () => { clearTimeout(t); t = setTimeout(() => { if (typeof Scenes !== 'undefined' && Scenes.cur === 'game') fit(); }, 80); };
+  ['topbar', 'under'].forEach(id => { const e = $(id); if (e) new ResizeObserver(go).observe(e); });
 })();

@@ -14,11 +14,13 @@
 const US = buildUS();
 const SAVE_KEY = 'wastelandGrid.v5';
 const MVW = MAPW * MC, MVH = MAPH * MC;                 // size of the map view in pixels
-const freshSave = () => ({ v: 5, diff: 1, borders: {}, links: {}, fac: {}, exportPct: {}, news: [], unionTier: 0, nextLinkEv: 0, start: -1, restored: {}, partial: {}, support: {}, stars: {}, prog: {}, outage: {}, story: {}, log: [], bonus: {}, briefed: {}, nextOutage: 0, dark: {}, surplus: {}, stationOn: {}, nextDark: 0, pending: {} });
+const freshSave = () => ({ v: 5, diff: 1, borders: {}, links: {}, fac: {}, exportPct: {}, news: [], cr: 40, unionTier: 0, nextLinkEv: 0, start: -1, restored: {}, partial: {}, support: {}, stars: {}, prog: {}, outage: {}, story: {}, log: [], bonus: {}, briefed: {}, nextOutage: 0, dark: {}, surplus: {}, stationOn: {}, nextDark: 0, pending: {} });
 let save = freshSave();
 
 function loadSave() { try { const s = JSON.parse(localStorage.getItem(SAVE_KEY)); if (s && s.v === 5) { save = Object.assign(freshSave(), s); return true; } } catch (e) { /* no save */ } return false; }
-function writeSave() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch (e) { if (!writeSave.warned) { writeSave.warned = true; try { say('SAVE FAILED: browser storage is full or blocked. Use Settings > EXPORT SAVE to keep your campaign.', true); } catch (x) { /* ignore */ } } } }
+const WC = { t: 0, v: {} };                                             // tiny cache for whole-map questions that the map frame asks hundreds of times a second
+function wc(key, fn) { const n = Date.now(); if (n - WC.t > 1500) { WC.t = n; WC.v = {}; } return key in WC.v ? WC.v[key] : (WC.v[key] = fn()); }
+function writeSave() { WC.t = 0; try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch (e) { if (!writeSave.warned) { writeSave.warned = true; try { say('SAVE FAILED: browser storage is full or blocked. Use Settings > EXPORT SAVE to keep your campaign.', true); } catch (x) { /* ignore */ } } } }
 function hasSave() { try { const s = JSON.parse(localStorage.getItem(SAVE_KEY)); return !!(s && s.v === 5 && s.start >= 0); } catch (e) { return false; } }
 function newCampaign() {
   try { Object.keys(localStorage).filter(k => k.startsWith('wastelandGrid.c')).forEach(k => localStorage.removeItem(k)); } catch (e) { /* ignore */ }
@@ -41,10 +43,10 @@ const FONT = {
 const isRestored = c => !!save.restored[c.id];
 const litNb = c => c.nb.some(n => { const o = US.counties[n]; return (save.restored[o.id] || save.partial[o.id]) && crossOK(c.country, o.country); });
 const isLit = c => !!(save.restored[c.id] || save.partial[c.id]);
-const usDone = () => US.counties.filter(c => c.country === 'US').every(isRestored);
+const usDone = () => wc('us', () => US.counties.filter(c => c.country === 'US').every(isRestored));
 // a continent is "completed" when every one of its counties is restored (NA = US, Canada, Alaska, Mexico, Central America, the Caribbean and Greenland)
 const CONTINENT_CODES = { NA: ['US', 'CA', 'AK', 'MX', 'CM', 'CB', 'GL'], SA: ['SA'], EU: ['EU'] };
-const continentDone = code => US.counties.filter(c => CONTINENT_CODES[code].includes(c.country)).every(isRestored);
+const continentDone = code => wc('cn' + code, () => US.counties.filter(c => CONTINENT_CODES[code].includes(c.country)).every(isRestored));
 function statusOf(c) {
   if (save.outage[c.id]) return 'outage';
   if (isRestored(c)) return 'restored';
@@ -57,14 +59,19 @@ function statusOf(c) {
   return litNb(c) ? 'frontier' : 'dead';
 }
 const stateDone = si => US.states[si].counties.every(id => save.restored[id]);
+let hopsMemo = { s: -2, d: null };
 function hopsFromStart(id) {
-  const dist = { [save.start]: 0 }, q = [save.start];
-  while (q.length) { const a = q.shift(); for (const b of US.counties[a].nb) if (dist[b] === undefined) { dist[b] = dist[a] + 1; q.push(b); } }
-  return dist[id] ?? 0;
+  if (save.start < 0) return 0;
+  if (hopsMemo.s !== save.start) {                                 // the map never changes, so one search per landing site is enough
+    const dist = { [save.start]: 0 }, q = [save.start];
+    for (let h = 0; h < q.length; h++) { const a = q[h]; for (const b of US.counties[a].nb) if (dist[b] === undefined) { dist[b] = dist[a] + 1; q.push(b); } }
+    hopsMemo = { s: save.start, d: dist };
+  }
+  return hopsMemo.d[id] ?? 0;
 }
 const totalSupport = () => Object.values(save.support).reduce((a, b) => a + b, 0);
 const litNbAny = c => c.nb.some(n => isLit(US.counties[n]));
-const stars = n => '★'.repeat(n) + '<i>' + '★'.repeat(3 - n) + '</i>';
+const stars = n => starsHtml(n);
 
 // --- baking the static map layer ---
 const baseCv = document.createElement('canvas'); baseCv.width = MVW; baseCv.height = MVH;
@@ -218,9 +225,8 @@ function updateStats() {
     + `<div class="prow"><span>DIMMER-HELD</span><span></span><span class="${darkCount() ? 'neg' : ''}">${darkCount()}</span></div>`
     + `<div class="prow"><span>STATIONS</span><span></span><span style="color:var(--bone)">${Object.keys(save.stationOn).length} linked</span></div>`
     + `<div class="prow"><span>OUTAGES</span><span></span><span class="${Object.keys(save.outage).length ? 'neg' : ''}">${Object.keys(save.outage).length}</span></div>`;
-  $('chapter').textContent = chapterName();
   Contracts.render(); Objectives.check(); Objectives.render();
-  const un = unity(); $('mapstats').textContent = D().name + '   UNITY ' + Math.round(un.pct) + '% ' + TIERS[un.tier].n + '   ' + Math.floor(Meta.rp) + ' RP   ' + (save.sp || 0) + ' SP';
+  const un = unity(); $('mapstats').textContent = D().name + '   UNITY ' + Math.round(un.pct) + '% ' + TIERS[un.tier].n + '   ' + Math.floor(Meta.rp) + ' RP   ' + (save.sp || 0) + ' SP   ' + Credits.have() + ' CR';
   const sb = $('btn-skills'); if (sb) sb.classList.toggle('glow', (save.sp || 0) > 0); const hb = $('btn-hq'); if (hb) hb.style.display = save.hq ? '' : 'none';
 }
 
@@ -250,12 +256,13 @@ function leaveCounty(c, r) {
   Builder.stop(); Scenes.show('map');
   const wasLit = isLit(c), wasFull = isRestored(c), hadUS = usDone(), stateWas = stateDone(c.state), hadNA = continentDone('NA'), hadSA = continentDone('SA');
   save.prog[c.id] = { r: r.restored, t: r.total };
+  const starsWas = save.stars[c.id] || 0, goalsWas = (save.goals || {})[c.id] || 0;
   let msg = 'Back on the map.';
   if (save.dark[c.id] && (r.full || r.partial)) { delete save.dark[c.id]; fac('dimmers').t = Math.max(0, fac('dimmers').t - 6); msg = `${c.name} COUNTY LIBERATED! The Dimmers fall back.` + liberateWarlord(c.id); Story.event('liberated'); }
   if (r.full) {
     save.restored[c.id] = 1; delete save.partial[c.id]; if (!wasFull) save.support[c.id] = Math.max(save.support[c.id] || 0, 20);
     const gain = r.stars - (save.stars[c.id] || 0);
-    if (gain > 0) { save.stars[c.id] = r.stars; Meta.rp += gain * 10; Meta.save(); msg = `${c.name} COUNTY: ${'★'.repeat(r.stars)} +${gain * 10} research points.`; }
+    if (gain > 0) { save.stars[c.id] = r.stars; Meta.rp += gain * 10; Meta.save(); msg = `${c.name} COUNTY: ${r.stars}/3 stars, +${gain * 10} research points.`; }
     else if (!wasFull) msg = `${c.name} COUNTY IS BACK ONLINE. Its network now reaches the neighbours.`;
     if (stateDone(c.state) && !stateWas) msg = `${US.states[c.state].name} IS FULLY CONNECTED! The light spreads.`;
     if (!hadUS && usDone()) msg = 'THE UNITED STATES IS CONNECTED! Calls for help are coming in from Canada, Mexico, Alaska, Central America, the islands, Greenland and South America - their counties are now open.';
@@ -268,6 +275,7 @@ function leaveCounty(c, r) {
     else if (!hadSA && continentDone('SA')) { msg = 'SOUTH AMERICA IS CONNECTED! A signal is calling across the Atlantic: Europe asks for help. Its counties open through Iceland.'; Story.event('continent-sa'); }
   }
   if (US.counties.every(isRestored)) msg = 'EVERY COUNTY IS CONNECTED. THE WORLD HAS A GRID AGAIN.';
+  { const earn = (r.full && !wasFull ? 20 + 4 * Math.min(30, hopsFromStart(c.id)) : r.partial && !wasLit ? 8 : 0) + Math.max(0, (r.full ? r.stars : 0) - starsWas) * 12 + Math.max(0, r.goals - goalsWas) * 8; const got = earn ? Credits.add(earn) : 0; if (got) msg += ` +${got} credits.`; }
   save.goals = save.goals || {}; if (r.goals > (save.goals[c.id] || 0)) save.goals[c.id] = r.goals;
   HQ.check(); checkAwards(); Objectives.check(); graceTimers(60000); refreshLinks(); recalcMods(); checkTier(); writeSave(); bakeMap(); selected = c.id; updatePanel(); updateStats();
   if (isLit(c) && !wasLit) { cam.z = 8; cam.cx = c.px; cam.cy = c.py; zoomTo(HOME.z, HOME.cx, HOME.cy, 2200); [392, 523, 659].forEach((f, k) => beep(f, 0.2, 'square', 0.04, k * 0.12)); }
@@ -333,8 +341,8 @@ setInterval(() => {
 
 // --- log ---
 function openLog() {
-  const items = [...save.log].reverse();
-  $('logbody').innerHTML = items.length ? items.map(e => `<div class="entry" style="--c:${(WHO[e.who] || WHO.NARRATOR).color}"><b>${e.title || (WHO[e.who] || {}).name || e.who}</b><p>${e.text}</p></div>`).join('') : '<p>Nothing yet. Messages from the wasteland are saved here.</p>';
+  const items = [...(save.news || [])].reverse(), ago = t => { const m = Math.floor((Date.now() - t) / 60000); return m < 1 ? 'just now' : m < 60 ? m + ' min ago' : Math.floor(m / 60) + ' h ago'; };
+  $('logbody').innerHTML = items.length ? items.map(e => `<div class="entry" style="--c:#e6dd9a"><b>${ago(e.t)}</b><p>${e.text}</p></div>`).join('') : '<p>Nothing yet. Events are listed here.</p>';
   $('log').style.display = 'flex';
 }
 $('btn-log').onclick = openLog; $('log-close').onclick = () => { $('log').style.display = 'none'; };

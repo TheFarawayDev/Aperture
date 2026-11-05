@@ -19,7 +19,7 @@ function opsInit(opts) {
 // ---------- multi-line: lay several line types in one drag ----------
 function renderMulti() {
   const box = $('multi'); if (!box) return;
-  if (!tool || tool.kind !== 'multi') { box.style.display = 'none'; return; }
+  if (!tool || (tool.kind !== 'multi' && tool.kind !== 'route')) { box.style.display = 'none'; return; }
   box.style.display = 'block';
   const unl = L => lineUnlocked(L);
   const chip = L => `<button class="mchip ${multiLayers.includes(L) && unl(L) ? 'on' : ''} ${unl(L) ? '' : 'locked'}" data-l="${L}" style="--c:${LAYERS[L].css}" title="${LAYERS[L].name}">${LAYERS[L].short}</button>`;
@@ -139,11 +139,12 @@ function startRaid(kind, left) {
   sx = Math.max(1, Math.min(WW - 2, sx)); sy = Math.max(1, Math.min(WH - 2, sy));
   raid = { x: tx, y: ty, left, tot: left, kind, label: info.label, sx, sy };
   seqNotice(info.msg(e.district ? e.district.name : BUILD[e.type].name).replace('{t}', left) + ' Security posts drive them off.');
+  Hints.once('raid', 'Raiders are coming. SECURITY POSTS repel them (and you keep the spoils). If a Dimmer camp is in this county, click it to assault it.');
 }
 function resolveRaid() {
   const r = raid; raid = null;
   if (covered(r.x, r.y)) {
-    Variety.count('repel'); burst(r.x, r.y, 'repel'); const sc = Math.round((18 + Math.random() * 34) * (TM().lootVal || 1)); scrap += sc; let extra = '';
+    Variety.count('repel'); Credits.add(2); burst(r.x, r.y, 'repel'); const sc = Math.round((18 + Math.random() * 34) * (TM().lootVal || 1)); scrap += sc; let extra = '';
     if (Math.random() < 0.3) { const p = 1 + (Math.random() * 3 | 0); stock.parts += p; extra = ` and ${p} parts`; }
     if (r.kind === 'warband') raidQueue = 0;
     toast(`RAID REPELLED. The ${r.label.toLowerCase()} melted back into the dark, leaving ${sc} scrap${extra}.`); beep(660, 0.1); beep(880, 0.15, 'square', 0.04, 0.08); storyEv('repel'); return;
@@ -207,7 +208,7 @@ const Camp = {
     else if (Math.random() < 0.12) { const miss = Object.keys(BLUEPRINTS).filter(id => !save.items[id]); if (miss.length) { const id = miss[Math.random() * miss.length | 0]; save.items[id] = 1; extra = ` and a BLUEPRINT: ${BLUEPRINTS[id]}`; } }
     this.dead = true; raid = null; raidQueue = 0; raidT = Math.max(raidT, 240); bump('camps'); CUR.camps = (CUR.camps || 0) + 1;
     burst(this.c.x + 1, this.c.y + 1, 'boom'); burst(this.c.x + 1, this.c.y + 1, 'repel'); beep(220, 0.3, 'sawtooth', 0.06); beep(660, 0.2, 'square', 0.05, 0.2); beep(990, 0.2, 'square', 0.05, 0.4);
-    toast(`DIMMER CAMP DESTROYED! Loot: ${sc} scrap, ${rp} research, ${p} parts${extra}. Raids will come far less often now.`); news('Destroyed a Dimmer camp.'); writeSave(); Objectives.check(); dirty.mini = true;
+    Credits.add(35 + 10 * this.c.str); toast(`DIMMER CAMP DESTROYED! Loot: ${sc} scrap, ${rp} research, ${p} parts${extra}. Raids will come far less often now.`); news('Destroyed a Dimmer camp.'); writeSave(); Objectives.check(); dirty.mini = true;
   },
   lose(cost) {
     scrap -= cost.scrap; stock.parts -= cost.parts; raidT = Math.min(raidT, 20); burst(this.c.x + 1, this.c.y + 1, 'boom'); beep(110, 0.4, 'sawtooth', 0.06);
@@ -246,7 +247,7 @@ function opsTick() {
   const over = anyRest && tp.dem > tp.sup * 1.05 + 0.5;
   strain = over ? strain + 1 : Math.max(0, strain - 2);
   let ov = seqs.find(q => q.kind === 'overload');
-  if (!ov && strain >= 10 && eventsOn) { ov = { kind: 'overload', stage: 1, left: 12 }; seqs.push(ov); seqNotice('GRID STRAIN: demand is above supply. Protection trips in 12s - add power or switch off load!'); }
+  if (!ov && strain >= 10 && eventsOn) { ov = { kind: 'overload', stage: 1, left: 12 }; seqs.push(ov); Hints.once('strain', 'GRID STRAIN: if demand stays above supply the protection trips and a cascade follows. Add power, switch off load, or build batteries.'); seqNotice('GRID STRAIN: demand is above supply. Protection trips in 12s - add power or switch off load!'); }
   if (ov) {
     if (!over && strain === 0) { seqs.splice(seqs.indexOf(ov), 1); toast('GRID STABLE again. Crisis averted.'); beep(660, 0.1); }
     else {
@@ -289,10 +290,10 @@ function opsHud() {
   const el = $('seq'); if (el) {
     let txt = '', cls = '';
     const q = seqs.find(s => s.kind === 'overload'), m = seqs.find(s => s.kind === 'melt');
-    if (raid) { txt = '⚠ DIMMER ' + (raid.label || 'RAIDERS') + ' - STRIKE IN ' + raid.left + 's'; cls = 'red'; }
-    else if (q) { txt = q.stage === 1 ? '⚠ GRID STRAIN - TRIP IN ' + q.left + 's' : q.stage === 2 ? '⚠ PROTECTION TRIP - CASCADE IN ' + q.left + 's' : '⚠ CASCADE FAILURE'; cls = q.stage > 1 ? 'red' : 'amber'; }
-    else if (m) { txt = '⚠ ' + BUILD[m.e.type].name + ' CRITICAL - ' + m.left + 's'; cls = 'red'; }
-    el.textContent = txt; el.className = txt ? 'on ' + cls : '';
+    if (raid) { txt = 'DIMMER ' + (raid.label || 'RAIDERS') + ' - STRIKE IN ' + raid.left + 's'; cls = 'red'; }
+    else if (q) { txt = q.stage === 1 ? 'GRID STRAIN - TRIP IN ' + q.left + 's' : q.stage === 2 ? 'PROTECTION TRIP - CASCADE IN ' + q.left + 's' : 'CASCADE FAILURE'; cls = q.stage > 1 ? 'red' : 'amber'; }
+    else if (m) { txt = '' + BUILD[m.e.type].name + ' CRITICAL - ' + m.left + 's'; cls = 'red'; }
+    el.innerHTML = txt ? pxi('warn') + ' ' + txt : ''; el.className = txt ? 'on ' + cls : '';
   }
   const gi = $('gridinfo'); if (gi) {
     const nInt = ents.filter(e => BUILD[e.type].importer && e.cond > 0).length, on = stationEnt && stationEnt.run;

@@ -245,18 +245,18 @@ function biomeSA(lat, lon) {
   if (lat < 2 && lat > -50 && Math.abs(lon - ax) < 3.2) return 'mountain';
   if (lat < -17 && lat > -29 && lon < -68) return 'desert';                         // Atacama
   if (lat < -48) return 'tundra';
-  if (lat < -38) return lon < -71 ? 'forest' : 'plains';                            // Patagonia
+  if (lat < -38) return lon < -71 ? 'forest' : 'steppe';                            // Patagonia
   if (lat < -28 && lon > -70) return 'plains';                                      // the pampas
   if (lat > 3.5 && lat < 8 && lon < -63 && lon > -73) return 'plains';              // the llanos
   if (lat < -5 && lat > -15 && lon > -45 && lon < -37) return 'desert';             // the sertao
-  if (lat > -10 && lat < 4 && lon > -73 && lon < -50) return 'swamp';               // Amazon basin
-  if (lat < -10 && lat > -22 && lon > -62 && lon < -45) return 'plains';            // cerrado
-  if (lat < -20 && lat > -28 && lon > -63 && lon < -57) return 'plains';            // chaco
-  return 'forest';
+  if (lat > -10 && lat < 4 && lon > -73 && lon < -50) return (lat > -3 && lat < 1 && lon > -62 && lon < -50) ? 'swamp' : 'jungle';   // Amazon basin (flooded forest near the mouth)
+  if (lat < -10 && lat > -22 && lon > -62 && lon < -45) return 'steppe';            // cerrado
+  if (lat < -20 && lat > -28 && lon > -63 && lon < -57) return 'steppe';            // chaco
+  return lat > -8 ? 'jungle' : 'forest';
 }
 function biomeEU(lat, lon) {
   if (lon < -12 || lat > 66.5) return 'tundra';                                     // Iceland, the far north
-  if (lat > 61 && lon > 28) return lat > 64 ? 'tundra' : 'forest';
+  if (lat > 61 && lon > 28) return lat > 64 ? 'tundra' : 'taiga';
   if (lat > 56 && lat < 66 && lon > 4 && lon < 14) return 'mountain';               // the Scandes
   if (lat > 56.5 && lon < -2 && lon > -8) return 'mountain';                        // the Highlands
   if (lat > 45.2 && lat < 48 && lon > 5.5 && lon < 15) return 'mountain';           // Alps
@@ -265,39 +265,40 @@ function biomeEU(lat, lon) {
   if (lat > 40 && lat < 46 && lon > 14 && lon < 22) return 'mountain';              // Dinaric / Balkan ranges
   if (lat > 37 && lat < 41.5 && lon > 20 && lon < 24) return 'mountain';            // Pindus
   if (lat > 38 && lat < 45 && lon > 10 && lon < 16.5) return 'mountain';            // Apennines
-  if (lat > 35 && lat < 39 && lon > -7 && lon < 0.5) return 'desert';               // Andalusia / Murcia
-  if (lat > 39 && lat < 41.5 && lon > -5.5 && lon < -1) return 'desert';            // the Meseta
+  if (lat > 35 && lat < 39 && lon > -7 && lon < 0.5) return 'badlands';             // Andalusia / Murcia
+  if (lat > 39 && lat < 41.5 && lon > -5.5 && lon < -1) return 'steppe';            // the Meseta
   if (lat < 38 && lon > 12) return 'desert';                                        // Sicily, Crete
   if (lat < 41 && lon > 8 && lon < 10) return 'plains';                             // Sardinia
   if (lat > 51.5 && lat < 53.5 && lon > 23 && lon < 31) return 'swamp';             // Pripyat marshes
   if (lat > 50.5 && lat < 54 && lon > 2.5 && lon < 7) return 'swamp';               // Low Countries
-  if (lat > 44 && lat < 52 && lon > 28) return 'plains';                            // steppe
+  if (lat > 44 && lat < 52 && lon > 28) return 'steppe';                            // steppe
   if (lat > 47 && lat < 52 && lon > 22) return 'plains';
   if (lat > 52 && lat < 55 && lon > 12 && lon < 22) return 'plains';
   if (lat > 47 && lon > 17 && lon < 22) return 'plains';
   if (lat > 43 && lat < 47 && lon > 20 && lon < 28) return 'plains';
   if (lat > 48 && lat < 51 && lon > -2 && lon < 5) return 'plains';
   if (lat > 52 && lat < 54 && lon > -9 && lon < -5) return 'plains';                // Ireland
+  if (lat > 56) return 'taiga';
   return 'forest';
 }
 function biomeAt(lat, lon, cn) {
   if (cn === 'SA') return biomeSA(lat, lon);
   if (cn === 'EU') return biomeEU(lat, lon);
   if (cn === 'GL') return lat > 72 ? 'tundra' : 'mountain';
-  if (cn === 'US' && lon < -119.5 && lat < 31) return 'forest';          // Hawaii
-  if (cn === 'CA') { if (lat >= 56) return 'tundra'; if (lat >= 53.5 && lon > -125) return 'tundra'; if (lon < -118) return 'mountain'; if (lon > -112 && lon < -96 && lat < 53) return 'plains'; return 'forest'; }
-  if (cn === 'AK') return lat >= 66 ? 'tundra' : lat < 60 ? 'forest' : lon > -148 ? 'mountain' : 'tundra';
-  if (cn === 'CM' || cn === 'CB') return lat < 10.5 ? 'swamp' : 'forest';
-  if (cn === 'MX') { if (lat < 19.5 && lon > -94.5) return 'swamp'; if (lat < 21.5) return 'forest'; return 'desert'; }
+  if (cn === 'US' && lon < -119.5 && lat < 31) return 'jungle';           // Hawaii
+  if (cn === 'CA') { if (lat >= 56) return 'tundra'; if (lat >= 53.5 && lon > -125) return 'tundra'; if (lon < -118) return 'mountain'; if (lon > -112 && lon < -96 && lat < 53) return 'plains'; return lat > 49 ? 'taiga' : 'forest'; }
+  if (cn === 'AK') return lat >= 66 ? 'tundra' : lat < 60 ? 'taiga' : lon > -148 ? 'mountain' : 'tundra';
+  if (cn === 'CM' || cn === 'CB') return lat < 10.5 ? 'swamp' : 'jungle';
+  if (cn === 'MX') { if (lat < 19.5 && lon > -94.5) return 'swamp'; if (lat < 21.5) return 'jungle'; return lon < -104 && lat > 27 ? 'badlands' : 'desert'; }
   if (lon < -104 && lon > -116.5 && lat > 36.5) return 'mountain';
   if (lon < -118 && lon > -122 && lat > 35.5 && lat < 41) return 'mountain';
   if (lon < -120.5 && lat > 41.5) return 'forest';
-  if (lon < -103 && lat < 37.5) return 'desert';
-  if (lon < -109 && lat < 42.5) return 'desert';
-  if (lon > -103 && lon < -94 && lat > 28) return lat > 46.5 ? 'tundra' : 'plains';
+  if (lon < -103 && lat < 37.5) return (lon > -114 && lon < -104 && lat > 33) ? 'badlands' : 'desert';
+  if (lon < -109 && lat < 42.5) return lon > -115 && lat > 37 ? 'badlands' : 'desert';
+  if (lon > -103 && lon < -94 && lat > 28) return lat > 46.5 || lon < -98 ? 'steppe' : 'plains';
   if (lon > -94 && lat < 31.2) return 'swamp';
   if (lon > -84.5 && lon < -78 && lat > 35 && lat < 41.5) return 'mountain';
-  if (lat > 47) return 'tundra';
+  if (lat > 47) return 'taiga';
   return 'forest';
 }
 
