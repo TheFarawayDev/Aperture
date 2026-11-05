@@ -79,7 +79,7 @@ const SITE_NAME = { power: 'POWER', water: 'WATER', data: 'DATA', station: 'STAT
 // br = branch (colour / column grouping)   req = prerequisites (the tree draws lines to them)
 const BRANCH = {
   POWER: { color: '#f5c95a' }, WATER: { color: '#5fc4d0' }, NET: { color: '#8fbf5a' }, TOWN: { color: '#e08a3c' },
-  OPS: { color: '#e6dd9a' }, GRID: { color: '#b59cf0' }, STATION: { color: '#f08a8a' },
+  OPS: { color: '#e6dd9a' }, GRID: { color: '#b59cf0' }, STATION: { color: '#f08a8a' }, BOOST: { color: '#ff9fb0' },
 };
 const TECH = {
   // power
@@ -135,6 +135,35 @@ const TECH = {
   mUplink: { br: 'STATION', name: 'MODULE: UPLINK', cost: 90, req: ['control', 'intertie'], desc: 'Module: interties carry 50% more.' },
   mForecast: { br: 'STATION', name: 'MODULE: FORECAST', cost: 70, req: ['control', 'mesh'], desc: 'Module: storms are announced ten seconds ahead and hit less often.' },
   mCore: { br: 'STATION', name: 'MODULE: EFFICIENCY CORE', cost: 90, req: ['control', 'efficiency'], desc: 'Module: +10% output from every producer.' },
+  // ----- more power research (passive: each one simply makes things better) -----
+  pv2: { br: 'POWER', name: 'HIGH-GRADE CELLS', cost: 55, req: ['solar', 'storage'], desc: 'Solar arrays make 25% more power.', fx: { solar: 1.25 } },
+  blades: { br: 'POWER', name: 'COMPOSITE BLADES', cost: 50, req: ['wind', 'storage'], desc: 'Wind turbines make 30% more power.', fx: { wind: 1.3 } },
+  recup: { br: 'POWER', name: 'HEAT RECOVERY', cost: 55, req: ['efficiency'], desc: 'Generators and plants burn 12% less fuel.', fx: { fuel: 0.88 } },
+  cogen: { br: 'POWER', name: 'COGENERATION', cost: 75, req: ['turbines', 'recup'], desc: 'Fuel-burning generators, turbines and plants make 10% more power.', fx: { genOut: 1.1 } },
+  synfuel: { br: 'POWER', name: 'SYNTHETIC FUEL', cost: 85, req: ['recup', 'industry'], desc: 'Another 12% less fuel burned.', fx: { fuel: 0.88 } },
+  supercap: { br: 'POWER', name: 'SUPERCAPACITORS', cost: 70, req: ['grid2'], desc: 'Batteries and towers charge and release 30% faster.', fx: { store: 1.3 } },
+  dispatch: { br: 'POWER', name: 'AUTO DISPATCH', cost: 85, req: ['grid2', 'scada'], desc: 'Smart dispatch: +6% output from every fuel-burning source and storage 15% faster.', fx: { genOut: 1.06, store: 1.15 } },
+  runner: { br: 'POWER', name: 'TURBINE OVERHAUL', cost: 70, req: ['hydro'], desc: 'Hydro turbines make 25% more power.', fx: { hydro: 1.25 } },
+  rams: { br: 'WATER', name: 'HYDRAULIC RAMS', cost: 55, req: ['pumps2'], desc: 'Pumps make another 20% water.', fx: { pump: 1.2 } },
+  lowloss: { br: 'POWER', name: 'LOW-LOSS CABLES', cost: 60, req: ['hv'], desc: 'Imports from neighbouring counties are 10% stronger.', fx: { imp: 0.1 } },
+  micro: { br: 'POWER', name: 'MICROGRIDS', cost: 65, req: ['scada', 'solar'], desc: 'Solar and wind +10%, storage 10% faster.', fx: { solar: 1.1, wind: 1.1, store: 1.1 } },
+  fusionlab: { br: 'POWER', name: 'FUSION PRIMER', cost: 140, req: ['cogen', 'supercap', 'pv2'], desc: 'Every power source makes 12% more, and generators burn 10% less fuel.', fx: { genOut: 1.12, solar: 1.12, wind: 1.12, hydro: 1.12, fuel: 0.9 } },
+  // ----- research that simply buffs things -----
+  thrift: { br: 'BOOST', name: 'THRIFT', cost: 25, req: ['workshop'], desc: 'Every county starts with 15% more scrap.', fx: { startScrap: 1.15 } },
+  stockpile: { br: 'BOOST', name: 'STOCKPILES', cost: 30, req: ['workshop'], desc: 'Every county starts with 4 more parts.', fx: { startParts: 4 } },
+  workdetail: { br: 'BOOST', name: 'WORK DETAILS', cost: 45, req: ['housing'], desc: 'Scrap income +8%.', fx: { income: 1.08 } },
+  trade: { br: 'BOOST', name: 'TRADE ROUTES', cost: 60, req: ['market'], desc: 'Scrap income +10%.', fx: { income: 1.1 } },
+  lean: { br: 'BOOST', name: 'LEAN UPKEEP', cost: 60, req: ['logistics'], desc: 'Upkeep costs 10% less.', fx: { upkeep: 0.9 } },
+  prospect: { br: 'BOOST', name: 'PROSPECTING', cost: 50, req: ['recycling'], desc: 'Rubble pays 20% more and supply caches hold 20% more.', fx: { rubble: 1.2, lootVal: 1.2 } },
+  overhaul: { br: 'BOOST', name: 'FACTORY OVERHAUL', cost: 75, req: ['industry'], desc: 'Workshops and industrial hubs make 25% more parts.', fx: { partsOut: 1.25 } },
+  study: { br: 'BOOST', name: 'FIELD STUDIES', cost: 70, req: ['school'], desc: 'Research points +15%.', fx: { rp: 1.15 } },
+  radar: { br: 'BOOST', name: 'WEATHER RADAR', cost: 55, req: ['scada'], desc: 'Storms and faults come 15% less often.', fx: { ev: 1.15 } },
+  bunkers: { br: 'BOOST', name: 'STORM BUNKERS', cost: 65, req: ['hardening'], desc: 'Storms damage 15% fewer lines.', fx: { stormN: 0.85 } },
+  patrols: { br: 'BOOST', name: 'PATROLS', cost: 65, req: ['security'], desc: 'Raiders come 20% less often.', fx: { raid: 1.2 } },
+  diplomacy: { br: 'BOOST', name: 'DIPLOMATIC CORPS', cost: 80, req: ['intertie'], desc: 'Factions trust you 20% faster.', fx: { trust: 1.2 } },
+  selftune: { br: 'BOOST', name: 'SELF-TUNING', cost: 80, req: ['crews'], desc: 'Machines slowly mend themselves.', fx: { autoRepair: 0.03 } },
+  precision: { br: 'BOOST', name: 'PRECISION PARTS', cost: 70, req: ['maint', 'industry'], desc: 'Repairs cost 15% less and machines wear 8% slower.', fx: { repair: 0.85, wear: 0.92 } },
+  mastery: { br: 'BOOST', name: 'GRID MASTERY', cost: 150, req: ['control', 'study', 'trade'], desc: 'Power, water and network output +5%, and income +5%.', fx: { genOut: 1.05, waterOut: 1.05, netOut: 1.05, income: 1.05 } },
 };
 // station modules: slot these into the GRID CONTROL STATION
 const MODULES = {
@@ -229,9 +258,11 @@ const FACTIONS = {
   north: { name: 'NORTHERN LINE', who: 'ELOISE', color: '#f5c95a', region: 'Canada and Alaska', cost: 40, perk: 'Cold-proofing: machines wear 25% slower', mod: { wear: 0.75 } },
   sur: { name: 'LINEA SUR', who: 'DIEGO', color: '#e08a3c', region: 'Mexico', cost: 40, perk: 'Sun contracts: +15% scrap income in every county', mod: { inc: 1.15 } },
   seas: { name: 'LEAGUE OF TWO SEAS', who: 'ISABEL', color: '#5fc4d0', region: 'Central America and the Caribbean', cost: 45, perk: 'Shipping lanes: +15% imports, links recover faster', mod: { imp: 0.15, linkRegen: 0.2 } },
+  andes: { name: 'ANDEAN CONCORD', who: 'INTI', color: '#e07aa8', region: 'South America', cost: 50, perk: 'Mountain crews: links recover faster, machines wear 15% slower', mod: { linkRegen: 0.3, wear: 0.85 } },
+  euro: { name: 'MERIDIAN ACCORD', who: 'ASTRID', color: '#7fa6f0', region: 'Europe', cost: 55, perk: 'Clearing house: +20% imports, +10% scrap income in every county', mod: { imp: 0.2, inc: 1.1 } },
   sila: { name: 'SILA COLLECTIVE', who: 'SILA', color: '#d8e6e0', region: 'Greenland', cost: 50, perk: 'Ice watch: Dimmer raids are 50% rarer', mod: { def: 1.5 } },
 };
-const FAC_IDS = ['compact', 'syndicate', 'north', 'sur', 'seas', 'sila'];
+const FAC_IDS = ['compact', 'syndicate', 'north', 'sur', 'seas', 'sila', 'andes', 'euro'];
 const DIMMER_FAC = { name: 'THE DIMMERS', who: 'WARDEN', color: '#b5502b' };
 
 const TIERS = [

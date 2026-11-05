@@ -21,6 +21,8 @@ const WHO = {
   BRAM: { name: 'BRAM - PRAIRIE SYNDICATE', color: '#b59cf0' },
   SILA: { name: 'SILA - THULE RELAY', color: '#d8e6e0' },
   KEALOHA: { name: 'KEALOHA - PACIFIC RELAY', color: '#8fd6a0' },
+  INTI: { name: 'INTI - ANDEAN CONCORD', color: '#e07aa8' },
+  ASTRID: { name: 'ASTRID - MERIDIAN ACCORD', color: '#7fa6f0' },
 };
 
 // ---------- the script ----------
@@ -95,8 +97,8 @@ const STORY = [
   { id: 'usdone', who: 'NARRATOR', scene: 'map', card: { k: 'CHAPTER 5', t: 'ACROSS THE BORDER' }, when: s => s.usDone, pages: [
     'THE LAST COUNTY OF THE UNITED STATES COMES ONLINE. For the first time in eleven years, one unbroken network spans the nation.',
     'On the radio, new voices: crews in the Canadian prairies and the Mexican deserts, working by hand with half-dead equipment. They have heard about the lights.',
-    'A grid that lights only one country is a grid that will fall again. The borders were never a good place to stop. Canada, Mexico, Alaska, Central America, the islands and Greenland are now open.',
-    'Open the UNION screen (U). There are six factions out there, a few borders to decide on, and a Warden who is willing to talk. A grid is only as strong as its weakest link, so keep your links stable.',
+    'A grid that lights only one country is a grid that will fall again. The borders were never a good place to stop. Canada, Mexico, Alaska, Central America, the islands, Greenland and, beyond the Darien, South America are now open.',
+    'Open the UNION screen (U). There are eight factions out there, a few borders to decide on, and a Warden who is willing to talk. A grid is only as strong as its weakest link, so keep your links stable.',
   ] },
   { id: 'caf', who: 'ELOISE', scene: 'north', when: s => s.nCA >= 1, pages: [
     'Northern Line to Relay One. Eloise here. We run what is left of the prairie grid from a grain elevator outside Regina.',
@@ -156,6 +158,27 @@ const STORY = [
   ] },
   { id: 'gl8', who: 'SILA', scene: 'north', when: s => s.nGL >= 8, pages: ['The ice sheet is the quietest place on earth. When the first fjord town came online, the whole shelf hummed. We thought it was the glacier. It was the grid, breathing.'] },
   { id: 'gld', who: 'SILA', scene: 'north', when: s => s.glDone, pages: ['Every settlement from the south cape to the far north, lit. We have a word for this: sila, the sky and the sense. For the first time in eleven years it is both.'] },
+  // ---- South America and Europe ----
+  { id: 'sa1', who: 'INTI', scene: 'south', when: s => s.nSA >= 1, pages: [
+    'Inti, on the Andean Concord line. We heard your signal come down through the Darien. In the high towns that was news.',
+    'The old grid never reached our valleys properly. Light them one at a time, and we will pass the word along the ridges.',
+  ] },
+  { id: 'sad', who: 'INTI', scene: 'south', when: s => s.saDone, pages: ['Every county from the Caribbean coast down to the Horn is lit. The mountain crews are keeping the oldest pylons standing, as a reminder of what we did without.'] },
+  { id: 'cont-na', who: 'AURORA', scene: 'grid', ev: 'continent-na', pages: [
+    'CONTINENT CONNECTED. Every node from the Arctic shelf to the Darien answers my poll. I have not been able to say that in eleven years.',
+    'There is a signal on the long wave, far out over the Atlantic. Not Dimmers, and not ours. Europe is calling for help.',
+    'The way across is open. Take the Greenland line to Iceland, and go east from there.',
+  ] },
+  { id: 'cont-sa', who: 'MARA', scene: 'radio', ev: 'continent-sa', pages: [
+    'Mara at Haven Ridge. The whole southern continent is on the grid, from the Darien to the Horn. Inti says the Andes are humming.',
+    'And there is something new on the Atlantic frequency: voices in a dozen languages, asking if anybody is there. Europe.',
+    'The road across runs through Greenland and Iceland. Light the east coast of Greenland and it opens.',
+  ] },
+  { id: 'eu1', who: 'ASTRID', scene: 'north', when: s => s.nEU >= 1, pages: [
+    'Astrid, Meridian Accord. We heard Iceland first, then the rest. You crossed the Atlantic one county at a time.',
+    'We kept the old cities and the old plants, but nobody left who remembers how the whole network fit together. You do. Start anywhere.',
+  ] },
+  { id: 'eud', who: 'ASTRID', scene: 'north', when: s => s.euDone, pages: ['From Portugal to the Russian plains, all of it lit. Tonight the border towns are arguing about whose turn it is to repair the wire, not about who owns it.'] },
   // ---- the Union: links, accords, borders ----
   { id: 'un1', who: 'AURORA', scene: 'grid', ev: 'union-1', pages: ['Two stations speaking to each other. Do you know what that is? A conversation.', 'The old grid was a conversation that ran for a century. It ended the day someone stopped listening. Keep your links stable and you will hear it again.'] },
   { id: 'un2', who: 'MARA', scene: 'radio', ev: 'union-2', pages: ['At Haven Ridge there is a rule older than the Cascade: a hill that stands alone gets taken. You are turning hills into a range.', 'People who used to argue about whose wire it was now argue about whose turn it is to fix it. That is called progress.'] },
@@ -170,6 +193,8 @@ const STORY = [
   { id: 'tr-sur', who: 'DIEGO', scene: 'south', ev: 'treaty-sur', pages: ['Linea Sur signs, amigo. We have the sun and you have the wire. Together that is what the old world only ever promised.'] },
   { id: 'tr-seas', who: 'ISABEL', scene: 'south', ev: 'treaty-seas', pages: ['The League of Two Seas puts its name to your compact. Ships from both oceans will carry your spare parts, and nobody will ask for a toll but a story.'] },
   { id: 'tr-sila', who: 'SILA', scene: 'north', ev: 'treaty-sila', pages: ['The Sila Collective signs. In our language the word for weather and the word for wisdom are the same word.', 'We will watch the ice. You watch the wires.'] },
+  { id: 'tr-andes', who: 'INTI', scene: 'south', ev: 'treaty-andes', pages: ['The Andean Concord signs. Our crews will string wire where the roads end.', 'Pass it along the ridges: this Engineer keeps promises.'] },
+  { id: 'tr-euro', who: 'ASTRID', scene: 'north', ev: 'treaty-euro', pages: ['The Meridian Accord signs. Forty languages, one set of load tables. It took a blackout to get us to agree on that.', 'Our plants are yours to call on.'] },
   { id: 'bd-closed', who: 'ELOISE', scene: 'north', ev: 'border-closed', pages: ['You closed a border. I understand. A line on a map has stopped a storm or two in its day.', 'But remember what a closed border cannot stop: the cold, the dark, and the people on both sides who wanted the same thing.'] },
   { id: 'bd-open', who: 'DIEGO', scene: 'south', ev: 'border-open', pages: ['An open border. Amigo, the electrons never asked for a passport.', 'The Dimmers may walk across too. Keep your security posts close to the line.'] },
   { id: 'lk-unstable', who: 'AURORA', scene: 'grid', ev: 'link-unstable', pages: ['A link is fraying. A stable link is a promise two stations keep each other, and promises wear thin in storms and near Dimmer hands.', 'Open the Union screen. Fix it, or harden it. A hardened link remembers.'] },
@@ -185,6 +210,13 @@ const STORY = [
     ['AURORA', 'I was one machine, once. Then I was many. Now I am something the old operators never imagined: a grid that is also a people.'],
     'UNITED UNDER ONE. DIVIDED UNDER NONE.',
   ] },
+  { id: 'hq-online', who: 'AURORA', scene: 'grid', ev: 'hq-online', card: { k: 'HEADQUARTERS', t: 'ONLINE' }, pages: [
+    'This is where it began, Engineer. Your first county is lit, and it has stopped being a place and become a plan.',
+    'I have rebuilt it as a headquarters. Everything you restore will lead back here, and everything here can reach out to help the rest.',
+    ['MARA', 'Build it up and nobody out there has to fight the dark alone. Choose what to build first. You will not be able to afford everything.'],
+    'Press Q to open the HQ. Press K for your skills. Look for glowing crates in every county: some of them hold blueprints.',
+  ] },
+  { id: 'ev-blueprint', who: 'AURORA', mini: true, ev: 'blueprint', pages: ['A blueprint. The old engineers called these lost lessons. Headquarters can finally build the best of its upgrades.'] },
   // ---- state vignettes ----
   { id: 'st-TX', who: 'MARA', scene: 'radio', when: s => s.doneStates.TX, pages: ['Texas, entirely lit. They always said Texas wanted its own grid. Today it plugged into everyone else\'s, and nobody said a word about it.'] },
   { id: 'st-CA', who: 'MARA', scene: 'radio', when: s => s.doneStates.CA, pages: ['California is back. The big dams and the desert solar and every little coastal town, all in one line. Somewhere in LA a freeway sign flickered on and cars that had not moved in eleven years honked at it.'] },
@@ -242,7 +274,7 @@ const CHAPTERS = [
 const AFTER = {
   mara1: ['first'], six: ['first'], state: ['first'], dim1: ['first'], quarter: ['first'], aur12: ['six'], dim2: ['dim1'], half: ['quarter'],
   mara2: ['half'], dim3: ['dim2'], threeq: ['half'], dim4: ['dim3'], usdone: ['threeq'], caf: ['usdone'], ca10: ['caf'], ca30: ['ca10'], ca: ['caf'],
-  united: ['end'], mxf: ['usdone'], mx12: ['mxf'], mx: ['mxf'], ak1: ['usdone'], cm1: ['usdone'], cb1: ['usdone'], akd: ['ak1'], cmd: ['cm1'], cbd: ['cb1'],
+  united: ['end'], mxf: ['usdone'], mx12: ['mxf'], mx: ['mxf'], ak1: ['usdone'], cm1: ['usdone'], cb1: ['usdone'], akd: ['ak1'], cmd: ['cm1'], cbd: ['cb1'], sa1: ['usdone'], sad: ['sa1'], eud: ['eu1'],
 };
 function storyCtx() {
   const us = US.counties.filter(c => c.country === 'US'), ca = US.counties.filter(c => c.country === 'CA'), mx = US.counties.filter(c => c.country === 'MX');
@@ -253,6 +285,8 @@ function storyCtx() {
     stars3: Object.values(save.stars).filter(v => v === 3).length, nAK: US.counties.filter(c => c.country === 'AK' && isRestored(c)).length, nCM: US.counties.filter(c => c.country === 'CM' && isRestored(c)).length, nCB: US.counties.filter(c => c.country === 'CB' && isRestored(c)).length,
     akDone: US.counties.filter(c => c.country === 'AK').every(isRestored), cmDone: US.counties.filter(c => c.country === 'CM').every(isRestored), cbDone: US.counties.filter(c => c.country === 'CB').every(isRestored),
     nGL: US.counties.filter(c => c.country === 'GL' && isRestored(c)).length, glDone: US.counties.filter(c => c.country === 'GL').every(isRestored),
+    nSA: US.counties.filter(c => c.country === 'SA' && isRestored(c)).length, saDone: US.counties.filter(c => c.country === 'SA').every(isRestored),
+    nEU: US.counties.filter(c => c.country === 'EU' && isRestored(c)).length, euDone: US.counties.filter(c => c.country === 'EU').every(isRestored),
     nHI: US.counties.filter(c => US.states[c.state].ab === 'HI' && isRestored(c)).length, hiDone: US.counties.filter(c => US.states[c.state].ab === 'HI').every(isRestored), tier: unity().tier,
     usDone: n === us.length, caDone: ca.every(isRestored), mxDone: mx.every(isRestored), all: US.counties.every(isRestored),
   };
@@ -265,7 +299,7 @@ function chapterName() { const i = chapterIndex(); return i === 0 ? 'PROLOGUE - 
 
 // ---------- portraits (32x32 pixel faces, drawn in code) ----------
 const MAP_MINI = new Set(['outage', 'sabotage', 'liberated', 'partial']);
-const PORTRAIT_ALIAS = { NANOOK: 'ELOISE', ISABEL: 'MARA', RAFAEL: 'DIEGO', BRAM: 'DIEGO', SILA: 'ELOISE', KEALOHA: 'MARA' };
+const PORTRAIT_ALIAS = { NANOOK: 'ELOISE', ISABEL: 'MARA', RAFAEL: 'DIEGO', BRAM: 'DIEGO', SILA: 'ELOISE', KEALOHA: 'MARA', INTI: 'DIEGO', ASTRID: 'ELOISE' };
 function portrait(who) {
   who = PORTRAIT_ALIAS[who] || who;
   const c = document.createElement('canvas'); c.width = c.height = 32; const k = c.getContext('2d');
@@ -354,7 +388,17 @@ const Story = {
     writeSave();
   },
   play(id) { const e = STORY.find(x => x.id === id); if (e && !this.seen(id) && !this.queue.includes(e) && e !== this.cur) this.queue.push(e); this.pump(); },
+  // loading a save must never replay the story: beats whose conditions already hold are marked as heard, waiting reactions are dropped, and nothing reacts for a few seconds
+  catchUp() {
+    const heard = Object.keys(save.story || {}).length; this.mute = Date.now() + 4000; this.queue.length = 0;
+    if (!heard) return;
+    const s = storyCtx(); save.pending = {};
+    STORY.forEach(e => { if (e.when && !this.seen(e.id) && (AFTER[e.id] || []).every(a => this.seen(a)) && e.when(s) && !e.card) { save.story[e.id] = 1; } });
+    const ci = chapterIndex(); if ((save.chapter || 0) < ci) save.chapter = ci;
+    writeSave();
+  },
   event(name) {
+    if (Date.now() < (this.mute || 0)) return;
     STORY.filter(e => e.ev === name && !this.seen(e.id)).forEach(e => {
       if (e.mini) {                                                          // short radio notes: only said where they make sense, and only marked as heard once they are
         const line = WHO[e.who].name.split(' -')[0] + ': ' + e.pages[0];
@@ -437,7 +481,7 @@ const Story = {
   // short mission briefing the first time you enter a county
   briefing(c, spec) {
     if (save.briefed[c.id]) return; save.briefed[c.id] = 1; writeSave();
-    const who = c.country === 'US' ? (US.states[c.state].ab === 'HI' ? 'KEALOHA' : c.lon > -101 ? 'MARA' : 'BRAM') : c.country === 'CA' ? 'ELOISE' : c.country === 'AK' ? 'NANOOK' : c.country === 'MX' ? 'DIEGO' : c.country === 'CM' ? 'ISABEL' : c.country === 'CB' ? 'RAFAEL' : 'SILA', S = US.states[c.state];
+    const who = c.country === 'US' ? (US.states[c.state].ab === 'HI' ? 'KEALOHA' : c.lon > -101 ? 'MARA' : 'BRAM') : c.country === 'CA' ? 'ELOISE' : c.country === 'AK' ? 'NANOOK' : c.country === 'MX' ? 'DIEGO' : c.country === 'CM' ? 'ISABEL' : c.country === 'CB' ? 'RAFAEL' : c.country === 'SA' ? 'INTI' : c.country === 'EU' ? 'ASTRID' : 'SILA', S = US.states[c.state];
     const BIOME_LINE = {
       desert: 'Heat and dust. Solar will shine here, but sand eats machinery.', forest: 'Dense forest. Every cable run is a long one.', swamp: 'Standing water everywhere. The pumps will love it, the ground will not.',
       plains: 'Open plains and big sky. Wind country.', tundra: 'Frozen ground and a short sun. Everything wears out faster in the cold.', mountain: 'Cliffs and ridges. You will route around more than you build through.', waste: 'Flat and broken.',

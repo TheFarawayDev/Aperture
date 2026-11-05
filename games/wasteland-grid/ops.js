@@ -8,12 +8,12 @@
 let refreshCb = null, impT = 0;
 let IMPORTS = { p: 0, w: 0, n: 0, links: 0, list: [] }, HOSTILE = false, THREAT = 0, surplusCb = null, importedTotal = [0, 0, 0];
 let multiLayers = [0, 1, 2];
-let seqs = [], strain = 0, fx = [], raidT = 90, raid = null;
+let seqs = [], strain = 0, fx = [], raidT = 90, raid = null, raidQueue = 0, jamUntil = -1;
 const seqNotice = (msg, snd = true) => { toast(msg); if (snd) beep(130, 0.35, 'sawtooth', 0.05); };
 
 function opsInit(opts) {
   IMPORTS = Object.assign({ p: 0, w: 0, n: 0, links: 0 }, opts.imports || {}); HOSTILE = !!opts.hostile; THREAT = opts.threat || 0; surplusCb = opts.onSurplus || null; refreshCb = opts.refresh || null; impT = 0;
-  seqs = []; fx = []; strain = 0; raid = null; raidT = (HOSTILE ? 50 : 150) * WMOD.raid * WMOD.def; importedTotal = [0, 0, 0]; multiLayers = [0, 1, 2];
+  seqs = []; fx = []; strain = 0; raid = null; raidQueue = 0; jamUntil = -1; raidT = (HOSTILE ? 50 : 150) * WMOD.raid * WMOD.def * ((typeof TM === 'function' && TM().raid) || 1); importedTotal = [0, 0, 0]; multiLayers = [0, 1, 2];
 }
 
 // ---------- multi-line: lay several line types in one drag ----------
@@ -118,25 +118,129 @@ function cascade() {
   const l = damageLines(DISTRICTS[0].x, DISTRICTS[0].y, 14, 0.04);
   seqNotice('CASCADE FAILURE! ' + n + ' machines tripped offline and ' + l + ' lines burned out. Repair, then rebalance the grid.'); recompute(); setTimeout(() => storyEv('cascade'), 2500);
 }
-function startRaid() {
+// ---------- Dimmer raids come in several kinds, and some counties hide a Dimmer camp ----------
+const RAID_INFO = {
+  saboteur: { label: 'SABOTEURS', msg: n => `DIMMER SABOTEURS spotted near ${n}! They strike in {t} seconds and will cut lines and wreck machines.` },
+  looter: { label: 'SCAVENGERS', msg: n => `DIMMER SCAVENGERS are heading for the stores near ${n}! They strike in {t} seconds and will empty your stockpile.` },
+  jammer: { label: 'JAMMERS', msg: n => `A DIMMER JAMMER TEAM is creeping toward ${n}! They strike in {t} seconds and will drown every router and relay in noise.` },
+  arson: { label: 'ARSONISTS', msg: n => `DIMMER ARSONISTS are going for the generators near ${n}! They strike in {t} seconds.` },
+  warband: { label: 'WARBAND', msg: n => `A DIMMER WARBAND is marching on ${n}! Two waves: the first strikes in {t} seconds, a second right behind it.` },
+};
+function raidKind() {
+  const anyNet = ents.some(e => BUILD[e.type].sup[2] > 0 && !BUILD[e.type].central && e.cond > 0), anyFuel = ents.some(e => BUILD[e.type].fuel && !BUILD[e.type].fixed && e.cond > 0);
+  const w = [['saboteur', 50], ['looter', scrap >= 80 ? 26 : 0], ['jammer', anyNet ? 15 : 0], ['arson', anyFuel ? 14 : 0], ['warband', (HOSTILE || THREAT >= 2) ? 12 : 0]];
+  let tot = w.reduce((a, x) => a + x[1], 0), r = Math.random() * tot; for (const [k, v] of w) { if ((r -= v) < 0) return k; } return 'saboteur';
+}
+function startRaid(kind, left) {
   const targets = ents.filter(e => (BUILD[e.type].maint || e.isHub) && !String(e.type).startsWith('dormant'));
   if (!targets.length) return;
-  const e = targets[Math.random() * targets.length | 0];
-  raid = { x: e.x + (e.w >> 1), y: e.y + (e.h >> 1), left: 12 };
-  seqNotice('DIMMER RAIDERS spotted near ' + (e.district ? e.district.name : BUILD[e.type].name) + '! They strike in 12 seconds. Security posts drive them off.');
+  kind = kind || raidKind(); left = left || 12; const e = targets[Math.random() * targets.length | 0], info = RAID_INFO[kind], tx = e.x + (e.w >> 1), ty = e.y + (e.h >> 1);
+  let sx, sy; if (Camp.alive()) { sx = Camp.c.x + 1; sy = Camp.c.y + 1; } else { sx = tx + (Math.random() < 0.5 ? -1 : 1) * (24 + Math.random() * 12); sy = ty + (Math.random() < 0.5 ? -1 : 1) * (12 + Math.random() * 8); }
+  sx = Math.max(1, Math.min(WW - 2, sx)); sy = Math.max(1, Math.min(WH - 2, sy));
+  raid = { x: tx, y: ty, left, tot: left, kind, label: info.label, sx, sy };
+  seqNotice(info.msg(e.district ? e.district.name : BUILD[e.type].name).replace('{t}', left) + ' Security posts drive them off.');
 }
 function resolveRaid() {
   const r = raid; raid = null;
-  if (covered(r.x, r.y)) { burst(r.x, r.y, 'repel'); toast('RAID REPELLED. The raiders melted back into the dark.'); beep(660, 0.1); beep(880, 0.15, 'square', 0.04, 0.08); storyEv('repel'); return; }
-  const n = damageLines(r.x, r.y, 5, 0.7), near = ents.filter(e => BUILD[e.type].maint && !BUILD[e.type].fixed && Math.hypot(e.x - r.x, e.y - r.y) <= 6 && e.cond > 0);
-  let hit = 0; for (let k = 0; k < 2 && near.length; k++) { if (Math.random() < 0.6) { near.splice(Math.random() * near.length | 0, 1)[0].cond = 0; hit++; } }
-  burst(r.x, r.y, 'boom'); seqNotice('RAID! The Dimmers cut ' + n + ' lines and sabotaged ' + hit + ' machine(s). Repair it and build a security post.'); recompute(); storyEv('raid');
+  if (covered(r.x, r.y)) {
+    Variety.count('repel'); burst(r.x, r.y, 'repel'); const sc = Math.round((18 + Math.random() * 34) * (TM().lootVal || 1)); scrap += sc; let extra = '';
+    if (Math.random() < 0.3) { const p = 1 + (Math.random() * 3 | 0); stock.parts += p; extra = ` and ${p} parts`; }
+    if (r.kind === 'warband') raidQueue = 0;
+    toast(`RAID REPELLED. The ${r.label.toLowerCase()} melted back into the dark, leaving ${sc} scrap${extra}.`); beep(660, 0.1); beep(880, 0.15, 'square', 0.04, 0.08); storyEv('repel'); return;
+  }
+  const dmg = () => {
+    const n = damageLines(r.x, r.y, 5, 0.7), near = ents.filter(e => BUILD[e.type].maint && !BUILD[e.type].fixed && Math.hypot(e.x - r.x, e.y - r.y) <= 6 && e.cond > 0);
+    let hit = 0; for (let k = 0; k < 2 && near.length; k++) { if (Math.random() < 0.6) { near.splice(Math.random() * near.length | 0, 1)[0].cond = 0; hit++; } } return [n, hit];
+  };
+  if (r.kind === 'looter') {
+    const s = Math.round(Math.min(scrap * 0.25, 300)), p = Math.min(Math.floor(stock.parts * 0.3), 9); scrap -= s; stock.parts -= p; burst(r.x, r.y, 'boom');
+    seqNotice(`SCAVENGERS raided the stores! They made off with ${s} scrap${p ? ' and ' + p + ' parts' : ''}. Security posts stop this.`);
+  } else if (r.kind === 'jammer') {
+    jamUntil = gameT + 30; burst(r.x, r.y, 'spark'); recompute(); seqNotice('JAMMED! Every router and relay is drowned in noise for 30 seconds. Data centres hold on.');
+  } else if (r.kind === 'arson') {
+    const fm = ents.filter(e => BUILD[e.type].fuel && !BUILD[e.type].fixed && e.cond > 0 && Math.hypot(e.x - r.x, e.y - r.y) <= 16); let n = 0;
+    for (let k = 0; k < 3 && fm.length; k++) { const e = fm.splice(Math.random() * fm.length | 0, 1)[0]; e.cond = Math.max(0, e.cond - 70); burst(e.x + e.w / 2, e.y + e.h / 2, 'boom'); n++; }
+    const l = damageLines(r.x, r.y, 3, 0.4); if (!n) { const [a, b] = dmg(); seqNotice(`RAID! The Dimmers cut ${a} lines and sabotaged ${b} machine(s).`); } else seqNotice(`ARSON! ${n} fuel-burning machine${n > 1 ? 's' : ''} set ablaze and ${l} lines scorched. Repair them.`);
+  } else {
+    const [n, hit] = dmg(); burst(r.x, r.y, 'boom');
+    if (r.kind === 'warband') { raidQueue = 1; seqNotice(`WARBAND STRIKE! ${n} lines cut, ${hit} machine(s) sabotaged. The second wave is right behind them!`); }
+    else seqNotice('RAID! The Dimmers cut ' + n + ' lines and sabotaged ' + hit + ' machine(s). Repair it and build a security post.');
+  }
+  recompute(); storyEv('raid');
 }
+const Camp = {
+  c: null, dead: false, intel: false, pingUntil: 0, busy: false,
+  alive() { return !!this.c && !this.dead; },
+  init(county, deadSaved) {
+    this.c = null; this.dead = !!deadSaved; this.intel = false; this.busy = false; this.pingUntil = 0; if (!county) return;
+    const r = mulberry(county.id * 4177 + 9);
+    if (!(HOSTILE || THREAT >= 2 || (THREAT > 0 && r() < 0.6))) return;
+    const ok = t => t === 0 || t === 3 || t === 7;
+    for (let tries = 0; tries < 600; tries++) {
+      const x = 10 + (r() * (WW - 22) | 0), y = 10 + (r() * (WH - 22) | 0); let good = true;
+      for (let dy = -1; dy <= 3 && good; dy++) for (let dx = -1; dx <= 3; dx++) { const i = (y + dy) * WW + x + dx; if (!ok(terrain[i]) || occ[i] || cab.some(a => a[i])) { good = false; break; } }
+      if (!good) continue;
+      if (DISTRICTS.some(d => Math.hypot(d.x - x, d.y - y) < 14) || SITES.some(s => Math.hypot(s.x - x, s.y - y) < 9) || Loot.list.some(l => Math.hypot(l.x - x, l.y - y) < 8)) continue;
+      this.c = { x, y, str: 1 + Math.min(3, Math.floor((typeof hopsFromStart === 'function' ? hopsFromStart(county.id) : 0) / 6)) }; return;
+    }
+  },
+  chance() {
+    const c = this.c, sec = ents.filter(e => BUILD[e.type].security && e.run && Math.hypot(e.x - c.x, e.y - c.y) <= 24).length;
+    return Math.max(0.15, Math.min(0.92, 0.45 + Math.min(0.35, 0.1 * sec) + (this.intel ? 0.2 : 0) - 0.06 * (c.str - 1) + ((TM().raid || 1) - 1) * 0.25));
+  },
+  cost() { return { scrap: 40 + 15 * this.c.str, parts: 3 + 2 * this.c.str }; },
+  tryClick(tx, ty) { if (!this.alive() || this.busy || tx < this.c.x - 1 || tx > this.c.x + 3 || ty < this.c.y - 1 || ty > this.c.y + 3) return false; this.assault(); return true; },
+  async assault() {
+    this.busy = true; const sp = speed, cost = this.cost(), ch = this.chance(); setSpeed(0);
+    const go = await uiConfirm(`A DIMMER CAMP. This is where the raiders come from. Send a strike team? Cost: ${cost.scrap} scrap and ${cost.parts} parts, win or lose. Chance of success: ${Math.round(ch * 100)}% (security posts nearby and a deserter's tip help). Win: the raids mostly stop, and the camp's stores are yours.`, 'DIMMER CAMP', 'ASSAULT', 'NOT YET');
+    if (go) {
+      if (scrap < cost.scrap || stock.parts < cost.parts) toast(`You need ${cost.scrap} scrap and ${cost.parts} parts to equip a strike team.`);
+      else if (Math.random() < ch) this.win(cost); else this.lose(cost);
+    }
+    setSpeed(sp || 1); this.busy = false;
+  },
+  win(cost) {
+    scrap -= cost.scrap; stock.parts -= cost.parts; const hops = CUR.county != null && typeof hopsFromStart === 'function' ? hopsFromStart(CUR.county) : 0;
+    const sc = Math.round((110 + Math.random() * 110) * (1 + hops * 0.03)), rp = 12 + (Math.random() * 14 | 0), p = 4 + (Math.random() * 7 | 0); scrap += sc; Meta.rp += rp; Meta.dirty = true; stock.parts += p; let extra = '';
+    ensureMeta();
+    if (Math.random() < 0.18) { save.sp += 1; extra = ' and a captured TECH CHIP (+1 skill point)'; }
+    else if (Math.random() < 0.12) { const miss = Object.keys(BLUEPRINTS).filter(id => !save.items[id]); if (miss.length) { const id = miss[Math.random() * miss.length | 0]; save.items[id] = 1; extra = ` and a BLUEPRINT: ${BLUEPRINTS[id]}`; } }
+    this.dead = true; raid = null; raidQueue = 0; raidT = Math.max(raidT, 240); bump('camps'); CUR.camps = (CUR.camps || 0) + 1;
+    burst(this.c.x + 1, this.c.y + 1, 'boom'); burst(this.c.x + 1, this.c.y + 1, 'repel'); beep(220, 0.3, 'sawtooth', 0.06); beep(660, 0.2, 'square', 0.05, 0.2); beep(990, 0.2, 'square', 0.05, 0.4);
+    toast(`DIMMER CAMP DESTROYED! Loot: ${sc} scrap, ${rp} research, ${p} parts${extra}. Raids will come far less often now.`); news('Destroyed a Dimmer camp.'); writeSave(); Objectives.check(); dirty.mini = true;
+  },
+  lose(cost) {
+    scrap -= cost.scrap; stock.parts -= cost.parts; raidT = Math.min(raidT, 20); burst(this.c.x + 1, this.c.y + 1, 'boom'); beep(110, 0.4, 'sawtooth', 0.06);
+    toast('The assault fails and the strike team falls back. The camp is alerted: expect raiders soon. Build security posts and try again.');
+  },
+  draw(t, cx, cy) {
+    if (raid && raid.sx !== undefined) {                              // the raiding party walks in from the camp (or the edge of the map) and a ring marks where it will strike
+      const p = Math.max(0, Math.min(1, 1 - raid.left / raid.tot)), rx = (raid.sx + (raid.x - raid.sx) * p) * T - cx, ry = (raid.sy + (raid.y - raid.sy) * p) * T - cy;
+      const ring = (raid.kind === 'warband' ? 6 : 5) * T, k = Math.floor(t * 4) % 2;
+      g.globalAlpha = 0.35 + 0.25 * k; g.strokeStyle = PAL[5]; g.strokeRect(raid.x * T - cx - ring, raid.y * T - cy - ring, ring * 2 + T, ring * 2 + T); g.globalAlpha = 1;
+      for (let i = 0; i < (raid.kind === 'warband' ? 5 : 3); i++) { const bob = Math.floor(t * 6 + i) % 2, fx = rx + i * 4 - 4, fy = ry + (i % 2) * 3 + bob; px(fx, fy - 2, 2, 2, 6); px(fx, fy, 2, 3, raid.kind === 'jammer' ? 15 : 5); px(fx + 2, fy + 1, 1, 2, 3); }
+    }
+    const c = this.c; if (!c) return; const x = c.x * T - cx, y = c.y * T - cy; if (x < -30 || y < -30 || x > VW + 6 || y > VH + 6) return;
+    if (this.dead) { px(x + 2, y + 10, 20, 3, 1); px(x + 6, y + 8, 3, 3, 3); px(x + 15, y + 9, 4, 2, 3); if (Math.floor(t * 3) % 2) px(x + 12, y + 8, 1, 1, 5); return; }
+    for (let i = 0; i < 8; i++) px(x + 6 - i, y + 8 + i, i * 2 + 1, 1, i % 3 ? 5 : 4);   // big tent
+    px(x + 5, y + 12, 3, 4, 0);
+    for (let i = 0; i < 5; i++) px(x + 19 - i, y + 12 + i, i * 2 + 1, 1, i % 2 ? 3 : 4);  // small tent
+    px(x + 11, y, 1, 14, 3); const wave = Math.floor(t * 4) % 2; px(x + 12, y + 1 + wave, 6, 3, 5); px(x + 13, y + 2 + wave, 2, 1, 0);   // flag
+    px(x + 10, y + 17, 3, 2, Math.floor(t * 8) % 2 ? 6 : 8); px(x + 10, y + 19, 3, 1, 0);                                     // campfire
+    for (let i = 0; i < 3; i++) { const sm = (t * 6 + i * 3) % 9; px(x + 11 + Math.sin(t + i) * 2, y + 15 - sm, 1, 1, 3); }
+    g.strokeStyle = PAL[Math.floor(t * 2) % 2 ? 5 : 3]; g.strokeRect(x - 2.5, y - 2.5, 28, 26);
+    if (this.pingUntil > performance.now()) { const k = (t * 1.5) % 1; g.strokeStyle = PAL[5]; g.globalAlpha = 1 - k; g.strokeRect(x + 12 - 12 - k * 30, y + 10 - 10 - k * 30, 24 + k * 60, 20 + k * 60); g.globalAlpha = 1; }
+  },
+  mini() { if (!this.alive()) return; const x = this.c.x * 2, y = this.c.y * 2; mmg.fillStyle = '#000'; mmg.fillRect(x - 3, y - 3, 10, 10); mmg.fillStyle = PAL[(Math.floor(performance.now() / 500) % 2) ? 5 : 3]; mmg.fillRect(x - 2, y - 2, 8, 8); },
+};
+
 function opsTick() {
   if (refreshCb && ++impT >= 10) {                          // live imports: the link network changes while you play
     impT = 0; const n = refreshCb();
     if (n) { const before = IMPORTS.links; IMPORTS = Object.assign({ p: 0, w: 0, n: 0, links: 0, list: [] }, n); if (n.links < before) toast('A feeder county stopped exporting. Imports fell.'); else if (n.links > before) toast('A new feeder county is sending you power.'); }
   }
+  if (jamUntil > 0 && gameT >= jamUntil) { jamUntil = -1; recompute(); toast('The jamming stops. Networks recover.'); }
+  if (!raid && raidQueue > 0) { raidQueue--; startRaid('saboteur', 9); }
   const anyRest = DISTRICTS.some(d => d.restored), tp = totals[0];
   // 1) grid strain -> protection trip -> cascade
   const over = anyRest && tp.dem > tp.sup * 1.05 + 0.5;
@@ -167,7 +271,7 @@ function opsTick() {
   }
   // 3) raiders
   if (eventsOn && (HOSTILE || THREAT > 0) && (anyRest || HOSTILE)) {
-    if (!raid && --raidT <= 0) { startRaid(); raidT = (HOSTILE ? 45 + Math.random() * 40 : (170 / Math.max(1, THREAT)) + Math.random() * 90) * WMOD.raid * WMOD.def; }
+    if (!raid && --raidT <= 0) { startRaid(); raidT = (HOSTILE ? 45 + Math.random() * 40 : (170 / Math.max(1, THREAT)) + Math.random() * 90) * WMOD.raid * WMOD.def * (TM().raid || 1) * (Camp.alive() ? 0.8 : 1) * (Camp.dead ? 2.4 : 1); }
   }
   if (raid && --raid.left <= 0) resolveRaid();
   // 4) station modules
@@ -178,14 +282,14 @@ function opsTick() {
 function opsAlerts() {
   const out = [];
   seqs.forEach(q => { if (q.kind === 'overload') out.push({ miss: [q.stage === 1 ? 'TRIP IN ' + q.left + 's' : q.stage === 2 ? 'CASCADE IN ' + q.left + 's' : 'CASCADE'], label: 'GRID STRAIN' }); if (q.kind === 'melt') out.push({ e: q.e, miss: ['BLOWS IN ' + q.left + 's'], label: BUILD[q.e.type].name + ' CRITICAL' }); });
-  if (raid) out.push({ cable: raid.y * WW + raid.x, miss: ['STRIKE IN ' + raid.left + 's'], label: 'RAIDERS' });
+  if (raid) out.push({ cable: raid.y * WW + raid.x, miss: ['STRIKE IN ' + raid.left + 's'], label: raid.label || 'RAIDERS' });
   alerts.unshift(...out);
 }
 function opsHud() {
   const el = $('seq'); if (el) {
     let txt = '', cls = '';
     const q = seqs.find(s => s.kind === 'overload'), m = seqs.find(s => s.kind === 'melt');
-    if (raid) { txt = '⚠ DIMMER RAIDERS - STRIKE IN ' + raid.left + 's'; cls = 'red'; }
+    if (raid) { txt = '⚠ DIMMER ' + (raid.label || 'RAIDERS') + ' - STRIKE IN ' + raid.left + 's'; cls = 'red'; }
     else if (q) { txt = q.stage === 1 ? '⚠ GRID STRAIN - TRIP IN ' + q.left + 's' : q.stage === 2 ? '⚠ PROTECTION TRIP - CASCADE IN ' + q.left + 's' : '⚠ CASCADE FAILURE'; cls = q.stage > 1 ? 'red' : 'amber'; }
     else if (m) { txt = '⚠ ' + BUILD[m.e.type].name + ' CRITICAL - ' + m.left + 's'; cls = 'red'; }
     el.textContent = txt; el.className = txt ? 'on ' + cls : '';

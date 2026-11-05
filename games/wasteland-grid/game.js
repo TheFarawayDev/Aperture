@@ -407,10 +407,14 @@ function outMult(e) {
   if (d.needsAll) for (let L = 0; L < 3; L++) if (d.dem[L] > 0 && !e.ok[L] && !(activeMods.has('blackstart') && e.type === 'powerplant' && L === 1)) return 0;
   let m = e.cond < 20 ? 0.5 : e.cond < 50 ? 0.8 : 1;
   if (e.type === 'solar' && radUntil > gameT) m *= 0.4;
+  { const tm = TM(); if (e.type === 'solar') m *= tm.solar || 1; else if (e.type === 'wind') m *= tm.wind || 1; else if (e.type === 'hydro') m *= tm.hydro || 1; else if (e.type === 'pump') m *= tm.pump || 1;
+    if (d.sup[0] > 0 && d.fuel) m *= tm.genOut || 1; if (d.sup[1] > 0) m *= tm.waterOut || 1; if (d.sup[2] > 0) m *= tm.netOut || 1; }
   if (d.sup[0] > 0 && Meta.has('efficiency')) m *= 1.2;
   if (activeMods.has('core')) m *= 1.1;
   if (d.sup[2] > 0 && Meta.has('netboost')) m *= 1.25;
   if (e.type === 'pump' && Meta.has('pumps2')) m *= 1.25;
+  if (jamUntil > gameT && d.sup[2] > 0 && !d.central) m *= 0.15;                         // jammed by Dimmer raiders
+  if (surgeUntil > gameT && (d.sup[0] > 0 || d.sup[1] > 0 || d.sup[2] > 0)) m *= surgeMul;   // HQ overcharge order
   return m;
 }
 function solveNow() {
@@ -426,7 +430,7 @@ function solveNow() {
     e.active = needs && allOk && e.cond > 0;
     e.run = e.linked && e.cond > 0 && allOk && (!d.fuel || stock.fuel > 0) && (!d.partsUse || stock.parts > 0);
     if (d.fuelCap && e.cond > 0) fuelCap += d.fuelCap;
-    if (d.upkeep && anyRestored && e.run) upkeep += d.upkeep * (Meta.has('logistics') ? 0.75 : 1);      // idle or unwired machines cost nothing
+    if (d.upkeep && anyRestored && e.run) upkeep += d.upkeep * (Meta.has('logistics') ? 0.75 : 1) * (TM().upkeep || 1);      // idle or unwired machines cost nothing
     if (e.active && d.income) {
       income += d.income;
       if (e.type === 'house' && clinics.some(c => Math.abs(c.x - e.x) <= 8 && Math.abs(c.y - e.y) <= 8)) income += 1;
@@ -478,11 +482,11 @@ function tick() {
   for (const e of ents) {
     const d = BUILD[e.type];
     if (e.run) {
-      if (d.fuel) stock.fuel -= d.fuel * (activeMods.has('fuelrec') ? 0.75 : 1); if (d.fuelOut) stock.fuel += d.fuelOut;
-      if (d.partsOut) stock.parts += d.partsOut; if (d.partsUse) stock.parts -= d.partsUse;
-      if (d.rp) { Meta.rp += d.rp; Meta.dirty = true; }
-    } else if (e.isHub && e.active) { if (d.partsOut) stock.parts += d.partsOut; if (d.rp) { Meta.rp += d.rp; Meta.dirty = true; } }
-    if (d.maint && e.cond > 0 && e.run && DISTRICTS.some(x => x.restored)) e.cond = Math.max(0, e.cond - d.maint * WMOD.wear);   // only working machines wear
+      if (d.fuel) stock.fuel -= d.fuel * (activeMods.has('fuelrec') ? 0.75 : 1) * (TM().fuel || 1); if (d.fuelOut) stock.fuel += d.fuelOut;
+      if (d.partsOut) stock.parts += d.partsOut * (TM().partsOut || 1); if (d.partsUse) stock.parts -= d.partsUse;
+      if (d.rp) { Meta.rp += d.rp * (TM().rp || 1); Meta.dirty = true; }
+    } else if (e.isHub && e.active) { if (d.partsOut) stock.parts += d.partsOut * (TM().partsOut || 1); if (d.rp) { Meta.rp += d.rp * (TM().rp || 1); Meta.dirty = true; } }
+    if (d.maint && e.cond > 0 && e.run && DISTRICTS.some(x => x.restored)) e.cond = Math.max(0, e.cond - d.maint * WMOD.wear * (TM().wear || 1));   // only working machines wear
   }
   stock.fuel = Math.max(0, Math.min(fuelCap, stock.fuel)); stock.parts = Math.max(0, stock.parts);
   for (const dep of ents) {                            // maintenance crews
@@ -490,23 +494,28 @@ function tick() {
     const rate = d.repair.rate * (Meta.has('crews') ? 2 : 1);
     ents.filter(e => BUILD[e.type].maint && e.cond < 100 && e.cond > 0 && Math.hypot(e.x - dep.x, e.y - dep.y) <= d.repair.radius).sort((a, b) => a.cond - b.cond).slice(0, d.repair.max).forEach(e => { e.cond = Math.min(100, e.cond + rate); });
   }
+  if (TM().autoRepair) ents.forEach(e => { if (BUILD[e.type].maint && e.cond > 0 && e.cond < 100) e.cond = Math.min(100, e.cond + TM().autoRepair); });
+  if (TM().partsFlow && DISTRICTS.some(x => x.restored)) stock.parts += TM().partsFlow;
   if (activeMods.has('link')) { Meta.rp += 1.5; Meta.dirty = true; }
   if (activeMods.has('repair')) ents.forEach(e => { if (BUILD[e.type].maint && e.cond > 0 && e.cond < 100) e.cond = Math.min(100, e.cond + 0.15); });
-  if (eventsOn && DISTRICTS.some(x => x.restored) && --evT <= 0) { fireEvent(); evT = (70 + Math.random() * 80) * (activeMods.has('forecast') ? 1.3 : 1) * WMOD.ev; }
-  scrap = Math.max(0, scrap + income * WMOD.inc - upkeep);
+  if (eventsOn && TM().ev !== 0 && DISTRICTS.some(x => x.restored) && --evT <= 0) { fireEvent(); evT = (70 + Math.random() * 80) * (activeMods.has('forecast') ? 1.3 : 1) * WMOD.ev * (TM().ev || 1); }
+  scrap = Math.max(0, scrap + income * WMOD.inc * (TM().income || 1) - upkeep);
+  Variety.tick();
   checkOutage();
   if (Meta.dirty && gameT % 5 === 0) Meta.save();
   opsTick();
   solveNow();
 }
 function fireEvent() {
+  if (Variety.event()) return;                                  // traders, caravans, scouts, floods...
+  Variety.count('faults');
   setTimeout(() => storyEv('fault'), 4200);
   const sw = ents.filter(e => BUILD[e.type].sw !== undefined && e.on), maintainable = ents.filter(e => BUILD[e.type].maint && e.cond > 30 && !BUILD[e.type].fixed);
   const roll = Math.random(), diff = SPEC.diff || 0;
   if (roll < 0.35) {
     const live = []; for (let L = 0; L < NL; L++) for (let i = 0; i < N; i++) if (cab[L][i] === 1) live.push([L, i]);
     if (!live.length) return;
-    let n = 2 + (Math.random() * 3 | 0) + (diff / 3 | 0); if (Meta.has('hardening')) n = Math.ceil(n / 2); if (activeMods.has('shield')) n = Math.max(1, Math.ceil(n / 4));
+    let n = 2 + (Math.random() * 3 | 0) + (diff / 3 | 0); if (Meta.has('hardening')) n = Math.ceil(n / 2); n = Math.max(1, Math.round(n * (TM().stormN || 1))); if (activeMods.has('shield')) n = Math.max(1, Math.ceil(n / 4));
     for (let k = 0; k < n; k++) { const [L, i] = live[Math.random() * live.length | 0]; cab[L][i] = 2; }
     toast('STORM! ' + n + ' lines were damaged. Use the REPAIR tool (V) or a maintenance depot.'); beep(120, 0.4, 'sawtooth', 0.05);
   } else if (roll < 0.7 && maintainable.length && !(activeMods.has('guard') && Math.random() < 0.5)) {
@@ -533,6 +542,7 @@ function canPlace(type, x, y) {
     if (terrain[k] === 2) return 'CLEAR THE RUBBLE FIRST (SALVAGE)';
     if (terrain[k] === 4) return 'ROCK IN THE WAY';
     if (occ[k]) return 'SOMETHING IS ALREADY HERE';
+    if (Loot.at(tx, ty)) return 'OPEN THE SUPPLY CACHE FIRST (CLICK IT)';
     if (cab.some(a => a[k])) return 'SALVAGE THE LINES FIRST';
   }
   if (d.needWater) {
@@ -576,7 +586,7 @@ function repairCable(x, y) {
 }
 function repairEntity(e) {
   const d = BUILD[e.type]; if (!d.maint || e.cond >= 100) return false;
-  const miss = 100 - e.cond, sc = Math.ceil(miss * 0.4), pt = Math.ceil(miss / 50) - (e.cond > 0 ? 0 : 0);
+  const miss = 100 - e.cond, sc = Math.ceil(miss * 0.4 * (TM().repair || 1)), pt = Math.ceil(miss / 50) - (e.cond > 0 ? 0 : 0);
   if (scrap < sc) { warnOnce('REPAIR NEEDS ' + sc + ' SCRAP'); return false; }
   if (stock.parts < pt) { warnOnce('REPAIR NEEDS ' + pt + ' PARTS (WORKSHOPS MAKE THEM)'); return false; }
   scrap -= sc; stock.parts -= pt; e.cond = 100; Tutorial.repaired = true; beep(660, 0.08, 'triangle'); toast(d.name + ' repaired (-' + sc + ' scrap' + (pt ? ', -' + pt + ' parts' : '') + ')'); recompute(); return true;
@@ -594,7 +604,7 @@ function salvageAt(x, y) {
     beep(140, 0.1, 'sawtooth'); recompute(); return;
   }
   if (terrain[i] === 2) {
-    const gain = Meta.has('recycling') ? 6 : 3; terrain[i] = 0; cleared.add(i); tileTerrain(x, y); scrap += gain; if (Math.random() < 0.25) { stock.parts += 1; } beep(220, 0.05, 'sawtooth'); dirty.mini = true;
+    const gain = (Meta.has('recycling') ? 6 : 3) * (TM().rubble || 1); Variety.count('salv'); terrain[i] = 0; cleared.add(i); tileTerrain(x, y); scrap += gain; if (Math.random() < 0.25) { stock.parts += 1; } beep(220, 0.05, 'sawtooth'); dirty.mini = true;
     note(() => { terrain[i] = 2; cleared.delete(i); tileTerrain(x, y); scrap -= gain; });
     return;
   }
@@ -633,7 +643,7 @@ function act(x, y, first) {
 
 // ---------- input ----------
 const keys = {};
-let drag = null;
+let drag = null, glide = null, spaceHeld = false, spaceUsed = false;
 function toGame(ev) { const r = cv.getBoundingClientRect(), s = r.width / W * camZ; return { x: (ev.clientX - r.left) / s, y: (ev.clientY - r.top) / s }; }      // view coordinates (zoom already removed)
 const toScreen = ev => { const r = cv.getBoundingClientRect(), s = r.width / W; return { x: (ev.clientX - r.left) / s, y: (ev.clientY - r.top) / s }; };
 function setZoom(z, sx, sy) {                                  // keep the world point under (sx, sy) [canvas pixels] where it is
@@ -656,9 +666,14 @@ cv.addEventListener('contextmenu', e => e.preventDefault());
 cv.addEventListener('mousedown', e => {
   if (!Builder.active) return;
   const p = toGame(e);
-  if (e.button === 2 || e.button === 1) { e.preventDefault(); drag = { mode: 'pan', px: p.x, py: p.y, sx: p.x, sy: p.y, btn: e.button }; cv.style.cursor = 'grabbing'; return; }
+  glide = null;
+  if (e.button === 2 || e.button === 1) { e.preventDefault(); drag = { mode: 'pan', px: p.x, py: p.y, sx: p.x, sy: p.y, btn: e.button, vx: 0, vy: 0, lt: 0 }; cv.style.cursor = 'grabbing'; return; }
+  if (spaceHeld) { spaceUsed = true; drag = { mode: 'pan', px: p.x, py: p.y, sx: p.x, sy: p.y, btn: 0, moved: true, vx: 0, vy: 0, lt: 0 }; cv.style.cursor = 'grabbing'; return; }   // hold SPACE and drag to pan with any tool
   if (overMini(p)) { drag = { mode: 'mini' }; miniTo(p); return; }
   const tx = Math.floor((p.x + camX) / T), ty = Math.floor((p.y + camY) / T);
+  if (Loot.tryOpen(tx, ty)) { drag = null; return; }                              // supply caches open with a click, whatever tool you hold
+  if (Camp.tryClick(tx, ty)) { drag = null; return; }                             // so does the Dimmer camp: it asks whether to attack
+  if (tool.kind === 'inspect') { drag = { mode: 'pan', btn: 0, px: p.x, py: p.y, sx: p.x, sy: p.y, tile: { x: tx, y: ty }, vx: 0, vy: 0, lt: 0 }; return; }   // click selects on release, drag pans
   drag = { mode: 'paint', last: { x: tx, y: ty }, start: { x: tx, y: ty } };
   beginStroke(); act(tx, ty, true);
 });
@@ -666,7 +681,10 @@ addEventListener('mousemove', e => {
   const p = toGame(e); mouse.x = p.x; mouse.y = p.y; mouse.in = p.x >= 0 && p.y >= 0 && p.x < VW && p.y < VH;
   hover = { x: Math.floor((p.x + camX) / T), y: Math.floor((p.y + camY) / T) };
   if (!drag) return;
-  if (drag.mode === 'pan') { if (Math.hypot(p.x - drag.sx, p.y - drag.sy) > 3) drag.moved = true; camX -= p.x - drag.px; camY -= p.y - drag.py; drag.px = p.x; drag.py = p.y; clampCam(); }
+  if (drag.mode === 'pan') {
+    if (!drag.moved) { if (Math.hypot(p.x - drag.sx, p.y - drag.sy) <= 4) return; drag.moved = true; drag.px = p.x; drag.py = p.y; cv.style.cursor = 'grabbing'; }
+    const dx = p.x - drag.px, dy = p.y - drag.py; camX -= dx; camY -= dy; drag.vx = drag.vx * 0.5 + dx * 0.5; drag.vy = drag.vy * 0.5 + dy * 0.5; drag.lt = performance.now(); drag.px = p.x; drag.py = p.y; clampCam();
+  }
   else if (drag.mode === 'mini') miniTo(p);
   else if (tool.kind === 'cable' || tool.kind === 'multi' || tool.kind === 'salvage' || tool.kind === 'repair') {
     let tx = hover.x, ty = hover.y;
@@ -677,7 +695,11 @@ addEventListener('mousemove', e => {
 });
 addEventListener('mouseup', () => {
   if (drag && drag.mode === 'paint') endStroke();
-  if (drag && drag.mode === 'pan' && drag.btn === 2 && !drag.moved && Builder.active && tool.kind !== 'inspect') selectTool(TOOLS.find(t => t.kind === 'inspect'));      // a plain right-click drops the current tool
+  if (drag && drag.mode === 'pan') {
+    if (drag.moved) { if (performance.now() - drag.lt < 90 && Math.hypot(drag.vx, drag.vy) > 0.7) glide = { vx: -drag.vx, vy: -drag.vy }; }                    // let go while moving: the view keeps gliding
+    else if (drag.btn === 2 && Builder.active && tool.kind !== 'inspect') selectTool(TOOLS.find(t => t.kind === 'inspect'));                                 // a plain right-click drops the current tool
+    else if (drag.btn === 0 && drag.tile && Builder.active) { beginStroke(); act(drag.tile.x, drag.tile.y, true); endStroke(); }                           // a plain click selects / flips a switch
+  }
   drag = null; cv.style.cursor = '';
 });
 let wheelAcc = 0;
@@ -698,19 +720,20 @@ addEventListener('keydown', e => {
   if ($('research').style.display === 'flex') { if (k === 'escape' || k === 'y') closeResearch(); return; }
   const t = TOOLS.find(t => t.key === k); if (t) selectTool(t);
   if (k === 'escape') { $('guide').style.display = 'none'; selectTool(TOOLS.find(t => t.kind === 'inspect')); sel = null; dirty.ui = true; $('help').style.display = 'none'; }
-  if (k === ' ') { e.preventDefault(); setSpeed(speed === 0 ? 1 : 0); }
+  if (k === ' ') { e.preventDefault(); if (!e.repeat) { spaceHeld = true; spaceUsed = false; cv.style.cursor = 'grab'; } }      // tap SPACE to pause, hold it and drag to pan
   if (k === 't' && mouse.in && inb(hover.x, hover.y)) toggleSwitch(occ[hover.y * WW + hover.x]);
   if (k === '+' || k === '=' && e.shiftKey || k === 'add') { e.preventDefault(); stepZoom(1); }
   if (k === '-' || k === '_' || k === 'subtract') { e.preventDefault(); stepZoom(-1); }
   if (k === '\\') setZoom(1);
+  if (k === '.') jumpAlert(1); if (k === ',') jumpAlert(-1);
   if (k === 'home') goHome(); if (k === 'tab') { e.preventDefault(); cycleTab(); } if (k === 'l') setFocus(focus >= 2 ? -1 : focus + 1); if (k === 'm') toggleMute(); if (k === 'y') openResearch();
   if (k === '?' || k === '/') $('help').style.display = $('help').style.display === 'flex' ? 'none' : 'flex';
   if (k === '[') setSpeed(speed === 4 ? 2 : speed === 2 ? 1 : speed);
   if (k === ']') setSpeed(speed === 1 ? 2 : speed === 2 ? 4 : speed);
   if (k.startsWith('arrow')) e.preventDefault();
 });
-addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
-addEventListener('blur', () => { for (const k in keys) keys[k] = false; });
+addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; if (e.key === ' ' && spaceHeld) { spaceHeld = false; if (!drag) cv.style.cursor = ''; if (!spaceUsed && Builder.active) setSpeed(speed === 0 ? 1 : 0); } });
+addEventListener('blur', () => { for (const k in keys) keys[k] = false; spaceHeld = false; });
 
 // ---------- UI ----------
 function setSpeed(s) { speed = s; document.querySelectorAll('#speedseg button').forEach(b => b.classList.toggle('on', +b.dataset.s === s)); $('pausetag').style.display = s === 0 ? 'block' : 'none'; }
@@ -798,7 +821,13 @@ function updateAlerts() {
   });
   if (alerts.length > 8) { const d = document.createElement('div'); d.className = 'more'; d.textContent = '+' + (alerts.length - 8) + ' more'; box.appendChild(d); }
 }
-let lastInfo = '';
+let lastInfo = '', alertIdx = 0;
+function jumpAlert(dir) {
+  if (!alerts.length) { toast('ALL SYSTEMS NOMINAL'); return; }
+  alertIdx = (alertIdx + dir + alerts.length) % alerts.length; const a = alerts[alertIdx];
+  if (a.e) { centerOn(a.e.x + 1, a.e.y + 1); sel = a.e; dirty.ui = true; } else if (a.cable !== undefined) centerOn(a.cable % WW, (a.cable / WW) | 0);
+  toast((alertIdx + 1) + '/' + alerts.length + '  ' + a.label + ' ' + a.miss.join(' '));
+}
 // research window
 function openResearch() { renderResearch(); $('research').style.display = 'flex'; }
 function closeResearch() { $('research').style.display = 'none'; refreshToolbar(); selectTool(tool); }
@@ -828,7 +857,7 @@ function drawMinimap(t) {
   for (const d of DISTRICTS) { const x = (d.x + 1) * 2, y = (d.y + 1) * 2; mmg.fillStyle = '#000'; mmg.fillRect(x - 3, y - 3, 7, 7); mmg.fillStyle = PAL[d.restored ? 12 : 5]; mmg.fillRect(x - 2, y - 2, 5, 5); }
   for (const s of SITES) { const x = (s.x + 1.5) * 2, y = (s.y + 1.5) * 2; mmg.fillStyle = '#000'; mmg.fillRect(x - 3, y - 3, 7, 7); mmg.fillStyle = PAL[15]; mmg.fillRect(x - 2, y - 1, 5, 3); mmg.fillRect(x - 1, y - 2, 3, 5); }
   if (Math.floor(t * 2) % 2) for (const a of alerts) if (a.e && a.miss[0] === 'FAILED') { mmg.fillStyle = '#000'; mmg.fillRect((a.e.x + 1) * 2 - 3, (a.e.y + 1) * 2 - 3, 6, 6); mmg.fillStyle = PAL[5]; mmg.fillRect((a.e.x + 1) * 2 - 2, (a.e.y + 1) * 2 - 2, 4, 4); }
-  opsMini();
+  opsMini(); Loot.mini(); Camp.mini();
   mmg.lineWidth = 1; mmg.strokeStyle = '#000'; mmg.strokeRect(camX / T * 2 - 0.5, camY / T * 2 - 0.5, Math.min(w, VW / T * 2) + 2, Math.min(h, VH / T * 2) + 2);
   mmg.strokeStyle = PAL[8]; mmg.strokeRect(camX / T * 2 + 0.5, camY / T * 2 + 0.5, Math.min(w - 1, VW / T * 2), Math.min(h - 1, VH / T * 2));
 }
@@ -853,6 +882,7 @@ function frame(now) {
   const sp = 170 * dt / camZ * (keys['shift'] ? 2 : 1);
   if (keys['a'] || keys['arrowleft']) camX -= sp; if (keys['d'] || keys['arrowright']) camX += sp;
   if (keys['w'] || keys['arrowup']) camY -= sp; if (keys['s'] || keys['arrowdown']) camY += sp;
+  if (glide) { const f = dt * 60; camX += glide.vx * f; camY += glide.vy * f; glide.vx *= Math.pow(0.9, f); glide.vy *= Math.pow(0.9, f); if (Math.hypot(glide.vx, glide.vy) < 0.08) glide = null; }
   clampCam();
   if (dirty.cab) bakeCables();
   if (dirty.sort) { sortedEnts = [...ents].sort((a, b) => (a.y + a.h) - (b.y + b.h)); dirty.sort = false; }
@@ -905,6 +935,8 @@ function frame(now) {
     if (e.type === 'dormant' || e.type === 'dormantStation') label(SITE_NAME[e.site], ex + e.w * 4, ey - 8, 15);
     if (e.type === 'station') label('CONTROL', ex + 16, ey - 8, e.run ? 12 : 4);
   }
+  if (typeof Tutorial !== 'undefined') Tutorial.drawWorld(t, cx, cy);
+  Loot.draw(t, cx, cy); Camp.draw(t, cx, cy);
   drawFx(t, cx, cy, dt);
   const night = Math.max(0, Math.sin((t - startT) / 40 + 3.3)) * 0.32;
   if (night > 0.03) drawLights(night, cx, cy, x0, y0, x1, y1);
@@ -923,7 +955,7 @@ function frame(now) {
   if (dirty.mini && now - miniT > 400) { bakeMini(); miniT = now; }
   drawMinimap(t);
   if (now - hudT > 200) {
-    hudT = now; updateHud(); refreshTip(); Tutorial.update(); opsHud();
+    hudT = now; updateHud(); refreshTip(); opsHud();
     if (dirty.ui) { updateAlerts(); updateInspector(); refreshToolbar(); dirty.ui = false; }
     const d = describe(); if (d !== lastInfo) { lastInfo = d; $('info').textContent = d || ' '; }
   }
@@ -938,7 +970,7 @@ function starRating() {
   if (SITES.some(q => q.kind !== 'station') && SITES.filter(q => q.kind !== 'station').every(q => ents.some(e => BUILD[e.type].central && e.x === q.x && e.y === q.y))) st++;
   return st;
 }
-const exitResult = () => Object.assign(progressInfo(), { stars: starRating() });
+const exitResult = () => Object.assign(progressInfo(), { stars: starRating(), goals: Variety.doneCount() });
 function applyOutage() {
   let n = 0; for (let L = 0; L < NL; L++) for (let i = 0; i < N; i++) if (cab[L][i] === 1 && Math.random() < 0.16) { cab[L][i] = 2; n++; }
   const mach = ents.filter(e => BUILD[e.type].maint && e.cond > 0 && !BUILD[e.type].fixed); for (let k = 0; k < 2 && mach.length; k++) mach.splice(Math.random() * mach.length | 0, 1)[0].cond = 0;
@@ -977,11 +1009,13 @@ function saveCounty() {
     localStorage.setItem(SAVE_PREFIX + countyId, JSON.stringify({
       scrap: Math.floor(scrap), stock, evT, cab: cab.map(rleEnc), rub: [...cleared],
       ents: ents.filter(e => !BUILD[e.type].fixed).map(e => ({ t: e.type, x: e.x, y: e.y, on: e.on, c: Math.round(e.charge), q: Math.round(e.cond), m: e.mods, mn: e.manual ? 1 : 0 })),
-      rest: DISTRICTS.map(d => d.restored ? 1 : 0), ou: outageActive ? 1 : 0,
+      rest: DISTRICTS.map(d => d.restored ? 1 : 0), ou: outageActive ? 1 : 0, go: Variety.dump(),
     }));
   } catch (e) { if (!saveWarned) { saveWarned = true; toast('SAVE FAILED: browser storage is full. Open Settings on the map and EXPORT SAVE, then free some space.'); } }
 }
+let LOADED_GO = null;
 function loadCounty(id) {
+  LOADED_GO = null;
   let s; try { s = JSON.parse(localStorage.getItem(SAVE_PREFIX + id)); } catch (e) { return false; }
   if (!s) return false;
   restoring = true;
@@ -994,7 +1028,7 @@ function loadCounty(id) {
     addEntity(o.t, o.x, o.y, { on: o.on, charge: o.c, cond: o.q ?? 100, mods: o.m || [], manual: !!o.mn });
   });
   scrap = s.scrap; if (s.stock) stock = s.stock; evT = s.evT || 80; s.rest.forEach((r, k) => { if (DISTRICTS[k]) DISTRICTS[k].restored = !!r; });
-  outageActive = !!s.ou; solveNow(); restoring = false; refreshDistrictButtons();
+  outageActive = !!s.ou; LOADED_GO = s.go || null; solveNow(); restoring = false; refreshDistrictButtons();
   won = DISTRICTS.length > 0 && DISTRICTS.every(d => d.restored);
   return true;
 }
@@ -1014,11 +1048,12 @@ const Builder = {
     initWorld(); solveNow(); refreshDistrictButtons();
     outageActive = false; outageCb = opts.onOutageCleared || null;
     let loaded = false; try { loaded = countyId !== null && loadCounty(countyId); } catch (err) { console.error('county save unreadable', err); restoring = false; loaded = false; if (countyId !== null) { this.clearSave(countyId); initWorld(); solveNow(); toast('That county\'s save was damaged, so it starts fresh.'); } }
+    Variety.begin(spec, (typeof US !== 'undefined' && opts.id != null) ? US.counties[opts.id] : null, loaded, LOADED_GO);
     if (opts.outage && !outageActive) applyOutage();
     buildToolbar(); setSpeed(1); setFocus(-1); updateUndoBtn();
     $('where').textContent = opts.where || ''; $('biome').textContent = (spec.biome || '').toUpperCase() + ' - ' + (opts.sub || '');
     const dd = spec.diff || 0; $('diffTag').textContent = dd < 3 ? 'EASY' : dd < 6 ? 'MEDIUM' : dd < 10 ? 'HARD' : 'BRUTAL'; $('mmcoords').textContent = WW + 'x' + WH + (IMPORTS.links ? ' LINKED ' + IMPORTS.links : ''); if (opts.hostile) $('diffTag').textContent = 'HOSTILE';
-    toastUntil = 0; Tutorial.cam0 = { x: camX, y: camY }; Tutorial.repaired = false; refreshTip(true); if (loaded) toast('Welcome back. Your county was restored from its autosave.');
+    toastUntil = 0; Tutorial.cam0 = { x: camX, y: camY }; Tutorial.repaired = false; refreshTip(true); if (loaded) toast('Welcome back. Your county was restored from its autosave.'); else Variety.announce();
     startT = performance.now() / 1000; this.active = true; dirty.ui = true;
   },
   stop() { this.active = false; },
@@ -1058,54 +1093,15 @@ const TIPS = [
   'Houses only earn scrap while all three utilities reach them. A clinic nearby adds +1 each.',
   'Salvage rubble for scrap - sometimes it hides spare parts.',
 ];
-const Tutorial = {
-  idx: 0, cam0: null, repaired: false,
-  KEY: 'wastelandGrid.tut',
-  load() { try { const v = localStorage.getItem(this.KEY); this.idx = v === null ? 0 : +v; } catch (e) { this.idx = 0; } },
-  save() { try { localStorage.setItem(this.KEY, String(this.idx)); } catch (e) { /* ignore */ } },
-  active() { return this.idx < this.steps.length; },
-  step() { return this.steps[this.idx]; },
-  update() {
-    if (!Builder.active || !this.active()) return;
-    const s = this.step(); if (!s.ack && s.check && s.check()) this.advance();
-  },
-  advance() { this.idx++; this.save(); beep(660, 0.08); beep(880, 0.1, 'square', 0.04, 0.07); refreshTip(true); },
-  skip() { this.idx = this.steps.length; this.save(); refreshTip(true); },
-  restart() { this.idx = 0; this.save(); refreshTip(true); },
-  steps: [],
-};
-const E1 = type => ents.find(e => e.type === type);
-const homeD = () => DISTRICTS.find(d => d.home) || DISTRICTS[0];
-Tutorial.steps = [
-  { t: 'Welcome, Engineer. First, look around: move the camera with WASD (or right-drag). Your HOME BASE has a generator, a water pump and a router - none of them connected yet.', check: () => Tutorial.cam0 && Math.abs(camX - Tutorial.cam0.x) + Math.abs(camY - Tutorial.cam0.y) > 50 },
-  { t: 'POWER LINE (key 1): drag from the generator to the water pump, the router and the district hub. Hold SHIFT for straight lines. A line glows when power flows.', check: () => { const p = E1('pump'), r = E1('router'); return p && r && p.ok[0] && r.ok[0] && homeD().hub.ok[0]; } },
-  { t: 'WATER PIPE (key 2): connect the pump to the hub. Pipes and cables are separate layers - they can cross without mixing.', check: () => homeD().hub.ok[1] },
-  { t: 'NET CABLE (key 3): connect the router to the hub. When power, water AND network all reach it, HOME BASE is restored.', check: () => homeD().restored },
-  { t: 'Restored! Now earn scrap: press F and click near the hub to build a HOUSE (green outline = valid). Press X and click rubble to salvage it for scrap.', check: () => ents.some(e => e.type === 'house') },
-  { t: 'Check the RESOURCES meters on the right. Each bar is demand / supply. If demand passes supply, build another generator (4) or add a solar array or battery.', ack: true },
-  { t: 'RESEARCH: build a RESEARCH LAB (key B) near the hub and connect POWER and NET to it. Labs make research points that carry over to every county.', check: () => ents.some(e => e.type === 'lab') },
-  { t: 'Press Y to open RESEARCH and spend points. Start with WORKSHOPS - they earn scrap and make PARTS, which you need for repairs and advanced buildings.', check: () => Meta.has('workshop') },
-  { t: 'Generators burn FUEL (top bar). Research FUEL REFINING, then build a REFINERY (key I - needs power + water) and a FUEL DEPOT (key U) to store more.', check: () => ents.some(e => e.type === 'refinery') },
-  { t: 'Everything wears out, and storms, surges and breakdowns strike. Watch ALERTS. Use REPAIR (key V) on a broken building or damaged line, or build a MAINT DEPOT (key N) to repair things for you.', check: () => Tutorial.repaired || ents.some(e => e.type === 'depot') },
-  { t: 'PLANTS: the grey 3x3 sites labelled POWER / WATER / DATA are dormant central plants. They connect to TRUNK lines (research HIGH VOLTAGE, WATER MAINS, FIBER), not to local ones. Research HEAVY INDUSTRY (Y), INSPECT (C) a site and press RESTORE.', check: () => ents.some(e => BUILD[e.type].central) },
-  { t: 'A SUBSTATION steps the HV trunk down to local power lines: one side touches the trunk, the other your local line. The same idea works for pressure stations (water mains) and net exchanges (fiber).', ack: true },
-  { t: 'The big GRID CONTROL STATION (4x4, labelled CONTROL) is the last site. Research GRID CONTROL, restore it, run it, and slot upgrade modules into it with INSPECT. Then spend a little time in the research tree (Y).', ack: true },
-  { t: 'A plant only runs while fed. POWER PLANT: water for cooling + fuel. WATER PLANT: power + network + parts. DATA CENTER: power + water. If one stalls, jump-start it with a generator or battery (a "black start") - then keep it repaired, plants wear out fast.', ack: true },
-  { t: 'That is everything. Restore every district to finish the county, then head back to the map. The GUIDE button above has all of this again.', ack: true },
-];
 function refreshTip(force) {
   const now = performance.now(); if (now < toastUntil && !force) return;
   if (now < toastUntil) return;
   const row = $('msgrow'), m = $('msg'); m.classList.remove('flash');
-  if (Tutorial.active()) {
-    const s = Tutorial.step(); row.classList.add('tutorial'); $('msgtag').textContent = 'STEP ' + (Tutorial.idx + 1) + '/' + Tutorial.steps.length;
-    m.textContent = s.t; $('msgbtns').style.display = 'flex'; $('tut-next').style.display = s.ack ? '' : 'none';
-  } else {
+  {
     row.classList.remove('tutorial'); $('msgtag').textContent = 'TIP'; if (now - tipT > 14000) { tipIdx = (tipIdx + 1) % TIPS.length; tipT = now; }
     m.textContent = TIPS[tipIdx]; $('msgbtns').style.display = 'none';
   }
 }
-$('tut-next').onclick = () => Tutorial.advance(); $('tut-skip').onclick = () => Tutorial.skip();
 
 const GUIDE = [
   ['MULTI LINE', 'Pick MULTI LINE (key =) and choose which line types to lay at once, or use a preset: LOCAL x3 lays power, water and net together; TRUNK x3 lays HV, main and fiber side by side. Dragging over existing lines erases them. Trunk lines now share a tile as three parallel lanes.'],
@@ -1116,6 +1112,8 @@ const GUIDE = [
   ['STABLE LINKS', 'Where two online control stations touch, a <b>link</b> forms. Links have a <b>stability</b>: STABLE (60+) carries full power, UNSTABLE halves it, DROPPED carries nothing. Storms and nearby Dimmers wear them down. <b>Fix</b> a link for 6 RP, or <b>upgrade</b> it (Relay, Hardened, Backbone) for faster recovery and more capacity. Imports travel several hops, losing a little at each.'],
   ['FAILURE SEQUENCES', 'Failures now unfold. <b>Grid strain</b> (demand above supply for ten seconds) warns, trips your substations, then cascades. A machine below 12% condition goes <b>critical</b> and explodes in 14 seconds unless repaired. The red ribbon above the map shows the countdown - act before it hits zero.'],
   ['THE DIMMERS', 'The Dimmers hold some counties and slowly expand, sabotaging your restored neighbours. Liberate a Dimmer-held county to push them back. Inside threatened counties raiders strike with a short warning: build SECURITY POSTS (or slot a sentry module).'],
+  ['RAIDS & CAMPS', 'Raiders come as <b>saboteurs</b> (cut lines), <b>scavengers</b> (steal scrap and parts), <b>jammers</b> (knock out routers and relays for 30 seconds), <b>arsonists</b> (burn generators) and <b>warbands</b> (two waves). A red ring shows where they will strike and you can watch them walk in. Security posts repel them and you keep their spoils. Hostile counties may hide a <b>Dimmer camp</b>: click it to send a strike team (costs scrap and parts, chance shown). Win and the raids mostly stop and the camp pays out loot. Dimmer-held counties have <b>warlords</b>: liberate their last county to break them.'],
+  ['HQ ORDERS', 'Headquarters departments unlock <b>orders</b> that appear in the side panel inside a county: Supply Drop (Fabricator 1), Grid Restart (Power Core 2), Overcharge (Data Core 2), Field Survey (Survey Office 1), Lockdown (Aegis Grid 2) and Rebuild Crew (Maintenance Bay 3). They need HQ online, work at half strength in counties not joined to HQ, and cool down in real time. The Command Centre shortens the cooldowns.'],
   ['LINE TYPES', 'Each utility has a thin LOCAL line (houses, small machines) and a thick TRUNK line: <b>HV</b> power, <b>water mains</b> and <b>fiber</b>. Big producers - plants and hydro - and the control station connect to trunks. A <b>transformer</b> (substation, pressure station, net exchange) joins a trunk to the local line next to it.'],
   ['TRANSFORMERS', 'Place a substation so one side touches your HV trunk and the other touches local power lines. Power then flows between them. They are also switches (press T). A substation needs a net signal; pressure stations and net exchanges need power.'],
   ['CONTROL STATION', 'Somewhere in every county stands a dormant <b>grid control station</b>. Research Grid Control, restore it (200 scrap + 12 parts), feed it 10 HV power and 3 fiber, then slot <b>modules</b> into it: surge guard, fuel recycler, load balancer, auto-repair and more. More slots come from research.'],
@@ -1130,19 +1128,18 @@ const GUIDE = [
   ['SWITCHES', '<b>Substations</b> (power), <b>valve houses</b> (water) and <b>net nodes</b> (network) cut a branch off when OFF. They need support to work: substations need a network signal, valves and nodes need power. Press T over one to toggle it.'],
   ['STORAGE', 'Batteries and water towers charge from surplus and cover shortages at 6 per second. Build them before storms and surges, not after.'],
   ['RESEARCH', 'Research labs (power + net) and campus hubs make research points. Spend them with Y. Research carries over to every county for the whole campaign.'],
-  ['THE MAP', 'Restore every county of a country to win it. The light spreads to neighbours. Restore the whole <b>United States</b> first - then Canada and Mexico call for help.'],
+  ['THE MAP', 'Restore every county of a country to win it. The light spreads to neighbours. Restore the whole <b>United States</b> first - then Canada, Mexico, Central America and South America call for help. Complete a whole <b>continent</b> and the radio finds <b>Europe</b> across the Atlantic (through Greenland and Iceland).'],
   ['ZOOM & CAMERA', 'Scroll the <b>mouse wheel</b> (or press <b>+</b> and <b>-</b>) to zoom the play area around the pointer; <b>\\</b> or double-click empty ground resets it. Zoom out to plan big networks, zoom in for fine work. Pan with WASD or the arrows (hold SHIFT to go faster), right-drag or middle-drag. On a touch screen pinch to zoom and drag with two fingers.'],
-  ['SHORTCUTS', 'WASD pan, + - zoom, 1-3 lines, 4-0 power/water/net buildings, Q E R switches, F G O town, B N U I ops, V repair, X salvage, C inspect, T toggle, Y research, SPACE pause, CTRL+Z undo, J this guide.'],
+  ['SHORTCUTS', 'WASD pan, + - zoom, . , jump between alerts, 1-3 lines, 4-0 power/water/net buildings, Q E R switches, F G O town, B N U I ops, V repair, X salvage, C inspect, T toggle, Y research, SPACE pause, CTRL+Z undo, J this guide.'],
 ];
 function openGuide() { $('guide-body').innerHTML = GUIDE.map(([h, p]) => `<section><h4>${h}</h4><p>${p}</p></section>`).join(''); $('guide').style.display = 'flex'; }
 $('btn-guide').onclick = openGuide; $('guide-close').onclick = () => { $('guide').style.display = 'none'; };
 $('guide-replay').onclick = () => { $('guide').style.display = 'none'; Tutorial.restart(); };
 addEventListener('keydown', e => { if (Builder.active && e.key.toLowerCase() === 'j' && !e.ctrlKey) { $('guide').style.display === 'flex' ? ($('guide').style.display = 'none') : openGuide(); } });
-Tutorial.load();
 
 // ================= v5: trunk lines, transformers, main station, research tree =================
 const RES_SHORT = ['PWR', 'H2O', 'NET'];
-const storeMult = () => (Meta.has('grid2') ? 1.5 : 1) * (activeMods.has('balance') ? 1.5 : 1);
+const storeMult = () => (Meta.has('grid2') ? 1.5 : 1) * (activeMods.has('balance') ? 1.5 : 1) * (TM().store || 1);
 const hasRes = (e, R) => { const d = BUILD[e.type]; return d.sup[R] > 0 || d.dem[R] > 0 || (d.store && d.store.L === R) || d.bridge === R || !!d.importer; };
 const tierOf = (e, R) => { const d = BUILD[e.type]; return (d.tier && d.tier[R]) || 0; };
 const uses = (e, L) => {                                   // does this building connect to line layer L?
@@ -1375,6 +1372,7 @@ function updateInspector() {
 function describe() {
   if (!mouse.in || !inb(hover.x, hover.y)) return '';
   const i = hover.y * WW + hover.x, e = occ[i], out = [];
+  if (Loot.at(hover.x, hover.y)) return 'SUPPLY CACHE - click to open it';
   if (e) {
     const d = BUILD[e.type]; out.push(d.name + (e.district ? ' - ' + e.district.name : ''));
     if (d.maint) out.push('COND ' + Math.round(e.cond) + '%');
@@ -1389,7 +1387,7 @@ function describe() {
 }
 
 // ---------- research: a node tree ----------
-const TN_W = 184, TN_H = 58, TN_GX = 70, TN_GY = 16, BR_ORDER = ['POWER', 'GRID', 'WATER', 'NET', 'TOWN', 'OPS', 'STATION'];
+const TN_W = 184, TN_H = 58, TN_GX = 70, TN_GY = 16, BR_ORDER = ['POWER', 'GRID', 'WATER', 'NET', 'TOWN', 'OPS', 'STATION', 'BOOST'];
 let techPos = null, techSel = null;
 function techLayout() {
   const ids = Object.keys(TECH), depth = {};
@@ -1437,7 +1435,7 @@ function renderResearch() {
   info.innerHTML = `<b style="color:${BRANCH[t.br].color}">${t.name}</b> <small>${t.br}</small> - ${t.desc}${un.length ? ' <span class="pos">Unlocks: ' + un.join(', ') + '.</span>' : ''}${!done && !avail ? ' <span class="neg">Needs: ' + t.req.filter(r => !Meta.has(r)).map(r => TECH[r].name).join(', ') + '.</span>' : ''} <button id="tech-buy" ${(!done && avail && Meta.rp >= t.cost) ? '' : 'disabled'}>${done ? 'RESEARCHED' : 'RESEARCH ' + t.cost + ' RP'}</button>`;
   $('tech-buy').onclick = () => buyTech(id);
 }
-function buyTech(id) { if (Meta.buy(id)) { storyEv('research'); beep(660, 0.1); beep(880, 0.15, 'square', 0.04, 0.08); renderResearch(); } }
+function buyTech(id) { if (Meta.buy(id)) { if (typeof Variety !== 'undefined') Variety.remod(); if (typeof recalcMods === 'function') recalcMods(); recompute(); storyEv('research'); beep(660, 0.1); beep(880, 0.15, 'square', 0.04, 0.08); renderResearch(); } }
 
 Meta.load(); buildMeters(); buildToolbar();
 requestAnimationFrame(frame);

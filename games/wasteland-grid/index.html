@@ -203,6 +203,58 @@
   html.w1000 #gamebody, html.w1000 #mapWrap { flex-direction:column; align-items:center; } html.w1000 #side, html.w1000 #mappanel { width:100%; max-width:800px; } html.w1000 #techs, html.w1000 #guide-body { grid-template-columns:1fr; } html.w1000 #story-portrait { width:84px; height:84px; } html.w1000 #story-text { font-size:22px; }
 
   #gzoom { position:absolute; right:6px; top:6px; display:flex; gap:2px; z-index:3; opacity:.55; transition:opacity .15s; } #gzoom:hover { opacity:1; } #gzoom button { padding:3px 8px; font-size:17px; min-width:28px; background:rgba(13,11,14,.85); }
+  .goal { display:grid; grid-template-columns:18px 1fr auto; gap:6px; font-size:17px; margin:3px 0; line-height:1.1; } .goal i { font-style:normal; color:var(--glow); } .goal b { color:var(--glow); font-weight:normal; } .goal.done { color:var(--rad); } .goal.done i { color:var(--rad); } .goal.fail { opacity:.4; text-decoration:line-through; }
+  #goalbox { padding:2px 10px 8px; margin-top:8px; } #contracts { padding:0 0 4px; } #contracts .dim { color:var(--dust); font-size:16px; margin:2px 0; } #contracts small { font-size:15px; }
+  #traitTag { color:var(--volt); border-color:#2f5a60 !important; }
+  /* ---------- tutorial coach ---------- */
+  #coach { position:fixed; left:12px; bottom:12px; width:min(440px, calc(100 * var(--evw) - 24px)); z-index:10; background:var(--deep); border:3px solid var(--glow); box-shadow:0 0 0 2px var(--void), 0 0 26px rgba(245,201,90,.28), 0 8px 0 rgba(0,0,0,.4); padding:10px 12px 10px; text-align:left; }
+  #coach.right { left:auto; right:12px; }
+  #coach-head { display:flex; align-items:center; gap:8px; margin-bottom:6px; } #coach-step { font-family:'Press Start 2P',monospace; font-size:8px; background:var(--glow); color:var(--void); padding:5px 6px; font-weight:normal; }
+  #coach-title { font-family:'Press Start 2P',monospace; font-size:9px; color:var(--glow); flex:1; line-height:1.4; } #coach-side { padding:2px 6px; font-size:14px; }
+  #coach-text { font-size:19px; line-height:1.2; color:var(--bone); } #coach-text b { color:var(--glow); font-weight:normal; } #coach-text .g { color:var(--rad); }
+  #coach-text kbd { font-family:inherit; border:1px solid var(--dust); background:var(--void); padding:0 5px; color:var(--amber); font-size:17px; }
+  #coach-need { margin-top:6px; padding:4px 8px; border-left:4px solid var(--rust); background:rgba(181,80,43,.12); color:var(--amber); font-size:18px; animation:coachpulse 1.2s infinite; } #coach-need.ok { border-color:var(--rad); color:var(--rad); background:rgba(143,191,90,.1); animation:none; }
+  #coach-foot { display:flex; gap:6px; margin-top:8px; } #coach-foot button { font-size:16px; padding:5px 10px; } #coach-skip { margin-left:auto; color:var(--dust); }
+  #coach-rings { position:fixed; left:0; top:0; width:0; height:0; z-index:10; pointer-events:none; }
+  .cring { position:fixed; border:3px solid var(--glow); box-shadow:0 0 14px var(--glow), inset 0 0 10px rgba(245,201,90,.3); pointer-events:none; animation:ringpulse 1s infinite alternate; }
+  .cring::after { content:attr(data-l); position:absolute; left:50%; top:-22px; transform:translateX(-50%); font-family:'Press Start 2P',monospace; font-size:8px; color:var(--void); background:var(--glow); padding:3px 5px; white-space:nowrap; } .cring[data-l='']::after { display:none; }
+  @keyframes ringpulse { from { box-shadow:0 0 6px var(--glow), inset 0 0 4px rgba(245,201,90,.2); } to { box-shadow:0 0 20px var(--glow), inset 0 0 14px rgba(245,201,90,.4); } }
+  @keyframes coachpulse { 50% { background:rgba(181,80,43,.28); } }
+  #tut-btns { display:flex; gap:8px; } #tut-btns button { flex:1; font-size:15px; }
+  /* ---------- skills + headquarters ---------- */
+  #btn-skills.glow { border-color:var(--glow); color:var(--glow); box-shadow:0 0 10px rgba(245,201,90,.35); }
+  #sk-top { display:flex; gap:16px; align-items:center; padding:8px 14px; font-size:19px; color:var(--dust); text-align:left; width:min(1180px, calc(96 * var(--evw))); } .spbig { font-family:'Press Start 2P',monospace; font-size:20px; color:var(--glow); white-space:nowrap; } .spbig small { font-size:9px; color:var(--dust); }
+  #sk-tree { display:grid; grid-template-columns:repeat(5, minmax(0,1fr)); gap:10px; width:min(1180px, calc(96 * var(--evw))); text-align:left; }
+  .skcol { display:flex; flex-direction:column; gap:6px; } .skhead { font-family:'Press Start 2P',monospace; font-size:9px; color:var(--c); border-bottom:3px solid var(--c); padding:4px 2px 6px; }
+  .sknode { display:grid; grid-template-columns:1fr auto; gap:2px 6px; text-align:left; padding:6px 8px; border-left:5px solid var(--c); min-height:84px; align-content:start; }
+  .sknode b { font-weight:normal; color:var(--bone); font-size:18px; } .sknode .pips { color:var(--c); letter-spacing:1px; font-size:16px; } .sknode i { grid-column:1 / 3; font-style:normal; font-size:15px; color:var(--dust); line-height:1.1; } .sknode em { grid-column:1 / 3; font-style:normal; font-size:15px; color:var(--amber); }
+  .sknode.can { border-color:var(--glow); box-shadow:0 0 10px rgba(245,201,90,.25); } .sknode.has b { color:var(--c); } .sknode.max { opacity:.8; } .sknode.max em { color:var(--rad); } .sknode.lock { opacity:.4; }
+  #sk-foot { display:flex; gap:12px; align-items:center; width:min(1180px, calc(96 * var(--evw))); } #sk-msg { flex:1; text-align:left; color:var(--amber); font-size:19px; }
+  #hq-top { display:flex; gap:22px; padding:6px 14px; font-size:19px; color:var(--dust); width:min(1000px, calc(96 * var(--evw))); justify-content:center; flex-wrap:wrap; } #hq-top b { color:var(--glow); font-weight:normal; }
+  #hq-cv { width:min(880px, calc(94 * var(--evw))); height:auto; image-rendering:pixelated; border:3px solid var(--dusk); background:#000; cursor:pointer; }
+  #hq-grid { display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:8px; width:min(1100px, calc(96 * var(--evw))); text-align:left; }
+  .hqmod { background:var(--deep); border:2px solid var(--dusk); border-top:5px solid var(--c); padding:6px 8px 8px; display:flex; flex-direction:column; gap:3px; cursor:pointer; } .hqmod.sel { border-color:var(--glow); border-top-color:var(--c); box-shadow:0 0 10px rgba(245,201,90,.25); }
+  .hqn { display:flex; justify-content:space-between; align-items:center; } .hqn b { color:var(--c); font-weight:normal; font-size:19px; } .pips { color:var(--c); letter-spacing:1px; }
+  .hqmod i { font-style:normal; font-size:15px; color:var(--dust); line-height:1.1; min-height:50px; } .hqnow { font-size:15px; color:var(--bone); } .hqbtns { display:flex; gap:5px; } .hqbtns button { font-size:15px; padding:5px 7px; } .hqbtns button:first-child { flex:1; } .hqwhy { color:var(--rust); font-size:14px; }
+  #hq-bp { display:flex; flex-wrap:wrap; gap:8px; align-items:center; padding:6px 12px; width:min(1100px, calc(96 * var(--evw))); font-size:17px; text-align:left; } #hq-bp b { color:var(--glow); font-weight:normal; } #hq-bp small { width:100%; color:var(--dust); font-size:15px; }
+  .bp { border:1px solid var(--dusk); padding:1px 7px; color:var(--ash); } .bp.got { color:var(--rad); border-color:#4f7a4a; }
+  html.w1100 #sk-tree { grid-template-columns:repeat(2, minmax(0,1fr)); } html.w1100 #hq-grid { grid-template-columns:repeat(2, minmax(0,1fr)); } html.w700 #sk-tree, html.w700 #hq-grid { grid-template-columns:1fr; }
+
+  /* ---------- headquarters v2, orders, objectives ---------- */
+  #hq-doc { width:min(1100px, calc(96 * var(--evw))); text-align:left; } .hqsec { color:var(--glow); font-size:20px; padding:4px 2px; } .hqsec small { color:var(--dust); font-size:16px; margin-left:8px; }
+  .hqdocs { display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:8px; }
+  .hqdoc { text-align:left; background:var(--deep); border:2px solid var(--dusk); border-left:6px solid var(--c); padding:6px 9px; display:flex; flex-direction:column; gap:3px; cursor:pointer; color:var(--bone); font-family:inherit; }
+  .hqdoc b { color:var(--c); font-weight:normal; font-size:20px; } .hqdoc i { font-style:normal; font-size:15px; color:var(--dust); line-height:1.1; } .hqdoc em { font-style:normal; font-size:16px; color:var(--glow); }
+  .hqdoc.sel { border-color:var(--c); box-shadow:0 0 0 2px var(--c) inset; } .hqdoc:hover { border-color:var(--glow); }
+  .hqnext { font-size:14px; color:var(--rad); } .ordtag { display:inline-block; font-size:13px; border:1px solid var(--dusk); color:var(--ash); padding:0 5px; margin:1px 3px 1px 0; } .ordtag.on { color:var(--glow); border-color:#8a6a4e; }
+  #hq-orders { width:min(1100px, calc(96 * var(--evw))); text-align:left; font-size:16px; display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:4px 14px; } #hq-orders > b, #hq-orders > small { grid-column:1/-1; } #hq-orders b { color:var(--glow); font-weight:normal; }
+  .ordrow { color:var(--ash); line-height:1.1; } .ordrow.on { color:var(--bone); } .ordrow span { margin-left:8px; color:var(--dust); font-size:14px; } .ordrow i { display:block; font-style:normal; font-size:14px; color:var(--dust); }
+  #orderbox { padding:2px 10px 8px; margin-top:8px; } #orders { display:flex; flex-wrap:wrap; gap:5px; } #orders .dim { color:var(--dust); font-size:15px; }
+  .ord { display:flex; flex-direction:column; align-items:flex-start; font-size:15px; padding:4px 8px; line-height:1.05; opacity:.6; } .ord b { font-weight:normal; } .ord .ordcd { font-size:14px; color:var(--dust); } .ord.rdy { opacity:1; border-color:var(--glow); } .ord.rdy .ordcd { color:var(--rad); }
+  #objs { padding:0 0 4px; } .objhead { color:var(--dust); font-size:15px; margin-bottom:2px; } .obj { position:relative; display:grid; grid-template-columns:1fr auto; gap:0 8px; font-size:16px; line-height:1.1; margin:4px 0; padding-bottom:5px; } .obj b { color:var(--glow); font-weight:normal; } .obj small { grid-column:1/-1; color:var(--rad); font-size:14px; }
+  .obj i { position:absolute; left:0; bottom:0; height:2px; background:var(--glow); opacity:.7; } #objs .dim { color:var(--dust); font-size:15px; }
+  html.w1100 .hqdocs { grid-template-columns:repeat(2, minmax(0,1fr)); } html.w1100 #hq-orders { grid-template-columns:repeat(2, minmax(0,1fr)); } html.w700 .hqdocs, html.w700 #hq-orders { grid-template-columns:1fr; }
+  #game { touch-action:none; }
   /* ---------- screen adaptation + graphics (display.js) ---------- */
   :root { --z:1; --evw:1px; --evh:1px; }
   body.noscan .crt::after { display:none; }
@@ -225,6 +277,8 @@
 </head>
 <body>
 <div id="fpsbox"></div>
+<div id="coach-rings"></div>
+<div id="coach" style="display:none"><div id="coach-head"><b id="coach-step"></b><span id="coach-title"></span><button id="coach-side" title="Move this box to the other side">&lt;&gt;</button></div><div id="coach-text"></div><div id="coach-need"></div><div id="coach-foot"><button id="coach-back">BACK</button><button id="coach-next" class="primary">NEXT</button><button id="coach-skip">SKIP TUTORIAL</button></div></div>
 
 <!-- ===== MAIN MENU ===== -->
 <div class="scene" id="scene-menu">
@@ -252,7 +306,7 @@
     <div id="chapter"></div>
     <div id="mapstats"></div>
     <span class="seg" id="viewmap" title="Map view (V)"><button data-v="status" class="on">STATUS</button><button data-v="fac">FACTIONS</button><button data-v="links">LINKS</button></span>
-    <input id="msearch" placeholder="FIND COUNTY (/)" autocomplete="off"><button id="btn-wide" title="Wide map (F)">WIDE</button><button id="btn-union" class="primary" title="Union (U)">UNION</button><button id="btn-settings2" title="Settings (O)">SETTINGS</button><button id="btn-log" title="Radio log (L)">RADIO LOG</button>
+    <input id="msearch" placeholder="FIND COUNTY (/)" autocomplete="off"><button id="btn-wide" title="Wide map (F)">WIDE</button><button id="btn-union" class="primary" title="Union (U)">UNION</button><button id="btn-hq" class="primary" title="Headquarters (Q)" style="display:none">HQ</button><button id="btn-skills" title="Skill tree (K)">SKILLS</button><button id="btn-settings2" title="Settings (O)">SETTINGS</button><button id="btn-log" title="Radio log (L)">RADIO LOG</button>
   </div>
   <div id="mapWrap">
     <div id="mapframe">
@@ -267,8 +321,11 @@
       <div class="panel"><div class="ph">COUNTY <span class="r" id="cwhere"></span></div>
         <div id="cname"></div><div id="cstars"></div><div id="cmeta"></div><div id="cstatus"></div><div id="cextra"></div>
         <button id="enter" class="primary">RESTORE COUNTY &gt;</button>
+        <button id="hq-open" style="display:none;width:100%;margin-top:6px" class="big">HEADQUARTERS &gt;</button>
       </div>
       <div class="panel"><div class="ph">PROGRESS</div><div id="mapprog"></div></div>
+      <div class="panel"><div class="ph">CONTRACTS</div><div id="contracts"></div></div>
+      <div class="panel"><div class="ph">OBJECTIVES</div><div id="objs"></div></div>
       <div class="panel"><div class="ph">LEGEND</div>
         <div class="legend" id="legend2" style="display:none"></div>
         <div class="legend" id="legend"><i style="background:#8a6a4e"></i><span>adjacent: ready to restore</span><i style="background:#1f1a24"></i><span>offline</span><i style="background:#4f7a4a"></i><span>restored (brighter = more support)</span><i style="background:#2c6a7a"></i><span>partly restored: finish it later</span><i style="background:#b5502b"></i><span>outage: go back and repair it</span><i style="background:#2f4a3a"></i><span>locked until the USA is lit</span><i style="background:#1a0f12;border-color:#b5502b"></i><span>held by the Dimmers: liberate it</span><i style="background:#d8e6e0"></i><span>stable station link (amber = unstable, rust = dropped)</span></div>
@@ -284,7 +341,7 @@
   <div id="gameWrap">
     <header id="topbar" class="panel">
       <button id="tomap">&lt; MAP</button>
-      <div id="loc"><div id="where"></div><div id="sub"><span id="biome"></span><span id="diffTag"></span></div></div>
+      <div id="loc"><div id="where"></div><div id="sub"><span id="biome"></span><span id="diffTag"></span><span id="traitTag" style="display:none"></span></div></div>
       <div class="chips">
         <div class="chip" title="Scrap: the currency"><img data-ic="scrap" alt=""><div><b id="scrap">0</b><small id="income"></small></div></div>
         <div class="chip" title="Fuel burned by generators and plants"><img data-ic="fuel" alt=""><div><b id="fuel">0</b><small>FUEL</small></div></div>
@@ -315,6 +372,8 @@
           <div class="mmkey"><i style="background:#c8f08a"></i>hub on <i style="background:#b5502b"></i>hub off <i style="background:#d8e6e0"></i>plant <i style="background:#b5502b;border-radius:50%"></i>fault</div></div>
         <div id="tabs"><button data-tab="build" class="on">BUILD</button><button data-tab="status">STATUS<span id="badge"></span></button><button data-tab="sites">SITES</button></div>
         <div class="panel tab on" id="tab-build"><div class="ph">BUILD</div><div id="cats"></div><div id="tools"></div><div id="multi"></div><div id="tooldesc"></div></div>
+        <div class="panel" id="goalbox"><div class="ph">BONUS GOALS <span class="r" id="goalrp"></span></div><div id="goals"></div></div>
+        <div class="panel" id="orderbox" style="display:none"><div class="ph">HQ ORDERS</div><div id="orders"></div></div>
         <div class="tab" id="tab-status">
           <div class="panel"><div class="ph">RESOURCES</div><div id="meters"></div><div id="econ"></div><div id="gridinfo"></div></div>
           <div class="panel" style="margin-top:8px"><div class="ph">ALERTS</div><div id="alerts"></div></div>
@@ -346,7 +405,7 @@
   <div class="overlay" id="help">
     <h2>CONTROLS</h2>
     <div class="keys">
-      <b>WASD / ARROWS</b> move camera (SHIFT = faster)<br><b>WHEEL / + -</b> zoom the play area (<b>\</b> resets)<br><b>RIGHT-DRAG</b> pan<br><b>LEFT-DRAG</b> build / lay lines<br><b>SHIFT</b> straight lines<br>
+      <b>WASD / ARROWS</b> move camera (SHIFT = faster)<br><b>WHEEL / + -</b> zoom the play area (<b>\</b> resets)<br><b>. ,</b> jump to the next / previous alert<br><b>RIGHT-DRAG</b> or <b>HOLD SPACE + DRAG</b> pan (the inspect tool pans with a left-drag; let go while moving to glide)<br><b>LEFT-DRAG</b> build / lay lines<br><b>SHIFT</b> straight lines<br>
       <b>1 2 3</b> power / water / net line<br><b>4-0</b> generator, solar, wind, battery, pump, tower, router<br><b>Q E R</b> substation, valve, net node<br>
       <b>F G O</b> house, workshop, clinic<br><b>B N U I</b> lab, depot, fuel depot, refinery<br><b>H</b> hydro turbine (on a river)<br><b>V</b> repair<br><b>X</b> salvage<br><b>C</b> inspect<br><b>T</b> toggle switch<br>
       <b>CTRL+Z</b> undo<br><b>SPACE</b> pause<br><b>[ ]</b> slower / faster<br><b>L</b> cycle layer view<br><b>TAB</b> next sidebar tab<br><b>Y</b> research<br><b>J</b> guide<br><b>HOME</b> jump home<br><b>M</b> sound<br><b>ESC</b> inspect / close
@@ -374,6 +433,7 @@
     <label class="chk"><input type="checkbox" id="set-events"> random faults and storms</label>
     <label class="chk"><input type="checkbox" id="set-sound"> sound</label>
     <label class="chk"><input type="checkbox" id="set-wide"> wide map (hides the side panel)</label>
+    <div id="tut-btns"><button id="tut-replay-c">REPLAY COUNTY TUTORIAL</button><button id="tut-replay-m">REPLAY MAP TUTORIAL</button></div>
     <div class="ph" style="margin-top:12px">SAVE DATA</div>
     <div id="set-data"><button id="sv-export">EXPORT SAVE</button><button id="sv-import">IMPORT SAVE</button><button id="sv-reset">ERASE ALL</button></div>
     <small id="sv-info"></small><input type="file" id="sv-file" accept=".json,application/json" style="display:none">
@@ -400,6 +460,24 @@
   <button id="dp-cancel" class="big">BACK</button>
 </div>
 
+<!-- ===== SKILLS / HEADQUARTERS ===== -->
+<div class="overlay" id="skills">
+  <h2>SKILL TREE</h2>
+  <div id="sk-top" class="panel"></div>
+  <div id="sk-tree"></div>
+  <div id="sk-foot"><span id="sk-msg"></span><button id="sk-reset">RESET (30 RP)</button><button id="sk-close" class="big">CLOSE</button></div>
+</div>
+<div class="overlay" id="hq">
+  <h2>HEADQUARTERS</h2>
+  <div id="hq-top" class="panel"></div>
+  <canvas id="hq-cv" width="520" height="170"></canvas>
+  <div id="hq-doc"></div>
+  <div id="hq-grid"></div>
+  <div id="hq-orders" class="panel"></div>
+  <div id="hq-bp" class="panel"></div>
+  <button id="hq-close" class="big">CLOSE</button>
+</div>
+
 <!-- ===== STORY ===== -->
 <div class="overlay" id="story">
   <canvas id="story-bg" width="480" height="270"></canvas>
@@ -423,7 +501,7 @@
 <!-- ===== HOW TO PLAY ===== -->
 <div class="overlay" id="how">
   <h2>HOW TO PLAY</h2>
-  <p>1. On the map, pick a county to restore. Its light then spreads to neighbouring counties. Win the USA first, then help Canada, Mexico, Alaska, Central America, the islands and Greenland.<br>
+  <p>1. On the map, pick a county to restore. Its light then spreads to neighbouring counties. Win the USA first, then help Canada, Mexico, Alaska, Central America, South America, the islands and Greenland. Complete a whole continent to reach Europe.<br>
      1b. Press U for the UNION screen: sign compacts with factions, set each border open / checkpoint / closed, and keep your station links stable. Pick a difficulty when you start (change it any time in SETTINGS).<br>
      2. In a county, lay POWER, WATER and NET lines to every district hub. Left-drag to build, WASD or right-drag to look around.<br>
      3. Generators burn fuel, so build a refinery. Houses and workshops earn scrap; workshops also make parts for repairs.<br>
@@ -442,10 +520,13 @@
 <script src="data.js"></script>
 <script src="game.js"></script>
 <script src="ops.js"></script>
+<script src="variety.js"></script>
+<script src="hq.js"></script>
 <script src="campaign.js"></script>
 <script src="world.js"></script>
 <script src="story.js"></script>
 <script src="display.js"></script>
+<script src="tutorial.js"></script>
 <script src="menu.js"></script>
 </body>
 </html>

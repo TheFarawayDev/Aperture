@@ -16,7 +16,7 @@ const fac = id => (save.fac[id] = save.fac[id] || { t: id === 'compact' ? 35 : i
 const cName = cn => COUNTRY_NAME[cn] || cn;
 const BKEY = (a, b) => a < b ? a + '-' + b : b + '-' + a;
 const LKEY = BKEY;
-const FAC_COUNTRIES = { compact: ['US'], syndicate: ['US'], north: ['CA', 'AK'], sur: ['MX'], seas: ['CM', 'CB'], sila: ['GL'] };
+const FAC_COUNTRIES = { compact: ['US'], syndicate: ['US'], north: ['CA', 'AK'], sur: ['MX'], seas: ['CM', 'CB'], sila: ['GL'], andes: ['SA'], euro: ['EU'] };
 let backupNagged = false, wDirty = false, facDirty = true, mapView = 'status', liveLinks = [], wtick = 0, mapToastT = 0;
 
 // ---------- news, announcements ----------
@@ -35,6 +35,8 @@ function facOf(c) {
   if (cn === 'MX') return 'sur';
   if (cn === 'CM' || cn === 'CB') return 'seas';
   if (cn === 'GL') return 'sila';
+  if (cn === 'SA') return 'andes';
+  if (cn === 'EU') return 'euro';
   return c.lon > -101 ? 'compact' : 'syndicate';
 }
 let FAC_C = null;
@@ -80,7 +82,7 @@ const linkLive = (a, b) => active(a) && active(b) && crossOK(US.counties[a].coun
 const exportPct = id => save.exportPct && save.exportPct[id] != null ? save.exportPct[id] : 1;
 function getLink(a, b) { const k = LKEY(a, b); return save.links[k] || (save.links[k] = { lv: 1, st: 75, on: 1 }); }
 function refreshLinks() {
-  liveLinks = [];
+  HQ.at = 0; liveLinks = [];
   for (const [a, b] of US.edges) if (linkLive(a, b)) liveLinks.push({ a, b, key: LKEY(a, b), L: getLink(a, b) });
 }
 function linkColor(a, b) {                                    // colour of a station link on the baked map (-1 = none)
@@ -139,11 +141,12 @@ function netImports(c) {
 let UC = { t: 0, v: null };
 function unity() {
   const now = Date.now(); if (UC.v && now - UC.t < 700) return UC.v;
-  const all = US.counties.length, litBy = {}; let lit = 0, restored = 0;
+  const euOpen = US.counties.some(c => c.country === 'EU' && isLit(c)) || (typeof continentDone === 'function' && (continentDone('NA') || continentDone('SA')));
+  const all = euOpen ? US.counties.length : US.counties.filter(c => c.country !== 'EU').length, litBy = {}; let lit = 0, restored = 0;      // Europe only counts once it is reachable
   for (const c of US.counties) { if (isLit(c)) { lit++; litBy[c.country] = 1; } if (isRestored(c)) restored++; }
   const stable = liveLinks.filter(l => l.L.st >= 60).length, need = Math.max(4, restored * 0.45);
   const cov = lit / all, lnk = restored < 2 ? 0 : Math.min(1, stable / need);
-  const accN = FAC_IDS.filter(id => fac(id).signed).length + (fac('dimmers').t >= 50 ? 1 : 0), acc = accN / (FAC_IDS.length + 1);
+  const accN = FAC_IDS.filter(id => fac(id).signed).length + (fac('dimmers').t >= 50 ? 1 : 0), acc = accN / ((euOpen ? FAC_IDS.length : FAC_IDS.length - 1) + 1);
   const bp = borderPairs().filter(k => k.split('-').every(x => litBy[x])), val = { open: 1, check: 0.65, closed: 0 };
   const bor = bp.length ? bp.reduce((s, k) => s + val[borderMode(...k.split('-'))], 0) / bp.length : 0;
   const pct = 25 * (cov + lnk + acc + bor); let tier = 0; TIERS.forEach((t, i) => { if (pct >= t.min) tier = i; });
@@ -160,6 +163,7 @@ function recalcMods() {
     if (k.inc) m.inc *= k.inc; if (k.imp) m.imp += k.imp; if (k.def) m.def *= k.def;
   });
   if (fac('dimmers').signed) { m.def *= 1.3; m.linkRegen += 0.2; }
+  { const g = Mods.world(); m.imp += g.imp || 0; m.linkRegen += g.linkRegen || 0; m.def *= g.raid || 1; }
   WMOD = m; return m;
 }
 function checkTier() {
@@ -174,7 +178,7 @@ function checkTier() {
 // ---------- the once-a-second world tick ----------
 function worldTick() {
   if (save.start < 0) return; wtick++;
-  const d = D(), regenMul = 1 + WMOD.linkRegen;
+  const d = D(), regenMul = 1 + WMOD.linkRegen, MW = Mods.world();
   for (const [a, b] of US.edges) {                              // link stability
     const key = LKEY(a, b), live = linkLive(a, b); let L = save.links[key];
     if (!live) { if (L) L.on = 0; continue; }
@@ -192,7 +196,7 @@ function worldTick() {
   }
   for (const id of FAC_IDS) {                                  // faction trust
     const f = fac(id), st = facStats(id), fr = st.rest / Math.max(1, st.n), cap = st.rest > 0 ? 100 : 40;
-    let g = (0.012 + 0.07 * fr + (st.rest > 0 ? 0.01 : 0)) * d.trust * borderFactor(id);
+    let g = (0.012 + 0.07 * fr + (st.rest > 0 ? 0.01 : 0)) * d.trust * borderFactor(id) * (MW.trust || 1);
     g -= st.out * 0.02 + st.dark * 0.008; if (f.signed) g = Math.max(0, g);
     f.t = Math.max(0, Math.min(cap, f.t + g));
     if (f.t >= 50 && !f.friendly) { f.friendly = 1; say(`${FACTIONS[id].name} now trusts you. You can sign a compact with them in the UNION screen.`); }
@@ -203,6 +207,8 @@ function worldTick() {
   let toll = 0; const litBy = {}; US.counties.forEach(c => { if (isLit(c)) litBy[c.country] = 1; });
   borderPairs().forEach(k => { const [a, b] = k.split('-'); if (litBy[a] && litBy[b]) toll += BORDER_FX[borderMode(a, b)].toll; });
   Meta.rp += toll + WMOD.rpMin / 60; if (toll || WMOD.rpMin) Meta.dirty = true; if (wtick % 10 === 0 && Meta.dirty) Meta.save();
+  if (wtick % 5 === 0) Contracts.tick();
+  if (wtick % 10 === 0) { HQ.check(); checkAwards(); Objectives.check(); }
   if (wtick % 5 === 0) { refreshLinks(); checkTier(); if (wDirty && mapActive && !anim) { wDirty = false; bakeMap(); updateStats(); } }
   if (mapActive && !Story.cur && !anim) { if (Story.queue.length) Story.pump(); else if (save.pending && Object.keys(save.pending).length && !overlayOpen()) Story.check(); }      // waiting stories play at the next quiet moment on the map
   if (Scenes.cur !== 'menu') save.play = (save.play || 0) + 1;
@@ -224,8 +230,8 @@ function worldDark() {
   if (!darkCount()) {
     const far = usC.filter(c => !isLit(c) && hopsFromStart(c.id) >= 5 && !c.nb.some(n => isLit(US.counties[n])));
     if (!far.length) return;
-    const c = far[Math.random() * far.length | 0]; save.dark[c.id] = 1; writeSave();
-    announceDark(`THE DIMMERS HAVE CLAIMED ${c.name} COUNTY, ${US.states[c.state].ab}. They will spread unless you push them back.`); Story.event('dark'); if (mapActive) Story.check(); return;
+    const c = far[Math.random() * far.length | 0]; save.dark[c.id] = 1; const wn = newWarlord(c.id); writeSave();
+    announceDark(`THE DIMMERS HAVE CLAIMED ${c.name} COUNTY, ${US.states[c.state].ab}. WARLORD ${wn} leads them. They will spread unless you push them back.`); Story.event('dark'); if (mapActive) Story.check(); return;
   }
   const keys = Object.keys(save.dark).map(Number), src = US.counties[keys[Math.random() * keys.length | 0]];
   const here = Builder.active ? countyId : -1;                                  // never sabotage the county you are standing in
@@ -237,8 +243,8 @@ function worldDark() {
   if (darkCount() >= cap) return;
   const free = src.nb.map(n => US.counties[n]).filter(o => !isLit(o) && !save.dark[o.id] && (o.country === 'US' || usDone()) && crossRoll(src.country, o.country));
   if (!free.length) return;
-  const o = free[Math.random() * free.length | 0]; save.dark[o.id] = 1; writeSave();
-  announceDark(`THE DIMMERS SPREAD TO ${o.name} COUNTY, ${US.states[o.state].ab}.`);
+  const o = free[Math.random() * free.length | 0]; save.dark[o.id] = 1; save.wl = save.wl || {}; if (save.wl[src.id]) save.wl[o.id] = save.wl[src.id]; writeSave();
+  announceDark(`THE DIMMERS SPREAD TO ${o.name} COUNTY, ${US.states[o.state].ab}${save.wl[o.id] ? ' (WARLORD ' + save.wl[o.id] + ')' : ''}.`);
 }
 function trustHit(id, n) { const f = fac(id); if (!f.signed) f.t = Math.max(0, f.t - n); }
 
@@ -269,6 +275,14 @@ function worldDraw(mg, P, t) {
       const k = (t * sp + i / n + l.a * 0.13) % 1; P(Math.round(A.px + (B.px - A.px) * k), Math.round(A.py + (B.py - A.py) * k) + 1, 1, 1, c === 15 ? 8 : c);
     }
   }
+  if (save.hq && HQ.online() && mapView !== 'fac') {                              // supply lines: gold threads from HQ along the lit ground it reaches
+    if (Date.now() - HQ.at > 4000) HQ.refresh(); const ks = Object.keys(HQ.par);
+    mg.strokeStyle = PAL[7]; mg.lineWidth = 0.6; mg.globalAlpha = 0.3; mg.beginPath();
+    for (const k of ks) { const a = US.counties[+k], b = US.counties[HQ.par[k]]; mg.moveTo(a.px + 0.5, a.py + 1.5); mg.lineTo(b.px + 0.5, b.py + 1.5); }
+    mg.stroke(); mg.globalAlpha = 1;
+    if (ks.length < 400) for (const k of ks) { const a = US.counties[+k], b = US.counties[HQ.par[k]], f = 1 - ((t * 0.25 + (+k) * 0.137) % 1); P(Math.round(a.px + (b.px - a.px) * f), Math.round(a.py + (b.py - a.py) * f) + 1, 1, 1, 7); }
+  }
+  if (save.hq) { const H = US.counties[save.start], pu = Math.floor(t * 3) % 2; P(H.px - 3, H.py - 3, 7, 7, 0); P(H.px - 2, H.py - 2, 5, 5, pu ? 8 : 6); P(H.px - 1, H.py - 1, 3, 3, 0); P(H.px, H.py, 1, 1, 8); }       // the headquarters
   if (mapView === 'status' && cam.z < 1.2) return;
   for (const [a, b] of crossEdges()) {                          // border gates
     const A = US.counties[a], B = US.counties[b]; if (mapView !== 'links' && !isLit(A) && !isLit(B) && !(selected === a || selected === b)) continue;
@@ -282,6 +296,9 @@ function worldDraw(mg, P, t) {
 function hoverText(c) {
   const F = FACTIONS[facOf(c)], myL = liveLinks.filter(l => l.a === c.id || l.b === c.id);
   let s = `${c.name} CO. - ${US.states[c.state].ab} - ${statusOf(c).toUpperCase()} - ${F.name}`;
+  if (save.hq && c.id === save.start) s += ' - HEADQUARTERS';
+  if (save.dark[c.id] && save.wl && save.wl[c.id]) s += ' - WARLORD ' + save.wl[c.id];
+  { const t = traitOf(c); if (t) s += ` - ${TRAITS[t].n}`; }
   if (myL.length) { const w = myL.reduce((m, l) => Math.min(m, l.L.st), 100); s += ` - ${myL.length} LINK${myL.length > 1 ? 'S' : ''} (${linkClass(w)})`; }
   return s;
 }
@@ -430,13 +447,13 @@ function cycleTargets(onlyTrouble) {
 addEventListener('keydown', e => {
   if (!Scenes.is('map') || e.ctrlKey || e.metaKey || e.altKey || anim) return;
   if (e.target && e.target.tagName === 'INPUT') return;
-  if (overlayOpen()) { if (e.key === 'Escape') { ['union', 'settings', 'log', 'how'].forEach(id => { $(id).style.display = 'none'; }); } return; }
+  if (overlayOpen()) { if (e.key === 'Escape') { ['union', 'settings', 'log', 'how', 'skills', 'hq'].forEach(id => { $(id).style.display = 'none'; }); } return; }
   const k = e.key.toLowerCase(), pan = 26 / cam.z; let used = true;
   if (k === 'w' || k === 'arrowup') cam.cy -= pan; else if (k === 's' || k === 'arrowdown') cam.cy += pan; else if (k === 'a' || k === 'arrowleft') cam.cx -= pan; else if (k === 'd' || k === 'arrowright') cam.cx += pan;
   else if (k === '+' || k === '=') zoomBy(1.4); else if (k === '-' || k === '_') zoomBy(1 / 1.4); else if (k === 'h' || k === '0' || k === 'home') $('mz-home').click();
   else if (k === 'enter' || k === 'e') { if ($('enter').style.display !== 'none') $('enter').click(); }
   else if (k === 'tab') cycleTargets(false); else if (k === 'n') cycleTargets(true);
-  else if (k === 'u') openUnion(); else if (k === 'l') openLog(); else if (k === 'o') openSettings(); else if (k === 'f') $('btn-wide').click();
+  else if (k === 'q') openHQ(); else if (k === 'k') openSkills(); else if (k === 'u') openUnion(); else if (k === 'l') openLog(); else if (k === 'o') openSettings(); else if (k === 'f') $('btn-wide').click();
   else if (k === 'v') setMapView(mapView === 'status' ? 'fac' : mapView === 'fac' ? 'links' : 'status');
   else if (k === 'escape') { selected = -1; updatePanel(); } else if (k === '/') $('msearch').focus(); else if (k === '?') mapHelp(); else used = false;
   if (used) { e.preventDefault(); clampCamMap(); }
