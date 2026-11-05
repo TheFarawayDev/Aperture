@@ -481,6 +481,10 @@
   html:not(.w1000) #mappanel .panel:first-child { flex:none; }
   html:not(.w1000) #mappanel:not(.wide) { height:calc(100 * var(--evh) - 104px) !important; }
   #cname { font-size:22px !important; } #cmeta { font-size:15px; } #mappanel #enter, #mappanel #hq-open { padding:7px 10px; font-size:19px; } #mappanel .ph { padding:6px 8px 5px; } #cstatus { font-size:15px; }
+  /* fixed-height news strip: its size never depends on the picture, so refits cannot snowball */
+  #under { height:236px; flex:none; } #under #bar { height:100%; overflow:hidden; display:flex; flex-direction:column; }
+  #under #newsfeed { height:116px; min-height:116px; max-height:116px; flex:none; } #under #msgrow { height:44px; min-height:44px; overflow:hidden; flex:none; } #under #info { flex:none; }
+  #under #minibox { height:100%; overflow:hidden; } #stage { min-width:300px; }
 </style>
 </head>
 <body>

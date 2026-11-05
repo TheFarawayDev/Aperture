@@ -225,5 +225,5 @@ function syncSide() {
 (function chromeWatch() {                                           // if the header or the news bar change height, refit the picture so nothing scrolls
   if (!window.ResizeObserver) return; let t = 0;
   const go = () => { clearTimeout(t); t = setTimeout(() => { if (typeof Scenes !== 'undefined' && Scenes.cur === 'game') fit(); }, 80); };
-  ['topbar', 'under'].forEach(id => { const e = $(id); if (e) new ResizeObserver(go).observe(e); });
+  ['topbar'].forEach(id => { const e = $(id); if (e) new ResizeObserver(go).observe(e); });
 })();
