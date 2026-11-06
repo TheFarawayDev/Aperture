@@ -449,7 +449,7 @@ function cycleTargets(onlyTrouble) {
 addEventListener('keydown', e => {
   if (!Scenes.is('map') || e.ctrlKey || e.metaKey || e.altKey || anim) return;
   if (e.target && e.target.tagName === 'INPUT') return;
-  if (overlayOpen()) { if (e.key === 'Escape') { ['union', 'settings', 'log', 'how', 'skills', 'hq', 'qm', 'research', 'ages'].forEach(id => { $(id).style.display = 'none'; }); } return; }
+  if (overlayOpen()) { if (e.key === 'Escape') { ['union', 'settings', 'log', 'how', 'skills', 'hq', 'qm', 'research', 'ages', 'inv'].forEach(id => { $(id).style.display = 'none'; }); } return; }
   const k = e.key.toLowerCase(), pan = 26 / cam.z; let used = true;
   if (k === 'w' || k === 'arrowup') cam.cy -= pan; else if (k === 's' || k === 'arrowdown') cam.cy += pan; else if (k === 'a' || k === 'arrowleft') cam.cx -= pan; else if (k === 'd' || k === 'arrowright') cam.cx += pan;
   else if (k === '+' || k === '=') zoomBy(1.4); else if (k === '-' || k === '_') zoomBy(1 / 1.4); else if (k === 'h' || k === '0' || k === 'home') $('mz-home').click();
@@ -499,7 +499,7 @@ $('sv-reset').onclick = async () => { if (await uiConfirm('This erases the campa
 const _rs = renderSettings; renderSettings = function () { _rs(); renderSaveInfo(); };
 
 // ---------- map search + help ----------
-function mapHelp() { uiAlert('WASD / arrows: pan\n+ / -: zoom, H: reset view\nTAB: next target, N: next outage or Dimmer county\nENTER or double-click: open county\nG: ages + shared stockpile, Y: research queue, U: union, V: map view, F: wide map\nQ: headquarters, K: skills, B: quartermaster\n/: find a county, L: radio log, O: settings\nESC: deselect', 'MAP SHORTCUTS'); }
+function mapHelp() { uiAlert('WASD / arrows: pan\n+ / -: zoom, H: reset view\nTAB: next target, N: next outage or Dimmer county\nENTER or double-click: open county\nG: ages, I: shared inventory, Y: research queue, U: union, V: map view, F: wide map\nQ: headquarters, K: skills, B: quartermaster\n/: find a county, L: radio log, O: settings\nESC: deselect', 'MAP SHORTCUTS'); }
 $('msearch').addEventListener('keydown', e => {
   e.stopPropagation(); if (e.key === 'Escape') { e.target.blur(); return; } if (e.key !== 'Enter') return;
   const q = e.target.value.trim().toUpperCase(); if (!q) return;

@@ -182,13 +182,14 @@ function renderAges() {
   $('ag-next').innerHTML = h;
   const unlocked = cur >= 3;
   $('ag-pool').innerHTML = `<div class="ph">SHARED STOCKPILE <span class="r">${unlocked ? 'per minute' : 'opens in the Electric Age'}</span></div>` +
-    GOOD_IDS.map(k => { const r = (Pool.rate[k] || 0) * 60; return `<div class="pgood" style="--c:${GOODS[k].c}"><span>${GOODS[k].n}</span><b>${Pool.fmt(Pool.get(k))}</b><small class="${r < -0.05 ? 'neg' : r > 0.05 ? 'pos' : ''}">${r > 0.05 ? '+' : ''}${Math.abs(r) < 0.05 ? '-' : r.toFixed(1)}</small></div>`; }).join('') +
-    `<p class="dim">Smelters, circuit fabs and component works fill it. SUPPLY EXCHANGES trade parts and fuel with it. Advanced buildings are built from it and some run on it.</p>`;
+    GOOD_IDS.map(k => { const r = (Pool.rate[k] || 0) * 60; return `<div class="pgood" style="--c:${GOODS[k].c}">${goodIcon(k)}<span>${GOODS[k].n}</span><b>${Pool.fmt(Pool.get(k))}</b><small class="${r < -0.05 ? 'neg' : r > 0.05 ? 'pos' : ''}">${r > 0.05 ? '+' : ''}${Math.abs(r) < 0.05 ? '-' : r.toFixed(1)}</small></div>`; }).join('') +
+    `<p class="dim">Smelters, circuit fabs and component works fill it; counties ship scrap, parts and fuel to it. Advanced buildings are built from it and some run on it.</p><button id="ag-inv">OPEN THE SHARED INVENTORY (I)</button>`;
   const hubs = Pool.hubs(), eff = Math.round(Pool.efficiency() * 100);
   $('ag-hubs').innerHTML = `<div class="ph">PRODUCTION HUBS <span class="r">offline output ${eff}%</span></div>` +
     (hubs.length ? hubs.map(x => `<div class="hubrow ${x.on ? '' : 'off'}"><b>${x.c.name}</b><span>${x.here ? 'YOU ARE HERE' : x.on ? 'ONLINE' : save.outage[x.id] ? 'OUTAGE' : 'NOT RESTORED'}</span><small>${x.rp ? `+${(x.rp * 60).toFixed(0)} RP ` : ''}${x.dr ? `${x.dr} drone bay${x.dr > 1 ? 's' : ''} ` : ''}${Object.keys(x.p).map(k => `+${(x.p[k] * 60).toFixed(1)} ${GOODS[k].s}`).join(' ')}${Object.keys(x.u).length ? ' / ' + Object.keys(x.u).map(k => `-${(x.u[k] * 60).toFixed(1)} ${GOODS[k].s}`).join(' ') : ''} per min</small></div>`).join('')
       : `<p class="dim">No hubs yet. Build smelters, circuit fabs, component works or labs in a county and restore it: it keeps producing (and researching) while you play elsewhere (${eff}% speed - Freight Rail, Containerisation and Hyperloop raise it).</p>`);
   $('ag-top').innerHTML = `<span>AGE <b>${ROMAN[cur]}</b> ${AGES[cur].n}</span><span>RESEARCH <b>${Ages.techs()}</b>/${Object.keys(TECH).length}</span><span>COUNTIES <b>${Ages.counties()}</b></span><span>RP <b>${Math.floor(Meta.rp)}</b></span>${save.worldGrid ? '<span class="pos">WORLD GRID LIT</span>' : ''}`;
+  const ai = $('ag-inv'); if (ai) ai.onclick = () => { $('ages').style.display = 'none'; Inv.show(); };
   const go = $('ag-go'); if (go) go.onclick = () => { if (Ages.advance()) { renderAges(); if (mapActive) updateStats(); } };
   const ig = $('ag-ignite'); if (ig) ig.onclick = () => { if (Ages.ignite()) { renderAges(); if (mapActive) updateStats(); } };
 }
@@ -204,8 +205,9 @@ addEventListener('keydown', e => {
 // ---------- HUD: the county's stockpile chip, live refresh of open screens ----------
 function poolHud() {
   const chip = $('poolchip'); if (!chip) return;
-  const on = typeof save !== 'undefined' && save && curAge() >= 3; chip.style.display = on ? '' : 'none'; if (!on) return;
-  $('pool-a').textContent = Pool.fmt(Pool.get('alloy')); $('pool-c').textContent = Pool.fmt(Pool.get('circ')); $('pool-k').textContent = Pool.fmt(Pool.get('comp'));
+  const on = typeof Inv !== 'undefined' && Inv.open(); chip.style.display = on ? '' : 'none'; if (!on) return;
+  const ks = curAge() >= 3 ? ['alloy', 'circ', 'comp'] : ['scrap', 'parts', 'fuel'];
+  ['pool-a', 'pool-c', 'pool-k'].forEach((id, i) => { $(id).textContent = Pool.fmt(Pool.get(ks[i])); $(id).nextElementSibling.textContent = GOODS[ks[i]].n; });
 }
 setInterval(() => {
   Pool.tick(); poolHud();

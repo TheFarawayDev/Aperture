@@ -184,6 +184,7 @@ const Loot = {
   },
   tryOpen(tx, ty) {
     const l = this.at(tx, ty); if (!l) return false;
+    if (!Net.covered(tx, ty)) { warnOnce('THIS CACHE IS OUTSIDE YOUR SIGNAL - REACH IT WITH SAT RELAYS FIRST'); return true; }
     l.open = true; bump('caches'); CUR.looted = (CUR.looted || 0) + 1; const it = this.roll(l); burst(tx, ty, 'spark'); burst(tx, ty, 'spark'); let msg;
     if (it.k === 'scrap') { scrap += it.n; msg = `a SUPPLY CACHE: +${it.n} scrap.`; }
     else if (it.k === 'cr') { const got = Credits.add(it.n); msg = `a SUPPLY CACHE: +${got} credits.`; }

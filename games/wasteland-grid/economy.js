@@ -96,10 +96,14 @@ const Flows = {
     this.ticks++;
     const cap = this.scrapCap();
     if (scrap > cap) {                                              // a full warehouse sells its surplus: the bridge between scrap and credits
-      const ex = scrap - cap; scrap = cap; this.expBuf += ex / BROKER_RATE[qmLvl('broker')]; this.expTot += ex;
-      const whole = Math.floor(this.expBuf); if (whole >= 1) { this.expBuf -= whole; const got = Credits.add(whole); this.expShown += got; }
-      Hints.once('overflow', 'Your WAREHOUSE is full, so surplus scrap is being SOLD for credits. Spend scrap, build storage depots, or upgrade the Warehouse at the Quartermaster.');
-      if (this.expShown >= 8) { toast(`Warehouse full: surplus scrap sold for ${this.expShown} credits.`); this.expShown = 0; }
+      const ex = scrap - cap; scrap = cap;
+      if (typeof Inv !== 'undefined' && Inv.overflow(ex)) { this.shipped = (this.shipped || 0) + ex; if (this.shipped >= 50) { toast(`Warehouse full: ${Math.floor(this.shipped)} surplus scrap shipped to the shared inventory.`); this.shipped = 0; } }
+      else {
+        this.expBuf += ex / BROKER_RATE[qmLvl('broker')]; this.expTot += ex;
+        const whole = Math.floor(this.expBuf); if (whole >= 1) { this.expBuf -= whole; const got = Credits.add(whole); this.expShown += got; }
+        Hints.once('overflow', 'Your WAREHOUSE is full, so surplus scrap is being SOLD for credits. Spend scrap, build storage depots, or upgrade the Warehouse at the Quartermaster. With a CARGO DEPOT you can ship it to the shared inventory instead.');
+        if (this.expShown >= 8) { toast(`Warehouse full: surplus scrap sold for ${this.expShown} credits.`); this.expShown = 0; }
+      }
     }
     const cur = { fuel: stock.fuel, parts: stock.parts, rp: Meta.rp };
     if (this.prev) for (const k in cur) this.ema[k] = this.ema[k] * 0.85 + Math.max(-30, Math.min(30, cur[k] - this.prev[k])) * 0.15;
@@ -150,7 +154,7 @@ const Route = {
     return out;
   },
   stepCost(i, ls) {
-    const t = terrain[i]; if (occ[i]) return -1;
+    const t = terrain[i]; if (occ[i] || !Net.covered(i % WW, (i / WW) | 0)) return -1;
     let c = 1; if (t === 1) { if (!Meta.has('spans')) return -1; c = 6; } else if (t === 2 || t === 4 || t === 5) return -1; else if (!(t === 0 || t === 3 || t === 7)) return -1;
     let have = 0; for (const L of ls) if (cab[L][i]) have++; if (have === ls.length) c *= 0.3; else if (have) c *= 0.7;
     return c;

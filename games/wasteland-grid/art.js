@@ -96,25 +96,25 @@ const SPRITE_PUMP = [
   '................',
 ];
 
-// District hub: bunker with a beacon on top.
+// District hub: a utility box - meter window (power / water / net), double doors, vents, the three feeds underneath.
 // P/Q/R = the three status windows (power / water / network).  D = door.
 const SPRITE_HUB = [
   '.......77.......',
-  '.......00.......',
-  '.......00.......',
-  '.......00.......',
-  '..000000000000..',
+  '......0000......',
+  '.00000000000000.',
   '.02222222222220.',
   '.03333333333330.',
-  '.03PP33QQ33RR30.',
-  '.03PP33QQ33RR30.',
+  '.03000000000030.',
+  '.030PP0QQ0RR030.',
+  '.030PP0QQ0RR030.',
+  '.03000000000030.',
   '.03333333333330.',
-  '.033333DD333330.',
-  '.033333DD333330.',
-  '.033333DD333330.',
-  '.033333DD333330.',
+  '.03333D00D33330.',
+  '.03131300313130.',
+  '.03333300333330.',
+  '.03333300333330.',
   '.00000000000000.',
-  '................',
+  '..0PP00QQ00RR0..',
 ];
 
 // Net router: 8x8 antenna.
@@ -478,6 +478,25 @@ const paintArchive = dead => paint(16, 16, r => {
   r(7, 1, 2, 3, 0); r(6, 0, 4, 1, 14); r(1, 14, 14, 1, 0);
 });
 
+// ---------------- v9: cargo depot ----------------
+const paintCargo = dead => paint(16, 16, r => {
+  r(1, 6, 14, 8, 0); r(2, 7, 12, 6, 3); r(2, 7, 12, 1, 4); r(1, 5, 14, 1, 0);                       // shed
+  r(3, 9, 4, 4, 5); r(3, 9, 4, 1, 6); r(4, 10, 2, 1, 0); r(9, 9, 4, 4, 13); r(9, 9, 4, 1, 14); r(10, 10, 2, 1, 0);   // two crates
+  r(2, 1, 1, 4, 0); r(2, 1, 6, 1, 0); r(7, 2, 1, 2, 0); r(6, 3, 3, 2, 7);                           // little crane with a load
+  r(11, 2, 3, 3, 0); r(12, 3, 1, 1, 14); r(1, 14, 14, 1, 0);
+});
+
+// ---------------- v9: sat relay + sat tower ----------------
+const paintSat = dead => paint(8, 8, r => {
+  r(1, 0, 5, 1, 15); r(0, 1, 2, 1, 15); r(5, 1, 2, 1, 15); r(1, 2, 5, 1, 4); r(3, 1, 1, 1, 14);   // dish
+  r(3, 3, 1, 3, 0); r(2, 6, 3, 1, 3); r(1, 7, 5, 1, 0); r(6, 0, 1, 1, 14);                        // mast and base
+});
+const paintSatTower = dead => paint(16, 16, r => {
+  r(7, 4, 2, 10, 0); r(5, 6, 6, 1, 0); r(4, 9, 8, 1, 0); r(6, 12, 4, 1, 0); r(7, 5, 1, 8, 3);      // lattice mast
+  r(3, 0, 10, 2, 15); r(2, 2, 12, 1, 15); r(4, 2, 8, 1, 4); r(7, 1, 2, 1, 14); r(12, 0, 1, 1, 14); // big dish
+  r(2, 14, 12, 1, 0); r(3, 13, 3, 1, 3); r(10, 13, 3, 1, 3); r(1, 15, 14, 1, 0);
+});
+
 // ---------------- v8: drone bay ----------------
 const paintDroneBay = dead => paint(16, 16, r => {
   r(1, 7, 14, 7, 0); r(2, 8, 12, 5, 3); r(2, 8, 12, 1, 4); r(5, 10, 6, 4, 1); r(5, 10, 6, 1, 2);   // hangar with an open door
@@ -560,6 +579,26 @@ const paintOrbital = dead => paint(16, 16, r => {
   r(3, 1, 10, 2, 15); r(2, 3, 12, 2, 15); r(4, 3, 8, 1, 4); r(7, 5, 2, 7, 0); r(7, 0, 2, 1, 11);               // dish + mast
   r(3, 11, 10, 3, 0); r(4, 12, 8, 1, 3); r(6, 12, 1, 1, 11); r(9, 12, 1, 1, 14); r(1, 14, 14, 1, 0);
 });
+
+// ---- v9: the UI icon set. 12x12 pixel pictures, always shown at exactly 1x, 2x or 3x so every pixel stays square ----
+const UI_ICONS = {
+  scrap: r => { r(1, 8, 10, 3, 0); r(2, 7, 8, 3, 4); r(2, 7, 8, 1, 6); r(3, 4, 4, 4, 0); r(4, 5, 2, 2, 3); r(7, 2, 3, 6, 0); r(8, 3, 1, 4, 15); r(1, 10, 10, 1, 3); },
+  fuel: r => { r(2, 3, 8, 9, 0); r(3, 4, 6, 7, 5); r(3, 4, 6, 1, 6); r(4, 6, 4, 3, 6); r(5, 7, 2, 1, 7); r(3, 1, 3, 2, 0); r(4, 2, 1, 1, 3); r(7, 0, 3, 3, 0); r(8, 1, 1, 1, 7); },
+  parts: r => { r(2, 2, 8, 8, 0); r(5, 0, 2, 12, 0); r(0, 5, 12, 2, 0); r(3, 3, 6, 6, 3); r(5, 1, 2, 1, 3); r(5, 10, 2, 1, 3); r(1, 5, 1, 2, 3); r(10, 5, 1, 2, 3); r(3, 3, 6, 1, 4); r(5, 5, 2, 2, 0); },
+  cr: r => { r(3, 1, 6, 10, 0); r(1, 3, 10, 6, 0); r(2, 2, 8, 8, 0); r(3, 2, 6, 8, 7); r(2, 3, 8, 6, 7); r(3, 3, 3, 1, 8); r(5, 4, 3, 1, 6); r(4, 5, 1, 2, 6); r(5, 7, 3, 1, 6); },
+  rp: r => { r(4, 0, 4, 1, 0); r(4, 1, 1, 4, 0); r(7, 1, 1, 4, 0); r(5, 1, 2, 4, 15); r(2, 5, 8, 1, 0); r(1, 6, 10, 6, 0); r(2, 6, 8, 5, 14); r(2, 6, 8, 1, 8); r(4, 8, 1, 1, 8); r(7, 9, 1, 1, 8); },
+  alloy: r => { r(3, 3, 6, 1, 0); r(2, 4, 8, 1, 0); r(1, 5, 10, 5, 0); r(3, 4, 6, 1, 15); r(2, 5, 8, 4, 15); r(2, 8, 8, 1, 4); r(3, 5, 4, 1, 8); r(1, 10, 10, 1, 0); },
+  circ: r => { r(2, 2, 8, 8, 0); r(3, 3, 6, 6, 9); r(4, 4, 4, 4, 11); r(5, 5, 2, 2, 12); for (let i = 3; i < 9; i += 2) { r(i, 0, 1, 2, 15); r(i, 10, 1, 2, 15); r(0, i, 2, 1, 15); r(10, i, 2, 1, 15); } },
+  comp: r => { r(1, 1, 10, 10, 0); r(2, 2, 8, 8, 6); r(2, 2, 8, 1, 7); r(2, 9, 8, 1, 5); r(4, 4, 4, 4, 0); r(5, 5, 2, 2, 8); r(2, 5, 1, 2, 14); r(9, 5, 1, 2, 14); },
+  stock: r => { r(1, 3, 10, 8, 0); r(2, 4, 8, 6, 4); r(2, 4, 8, 1, 6); r(2, 7, 8, 1, 0); r(5, 4, 2, 6, 0); r(0, 2, 12, 1, 0); r(5, 0, 2, 2, 14); },
+  dist: r => { r(3, 0, 6, 12, 0); r(4, 1, 4, 10, 3); r(4, 2, 4, 3, 0); r(4, 3, 1, 1, 7); r(5, 3, 1, 1, 14); r(7, 3, 1, 1, 11); r(5, 7, 2, 4, 0); r(6, 0, 1, 1, 7); },
+};
+(function iconCss() {
+  let css = '.gi { display:inline-block; flex:none; width:24px; height:24px; background:no-repeat center/100% 100%; image-rendering:pixelated; image-rendering:crisp-edges; font-style:normal; vertical-align:middle; } .gi.s { width:12px; height:12px; } .gi.l { width:36px; height:36px; }\n';
+  for (const k in UI_ICONS) { const c = document.createElement('canvas'); c.width = c.height = 12; const g2 = c.getContext('2d'); UI_ICONS[k]((x, y, w, h, col) => { g2.fillStyle = PAL[col]; g2.fillRect(x, y, w, h); }); css += `.gi-${k} { background-image:url(${c.toDataURL()}); }\n`; }
+  css += '.gi-scrap, .gi-parts, .gi-fuel, .gi-alloy, .gi-circ, .gi-comp {}\n';
+  const st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
+})();
 
 // ---- pixel icons (8x8 masks). pxi('check') gives an inline icon that takes the colour of the text around it, so the UI never needs emoji ----
 const PXI = {

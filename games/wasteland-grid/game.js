@@ -62,7 +62,7 @@ const IMG = {
   lab: paintLab(), depot: paintDepot(), fueldepot: paintFuelDepot(), refinery: paintRefinery(), clinic: paintClinic(),
   hydro: paintHydro(), intertie: paintIntertie(), security: paintSecurity(), gasturbine: paintGasTurbine(), desal: paintDesal(), relay: paintRelay(), apartments: paintApartments(), market: paintMarket(), school: paintSchool(), greenhouse: paintGreenhouse(), station: paintStation(), dStation: paintStation(true), powerplant: paintPowerPlant(), waterplant: paintWaterPlant(), datacenter: paintDataCenter(),
   kiln: paintKiln(), digester: paintDigester(), oilwell: paintOilWell(), synfuel: paintSynfuel(), tankfarm: paintTankFarm(), biomass: paintBiomass(), fuelcell: paintFuelCell(),
-  dronebay: paintDroneBay(), smelter: paintSmelter(), circuitfab: paintCircuitFab(), exchange: paintExchange(), solarfarm: paintSolarFarm(), windfarm: paintWindFarm(), compworks: paintCompWorks(), fission: paintFission(), robotdepot: paintRobotDepot(),
+  cargo: paintCargo(), sat: paintSat(), sattower: paintSatTower(), dronebay: paintDroneBay(), smelter: paintSmelter(), circuitfab: paintCircuitFab(), exchange: paintExchange(), solarfarm: paintSolarFarm(), windfarm: paintWindFarm(), compworks: paintCompWorks(), fission: paintFission(), robotdepot: paintRobotDepot(),
   arcology: paintArcology(), vfarm: paintVFarm(), quantum: paintQuantum(), fusion: paintFusion(), atmo: paintAtmo(), megafab: paintMegafab(), orbital: paintOrbital(),
   geothermal: paintGeothermal(), well: paintWell(), scrapyard: paintScrapyard(), mine: paintMine(), foundry: paintFoundry(), assembly: paintAssembly(), warehouse: paintWarehouse(), archive: paintArchive(),
   dPowerplant: paintPowerPlant(true), dWaterplant: paintWaterPlant(true), dDatacenter: paintDataCenter(true),
@@ -573,6 +573,7 @@ function solveNow() {
     won = true; $('win').style.display = 'flex'; $('win-title').textContent = Builder.name + ' RESTORED';
     const sr = starRating(); $('win-stars').innerHTML = starsHtml(sr); $('win-text').textContent = sr === 3 ? 'Flawless. Every machine runs and every plant is awake.' : 'Every district hums with power, clean water and a working network. Repair every fault and wake the plants for more stars.';
   }
+  Net.refresh();
   if (!transformerFired && !restoring && ents.some(e => BUILD[e.type].bridge !== undefined && e.live && e.on && e.cond > 0)) { transformerFired = true; setTimeout(() => storyEv('transformer'), 1200); }
   dirty.cab = dirty.mini = dirty.ui = true;
 }
@@ -658,6 +659,8 @@ function canPlace(type, x, y) {
     if (Loot.at(tx, ty)) return 'OPEN THE SUPPLY CACHE FIRST (CLICK IT)';
     if (cab.some(a => a[k])) return 'SALVAGE THE LINES FIRST';
   }
+  if (!Net.areaCovered(x, y, d.w, d.h)) return d.relay ? 'OUTSIDE YOUR SIGNAL - RELAYS MUST BE PLACED INSIDE IT' : 'OUTSIDE YOUR SIGNAL - EXTEND IT WITH SAT RELAYS (LINES TAB)';
+  if (d.relay && !Net.linkFor(x, y, d)) return 'TOO FAR FROM A HUB OR RELAY';
   if (d.needWater) {
     let ok = false;
     for (let j = -1; j <= d.h; j++) for (let i = -1; i <= d.w; i++) if (inb(x + i, y + j) && terrain[(y + j) * WW + x + i] === 1) ok = true;
@@ -735,7 +738,7 @@ function salvageAt(x, y) {
     const d = BUILD[e.type];
     if (d.fixed) return warnOnce('CAN\'T SALVAGE THAT');
     if (d.central || d.isStation) return warnOnce('THE ' + d.name + ' CAN\'T BE SALVAGED');
-    const refund = Math.floor((d.cost || 100) / 2), snap = { type: e.type, x: e.x, y: e.y, on: e.on, charge: e.charge, cond: e.cond };
+    const refund = d.refund !== undefined ? d.refund : Math.floor((d.cost || 100) / 2), snap = { type: e.type, x: e.x, y: e.y, on: e.on, charge: e.charge, cond: e.cond };
     scrap += refund; removeEntity(e);
     note(() => { scrap -= refund; addEntity(snap.type, snap.x, snap.y, { on: snap.on, charge: snap.charge, cond: snap.cond }); });
     beep(140, 0.1, 'sawtooth'); recompute(); return;
@@ -771,9 +774,9 @@ function act(x, y, first) {
   } else if (tool.kind === 'build' && first) {
     const why = canPlace(tool.type, x, y);
     if (why) { toast(why); beep(110, 0.12, 'sawtooth'); return; }
-    const d = BUILD[tool.type]; scrap -= d.cost; stock.parts -= d.parts || 0; if (d.pool) Pool.pay(d.pool);
+    const d = BUILD[tool.type], paid = d.cost; scrap -= paid; stock.parts -= d.parts || 0; if (d.pool) Pool.pay(d.pool);
     const e = addEntity(tool.type, x, y);
-    note(() => { removeEntity(e); scrap += d.cost; stock.parts += d.parts || 0; if (d.pool) Pool.refund(d.pool); });
+    note(() => { removeEntity(e); scrap += paid; stock.parts += d.parts || 0; if (d.pool) Pool.refund(d.pool); });
     beep(440, 0.08); beep(660, 0.1, 'square', 0.035, 0.07); recompute();
     if (tool.type === 'house' || tool.type === 'refinery') setTimeout(() => storyEv(tool.type), 2400);
   }
@@ -886,10 +889,13 @@ function iconCanvasOf(type) {
     substation: switchSprite(0, true), valve: switchSprite(1, true), node: switchSprite(2, true), house: IMG.houseOn, workshop: workshopSprite(true),
     clinic: IMG.clinic, intertie: IMG.intertie, security: IMG.security, hydro: IMG.hydro, gasturbine: IMG.gasturbine, desal: IMG.desal, relay: IMG.relay, apartments: IMG.apartments, market: IMG.market, school: IMG.school, greenhouse: IMG.greenhouse, lab: IMG.lab, depot: IMG.depot, fueldepot: IMG.fueldepot, refinery: IMG.refinery })[type];
 }
+const ICON_URL = {};
+const iconUrl = (type, c) => ICON_URL[type] || (ICON_URL[type] = c.toDataURL());      // encode each icon once
 function iconFor(t) {
-  const c = t.kind === 'build' ? iconCanvas(t.type) : null, m = c && c.width === 8 ? 4 : 2;
-  return c ? `<img src="${c.toDataURL()}" width="${c.width * m}" height="${c.height * m}" alt="">`
-    : `<span class="ico" style="${t.kind === 'cable' ? 'background:' + t.color : 'color:' + t.color}">${t.kind === 'multi' ? pxi('multi') : t.kind === 'route' ? pxi('route') : t.kind === 'salvage' ? pxi('cut') : t.kind === 'inspect' ? pxi('look') : t.kind === 'repair' ? pxi('plus') : ''}</span>`;
+  const c = t.kind === 'build' ? iconCanvas(t.type) : null;
+  if (c) return `<img class="${c.width === 8 ? 'sm' : ''}" src="${iconUrl(t.type, c)}" alt="">`;
+  if (t.kind === 'cable') return `<span class="ico line" style="--lc:${t.color}"></span>`;
+  return `<span class="ico" style="color:${t.color}">${t.kind === 'multi' ? pxi('multi') : t.kind === 'route' ? pxi('route') : t.kind === 'salvage' ? pxi('cut') : t.kind === 'inspect' ? pxi('look') : t.kind === 'repair' ? pxi('plus') : ''}</span>`;
 }
 const CATS = [...new Set(TOOLS.map(t => t.cat))];
 const TABS = ['build', 'status', 'sites', 'goals'];
@@ -1028,7 +1034,7 @@ function spriteFor(e, t) {
     case 'workshop': return workshopSprite(e.run);
     case 'ruin': return d.restored ? IMG.houseOn : IMG.ruin;
     case 'hydro': case 'intertie': case 'security': case 'gasturbine': case 'desal': case 'relay': case 'apartments': case 'market': case 'school': case 'greenhouse': case 'station': return IMG[e.type];
-    case 'dronebay': return IMG.dronebay;
+    case 'dronebay': return IMG.dronebay; case 'sat': return IMG.sat; case 'cargo': return IMG.cargo; case 'sattower': return IMG.sattower;
     case 'smelter': case 'circuitfab': case 'exchange': case 'solarfarm': case 'windfarm': case 'compworks': case 'fission': case 'robotdepot': case 'arcology': case 'vfarm': case 'quantum': case 'fusion': case 'atmo': case 'megafab': case 'orbital':
     case 'kiln': case 'digester': case 'oilwell': case 'synfuel': case 'tankfarm': case 'biomass': case 'fuelcell': case 'geothermal': case 'well': case 'scrapyard': case 'mine': case 'foundry': case 'assembly': case 'warehouse': case 'archive': return IMG[e.type];
     case 'dormantStation': return IMG.dStation;
@@ -1043,7 +1049,7 @@ function drawMinimap(t) {
   for (const d of DISTRICTS) { const x = (d.x + 1) * 2, y = (d.y + 1) * 2; mmg.fillStyle = '#000'; mmg.fillRect(x - 3, y - 3, 7, 7); mmg.fillStyle = PAL[d.restored ? 12 : 5]; mmg.fillRect(x - 2, y - 2, 5, 5); }
   for (const s of SITES) { const x = (s.x + 1.5) * 2, y = (s.y + 1.5) * 2; mmg.fillStyle = '#000'; mmg.fillRect(x - 3, y - 3, 7, 7); mmg.fillStyle = PAL[15]; mmg.fillRect(x - 2, y - 1, 5, 3); mmg.fillRect(x - 1, y - 2, 3, 5); }
   if (Math.floor(t * 2) % 2) for (const a of alerts) if (a.e && a.miss[0] === 'FAILED') { mmg.fillStyle = '#000'; mmg.fillRect((a.e.x + 1) * 2 - 3, (a.e.y + 1) * 2 - 3, 6, 6); mmg.fillStyle = PAL[5]; mmg.fillRect((a.e.x + 1) * 2 - 2, (a.e.y + 1) * 2 - 2, 4, 4); }
-  opsMini(); Loot.mini(); Camp.mini();
+  Net.drawMini(); opsMini(); Loot.mini(); Camp.mini();
   mmg.lineWidth = 1; mmg.strokeStyle = '#000'; mmg.strokeRect(camX / T * 2 - 0.5, camY / T * 2 - 0.5, Math.min(w, VW / T * 2) + 2, Math.min(h, VH / T * 2) + 2);
   mmg.strokeStyle = PAL[8]; mmg.strokeRect(camX / T * 2 + 0.5, camY / T * 2 + 0.5, Math.min(w - 1, VW / T * 2), Math.min(h - 1, VH / T * 2));
 }
@@ -1093,6 +1099,7 @@ function frame(now) {
     }
     if (bd.town) { g.strokeStyle = PAL[12]; g.globalAlpha = 0.5; for (const d of DISTRICTS) if (d.restored) g.strokeRect(((d.x - HOUSE_RADIUS) * T - cx) + 0.5, ((d.y - HOUSE_RADIUS) * T - cy) + 0.5, (HOUSE_RADIUS * 2 + 2) * T, (HOUSE_RADIUS * 2 + 2) * T); g.globalAlpha = 1; }
   }
+  Net.drawUnder(cx, cy);
   if (focus < 0) g.drawImage(cabAllCv, -cx, -cy);
   else for (let L = 0; L < NL; L++) { g.globalAlpha = focus === LAYERS[L].res ? 1 : 0.2; g.drawImage(cabCv[L], -cx, -cy); }
   g.globalAlpha = 1;
@@ -1137,6 +1144,7 @@ function frame(now) {
       g.strokeStyle = PAL[bad ? 5 : 12]; g.strokeRect(hx + 0.5, hy + 0.5, d.w * T - 1, d.h * T - 1);
     } else { g.strokeStyle = PAL[tool.kind === 'cable' ? LAYERS[tool.L].live : 15]; g.strokeRect(hx + 0.5, hy + 0.5, T - 1, T - 1); }
   }
+  Net.drawOver(t, cx, cy); if (tool.kind === 'build') Net.ghost(t, cx, cy);
   if (tool.kind === 'route') Route.draw(cx, cy);
   if (sel && ents.includes(sel)) { g.strokeStyle = PAL[8]; g.strokeRect(sel.x * T - cx - 0.5, sel.y * T - cy - 0.5, sel.w * T + 1, sel.h * T + 1); }
   g.setTransform(1, 0, 0, 1, 0, 0);
@@ -1198,7 +1206,7 @@ function saveCounty() {
     localStorage.setItem(SAVE_PREFIX + countyId, JSON.stringify({
       scrap: Math.floor(scrap), stock, evT, cab: cab.map(rleEnc), rub: [...cleared],
       ents: ents.filter(e => !BUILD[e.type].fixed).map(e => ({ t: e.type, x: e.x, y: e.y, on: e.on, c: Math.round(e.charge), q: Math.round(e.cond), m: e.mods, mn: e.manual ? 1 : 0 })),
-      rest: DISTRICTS.map(d => d.restored ? 1 : 0), ou: outageActive ? 1 : 0, go: Variety.dump(),
+      rest: DISTRICTS.map(d => d.restored ? 1 : 0), ou: outageActive ? 1 : 0, go: Variety.dump(), nv: Net.dump(),
     }));
   } catch (e) { if (!saveWarned) { saveWarned = true; toast('SAVE FAILED: browser storage is full. Open Settings on the map and EXPORT SAVE, then free some space.'); } }
 }
@@ -1217,7 +1225,7 @@ function loadCounty(id) {
     addEntity(o.t, o.x, o.y, { on: o.on, charge: o.c, cond: o.q ?? 100, mods: o.m || [], manual: !!o.mn });
   });
   scrap = s.scrap; if (s.stock) stock = s.stock; evT = s.evT || 80; s.rest.forEach((r, k) => { if (DISTRICTS[k]) DISTRICTS[k].restored = !!r; });
-  outageActive = !!s.ou; LOADED_GO = s.go || null; solveNow(); restoring = false; refreshDistrictButtons();
+  outageActive = !!s.ou; LOADED_GO = s.go || null; Net.restore(s); solveNow(); restoring = false; refreshDistrictButtons();
   won = DISTRICTS.length > 0 && DISTRICTS.every(d => d.restored);
   return true;
 }
@@ -1234,7 +1242,7 @@ const Builder = {
     START_BUILDINGS = spec.start; FORCED_PONDS = spec.ponds; SITES = spec.sites || [];
     scrap = opts.scrap; stock = { fuel: 200, parts: 12 }; gameT = 0; evT = 80; radUntil = 0; acc = 0; won = false; drag = null; restoring = false; lastAlertKey = '';
     $('win').style.display = 'none'; $('help').style.display = 'none'; $('research').style.display = 'none';
-    initWorld(); solveNow(); refreshDistrictButtons();
+    Net.reset(); initWorld(); solveNow(); refreshDistrictButtons();
     outageActive = false; outageCb = opts.onOutageCleared || null;
     let loaded = false; try { loaded = countyId !== null && loadCounty(countyId); } catch (err) { console.error('county save unreadable', err); restoring = false; loaded = false; if (countyId !== null) { this.clearSave(countyId); initWorld(); solveNow(); toast('That county\'s save was damaged, so it starts fresh.'); } }
     Variety.begin(spec, (typeof US !== 'undefined' && opts.id != null) ? US.counties[opts.id] : null, loaded, LOADED_GO);
@@ -1293,6 +1301,7 @@ function refreshTip(force) {
 }
 
 const GUIDE = [
+  ['SIGNAL & SAT RELAYS', 'You can only build where your <b>signal</b> reaches: around your home hub (Settler 13 tiles, Survivor 11, Iron Winter 10, Blackout 9) and around every restored hub. Dim ground is out of reach. <b>SAT RELAYS</b> (LINES tab, key <b>\'</b>) extend it: place one inside the signal and it lights 2 tiles around itself plus a corridor back along its beam - chain them into a <b>highway</b>. Each relay in a county costs more than the last. Reaching a new district or dormant plant pays a bonus. Long-Range Dishes, Phased Arrays, Wide Beams and Mesh Satellites make every relay light further; Sat Towers light a wide circle; Skynet covers whole counties.'],
   ['AGES', 'The campaign moves through five ages: <b>SCAVENGER, INDUSTRIAL, ELECTRIC, ATOMIC</b> and <b>FUSION</b>. Open the <b>AGES</b> screen on the map (key <b>G</b>) to see what the next age needs - research projects done, counties restored, research points and later shared goods - and advance. Each age opens new research and buildings, and gives a permanent bonus. In the Fusion Age, research World Grid Theory and <b>IGNITE THE WORLD GRID</b> to finish the long game.'],
   ['SHARED STOCKPILE & HUBS', 'From the Electric Age, <b>ALLOYS</b>, <b>CIRCUITS</b> and <b>COMPONENTS</b> live in one stockpile shared by every county (the chip in the header). Smelters and circuit fabs fill it, component works and megafactories turn alloys and circuits into components, and advanced buildings are built from it. A restored county with factories is a <b>PRODUCTION HUB</b>: it keeps producing while you play elsewhere (at 50% speed; Freight Rail, Containerisation and Hyperloop raise it). <b>SUPPLY EXCHANGES</b> trade spare parts and fuel with the stockpile, so one county can feed another.'],
   ['FUEL', 'Generators, gas turbines, fuel cells and foundries burn <b>fuel</b>. Make it in the <b>FUEL</b> tab: a <b>CHARCOAL KILN</b> needs no power or lines at all (research Charcoal Kilns), a <b>BIOGAS DIGESTER</b> runs on power and water, the <b>REFINERY</b> and <b>OIL WELL</b> come with Fuel Refining and Oil Drilling, and the big <b>SYNFUEL PLANT</b> needs Heavy Industry. Store it in <b>FUEL DEPOTS</b> and <b>TANK FARMS</b>. Catalysts and Catalytic Cracking make every fuel maker produce more.'],
@@ -1494,6 +1503,7 @@ function cableAt(L, x, y, mode) {
   if (terrain[i] === 2) return warnOnce('RUBBLE IN THE WAY - SALVAGE IT (X)');
   if (terrain[i] === 4) return warnOnce('ROCK IN THE WAY - GO AROUND');
   if (occ[i]) return;
+  if (!Net.covered(x, y)) { if (!Route.busy) warnOnce('OUTSIDE YOUR SIGNAL - BUILD SAT RELAYS (LINES TAB) TO REACH HERE'); return; }
   const cst = terrain[i] === 1 ? cost * 5 : cost;
   if (scrap < cst) return warnOnce('NOT ENOUGH SCRAP');
   scrap -= cst; cab[L][i] = 1; note(() => { cab[L][i] = 0; scrap += cst; });
@@ -1562,6 +1572,7 @@ function updateInspector() {
   if (d.partsUse) h += `USES ${d.partsUse} parts/s${stock.parts <= 0 ? ' - NO PARTS' : ''}<br>`;
   if (d.prod) h += `MAKES ${Object.keys(d.prod).map(k => (d.prod[k] * (TM()[k + 'Out'] || 1)).toFixed(2) + ' ' + GOODS[k].n.toLowerCase()).join(', ')}/s for the shared stockpile ${e.run ? '' : '(idle)'}<br>`;
   if (d.poolUse) h += `USES ${Object.keys(d.poolUse).map(k => d.poolUse[k] + ' ' + GOODS[k].n.toLowerCase()).join(', ')}/s from the stockpile${Pool.has(d.poolUse) ? '' : ' - <span class="neg">EMPTY</span>'}<br>`;
+  if (d.cargo) h += `DOCK for the shared inventory ${e.run ? '- ONLINE' : '(needs power + net)'} <button id="i-inv">OPEN INVENTORY</button><br>`;
   if (d.drones) h += `DRONES ${(e._dr || []).filter(x => x.job).length}/${Drones.count(d)} busy - range ${Drones.range(d)} tiles${e.run ? '' : ' (idle: needs power + net)'}<br>`;
   if (d.exchange) h += `TRADES parts and fuel with the stockpile (pool: ${Pool.fmt(Pool.get('parts'))} parts, ${Pool.fmt(Pool.get('fuel'))} fuel)<br>`;
   if (d.rp && !e.isHub) h += `RESEARCH ${(d.rp * (TM().rp || 1)).toFixed(1)}/s ${e.run ? '' : '(idle)'}<br>`;
@@ -1571,7 +1582,7 @@ function updateInspector() {
   if (!d.fixed && !d.central && !d.isStation) h += '<button id="i-sal">SALVAGE</button>';
   box.innerHTML = h;
   const a = (id, fn) => { const el = $(id); if (el) el.onclick = fn; };
-  a('i-tog', () => toggleSwitch(e)); a('i-rep', () => repairEntity(e)); a('i-res', () => restoreSite(e)); a('i-sal', () => { beginStroke(); salvageAt(e.x, e.y); endStroke(); });
+  a('i-tog', () => toggleSwitch(e)); a('i-inv', () => Inv.show()); a('i-rep', () => repairEntity(e)); a('i-res', () => restoreSite(e)); a('i-sal', () => { beginStroke(); salvageAt(e.x, e.y); endStroke(); });
   box.querySelectorAll('[data-inst]').forEach(b => { b.onclick = () => installModule(e, b.dataset.inst); });
   box.querySelectorAll('[data-rem]').forEach(b => { b.onclick = () => removeModule(e, +b.dataset.rem); });
 }

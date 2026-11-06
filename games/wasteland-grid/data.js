@@ -74,6 +74,9 @@ const BUILD = {
   warehouse: { name: 'WAREHOUSE', w: 2, h: 2, cost: 55, sup: [0, 0, 0], dem: [0, 0, 0], scrapCap: 250, maint: 0.02, tech: 'warehousing' },
   archive: { name: 'DATA ARCHIVE', w: 2, h: 2, cost: 90, parts: 2, sup: [0, 0, 0], dem: [3, 0, 4], rp: 3, upkeep: 2, maint: 0.04, town: true, tech: 'archives' },
   // ----- v7 advanced buildings (Ages III-V). pool = build cost from the SHARED STOCKPILE, prod / poolUse = goods per second -----
+  sat: { name: 'SAT RELAY', w: 1, h: 1, get cost() { return typeof Net !== 'undefined' && typeof ents !== 'undefined' ? Net.satCost() : 15; }, sup: [0, 0, 0], dem: [0, 0, 0], relay: { mult: 1, r: 0 }, refund: 0, maint: 0.02 },
+  sattower: { name: 'SAT TOWER', w: 2, h: 2, cost: 160, parts: 4, pool: { alloy: 3 }, sup: [0, 0, 0], dem: [0, 0, 0], relay: { mult: 1.9, r: 6 }, maint: 0.02, tech: 'sattower' },
+  cargo: { name: 'CARGO DEPOT', w: 2, h: 2, cost: 60, parts: 1, sup: [0, 0, 0], dem: [1, 0, 1], cargo: true, upkeep: 1, maint: 0.03, tech: 'freight1' },
   dronebay: { name: 'DRONE BAY', w: 2, h: 2, cost: 90, parts: 3, sup: [0, 0, 0], dem: [2, 0, 1], drones: { n: 3, radius: 30, rate: 1 }, upkeep: 1, maint: 0.03, tech: 'repairdrones' },
   smelter: { name: 'ALLOY SMELTER', w: 2, h: 2, cost: 140, parts: 4, sup: [0, 0, 0], dem: [6, 2, 0], fuel: 0.3, partsUse: 0.3, prod: { alloy: 0.12 }, upkeep: 3, maint: 0.1, tech: 'alloys' },
   circuitfab: { name: 'CIRCUIT FAB', w: 2, h: 2, cost: 150, parts: 4, sup: [0, 0, 0], dem: [4, 1, 4], partsUse: 0.25, prod: { circ: 0.1 }, upkeep: 3, maint: 0.06, tech: 'circuits' },
@@ -239,6 +242,21 @@ const TECH = {
   drones2: { age: 3, br: 'OPS', name: 'DRONE SWARMS', cost: 130, req: ['repairdrones', 'circuits'], desc: 'Every drone bay launches 2 more drones and reaches 10 tiles further.', fx: { droneN: 2, droneRange: 10 } },
   drones3: { age: 4, br: 'OPS', name: 'AUTONOMOUS DRONES', cost: 260, req: ['drones2', 'gridai'], desc: 'Drones repair 50% faster and fix outages on the map twice as fast.', fx: { droneSpeed: 1.5, droneOut: 2 } },
   drones4: { age: 5, br: 'OPS', name: 'NANO-DRONE CLOUD', cost: 550, req: ['drones3', 'selfheal'], desc: 'Every drone bay launches 3 more drones that reach 20 tiles further and work 50% faster.', fx: { droneN: 3, droneRange: 20, droneSpeed: 1.5 } },
+  // ===== v9: signal, relays and the shared inventory =====
+  dishes: { age: 1, br: 'GRID', name: 'LONG-RANGE DISHES', cost: 25, req: [], desc: 'Every sat relay lights 1 tile further.', fx: { satRange: 1 } },
+  folding: { age: 1, br: 'GRID', name: 'FOLDING DISHES', cost: 30, req: ['workshop'], desc: 'Sat relays cost 25% less.', fx: { satCost: 0.75 } },
+  boosters: { age: 2, br: 'GRID', name: 'SIGNAL BOOSTERS', cost: 55, req: ['dishes'], desc: 'Your home signal reaches 3 tiles further and restored hubs 2 tiles further.', fx: { homeR: 3, hubR: 2 } },
+  widebeam: { age: 2, br: 'GRID', name: 'WIDE BEAMS', cost: 60, req: ['dishes'], desc: 'Every sat relay and its corridor light 1 tile further.', fx: { beam: 1 } },
+  phased: { age: 2, br: 'GRID', name: 'PHASED ARRAYS', cost: 70, req: ['dishes', 'scada'], desc: 'Every sat relay lights another tile further.', fx: { satRange: 1 } },
+  survey: { age: 2, br: 'GRID', name: 'SIGNAL SURVEY', cost: 50, req: ['dishes'], desc: 'Reaching a district or plant with your signal pays twice as much.', fx: { reachBonus: 2 } },
+  freight1: { age: 2, br: 'GRID', name: 'INTER-COUNTY FREIGHT', cost: 60, req: ['maint'], desc: 'Cargo depots: send scrap, parts and fuel to the SHARED INVENTORY and take them out in another county (a 15% handling fee on what you send).' },
+  insurance: { age: 3, br: 'GRID', name: 'FREIGHT INSURANCE', cost: 120, req: ['freight1', 'exchange'], desc: 'Halves the handling fee on shared-inventory shipments.', fx: { xferFee: 0.5 } },
+  bonded: { age: 4, br: 'GRID', name: 'BONDED WAREHOUSES', cost: 240, req: ['insurance'], desc: 'No handling fee at all on shared-inventory shipments.', fx: { xferFee: 0 } },
+  sattower: { age: 3, br: 'GRID', name: 'SAT TOWERS', cost: 150, req: ['phased', 'alloys'], desc: 'Sat towers: big relays that light a circle 6 tiles wider than a sat relay.' },
+  meshsat: { age: 3, br: 'GRID', name: 'MESH SATELLITES', cost: 140, req: ['phased', 'netcore'], desc: 'Every sat relay lights 2 tiles further.', fx: { satRange: 2 } },
+  satlines: { age: 3, br: 'GRID', name: 'RELAY ASSEMBLY LINES', cost: 130, req: ['folding', 'assembly'], desc: 'Each new relay costs much less extra than the one before.', fx: { satGrowth: 0.07 } },
+  broadcast: { age: 4, br: 'GRID', name: 'BROADCAST BEAMS', cost: 240, req: ['widebeam', 'gridai'], desc: 'Every sat relay and its corridor light another tile further.', fx: { beam: 1 } },
+  skynet: { age: 5, br: 'GRID', name: 'SKYNET COVERAGE', cost: 800, req: ['orbital', 'meshsat'], desc: 'Satellites cover every county completely: build anywhere.', fx: { fullCover: 1 } },
   // ===== AGE III - ELECTRIC =====
   alloys: { age: 3, br: 'INDUSTRY', name: 'ALLOY SMELTING', cost: 120, req: ['foundry', 'hv'], desc: 'Alloy smelters: 0.12 ALLOYS/s into the shared stockpile, from power, water, fuel and parts.' },
   circuits: { age: 3, br: 'INDUSTRY', name: 'CIRCUIT FABRICATION', cost: 130, req: ['fiber', 'mining'], desc: 'Circuit fabs: 0.1 CIRCUITS/s into the shared stockpile, from power, water, net and parts.' },
@@ -359,6 +377,8 @@ const TOOLS = [
   { cat: 'LINES', name: 'HV LINE', key: 'k', kind: 'cable', L: 3, cost: '3/tile', color: '#fff1b5', desc: 'Thick high-voltage trunk. Power plants and hydro connect here. A substation steps it down to local power lines.' },
   { cat: 'LINES', name: 'WATER MAIN', key: 'p', kind: 'cable', L: 4, cost: '3/tile', color: '#d8e6e0', desc: 'Thick water trunk. Water plants connect here. A pressure station feeds it into local pipes.' },
   { cat: 'LINES', name: 'FIBER LINE', key: 'z', kind: 'cable', L: 5, cost: '3/tile', color: '#c8f08a', desc: 'Thick fiber trunk. Data centers and the control station connect here. A net exchange feeds local cable.' },
+  { cat: 'LINES', name: 'SAT RELAY', key: "'", kind: 'build', type: 'sat', desc: 'Extends your SIGNAL - you can only build where it reaches. Place it inside the signal: it lights 2 tiles around itself and a corridor back along its beam. Chain relays into a highway out to districts and plants. Every relay in a county costs more than the last.' },
+  { cat: 'LINES', name: 'SAT TOWER', key: '', kind: 'build', type: 'sattower', desc: 'A big relay that lights 6 tiles further around itself than a sat relay. Built with parts and shared alloys.' },
   { cat: 'LINES', name: 'AUTO ROUTE', key: ';', kind: 'route', cost: 'varies', color: '#ffd27a', desc: 'Click a start (or a machine), then an end: every line type chosen below is laid along the cheapest path around obstacles. The preview shows the cost. ESC or right-click cancels.' },
   { cat: 'LINES', name: 'MULTI LINE', key: '=', kind: 'multi', cost: 'varies', color: '#d8e6e0', desc: 'Lay several line types in one drag. Choose which ones with the buttons below, or use a preset.' },
   { cat: 'POWER', name: 'GENERATOR', key: '4', kind: 'build', type: 'generator', desc: '+8 power. Burns 0.25 fuel/s and 1 scrap/s. Wears out.' },
@@ -394,6 +414,7 @@ const TOOLS = [
   { cat: 'CONTROL', name: 'INTERTIE', key: '', kind: 'build', type: 'intertie', desc: 'Imports surplus power, water and net from neighbouring counties with online control stations. Connect it to your trunks.' },
   { cat: 'CONTROL', name: 'SECURITY POST', key: '', kind: 'build', type: 'security', desc: 'Drives off raiders within 14 tiles. Needs 1 power and 1 net.' },
   { cat: 'CONTROL', name: 'NET EXCHANGE', key: 'r', kind: 'build', type: 'node', desc: 'Joins the fiber trunk to local cable. Also a switch (press T). Needs 1 power.' },
+  { cat: 'CONTROL', name: 'CARGO DEPOT', key: '', kind: 'build', type: 'cargo', desc: 'A dock for the SHARED INVENTORY: send scrap, parts and fuel to the stockpile and take them out again in other counties (click the stockpile chip in the header). Needs 1 power + 1 net.' },
   { cat: 'CONTROL', name: 'SUPPLY EXCHANGE', key: '', kind: 'build', type: 'exchange', desc: 'Trades PARTS and FUEL with the shared stockpile: exports your surplus, imports when you run short. Needs 1 power + 2 net.' },
   { cat: 'TOWN', name: 'HOUSE', key: 'f', kind: 'build', type: 'house', desc: 'Needs 1 power, water, net. Earns 2 scrap/s.' },
   { cat: 'TOWN', name: 'APARTMENTS', key: '', kind: 'build', type: 'apartments', desc: 'Needs 2 of each. Earns 7 scrap/s.' },
@@ -430,13 +451,13 @@ const TOOLS = [
 // ============================================================
 const DIFFS = [
   { id: 'settler', name: 'SETTLER', blurb: 'Gentle. Rich starts, rare storms, slow Dimmers, forgiving neighbours.', scrap: 1.4, ev: 1.5, wear: 0.7, raid: 1.6, dark: 1.7, darkCap: 0.06, trust: 1.4, linkDecay: 0.6,
-    assist: { n: 'FULL', autoFix: 1, fixAll: 1, efuel: 1, drone: 1.25, prevent: 0.6, d: 'All assists: auto-repair, REPAIR ALL, emergency fuel; drones fix map outages fast and prevent most.' } },
+    cover: 13, assist: { n: 'FULL', autoFix: 1, fixAll: 1, efuel: 1, drone: 1.25, prevent: 0.6, d: 'All assists: auto-repair, REPAIR ALL, emergency fuel; drones fix map outages fast and prevent most.' } },
   { id: 'survivor', name: 'SURVIVOR', blurb: 'The intended game. Storms, raids and Dimmers at a steady pace.', scrap: 1, ev: 1, wear: 1, raid: 1, dark: 1, darkCap: 0.1, trust: 1, linkDecay: 1,
-    assist: { n: 'STANDARD', autoFix: 1, fixAll: 1, efuel: 1, drone: 1, prevent: 0.5, d: 'All assists: auto-repair, REPAIR ALL, emergency fuel; drones fix map outages and prevent half of them.' } },
+    cover: 11, assist: { n: 'STANDARD', autoFix: 1, fixAll: 1, efuel: 1, drone: 1, prevent: 0.5, d: 'All assists: auto-repair, REPAIR ALL, emergency fuel; drones fix map outages and prevent half of them.' } },
   { id: 'winter', name: 'IRON WINTER', blurb: 'Lean starts, frequent faults, aggressive Dimmers, wary factions.', scrap: 0.75, ev: 0.7, wear: 1.3, raid: 0.7, dark: 0.7, darkCap: 0.16, trust: 0.8, linkDecay: 1.3,
-    assist: { n: 'LIMITED', autoFix: 0, fixAll: 1.25, efuel: 2, drone: 0.5, prevent: 0.3, d: 'No auto-repair. REPAIR ALL costs 25% more, emergency fuel costs double, drones fix map outages at half speed.' } },
+    cover: 10, assist: { n: 'LIMITED', autoFix: 0, fixAll: 1.25, efuel: 2, drone: 0.5, prevent: 0.3, d: 'No auto-repair. REPAIR ALL costs 25% more, emergency fuel costs double, drones fix map outages at half speed.' } },
   { id: 'blackout', name: 'BLACKOUT', blurb: 'Brutal. Little scrap, constant failures, Dimmers everywhere, links fray fast.', scrap: 0.55, ev: 0.5, wear: 1.6, raid: 0.5, dark: 0.5, darkCap: 0.24, trust: 0.6, linkDecay: 1.6,
-    assist: { n: 'NONE', autoFix: 0, fixAll: 0, efuel: 0, drone: 0.33, prevent: 0, d: 'No auto-repair, no REPAIR ALL, no emergency fuel. Drones still repair inside a county, but fix map outages slowly and prevent none.' } },
+    cover: 9, assist: { n: 'NONE', autoFix: 0, fixAll: 0, efuel: 0, drone: 0.33, prevent: 0, d: 'No auto-repair, no REPAIR ALL, no emergency fuel. Drones still repair inside a county, but fix map outages slowly and prevent none.' } },
 ];
 
 // regional factions (the Dimmers are handled separately in world.js)
