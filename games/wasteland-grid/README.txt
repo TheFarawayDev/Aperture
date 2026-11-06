@@ -1,4 +1,4 @@
-WASTELAND GRID - static HTML5 game (v6)
+WASTELAND GRID - static HTML5 game (v6) - FIX
 =======================================
 No build step, no server code, no dependencies.
 
