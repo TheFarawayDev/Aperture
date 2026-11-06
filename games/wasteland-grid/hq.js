@@ -16,7 +16,7 @@ function ensureMeta() { save.sk = save.sk || {}; save.items = save.items || {}; 
 // ---------- the skill tree ----------
 const SK_BRANCH = {
   eng: { n: 'ENGINEERING', c: '#5fc4d0' }, pow: { n: 'POWER', c: '#f5c95a' }, log: { n: 'LOGISTICS', c: '#8fbf5a' },
-  res: { n: 'RESILIENCE', c: '#e07050' }, sci: { n: 'SCIENCE & DIPLOMACY', c: '#b59cf0' },
+  res: { n: 'RESILIENCE', c: '#e07050' }, sci: { n: 'SCIENCE & DIPLOMACY', c: '#b59cf0' }, auto: { n: 'AUTOMATION', c: '#ff9fb0' },
 };
 const SKILLS = [
   { id: 'rugged', br: 'eng', t: 0, n: 'RUGGED MACHINES', max: 3, cost: 1, d: 'Machines wear 8% slower per rank.', fx: r => ({ wear: 1 - 0.08 * r }) },
@@ -38,6 +38,23 @@ const SKILLS = [
   { id: 'scholar', br: 'sci', t: 0, n: 'SCHOLAR', max: 3, cost: 1, d: 'Research points +10% per rank.', fx: r => ({ rp: 1 + 0.1 * r }) },
   { id: 'envoy', br: 'sci', t: 0, n: 'ENVOY', max: 3, cost: 1, d: 'Factions trust you 10% faster per rank.', fx: r => ({ trust: 1 + 0.1 * r }) },
   { id: 'contractor', br: 'sci', t: 1, n: 'CONTRACTOR', max: 2, cost: 1, need: ['envoy'], d: 'Contracts pay 15% more per rank. Rank 2: one more open contract.', fx: r => ({ contractRP: 1 + 0.15 * r, contractMax: r >= 2 ? 1 : 0 }) },
+  // ----- v8: deeper branches (tiers 3 and 4) and the AUTOMATION branch. New ids only, so older saves keep every rank. -----
+  { id: 'mechanic', br: 'eng', t: 3, n: 'MASTER MECHANIC', max: 2, cost: 2, need: ['crews', 'salvager'], d: 'Repairs cost 20% less and machines wear 6% slower per rank.', fx: r => ({ repair: 1 - 0.2 * r, wear: 1 - 0.06 * r }) },
+  { id: 'forge', br: 'eng', t: 4, n: 'PARTS FORGE', max: 2, cost: 3, need: ['mechanic'], d: 'Every county makes +0.05 parts per second per rank, from nothing.', fx: r => ({ partsFlow: 0.05 * r }) },
+  { id: 'turbo', br: 'pow', t: 3, n: 'TURBOCHARGE', max: 3, cost: 2, need: ['cells'], d: 'Fuel-burning power sources make 6% more per rank.', fx: r => ({ genOut: 1 + 0.06 * r }) },
+  { id: 'gridlord', br: 'pow', t: 4, n: 'GRID MASTER', max: 2, cost: 3, need: ['turbo'], d: 'Power, water and network output +4% per rank.', fx: r => ({ genOut: 1 + 0.04 * r, waterOut: 1 + 0.04 * r, netOut: 1 + 0.04 * r }) },
+  { id: 'quarter', br: 'log', t: 3, n: 'HUB FOREMAN', max: 3, cost: 2, need: ['trunk'], d: 'Counties you are not playing deliver 10% more to the shared stockpile per rank.', fx: r => ({ poolEff: 0.1 * r }) },
+  { id: 'express', br: 'log', t: 4, n: 'EXPRESS FREIGHT', max: 2, cost: 3, need: ['quarter'], d: 'Supply exchanges move 25% more and fuel makers produce 5% more per rank.', fx: r => ({ exportRate: 1 + 0.25 * r, fuelOut: 1 + 0.05 * r }) },
+  { id: 'bulwark', br: 'res', t: 3, n: 'BULWARK', max: 2, cost: 2, need: ['steady'], d: 'Storms damage 15% fewer lines and raiders come 15% less often per rank.', fx: r => ({ stormN: 1 - 0.15 * r, raid: 1 + 0.15 * r }) },
+  { id: 'unbreak', br: 'res', t: 4, n: 'UNBREAKABLE', max: 2, cost: 3, need: ['bulwark'], d: 'Outages on the map are 20% rarer and drones fix them 25% faster per rank.', fx: r => ({ outage: 1 + 0.2 * r, droneOut: 1 + 0.25 * r }) },
+  { id: 'labtech', br: 'sci', t: 3, n: 'LAB TECHNICIAN', max: 3, cost: 2, need: ['archivist'], d: 'Queued research fills 15% faster per rank.', fx: r => ({ labSpeed: 1 + 0.15 * r }) },
+  { id: 'polymath', br: 'sci', t: 4, n: 'POLYMATH', max: 2, cost: 3, need: ['labtech'], d: 'Research points +10% and research speed +10% per rank.', fx: r => ({ rp: 1 + 0.1 * r, labSpeed: 1 + 0.1 * r }) },
+  { id: 'pilot', br: 'auto', t: 0, n: 'DRONE PILOT', max: 3, cost: 1, d: 'Repair drones work 20% faster per rank.', fx: r => ({ droneSpeed: 1 + 0.2 * r }) },
+  { id: 'swarm', br: 'auto', t: 0, n: 'SWARM LOGIC', max: 2, cost: 1, d: 'Every drone bay launches 1 more drone per rank.', fx: r => ({ droneN: r }) },
+  { id: 'autofix', br: 'auto', t: 1, n: 'FIELD AUTOMATION', max: 3, cost: 1, need: ['pilot'], d: 'Repairs, REPAIR ALL and auto-repair cost 10% less per rank.', fx: r => ({ repair: 1 - 0.1 * r }) },
+  { id: 'remote', br: 'auto', t: 2, n: 'REMOTE OPS', max: 2, cost: 2, need: ['autofix', 'swarm'], d: 'Drones reach 8 tiles further and fix outages on the map 30% faster per rank.', fx: r => ({ droneRange: 8 * r, droneOut: 1 + 0.3 * r }) },
+  { id: 'sentinel', br: 'auto', t: 3, n: 'SENTINEL PROTOCOL', max: 1, cost: 3, need: ['remote'], d: 'Tripped switches close again after 3 seconds, and machines mend themselves (+0.03 condition per second).', fx: r => ({ droneSwitch: r, autoRepair: 0.03 * r }) },
+  { id: 'overmind', br: 'auto', t: 4, n: 'OVERMIND', max: 1, cost: 4, need: ['sentinel'], d: 'Drones work 50% faster and research fills 10% faster.', fx: r => ({ droneSpeed: 1 + 0.5 * r, labSpeed: 1 + 0.1 * r }) },
   { id: 'archivist', br: 'sci', t: 2, n: 'ARCHIVIST', max: 3, cost: 2, need: ['scholar', 'contractor'], d: 'Supply caches hold 10% more and blueprints turn up 3% more often per rank.', fx: r => ({ lootVal: 1 + 0.1 * r, lootBP: 0.03 * r }) },
 ];
 const SKILL_RESET_RP = 30;
@@ -192,16 +209,17 @@ const Loot = {
 
 // ---------- skill tree screen: a real tree (branches as columns, tiers as rows, lines between prerequisites) plus an inspector ----------
 let skSel = null;
-const SK_W = 70, SK_H = 64, SK_GAP = 8, SK_COLW = 2 * SK_W + 3 * SK_GAP, SK_ROWH = 104, SK_TOP = 38;
+const SK_W = 64, SK_H = 64, SK_GAP = 8, SK_COLW = 2 * SK_W + 3 * SK_GAP, SK_ROWH = 96, SK_TOP = 38;
+const SK_MAXT = () => Math.max(...SKILLS.map(s => s.t));
 function skPos() {
   const pos = {}; Object.keys(SK_BRANCH).forEach((b, bi) => {
-    for (let t = 0; t <= 2; t++) { const row = SKILLS.filter(s => s.br === b && s.t === t); row.forEach((s, k) => { pos[s.id] = { x: bi * SK_COLW + SK_COLW / 2 + (k - (row.length - 1) / 2) * (SK_W + SK_GAP) - SK_W / 2, y: SK_TOP + t * SK_ROWH }; }); }
+    for (let t = 0; t <= SK_MAXT(); t++) { const row = SKILLS.filter(s => s.br === b && s.t === t); row.forEach((s, k) => { pos[s.id] = { x: bi * SK_COLW + SK_COLW / 2 + (k - (row.length - 1) / 2) * (SK_W + SK_GAP) - SK_W / 2, y: SK_TOP + t * SK_ROWH }; }); }
   });
   return pos;
 }
 const skState = s => { const r = skRank(s.id), open = skOpen(s), maxed = r >= s.max; return { r, open, maxed, can: open && !maxed && save.sp >= s.cost }; };
 function renderSkills() {
-  ensureMeta(); const pos = skPos(), brs = Object.keys(SK_BRANCH), W = brs.length * SK_COLW, H = SK_TOP + 2 * SK_ROWH + SK_H + 12;
+  ensureMeta(); const pos = skPos(), brs = Object.keys(SK_BRANCH), W = brs.length * SK_COLW, H = SK_TOP + SK_MAXT() * SK_ROWH + SK_H + 12;
   const spent = SKILLS.reduce((a, s) => a + skRank(s.id) * s.cost, 0), ranks = SKILLS.reduce((a, s) => a + skRank(s.id), 0);
   $('sk-top').innerHTML = `<span class="spbig">${save.sp} <small>SKILL POINTS</small></span><span>SPENT <b>${spent}</b></span><span>RANKS <b>${ranks}/${SKILLS.reduce((a, s) => a + s.max, 0)}</b></span><span class="dim">1 point per 3 counties, plus states, countries, flawless counties and caches.</span>`;
   let svg = '', html = brs.map((b, bi) => `<div class="skhead" style="left:${bi * SK_COLW}px;width:${SK_COLW}px;--c:${SK_BRANCH[b].c}">${SK_BRANCH[b].n}</div>`).join('');
@@ -285,9 +303,9 @@ const Orders = {
   },
   render() {
     const box = $('orders'), pan = $('orderbox'); if (!box || !pan) return;
-    if (!save.hq) { pan.style.display = 'none'; return; }
+    const un = save.hq ? ORDERS.filter(o => this.unlocked(o)) : [];
+    if (!un.length) { pan.style.display = 'none'; box.innerHTML = ''; if (typeof fitCatalogue === 'function') setTimeout(fitCatalogue, 0); return; }      // no orders yet: the HQ screen explains how to get them
     pan.style.display = '';
-    const un = ORDERS.filter(o => this.unlocked(o));
     box.innerHTML = un.length ? un.map(o => `<button class="ord" data-ord="${o.id}" title="${o.d(hqLevel(o.mod))}"><b>${o.n}</b><span class="ordcd" data-o="${o.id}"></span></button>`).join('')
       : '<span class="dim">No orders yet. Build HQ modules on the map (Q): Fabricator, Power Core, Data Core, Survey Office, Aegis Grid and Maintenance Bay each unlock one.</span>';
     this.tick();

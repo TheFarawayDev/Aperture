@@ -61,6 +61,10 @@ const IMG = {
   houseOn: bake(SPRITE_HOUSE, HOUSE_ON), houseOff: bake(SPRITE_HOUSE, HOUSE_OFF), ruin: bake(SPRITE_HOUSE, HOUSE_RUIN),
   lab: paintLab(), depot: paintDepot(), fueldepot: paintFuelDepot(), refinery: paintRefinery(), clinic: paintClinic(),
   hydro: paintHydro(), intertie: paintIntertie(), security: paintSecurity(), gasturbine: paintGasTurbine(), desal: paintDesal(), relay: paintRelay(), apartments: paintApartments(), market: paintMarket(), school: paintSchool(), greenhouse: paintGreenhouse(), station: paintStation(), dStation: paintStation(true), powerplant: paintPowerPlant(), waterplant: paintWaterPlant(), datacenter: paintDataCenter(),
+  kiln: paintKiln(), digester: paintDigester(), oilwell: paintOilWell(), synfuel: paintSynfuel(), tankfarm: paintTankFarm(), biomass: paintBiomass(), fuelcell: paintFuelCell(),
+  dronebay: paintDroneBay(), smelter: paintSmelter(), circuitfab: paintCircuitFab(), exchange: paintExchange(), solarfarm: paintSolarFarm(), windfarm: paintWindFarm(), compworks: paintCompWorks(), fission: paintFission(), robotdepot: paintRobotDepot(),
+  arcology: paintArcology(), vfarm: paintVFarm(), quantum: paintQuantum(), fusion: paintFusion(), atmo: paintAtmo(), megafab: paintMegafab(), orbital: paintOrbital(),
+  geothermal: paintGeothermal(), well: paintWell(), scrapyard: paintScrapyard(), mine: paintMine(), foundry: paintFoundry(), assembly: paintAssembly(), warehouse: paintWarehouse(), archive: paintArchive(),
   dPowerplant: paintPowerPlant(true), dWaterplant: paintWaterPlant(true), dDatacenter: paintDataCenter(true),
 };
 const batterySprite = lit => memo('bat' + lit, () => bake(SPRITE_BATTERY, { P: lit > 0 ? '7' : '1', Q: lit > 1 ? '7' : '1', R: lit > 2 ? '7' : '1' }));
@@ -117,7 +121,7 @@ const BIOME = {
   steppe: { base: 4, alt: 10, a: 3, b: 11, shore: 4 }, badlands: { base: 5, alt: 4, a: 3, b: 2, shore: 4 },
 };
 let tnoise = valueNoise(1);
-const CATCOL = { LINES: '#d8e6e0', POWER: '#f5c95a', WATER: '#5fc4d0', NET: '#8fbf5a', CONTROL: '#b59cf0', TOWN: '#e08a3c', OPS: '#e6dd9a', TOOLS: '#8a6a4e' };
+const CATCOL = { LINES: '#d8e6e0', POWER: '#f5c95a', FUEL: '#e8743c', WATER: '#5fc4d0', NET: '#8fbf5a', CONTROL: '#b59cf0', TOWN: '#e08a3c', INDUSTRY: '#d9a066', OPS: '#e6dd9a', TOOLS: '#8a6a4e' };
 const LORE = {
   res: ['A kettle whistles somewhere. Someone laughs.', 'Porch lights come on, one by one.', 'A child asks what the humming is. Then they stop asking.'],
   ind: ['The old foundry coughs, then roars.', 'Sparks fly from a lathe nobody has touched in eleven years.', 'The shift whistle blows. People remember how to line up.'],
@@ -508,8 +512,8 @@ function outMult(e) {
   if (d.partsUse && stock.parts <= 0) return 0;
   if (d.needsAll) for (let L = 0; L < 3; L++) if (d.dem[L] > 0 && !e.ok[L] && !(activeMods.has('blackstart') && e.type === 'powerplant' && L === 1)) return 0;
   let m = e.cond < 20 ? 0.5 : e.cond < 50 ? 0.8 : 1;
-  if (e.type === 'solar' && radUntil > gameT) m *= 0.4;
-  { const tm = TM(); if (e.type === 'solar') m *= tm.solar || 1; else if (e.type === 'wind') m *= tm.wind || 1; else if (e.type === 'hydro') m *= tm.hydro || 1; else if (e.type === 'pump') m *= tm.pump || 1;
+  if ((e.type === 'solar' || e.type === 'solarfarm') && radUntil > gameT) m *= 0.4;
+  { const tm = TM(); if (e.type === 'solar' || e.type === 'solarfarm') m *= tm.solar || 1; else if (e.type === 'wind' || e.type === 'windfarm') m *= tm.wind || 1; else if (e.type === 'fission' || e.type === 'fusion') m *= tm[e.type] || 1; else if (e.type === 'hydro') m *= tm.hydro || 1; else if (e.type === 'pump') m *= tm.pump || 1; else if (e.type === 'well') m *= tm.well || 1;
     if (d.sup[0] > 0 && d.fuel) m *= tm.genOut || 1; if (d.sup[1] > 0) m *= tm.waterOut || 1; if (d.sup[2] > 0) m *= tm.netOut || 1; }
   if (d.sup[0] > 0 && Meta.has('efficiency')) m *= 1.2;
   if (activeMods.has('core')) m *= 1.1;
@@ -530,10 +534,10 @@ function solveNow() {
   for (const e of ents) {
     const d = BUILD[e.type], needs = d.dem[0] + d.dem[1] + d.dem[2] > 0, allOk = d.dem.every((v, L) => v === 0 || e.ok[L]);
     e.active = needs && allOk && e.cond > 0;
-    e.run = e.linked && e.cond > 0 && allOk && (!d.fuel || stock.fuel > 0) && (!d.partsUse || stock.parts > 0);
-    if (d.fuelCap && e.cond > 0) fuelCap += d.fuelCap;
+    e.run = e.linked && e.cond > 0 && allOk && (!d.fuel || stock.fuel > 0) && (!d.partsUse || stock.parts > 0) && (!d.poolUse || Pool.has(d.poolUse));
+    if (d.fuelCap && e.cond > 0) fuelCap += Math.round(d.fuelCap * (TM().fuelStore || 1));
     if (d.upkeep && anyRestored && e.run) upkeep += d.upkeep * (Meta.has('logistics') ? 0.75 : 1) * (TM().upkeep || 1);      // idle or unwired machines cost nothing
-    if (e.active && d.income) {
+    if (e.active && d.income && (!d.partsUse || stock.parts > 0) && (!d.fuel || stock.fuel > 0)) {      // converters (assembly plant) only earn while they have stock
       income += d.income;
       if (e.type === 'house' && clinics.some(c => Math.abs(c.x - e.x) <= 8 && Math.abs(c.y - e.y) <= 8)) income += 1;
     }
@@ -543,6 +547,8 @@ function solveNow() {
       alerts.push({ e, miss, label: e.district ? e.district.name + (e.district.restored ? '' : ' HUB') : d.name });
     } else if (d.bridge !== undefined && !e.live && e.on) alerts.push({ e, miss: ['NO SIGNAL'], label: d.name });
     else if (d.fuel && stock.fuel <= 0) alerts.push({ e, miss: ['NO FUEL'], label: d.name });
+    else if (d.partsUse && stock.parts <= 0 && !d.central) alerts.push({ e, miss: ['NO PARTS'], label: d.name });
+    else if (d.poolUse && !Pool.has(d.poolUse) && e.linked && allOk) alerts.push({ e, miss: ['NO ' + Object.keys(d.poolUse).map(k => GOODS[k].s).join('/')], label: d.name });
   }
   stationEnt = ents.find(e => BUILD[e.type].isStation) || null;
   activeMods = new Set(stationEnt && stationEnt.run && stationEnt.cond > 0 ? stationEnt.mods : []);
@@ -584,12 +590,15 @@ function tick() {
   for (const e of ents) {
     const d = BUILD[e.type];
     if (e.run) {
-      if (d.fuel) stock.fuel -= d.fuel * (activeMods.has('fuelrec') ? 0.75 : 1) * (TM().fuel || 1); if (d.fuelOut) stock.fuel += d.fuelOut;
+      if (d.fuel) stock.fuel -= d.fuel * (activeMods.has('fuelrec') ? 0.75 : 1) * (TM().fuel || 1); if (d.fuelOut) stock.fuel += d.fuelOut * (TM().fuelOut || 1);
       if (d.partsOut) stock.parts += d.partsOut * (TM().partsOut || 1); if (d.partsUse) stock.parts -= d.partsUse;
       if (d.rp) { Meta.rp += d.rp * (TM().rp || 1); Meta.dirty = true; }
+      if (d.poolUse) for (const k in d.poolUse) Pool.take(k, d.poolUse[k]);
+      if (d.prod) for (const k in d.prod) Pool.add(k, d.prod[k] * (TM()[k + 'Out'] || 1) * (e.mult || 1));
     } else if (e.isHub && e.active) { if (d.partsOut) stock.parts += d.partsOut * (TM().partsOut || 1); if (d.rp) { Meta.rp += d.rp * (TM().rp || 1); Meta.dirty = true; } }
     if (d.maint && e.cond > 0 && e.run && DISTRICTS.some(x => x.restored)) e.cond = Math.max(0, e.cond - d.maint * WMOD.wear * (TM().wear || 1));   // only working machines wear
   }
+  Pool.exchange(ents);
   stock.fuel = Math.max(0, Math.min(fuelCap, stock.fuel)); stock.parts = Math.max(0, stock.parts);
   for (const dep of ents) {                            // maintenance crews
     const d = BUILD[dep.type]; if (!d.repair || !dep.run) continue;
@@ -602,6 +611,7 @@ function tick() {
   if (activeMods.has('repair')) ents.forEach(e => { if (BUILD[e.type].maint && e.cond > 0 && e.cond < 100) e.cond = Math.min(100, e.cond + 0.15); });
   if (eventsOn && TM().ev !== 0 && DISTRICTS.some(x => x.restored) && --evT <= 0) { fireEvent(); evT = (70 + Math.random() * 80) * (activeMods.has('forecast') ? 1.3 : 1) * WMOD.ev * (TM().ev || 1); }
   scrap = Math.max(0, scrap + income * WMOD.inc * (TM().income || 1) - upkeep);
+  Drones.tick(); Fix.tick();
   Flows.tick();
   Variety.tick();
   checkOutage();
@@ -633,7 +643,7 @@ function fireEvent() {
 
 // ---------- building rules ----------
 const nearRestoredHub = (x, y) => DISTRICTS.some(d => d.restored && Math.max(Math.abs(d.x - x), Math.abs(d.y - y)) <= HOUSE_RADIUS);
-function costText(d) { return d.cost + (d.parts ? ' +' + d.parts + 'P' : ''); }
+function costText(d) { return d.cost + (d.parts ? ' +' + d.parts + 'P' : '') + (d.pool && typeof Pool !== 'undefined' ? ' +' + Pool.costText(d.pool, true).replace(/ /g, ' +') : ''); }
 function canPlace(type, x, y) {
   const d = BUILD[type];
   if (!unlocked(type)) return 'LOCKED - RESEARCH ' + TECH[d.tech].name + ' (Y)';
@@ -651,11 +661,12 @@ function canPlace(type, x, y) {
   if (d.needWater) {
     let ok = false;
     for (let j = -1; j <= d.h; j++) for (let i = -1; i <= d.w; i++) if (inb(x + i, y + j) && terrain[(y + j) * WW + x + i] === 1) ok = true;
-    if (!ok) return 'PUMP MUST BE NEXT TO WATER';
+    if (!ok) return d.name + ' MUST BE NEXT TO WATER';
   }
   if (d.town && !nearRestoredHub(x, y)) return 'NEEDS A RESTORED HUB WITHIN ' + HOUSE_RADIUS + ' TILES';
   if (scrap < d.cost) return 'NOT ENOUGH SCRAP (' + d.cost + ')';
   if (d.parts && stock.parts < d.parts) return 'NOT ENOUGH PARTS (' + d.parts + ') - BUILD WORKSHOPS';
+  if (d.pool && !Pool.afford(d.pool)) return 'NEEDS SHARED ' + Pool.costText(d.pool).toUpperCase() + ' (AGES SCREEN, G ON THE MAP)';
   return null;
 }
 
@@ -760,9 +771,9 @@ function act(x, y, first) {
   } else if (tool.kind === 'build' && first) {
     const why = canPlace(tool.type, x, y);
     if (why) { toast(why); beep(110, 0.12, 'sawtooth'); return; }
-    const d = BUILD[tool.type]; scrap -= d.cost; stock.parts -= d.parts || 0;
+    const d = BUILD[tool.type]; scrap -= d.cost; stock.parts -= d.parts || 0; if (d.pool) Pool.pay(d.pool);
     const e = addEntity(tool.type, x, y);
-    note(() => { removeEntity(e); scrap += d.cost; stock.parts += d.parts || 0; });
+    note(() => { removeEntity(e); scrap += d.cost; stock.parts += d.parts || 0; if (d.pool) Pool.refund(d.pool); });
     beep(440, 0.08); beep(660, 0.1, 'square', 0.035, 0.07); recompute();
     if (tool.type === 'house' || tool.type === 'refinery') setTimeout(() => storyEv(tool.type), 2400);
   }
@@ -868,6 +879,9 @@ function setSpeed(s) { speed = s; document.querySelectorAll('#speedseg button').
 function setFocus(f) { focus = f; document.querySelectorAll('#viewseg button').forEach(b => b.classList.toggle('on', +b.dataset.f === f)); dirty.cab = true; }
 function toggleMute() { muted = !muted; try { localStorage.setItem('wastelandGrid.mute', muted ? '1' : '0'); } catch (e) { /* ignore */ } $('btn-mute').textContent = muted ? 'SND OFF' : 'SND ON'; }
 function iconCanvas(type) {
+  return iconCanvasOf(type) || IMG[type];
+}
+function iconCanvasOf(type) {
   return ({ generator: IMG.gen, solar: IMG.solar, wind: IMG.windA, battery: batterySprite(3), pump: IMG.pump, tower: IMG.tower, router: IMG.router,
     substation: switchSprite(0, true), valve: switchSprite(1, true), node: switchSprite(2, true), house: IMG.houseOn, workshop: workshopSprite(true),
     clinic: IMG.clinic, intertie: IMG.intertie, security: IMG.security, hydro: IMG.hydro, gasturbine: IMG.gasturbine, desal: IMG.desal, relay: IMG.relay, apartments: IMG.apartments, market: IMG.market, school: IMG.school, greenhouse: IMG.greenhouse, lab: IMG.lab, depot: IMG.depot, fueldepot: IMG.fueldepot, refinery: IMG.refinery })[type];
@@ -888,7 +902,8 @@ function buildToolbar() {
   CATS.forEach(c => { const b = document.createElement('button'); b.innerHTML = `<span>${c}</span><small>${TOOLS.filter(t => t.cat === c).length}</small>`; b.dataset.cat = c; b.style.setProperty('--cc', CATCOL[c] || '#343e46'); b.onclick = () => { toolQuery = ''; $('toolsearch').value = ''; activeCat = c; renderTools(); selectTool(TOOLS.find(t => t.cat === c)); }; cats.appendChild(b); });
   renderTools(); selectTool(TOOLS[0]);
 }
-function toolList() { const q = toolQuery.trim().toLowerCase(); return q ? TOOLS.filter(t => (t.name + ' ' + t.cat + ' ' + (t.desc || '')).toLowerCase().includes(q)) : TOOLS.filter(t => t.cat === activeCat); }
+const toolAgeOk = t => t.kind !== 'build' || !BUILD[t.type].tech || TECH[BUILD[t.type].tech].age <= curAge();      // later ages reveal more buildings
+function toolList() { const q = toolQuery.trim().toLowerCase(); return (q ? TOOLS.filter(t => (t.name + ' ' + t.cat + ' ' + (t.desc || '')).toLowerCase().includes(q)) : TOOLS.filter(t => t.cat === activeCat)).filter(toolAgeOk); }
 function renderTools() {
   const bar = $('tools'); bar.innerHTML = ''; const box = document.createElement('div'); box.className = 'grid'; bar.appendChild(box);
   const list = toolList(); $('toolcount').textContent = toolQuery.trim() ? list.length + ' FOUND' : list.length + ' IN ' + activeCat;
@@ -912,6 +927,9 @@ const RES3 = ['PWR', 'H2O', 'NET'];
 function statChips(d) {
   const c = []; d.sup.forEach((v, L) => { if (v > 0) c.push(`<span class="st sup">+${v} ${RES3[L]}</span>`); }); d.dem.forEach((v, L) => { if (v > 0) c.push(`<span class="st dem">needs ${v} ${RES3[L]}</span>`); });
   if (d.store) c.push(`<span class="st sup">stores ${d.store.cap}</span>`); if (d.fuel) c.push(`<span class="st dem">${d.fuel} fuel/s</span>`);
+  if (d.prod) for (const k in d.prod) c.push(`<span class="st sup">+${d.prod[k]} ${GOODS[k].n.toLowerCase()}/s (shared)</span>`); if (d.poolUse) for (const k in d.poolUse) c.push(`<span class="st dem">uses ${d.poolUse[k]} ${GOODS[k].n.toLowerCase()}/s</span>`); if (d.exchange) c.push('<span class="st sup">trades parts + fuel</span>'); if (d.drones) c.push(`<span class="st sup">${d.drones.n} repair drones, ${d.drones.radius} tiles</span>`);
+  if (d.fuelOut) c.push(`<span class="st sup">+${d.fuelOut} fuel/s</span>`); if (d.partsOut) c.push(`<span class="st sup">+${d.partsOut} parts/s</span>`); if (d.partsUse) c.push(`<span class="st dem">uses ${d.partsUse} parts/s</span>`);
+  if (d.fuelCap) c.push(`<span class="st sup">+${d.fuelCap} fuel tank</span>`); if (d.scrapCap) c.push(`<span class="st sup">+${d.scrapCap} scrap cap</span>`);
   if (d.income) c.push(`<span class="st sup">+${d.income} scrap/s</span>`); if (d.rp) c.push(`<span class="st sup">+${d.rp} RP/s</span>`); if (d.upkeep) c.push(`<span class="st dem">${d.upkeep} upkeep</span>`);
   c.push(`<span class="st">${d.w}x${d.h} tiles</span>`); return c.join('');
 }
@@ -927,7 +945,7 @@ function refreshToolbar() {
 function toolCard(t) {
   const lock = t.kind === 'build' && !unlocked(t.type), d = t.kind === 'build' ? BUILD[t.type] : null;
   let h = `<div class="tcard"><div class="tc-top">${iconFor(t)}<div><b>${t.name}</b><small>${t.cat}${t.key ? ' - KEY ' + t.key.toUpperCase() : ''}</small></div></div>`;
-  if (d) h += `<div class="tc-chips"><span class="st cost">${d.cost} scrap</span>${d.parts ? `<span class="st cost">${d.parts} parts</span>` : ''}${statChips(d)}</div>`;
+  if (d) h += `<div class="tc-chips"><span class="st cost">${d.cost} scrap</span>${d.parts ? `<span class="st cost">${d.parts} parts</span>` : ''}${d.pool ? Object.keys(d.pool).map(k => `<span class="st cost">${d.pool[k]} ${GOODS[k].n.toLowerCase()}</span>`).join('') : ''}${statChips(d)}</div>`;
   h += `<p>${t.desc}</p>`; if (lock) h += `<div class="lk">LOCKED: research ${TECH[d.tech].name} (Y)</div>`;
   return h + '</div>';
 }
@@ -994,7 +1012,7 @@ function jumpAlert(dir) {
   toast((alertIdx + 1) + '/' + alerts.length + '  ' + a.label + ' ' + a.miss.join(' '));
 }
 // research window
-function openResearch() { renderResearch(); $('research').style.display = 'flex'; }
+function openResearch() { techAge = curAge(); renderResearch(); $('research').style.display = 'flex'; }
 function closeResearch() { $('research').style.display = 'none'; refreshToolbar(); selectTool(tool); }
 
 // ---------- drawing ----------
@@ -1010,6 +1028,9 @@ function spriteFor(e, t) {
     case 'workshop': return workshopSprite(e.run);
     case 'ruin': return d.restored ? IMG.houseOn : IMG.ruin;
     case 'hydro': case 'intertie': case 'security': case 'gasturbine': case 'desal': case 'relay': case 'apartments': case 'market': case 'school': case 'greenhouse': case 'station': return IMG[e.type];
+    case 'dronebay': return IMG.dronebay;
+    case 'smelter': case 'circuitfab': case 'exchange': case 'solarfarm': case 'windfarm': case 'compworks': case 'fission': case 'robotdepot': case 'arcology': case 'vfarm': case 'quantum': case 'fusion': case 'atmo': case 'megafab': case 'orbital':
+    case 'kiln': case 'digester': case 'oilwell': case 'synfuel': case 'tankfarm': case 'biomass': case 'fuelcell': case 'geothermal': case 'well': case 'scrapyard': case 'mine': case 'foundry': case 'assembly': case 'warehouse': case 'archive': return IMG[e.type];
     case 'dormantStation': return IMG.dStation;
     case 'lab': return IMG.lab; case 'depot': return IMG.depot; case 'fueldepot': return IMG.fueldepot; case 'refinery': return IMG.refinery; case 'clinic': return IMG.clinic;
     case 'powerplant': return IMG.powerplant; case 'waterplant': return IMG.waterplant; case 'datacenter': return IMG.datacenter;
@@ -1103,7 +1124,7 @@ function frame(now) {
   }
   if (typeof Tutorial !== 'undefined') Tutorial.drawWorld(t, cx, cy);
   Loot.draw(t, cx, cy); Camp.draw(t, cx, cy);
-  drawFx(t, cx, cy, dt);
+  drawFx(t, cx, cy, dt); Drones.draw(t, cx, cy, dt);
   const night = Math.max(0, Math.sin((t - startT) / 40 + 3.3)) * 0.32;
   if (night > 0.03) { if (Settings.lite) { g.globalAlpha = night * 0.55; px(0, 0, VW + 1, VH + 1, 0); g.globalAlpha = 1; } else drawLights(night, cx, cy, x0, y0, x1, y1); }
   else if (radUntil > gameT) { g.globalAlpha = 0.1; px(0, 0, VW + 1, VH + 1, 11); g.globalAlpha = 1; }
@@ -1172,6 +1193,7 @@ function rleDec(s, n) {
 let saveWarned = false;
 function saveCounty() {
   if (countyId === null || !Builder.active) return;
+  if (typeof Pool !== 'undefined') Pool.snapshot(countyId);
   try {
     localStorage.setItem(SAVE_PREFIX + countyId, JSON.stringify({
       scrap: Math.floor(scrap), stock, evT, cab: cab.map(rleEnc), rub: [...cleared],
@@ -1271,6 +1293,10 @@ function refreshTip(force) {
 }
 
 const GUIDE = [
+  ['AGES', 'The campaign moves through five ages: <b>SCAVENGER, INDUSTRIAL, ELECTRIC, ATOMIC</b> and <b>FUSION</b>. Open the <b>AGES</b> screen on the map (key <b>G</b>) to see what the next age needs - research projects done, counties restored, research points and later shared goods - and advance. Each age opens new research and buildings, and gives a permanent bonus. In the Fusion Age, research World Grid Theory and <b>IGNITE THE WORLD GRID</b> to finish the long game.'],
+  ['SHARED STOCKPILE & HUBS', 'From the Electric Age, <b>ALLOYS</b>, <b>CIRCUITS</b> and <b>COMPONENTS</b> live in one stockpile shared by every county (the chip in the header). Smelters and circuit fabs fill it, component works and megafactories turn alloys and circuits into components, and advanced buildings are built from it. A restored county with factories is a <b>PRODUCTION HUB</b>: it keeps producing while you play elsewhere (at 50% speed; Freight Rail, Containerisation and Hyperloop raise it). <b>SUPPLY EXCHANGES</b> trade spare parts and fuel with the stockpile, so one county can feed another.'],
+  ['FUEL', 'Generators, gas turbines, fuel cells and foundries burn <b>fuel</b>. Make it in the <b>FUEL</b> tab: a <b>CHARCOAL KILN</b> needs no power or lines at all (research Charcoal Kilns), a <b>BIOGAS DIGESTER</b> runs on power and water, the <b>REFINERY</b> and <b>OIL WELL</b> come with Fuel Refining and Oil Drilling, and the big <b>SYNFUEL PLANT</b> needs Heavy Industry. Store it in <b>FUEL DEPOTS</b> and <b>TANK FARMS</b>. Catalysts and Catalytic Cracking make every fuel maker produce more.'],
+  ['INDUSTRY', 'The <b>INDUSTRY</b> tab turns power into parts and parts into scrap. A <b>SALVAGE YARD</b> sorts scrap and a few parts, an <b>ORE MINE</b> digs parts, a <b>FOUNDRY</b> casts lots of parts but burns fuel, and an <b>ASSEMBLY PLANT</b> turns parts back into a big scrap income (it stops when parts run out). <b>WAREHOUSES</b> raise the scrap cap. Smelting, Conveyors and Automation improve the whole chain.'],
   ['MULTI LINE', 'Pick MULTI LINE (key =) and choose which line types to lay at once, or use a preset: LOCAL x3 lays power, water and net together; TRUNK x3 lays HV, main and fiber side by side. Dragging over existing lines erases them. Trunk lines now share a tile as three parallel lanes.'],
   ['INTERTIES & STATION LINKS', 'A county with an ONLINE control station exports its surplus. Neighbouring counties get that offered as imports: build INTERTIES on your trunk lines to take it. Linked counties also give a starting scrap bonus. Restore stations in a chain and every new county starts half-built.'],
   ['THE UNION', 'Open the <b>UNION</b> screen on the map (key U). <b>Unity</b> is 25 points each for coverage, stable station links, signed accords and open borders. Higher tiers give permanent bonuses: more start scrap, faster link recovery, power that crosses three counties, research income, and slower Dimmers. At 96% with every county lit, the grid is truly one.'],
@@ -1322,6 +1348,7 @@ function conductive(L, i) {
 // is this building wired to anything? (a line or another building touching it on a layer it uses)
 function isLinked(e) {
   const d = BUILD[e.type]; if (d.fixed || d.isHub) return true;
+  if (!d.importer && !d.store && d.sup.every(v => !v) && d.dem.every(v => !v) && (d.fuelOut || d.partsOut || d.income || d.rp)) return true;   // self-contained producers (charcoal kiln) need no lines
   for (let R = 0; R < 3; R++) {
     if (!(d.sup[R] > 0 || d.dem[R] > 0 || d.importer || (d.store && d.store.L === R))) continue;
     const L = R + 3 * tierOf(e, R);
@@ -1530,6 +1557,15 @@ function updateInspector() {
   if (d.bridge !== undefined) h += `SWITCH ${e.on ? 'ON' : 'OFF'}${e.on && !e.live ? ' (NO SIGNAL/POWER)' : ''}<br><button id="i-tog">TOGGLE (T)</button> `;
   if (d.upkeep) h += `UPKEEP ${d.upkeep}/s<br>`;
   if (d.income) h += `EARNS ${d.income}/s ${e.active ? '' : '(inactive)'}<br>`;
+  if (d.fuelOut) h += `MAKES ${(d.fuelOut * (TM().fuelOut || 1)).toFixed(2)} fuel/s ${e.run ? '' : '(idle)'}<br>`;
+  if (d.partsOut && !e.isHub) h += `MAKES ${(d.partsOut * (TM().partsOut || 1)).toFixed(2)} parts/s ${e.run ? '' : '(idle)'}<br>`;
+  if (d.partsUse) h += `USES ${d.partsUse} parts/s${stock.parts <= 0 ? ' - NO PARTS' : ''}<br>`;
+  if (d.prod) h += `MAKES ${Object.keys(d.prod).map(k => (d.prod[k] * (TM()[k + 'Out'] || 1)).toFixed(2) + ' ' + GOODS[k].n.toLowerCase()).join(', ')}/s for the shared stockpile ${e.run ? '' : '(idle)'}<br>`;
+  if (d.poolUse) h += `USES ${Object.keys(d.poolUse).map(k => d.poolUse[k] + ' ' + GOODS[k].n.toLowerCase()).join(', ')}/s from the stockpile${Pool.has(d.poolUse) ? '' : ' - <span class="neg">EMPTY</span>'}<br>`;
+  if (d.drones) h += `DRONES ${(e._dr || []).filter(x => x.job).length}/${Drones.count(d)} busy - range ${Drones.range(d)} tiles${e.run ? '' : ' (idle: needs power + net)'}<br>`;
+  if (d.exchange) h += `TRADES parts and fuel with the stockpile (pool: ${Pool.fmt(Pool.get('parts'))} parts, ${Pool.fmt(Pool.get('fuel'))} fuel)<br>`;
+  if (d.rp && !e.isHub) h += `RESEARCH ${(d.rp * (TM().rp || 1)).toFixed(1)}/s ${e.run ? '' : '(idle)'}<br>`;
+  if (d.fuelCap) h += `FUEL TANK +${Math.round(d.fuelCap * (TM().fuelStore || 1))}<br>`; if (d.scrapCap) h += `SCRAP CAP +${d.scrapCap}<br>`;
   if (d.isStation) h += stationHtml(e);
   if (d.maint) h += '<button id="i-rep">REPAIR</button> ';
   if (!d.fixed && !d.central && !d.isStation) h += '<button id="i-sal">SALVAGE</button>';
@@ -1557,18 +1593,19 @@ function describe() {
 }
 
 // ---------- research: a node tree ----------
-const TN_W = 184, TN_H = 58, TN_GX = 70, TN_GY = 16, BR_ORDER = ['POWER', 'GRID', 'WATER', 'NET', 'TOWN', 'OPS', 'STATION', 'BOOST'];
+const TN_W = 184, TN_H = 58, TN_GX = 70, TN_GY = 16, BR_ORDER = ['POWER', 'GRID', 'WATER', 'NET', 'TOWN', 'INDUSTRY', 'OPS', 'STATION', 'BOOST'];
 let techPos = null, techSel = null;
-function techLayout() {
-  const ids = Object.keys(TECH), depth = {};
-  const dfs = id => depth[id] !== undefined ? depth[id] : (depth[id] = TECH[id].req.length ? 1 + Math.max(...TECH[id].req.map(dfs)) : 0);
+function techLayout(ids) {
+  ids = ids || Object.keys(TECH); const inSet = new Set(ids), depth = {};
+  const dfs = id => { if (depth[id] !== undefined) return depth[id]; const rq = TECH[id].req.filter(r => inSet.has(r)); return (depth[id] = rq.length ? 1 + Math.max(...rq.map(dfs)) : 0); };
   ids.forEach(dfs);
   const cols = []; ids.forEach(id => { (cols[depth[id]] = cols[depth[id]] || []).push(id); });
   const row = {}, pos = {};
   cols.forEach((col, ci) => {
     col.sort((a, b) => {
-      const pa = TECH[a].req.length ? TECH[a].req.reduce((s, r) => s + (row[r] ?? 0), 0) / TECH[a].req.length : BR_ORDER.indexOf(TECH[a].br) * 2;
-      const pb = TECH[b].req.length ? TECH[b].req.reduce((s, r) => s + (row[r] ?? 0), 0) / TECH[b].req.length : BR_ORDER.indexOf(TECH[b].br) * 2;
+      const ra = TECH[a].req.filter(r => inSet.has(r)), rb = TECH[b].req.filter(r => inSet.has(r));
+      const pa = ra.length ? ra.reduce((s, r) => s + (row[r] ?? 0), 0) / ra.length : BR_ORDER.indexOf(TECH[a].br) * 2;
+      const pb = rb.length ? rb.reduce((s, r) => s + (row[r] ?? 0), 0) / rb.length : BR_ORDER.indexOf(TECH[b].br) * 2;
       return pa - pb || BR_ORDER.indexOf(TECH[a].br) - BR_ORDER.indexOf(TECH[b].br);
     });
     let r = 0; col.forEach(id => { row[id] = r; pos[id] = { x: ci * (TN_W + TN_GX), y: r * (TN_H + TN_GY) }; r++; });
@@ -1583,29 +1620,44 @@ function techUnlocks(id) {
   Object.values(MODULES).forEach(m => { if (m.tech === id) u.push('module ' + m.name); });
   return u;
 }
+let techAge = 0;                                                   // research tree filter: 0 = every age
 function renderResearch() {
   $('rp-have').textContent = Math.floor(Meta.rp);
-  if (!techPos) techPos = techLayout();
+  const ca = curAge(), R = ['', 'I', 'II', 'III', 'IV', 'V'];
+  $('ageflt').innerHTML = [0, 1, 2, 3, 4, 5].map(a => `<button data-a="${a}" class="${a === techAge ? 'on' : ''}">${a ? 'AGE ' + R[a] + (a > ca ? ' ' + pxi('lock') : '') : 'ALL AGES'}</button>`).join('');
+  $('ageflt').onclick = ev => { const b = ev.target.closest('button[data-a]'); if (b) { techAge = +b.dataset.a; techPos = null; renderResearch(); } };
+  $('age-now').textContent = 'AGE ' + R[ca] + (typeof AGES !== 'undefined' ? ' - ' + AGES[ca].n : '');
+  if (!techPos || techPos._age !== techAge) { techPos = techLayout(Object.keys(TECH).filter(id => !techAge || TECH[id].age === techAge)); techPos._age = techAge; }
   const nodes = $('technodes'), svg = $('techlines'), pos = techPos;
   nodes.style.width = pos._w + 'px'; nodes.style.height = pos._h + 'px'; svg.setAttribute('width', pos._w); svg.setAttribute('height', pos._h);
   let paths = '', html = '';
   Object.entries(TECH).forEach(([id, t]) => {
-    const done = Meta.has(id), avail = !done && t.req.every(r => Meta.has(r)), can = avail && Meta.rp >= t.cost, p = pos[id];
+    const p = pos[id]; if (!p) return;
+    const aged = t.age > ca, done = Meta.has(id), avail = !done && !aged && t.req.every(r => Meta.has(r)), can = avail && Meta.rp >= t.cost;
     t.req.forEach(r => {
-      const a = pos[r], x1 = a.x + TN_W, y1 = a.y + TN_H / 2, x2 = p.x, y2 = p.y + TN_H / 2, live = Meta.has(r);
+      const a = pos[r]; if (!a) return; const x1 = a.x + TN_W, y1 = a.y + TN_H / 2, x2 = p.x, y2 = p.y + TN_H / 2, live = Meta.has(r);
       paths += `<path d="M${x1} ${y1} C${x1 + 36} ${y1}, ${x2 - 36} ${y2}, ${x2} ${y2}" stroke="${done ? '#8fbf5a' : live ? '#f5c95a' : '#3a3140'}" stroke-width="${live ? 3 : 2}" fill="none"/>`;
     });
-    html += `<button class="tn ${done ? 'done' : avail ? (can ? 'can' : 'avail') : 'lock'} ${techSel === id ? 'sel' : ''}" data-id="${id}" style="left:${p.x}px;top:${p.y}px;--c:${BRANCH[t.br].color}"><b>${t.name}</b><span>${done ? 'DONE' : t.cost + ' RP'}</span></button>`;
+    const qi = Meta.q.indexOf(id), pg = Meta.pr[id] ? Math.round(Research.progress(id) * 100) : 0;
+    html += `<button class="tn ${done ? 'done' : avail ? (can ? 'can' : 'avail') : 'lock'} ${qi >= 0 ? 'queued' : ''} ${techSel === id ? 'sel' : ''}" data-id="${id}" style="left:${p.x}px;top:${p.y}px;--c:${BRANCH[t.br].color};--pg:${pg}%">${qi >= 0 ? `<em class="tnq">${qi + 1}</em>` : ''}<b>${t.name}</b><span>${done ? 'DONE' : aged ? 'AGE ' + R[t.age] + ' - ' + t.cost + ' RP' : pg ? pg + '% of ' + t.cost + ' RP' : t.cost + ' RP'}</span></button>`;
   });
   svg.innerHTML = paths; nodes.innerHTML = html;
-  nodes.querySelectorAll('.tn').forEach(b => { b.onclick = () => { techSel = b.dataset.id; renderResearch(); }; b.ondblclick = () => buyTech(b.dataset.id); });
+  nodes.querySelectorAll('.tn').forEach(b => { b.onclick = () => { techSel = b.dataset.id; renderResearch(); }; b.ondblclick = () => queueTech(b.dataset.id); });
+  Research.renderQueue();
   const info = $('techinfo'), id = techSel;
-  if (!id) { info.innerHTML = '<span class="more">Click a node to read it. Double-click (or press RESEARCH) to buy it. Lines show what leads to what.</span>'; return; }
-  const t = TECH[id], done = Meta.has(id), avail = t.req.every(r => Meta.has(r)), un = techUnlocks(id);
-  info.innerHTML = `<b style="color:${BRANCH[t.br].color}">${t.name}</b> <small>${t.br}</small> - ${t.desc}${un.length ? ' <span class="pos">Unlocks: ' + un.join(', ') + '.</span>' : ''}${!done && !avail ? ' <span class="neg">Needs: ' + t.req.filter(r => !Meta.has(r)).map(r => TECH[r].name).join(', ') + '.</span>' : ''} <button id="tech-buy" ${(!done && avail && Meta.rp >= t.cost) ? '' : 'disabled'}>${done ? 'RESEARCHED' : 'RESEARCH ' + t.cost + ' RP'}</button>`;
-  $('tech-buy').onclick = () => buyTech(id);
+  if (!id) { info.innerHTML = '<span class="more">Click a project to read it. Double-click it (or ADD TO QUEUE) to queue it: research then fills up over time from your research points. Missing prerequisites are queued first.</span>'; return; }
+  const t = TECH[id], done = Meta.has(id), avail = t.req.every(r => Meta.has(r)), un = techUnlocks(id), ageNote = t.age > curAge() ? ` <span class="neg">Opens in AGE ${R[t.age]}${typeof AGES !== 'undefined' ? ' (' + AGES[t.age].n + ')' : ''}: advance on the AGES screen (G on the map).</span>` : '';
+  info.innerHTML = `<b style="color:${BRANCH[t.br].color}">${t.name}</b> <small>${t.br} - AGE ${R[t.age]}</small> - ${t.desc}${ageNote}${un.length ? ' <span class="pos">Unlocks: ' + un.join(', ') + '.</span>' : ''}${!done && !avail ? ' <span class="neg">Needs: ' + t.req.filter(r => !Meta.has(r)).map(r => TECH[r].name).join(', ') + '.</span>' : ''} <button id="tech-buy" class="${Meta.q.includes(id) ? '' : 'primary'}" ${done ? 'disabled' : ''}>${done ? 'RESEARCHED' : Meta.q.includes(id) ? 'REMOVE FROM QUEUE' : 'ADD TO QUEUE - ' + t.cost + ' RP'}</button>${!done && Meta.q.includes(id) && Meta.q[0] !== id ? '<button id="tech-front">RESEARCH NEXT</button>' : ''}${!done && Object.keys(Research.packs(id)).length ? ' <small class="warn">+ ' + Object.entries(Research.packs(id)).map(([k, v]) => v + ' ' + GOODS[k].n.toLowerCase()).join(', ') + ' as science packs</small>' : ''}${Meta.pr[id] ? ' <small class="pos">' + Math.round(Research.progress(id) * 100) + '% done</small>' : ''}`;
+  $('tech-buy').onclick = () => { if (Meta.q.includes(id)) { Research.remove(id); renderResearch(); } else queueTech(id); };
+  const tf = $('tech-front'); if (tf) tf.onclick = () => { Research.toFront(id); renderResearch(); };
 }
-function buyTech(id) { if (Meta.buy(id)) { if (typeof Variety !== 'undefined') Variety.remod(); if (typeof recalcMods === 'function') recalcMods(); recompute(); storyEv('research'); beep(660, 0.1); beep(880, 0.15, 'square', 0.04, 0.08); renderResearch(); } }
+function queueTech(id) {
+  const r = Research.add(id), t = TECH[id];
+  if (r === 'full') toast('THE RESEARCH QUEUE IS FULL (' + Research.MAXQ + ')');
+  techSel = id; renderResearch(); if (r === 'ok' && t.age > curAge()) toast(t.name + ' is queued, but it waits until the AGE ' + ['', 'I', 'II', 'III', 'IV', 'V'][t.age]);
+}
+function buyTech(id) { return queueTech(id); }
+function buyTechNow(id) { if (Meta.buy(id)) { if (typeof Variety !== 'undefined') Variety.remod(); if (typeof recalcMods === 'function') recalcMods(); recompute(); storyEv('research'); beep(660, 0.1); beep(880, 0.15, 'square', 0.04, 0.08); renderResearch(); } }
 
 Meta.load(); buildMeters(); buildToolbar();
 requestAnimationFrame(frame);

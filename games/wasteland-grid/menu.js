@@ -17,25 +17,47 @@ const Scenes = {
 };
 
 // Size each canvas to the space that is really free (no overflow, sidebar always visible).
+// Every number here is measured from the page, so the layout and this function can never disagree.
 function fit(again) {
   if (again !== true) fit.cap = Infinity;
   Display.apply();
-  const cw = Display.vw, ch = Display.vh, cur = Scenes.cur;                      // size of the window in interface pixels (after UI zoom)
-  const panel = cur === 'game' ? 332 + 14 : cur === 'map' ? (Settings.wide ? 0 : 340 + 14) : 0, stacked = cw <= 1000;
-  const availW = cw - (stacked ? 0 : panel) - (cw < 700 ? 20 : 40); const tb = $('topbar'), ub = $('under'), chrome = cur === 'game' && tb && tb.offsetHeight ? Math.min(tb.offsetHeight, 130) + 192 + 52 : 178;      // fixed news strip height: nothing here may depend on the picture's width, or the layout can feed back on itself
-  let availH = ch - (cur === 'game' ? chrome : cur === 'map' ? (Settings.wide ? 118 : 150) : 60) - (stacked ? 110 : 0);
-  availH = Math.max(220, Math.min(availH, fit.cap));
+  const cw = Display.vw, ch = Display.vh, cur = Scenes.cur, stacked = cw <= 1000, narrow = cw <= 700;
+  const h = (id, dflt) => { const e = $(id); return e && e.offsetHeight ? e.offsetHeight : dflt; };
+  const w = (id, dflt) => { const e = $(id); return e && e.offsetWidth ? e.offsetWidth : dflt; };
+  const padX = narrow ? 12 : 20, padY = narrow ? 12 : 16, FRAME = 6 + 6;                  // scene padding; the CRT frame (3px border) plus its drop shadow
+  let availW = cw - padX - FRAME, availH = ch - padY - FRAME;
+  if (cur === 'game') {
+    if (!stacked) availW -= 340 + 8;                                                      // the picture gets first claim; the sidebar then takes what is left (see below)
+    availH -= Math.min(h('topbar', 90), 150) + 8;                                         // header + gap
+    availH -= stacked ? 0 : h('under', 176) + 8;                                          // news strip under the picture
+    if (stacked) availH = Math.min(availH, Math.max(240, ch * 0.62));
+  } else if (cur === 'map') {
+    if (!stacked && !Settings.wide) availW -= 340 + 8;
+    availH -= h('maptop', 52) + 8 + 70;                                                   // top bar + gap + hover line, hint and message under the map
+    if (stacked) availH = Math.min(availH, Math.max(260, ch * 0.7));
+  }
+  availH = Math.max(200, Math.min(availH, fit.cap));
   document.querySelectorAll('canvas.px').forEach(c => {
-    const s = Display.canvasScale(c, availW, Math.max(120, availH));
+    if (c.id === 'menubg') return;                                                         // the menu backdrop is sized by CSS (it covers the frame)
+    const s = Display.canvasScale(c, Math.max(160, availW), Math.max(120, availH));
     c.style.width = Math.round(c.width * s * 1000) / 1000 + 'px'; c.style.height = Math.round(c.height * s * 1000) / 1000 + 'px';
   });
-  const mp = $('mappanel'), u = $('usmap'); if (mp && u && !stacked) mp.style.height = (parseInt(u.style.height || '340') + 14) + 'px'; else if (mp) mp.style.height = '';
+  // spare width goes to the side panels instead of empty margins (bounded, so they never sprawl)
+  { const root = document.documentElement, spare = c => cw - padX - (parseFloat($(c).style.width) || 0) - FRAME - 8;
+    const sw = !stacked && cur === 'game' ? Math.round(Math.max(340, Math.min(480, spare('game')))) : 340;
+    const mw = !stacked && cur === 'map' && !Settings.wide ? Math.round(Math.max(340, Math.min(440, spare('usmap')))) : 340;
+    if (cur === 'game' || stacked) root.style.setProperty('--side-w', sw + 'px'); if (cur === 'map' || stacked) root.style.setProperty('--map-panel-w', mw + 'px');
+    const sd = $('side'); if (sd) sd.classList.toggle('roomy', sw >= 440 || (stacked && cw > 700)); }
+  const mp = $('mappanel'), u = $('usmap'), crt = u && u.parentElement;
+  if (mp && u && !stacked) { const ch2 = crt && crt.getBoundingClientRect().height; mp.style.height = (ch2 ? ch2 / (Display.z || 1) : parseFloat(u.style.height || '340') + 6) + 'px'; }      // measured, so browser zoom rounding can never make them differ
+  else if (mp) mp.style.height = '';
+  const mf = $('mapframe'); if (mf && u && u.style.width) mf.style.width = (parseFloat(u.style.width) + 6) + 'px';      // texts under the map wrap to the map's width
   syncSide();
-  // the header can wrap onto a second row on narrower windows: if the page now overflows the screen, shrink the picture by the overflow (once)
+  // if the page still overflows the screen (a header wrapped onto another row), shrink the picture by the overflow (once)
   if (again !== true && !stacked && (cur === 'game' || cur === 'map')) {
     const over = (document.documentElement.scrollHeight - document.documentElement.clientHeight) / Display.z;
     const pc = $(cur === 'game' ? 'game' : 'usmap');
-    if (over > 2 && over < 300 && pc) { fit.cap = parseFloat(pc.style.height) - Math.ceil(over); fit(true); }
+    if (over > 1 && over < 400 && pc) { fit.cap = parseFloat(pc.style.height) - Math.ceil(over) - 2; fit(true); }
   }
 }
 addEventListener('resize', fit);

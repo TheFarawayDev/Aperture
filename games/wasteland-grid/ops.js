@@ -276,7 +276,7 @@ function opsTick() {
   }
   if (raid && --raid.left <= 0) resolveRaid();
   // 4) station modules
-  { const lim = activeMods.has('autoswitch') ? 3 : 10;                              // tripped transformers close again by themselves (faster with the module); only ones YOU switched off stay off
+  { const lim = activeMods.has('autoswitch') || Meta.has('reclosers') || TM().droneSwitch ? 3 : 10;                              // tripped transformers close again by themselves (faster with the module); only ones YOU switched off stay off
   ents.forEach(e => { if (BUILD[e.type].bridge !== undefined && !e.on && !e.manual) { e.tripT = (e.tripT || 0) + 1; if (e.tripT >= lim) { e.on = true; e.tripT = 0; toast(BUILD[e.type].name + ' re-closed automatically.'); recompute(); } } else e.tripT = 0; }); }
   if (activeMods.has('forecast') && evT === 10) seqNotice('FORECAST: severe weather in 10 seconds.', false);
 }

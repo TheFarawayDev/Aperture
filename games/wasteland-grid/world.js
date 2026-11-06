@@ -403,7 +403,7 @@ $('btn-union').onclick = openUnion; $('un-close').onclick = () => { $('union').s
 function pickDifficulty() {
   return new Promise(res => {
     const box = $('diffpick'), list = $('dp-list'), word = v => v >= 1.2 ? 'RARE' : v >= 0.9 ? 'NORMAL' : v >= 0.6 ? 'FREQUENT' : 'CONSTANT';
-    list.innerHTML = DIFFS.map((d, i) => `<button class="dcard ${i === 1 ? 'rec' : ''}" data-i="${i}"><b>${d.name}</b><span>${d.blurb}</span><small>START SCRAP ${Math.round(d.scrap * 100)}% - FAULTS ${word(d.ev)} - DIMMER CAP ${Math.round(d.darkCap * 100)}%</small></button>`).join('');
+    list.innerHTML = DIFFS.map((d, i) => `<button class="dcard ${i === 1 ? 'rec' : ''}" data-i="${i}"><b>${d.name}</b><span>${d.blurb}</span><small>START SCRAP ${Math.round(d.scrap * 100)}% - FAULTS ${word(d.ev)} - DIMMER CAP ${Math.round(d.darkCap * 100)}%</small><em>ASSISTS: ${d.assist.n}</em></button>`).join('');
     box.style.display = 'flex';
     const done = v => { box.style.display = 'none'; list.onclick = null; $('dp-cancel').onclick = null; res(v); };
     list.onclick = e => { const b = e.target.closest('.dcard'); if (b) done(+b.dataset.i); }; $('dp-cancel').onclick = () => done(-1);
@@ -411,15 +411,17 @@ function pickDifficulty() {
 }
 function renderSettings() {
   const cur = save.diff == null ? 1 : save.diff;
-  $('set-diff').innerHTML = `<div class="seg">${DIFFS.map((d, i) => `<button data-d="${i}" class="${i === cur ? 'on' : ''}">${d.name}</button>`).join('')}</div><small>${DIFFS[cur].blurb}${save.start < 0 ? '' : ' Changing it takes effect right away.'}</small>`;
+  $('set-diff').innerHTML = `<div class="seg">${DIFFS.map((d, i) => `<button data-d="${i}" class="${i === cur ? 'on' : ''}">${d.name}</button>`).join('')}</div><small>${DIFFS[cur].blurb}${save.start < 0 ? '' : ' Changing it takes effect right away.'}</small><small class="assist">ASSISTS: ${DIFFS[cur].assist.n} - ${DIFFS[cur].assist.d}</small>`;
   $('set-diff').querySelectorAll('[data-d]').forEach(b => { b.onclick = () => { save.diff = +b.dataset.d; recalcMods(); writeSave(); renderSettings(); if (mapActive) updateStats(); }; });
   const set = (id, v) => { $(id).checked = v; };
-  set('set-autopause', Settings.autopause); set('set-confirm', Settings.confirmLeave); set('set-events', eventsOn); set('set-sound', !muted); set('set-wide', Settings.wide); set('set-fx', Settings.fx);
+  set('set-autopause', Settings.autopause); set('set-confirm', Settings.confirmLeave); set('set-events', eventsOn); set('set-sound', !muted); set('set-wide', Settings.wide); set('set-autofix', Settings.autoFix);
+  { const ok = !!DIFFS[cur].assist.autoFix, cb = $('set-autofix'); cb.disabled = !ok; cb.closest('label').classList.toggle('locked', !ok); $('autofix-note').textContent = ok ? '' : ` - locked on ${DIFFS[cur].name}`; } set('set-fx', Settings.fx);
 }
 function openSettings() { renderSettings(); $('settings').style.display = 'flex'; }
 $('btn-settings').onclick = openSettings; $('btn-settings2').onclick = openSettings; $('set-close').onclick = () => { $('settings').style.display = 'none'; };
 $('set-autopause').onchange = e => { Settings.autopause = e.target.checked; Settings.save(); };
 $('set-confirm').onchange = e => { Settings.confirmLeave = e.target.checked; Settings.save(); };
+$('set-autofix').onchange = e => { Settings.autoFix = e.target.checked; Settings.save(); };
 $('set-fx').onchange = e => { Settings.fx = e.target.checked; Settings.save(); };
 $('set-events').onchange = e => { eventsOn = e.target.checked; $('chk-events').checked = eventsOn; try { localStorage.setItem('wastelandGrid.events', eventsOn ? '1' : '0'); } catch (x) { /* ignore */ } };
 $('set-sound').onchange = e => { if (muted === e.target.checked) toggleMute(); };
@@ -447,13 +449,13 @@ function cycleTargets(onlyTrouble) {
 addEventListener('keydown', e => {
   if (!Scenes.is('map') || e.ctrlKey || e.metaKey || e.altKey || anim) return;
   if (e.target && e.target.tagName === 'INPUT') return;
-  if (overlayOpen()) { if (e.key === 'Escape') { ['union', 'settings', 'log', 'how', 'skills', 'hq', 'qm'].forEach(id => { $(id).style.display = 'none'; }); } return; }
+  if (overlayOpen()) { if (e.key === 'Escape') { ['union', 'settings', 'log', 'how', 'skills', 'hq', 'qm', 'research', 'ages'].forEach(id => { $(id).style.display = 'none'; }); } return; }
   const k = e.key.toLowerCase(), pan = 26 / cam.z; let used = true;
   if (k === 'w' || k === 'arrowup') cam.cy -= pan; else if (k === 's' || k === 'arrowdown') cam.cy += pan; else if (k === 'a' || k === 'arrowleft') cam.cx -= pan; else if (k === 'd' || k === 'arrowright') cam.cx += pan;
   else if (k === '+' || k === '=') zoomBy(1.4); else if (k === '-' || k === '_') zoomBy(1 / 1.4); else if (k === 'h' || k === '0' || k === 'home') $('mz-home').click();
   else if (k === 'enter' || k === 'e') { if ($('enter').style.display !== 'none') $('enter').click(); }
   else if (k === 'tab') cycleTargets(false); else if (k === 'n') cycleTargets(true);
-  else if (k === 'b') openQM(); else if (k === 'q') openHQ(); else if (k === 'k') openSkills(); else if (k === 'u') openUnion(); else if (k === 'l') openLog(); else if (k === 'o') openSettings(); else if (k === 'f') $('btn-wide').click();
+  else if (k === 'y') openResearch(); else if (k === 'b') openQM(); else if (k === 'q') openHQ(); else if (k === 'k') openSkills(); else if (k === 'u') openUnion(); else if (k === 'l') openLog(); else if (k === 'o') openSettings(); else if (k === 'f') $('btn-wide').click();
   else if (k === 'v') setMapView(mapView === 'status' ? 'fac' : mapView === 'fac' ? 'links' : 'status');
   else if (k === 'escape') { selected = -1; updatePanel(); } else if (k === '/') $('msearch').focus(); else if (k === '?') mapHelp(); else used = false;
   if (used) { e.preventDefault(); clampCamMap(); }
@@ -497,7 +499,7 @@ $('sv-reset').onclick = async () => { if (await uiConfirm('This erases the campa
 const _rs = renderSettings; renderSettings = function () { _rs(); renderSaveInfo(); };
 
 // ---------- map search + help ----------
-function mapHelp() { uiAlert('WASD / arrows: pan\n+ / -: zoom, H: reset view\nTAB: next target, N: next outage or Dimmer county\nENTER or double-click: open county\nU: union, V: map view, F: wide map\n/: find a county, L: radio log, O: settings\nESC: deselect', 'MAP SHORTCUTS'); }
+function mapHelp() { uiAlert('WASD / arrows: pan\n+ / -: zoom, H: reset view\nTAB: next target, N: next outage or Dimmer county\nENTER or double-click: open county\nG: ages + shared stockpile, Y: research queue, U: union, V: map view, F: wide map\nQ: headquarters, K: skills, B: quartermaster\n/: find a county, L: radio log, O: settings\nESC: deselect', 'MAP SHORTCUTS'); }
 $('msearch').addEventListener('keydown', e => {
   e.stopPropagation(); if (e.key === 'Escape') { e.target.blur(); return; } if (e.key !== 'Enter') return;
   const q = e.target.value.trim().toUpperCase(); if (!q) return;

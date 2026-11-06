@@ -54,6 +54,42 @@ const BUILD = {
   depot: { name: 'MAINT DEPOT', w: 2, h: 2, cost: 50, parts: 2, sup: [0, 0, 0], dem: [2, 0, 0], upkeep: 2, maint: 0.03, repair: { radius: 16, rate: 1.5, max: 6 }, tech: 'maint' },
   fueldepot: { name: 'FUEL DEPOT', w: 2, h: 2, cost: 40, sup: [0, 0, 0], dem: [0, 0, 0], fuelCap: 150, maint: 0.02, tech: 'refining' },
   refinery: { name: 'REFINERY', w: 2, h: 2, cost: 80, parts: 3, sup: [0, 0, 0], dem: [3, 2, 0], fuelOut: 1.5, upkeep: 2, maint: 0.1, tech: 'refining' },
+  // ----- v6 fuel: more ways to keep the generators burning -----
+  kiln: { name: 'CHARCOAL KILN', w: 2, h: 2, cost: 25, sup: [0, 0, 0], dem: [0, 0, 0], fuelOut: 0.35, upkeep: 1, maint: 0.09, tech: 'kilns' },
+  digester: { name: 'BIOGAS DIGESTER', w: 2, h: 2, cost: 45, sup: [0, 0, 0], dem: [1, 2, 0], fuelOut: 0.8, upkeep: 1, maint: 0.05, tech: 'biogas' },
+  oilwell: { name: 'OIL WELL', w: 2, h: 2, cost: 75, parts: 2, sup: [0, 0, 0], dem: [3, 0, 0], fuelOut: 1.3, upkeep: 1, maint: 0.11, tech: 'drilling' },
+  synfuel: { name: 'SYNFUEL PLANT', w: 2, h: 2, cost: 150, parts: 5, sup: [0, 0, 0], dem: [6, 3, 1], fuelOut: 3.6, partsUse: 0.05, upkeep: 3, maint: 0.12, tech: 'synplant' },
+  tankfarm: { name: 'TANK FARM', w: 2, h: 2, cost: 70, parts: 1, sup: [0, 0, 0], dem: [0, 0, 0], fuelCap: 400, maint: 0.02, tech: 'tankage' },
+  // ----- v6 power -----
+  biomass: { name: 'BIOMASS BURNER', w: 2, h: 2, cost: 35, sup: [5, 0, 0], dem: [0, 0, 0], upkeep: 1, maint: 0.08, tech: 'biomass' },
+  fuelcell: { name: 'FUEL CELL STACK', w: 2, h: 2, cost: 85, parts: 3, sup: [12, 0, 0], dem: [0, 1, 0], needsAll: true, fuel: 0.12, upkeep: 1, maint: 0.05, tech: 'fuelcells' },
+  geothermal: { name: 'GEOTHERMAL WELL', w: 2, h: 2, cost: 110, parts: 4, sup: [16, 0, 0], dem: [0, 2, 0], needsAll: true, upkeep: 2, maint: 0.06, tech: 'geothermal' },
+  // ----- v6 water -----
+  well: { name: 'WATER WELL', w: 1, h: 1, cost: 18, sup: [0, 3, 0], dem: [1, 0, 0], needsAll: true, maint: 0.05, tech: 'wells' },
+  // ----- v6 industry: turn power into parts, and parts into scrap -----
+  scrapyard: { name: 'SALVAGE YARD', w: 2, h: 2, cost: 35, sup: [0, 0, 0], dem: [1, 0, 0], income: 3, partsOut: 0.12, maint: 0.05, tech: 'recycling' },
+  mine: { name: 'ORE MINE', w: 2, h: 2, cost: 60, parts: 1, sup: [0, 0, 0], dem: [3, 1, 0], income: 2, partsOut: 0.5, upkeep: 1, maint: 0.09, tech: 'mining' },
+  foundry: { name: 'FOUNDRY', w: 2, h: 2, cost: 95, parts: 2, sup: [0, 0, 0], dem: [4, 2, 0], fuel: 0.2, partsOut: 1.2, upkeep: 2, maint: 0.1, tech: 'foundry' },
+  assembly: { name: 'ASSEMBLY PLANT', w: 2, h: 2, cost: 110, parts: 3, sup: [0, 0, 0], dem: [3, 0, 2], partsUse: 0.4, income: 15, upkeep: 2, maint: 0.07, tech: 'assembly' },
+  warehouse: { name: 'WAREHOUSE', w: 2, h: 2, cost: 55, sup: [0, 0, 0], dem: [0, 0, 0], scrapCap: 250, maint: 0.02, tech: 'warehousing' },
+  archive: { name: 'DATA ARCHIVE', w: 2, h: 2, cost: 90, parts: 2, sup: [0, 0, 0], dem: [3, 0, 4], rp: 3, upkeep: 2, maint: 0.04, town: true, tech: 'archives' },
+  // ----- v7 advanced buildings (Ages III-V). pool = build cost from the SHARED STOCKPILE, prod / poolUse = goods per second -----
+  dronebay: { name: 'DRONE BAY', w: 2, h: 2, cost: 90, parts: 3, sup: [0, 0, 0], dem: [2, 0, 1], drones: { n: 3, radius: 30, rate: 1 }, upkeep: 1, maint: 0.03, tech: 'repairdrones' },
+  smelter: { name: 'ALLOY SMELTER', w: 2, h: 2, cost: 140, parts: 4, sup: [0, 0, 0], dem: [6, 2, 0], fuel: 0.3, partsUse: 0.3, prod: { alloy: 0.12 }, upkeep: 3, maint: 0.1, tech: 'alloys' },
+  circuitfab: { name: 'CIRCUIT FAB', w: 2, h: 2, cost: 150, parts: 4, sup: [0, 0, 0], dem: [4, 1, 4], partsUse: 0.25, prod: { circ: 0.1 }, upkeep: 3, maint: 0.06, tech: 'circuits' },
+  exchange: { name: 'SUPPLY EXCHANGE', w: 2, h: 2, cost: 120, parts: 3, sup: [0, 0, 0], dem: [1, 0, 2], exchange: true, upkeep: 2, maint: 0.04, tech: 'exchange' },
+  solarfarm: { name: 'SOLAR FARM', w: 2, h: 2, cost: 120, parts: 3, pool: { alloy: 2 }, sup: [14, 0, 0], dem: [0, 0, 0], maint: 0.03, tech: 'solarfarm' },
+  windfarm: { name: 'WIND FARM', w: 2, h: 2, cost: 110, parts: 3, pool: { alloy: 2 }, sup: [11, 0, 0], dem: [0, 0, 0], maint: 0.05, tech: 'windfarm' },
+  compworks: { name: 'COMPONENT WORKS', w: 2, h: 2, cost: 220, parts: 6, pool: { alloy: 6, circ: 6 }, sup: [0, 0, 0], dem: [8, 2, 4], poolUse: { alloy: 0.06, circ: 0.06 }, prod: { comp: 0.08 }, upkeep: 4, maint: 0.08, tech: 'components' },
+  fission: { name: 'FISSION REACTOR', w: 2, h: 2, cost: 300, parts: 8, pool: { alloy: 15, comp: 4 }, sup: [60, 0, 0], dem: [0, 4, 1], tier: [1, 0, 0], needsAll: true, poolUse: { comp: 0.01 }, upkeep: 5, maint: 0.08, tech: 'fission' },
+  robotdepot: { name: 'ROBOT DEPOT', w: 2, h: 2, cost: 200, parts: 5, pool: { circ: 4, comp: 2 }, sup: [0, 0, 0], dem: [4, 0, 2], repair: { radius: 26, rate: 3, max: 10 }, upkeep: 3, maint: 0.03, tech: 'robotics' },
+  arcology: { name: 'ARCOLOGY', w: 2, h: 2, cost: 320, parts: 6, pool: { alloy: 10, comp: 4 }, sup: [0, 0, 0], dem: [8, 8, 6], income: 45, rp: 2, upkeep: 4, maint: 0.04, town: true, tech: 'arcology' },
+  vfarm: { name: 'VERTICAL FARM', w: 2, h: 2, cost: 180, parts: 4, pool: { alloy: 4, circ: 2 }, sup: [0, 0, 0], dem: [3, 6, 1], income: 20, upkeep: 2, maint: 0.04, town: true, tech: 'vfarm' },
+  quantum: { name: 'QUANTUM LAB', w: 2, h: 2, cost: 260, parts: 6, pool: { circ: 10, comp: 3 }, sup: [0, 0, 0], dem: [6, 0, 8], poolUse: { circ: 0.02 }, rp: 9, upkeep: 4, maint: 0.04, town: true, tech: 'quantum' },
+  fusion: { name: 'FUSION REACTOR', w: 2, h: 2, cost: 600, parts: 12, pool: { alloy: 30, circ: 20, comp: 20 }, sup: [160, 0, 0], dem: [0, 6, 3], tier: [1, 0, 0], needsAll: true, poolUse: { comp: 0.02 }, upkeep: 8, maint: 0.06, tech: 'fusion' },
+  atmo: { name: 'ATMO WATER PLANT', w: 2, h: 2, cost: 280, parts: 6, pool: { alloy: 8, comp: 4 }, sup: [0, 30, 0], dem: [8, 0, 1], needsAll: true, upkeep: 3, maint: 0.05, tech: 'atmo' },
+  megafab: { name: 'MEGAFACTORY', w: 2, h: 2, cost: 500, parts: 10, pool: { alloy: 20, circ: 20, comp: 10 }, sup: [0, 0, 0], dem: [20, 6, 8], partsUse: 1, poolUse: { alloy: 0.08, circ: 0.08 }, prod: { comp: 0.3 }, upkeep: 6, maint: 0.08, tech: 'megafab' },
+  orbital: { name: 'ORBITAL UPLINK', w: 2, h: 2, cost: 400, parts: 8, pool: { alloy: 15, circ: 25, comp: 8 }, sup: [0, 0, 45], dem: [12, 0, 0], needsAll: true, upkeep: 4, maint: 0.04, tech: 'orbital' },
   // interties pull surplus power / water / net from neighbouring counties whose control stations are online
   intertie: { name: 'INTERTIE', w: 2, h: 2, cost: 120, parts: 4, sup: [0, 0, 0], dem: [0, 0, 0], tier: [1, 1, 1], importer: true, upkeep: 2, maint: 0.04, tech: 'intertie' },
   security: { name: 'SECURITY POST', w: 2, h: 2, cost: 55, parts: 1, sup: [0, 0, 0], dem: [1, 0, 1], upkeep: 1, maint: 0.04, security: { radius: 14 }, tech: 'security' },
@@ -79,7 +115,7 @@ const SITE_NAME = { power: 'POWER', water: 'WATER', data: 'DATA', station: 'STAT
 // br = branch (colour / column grouping)   req = prerequisites (the tree draws lines to them)
 const BRANCH = {
   POWER: { color: '#f5c95a' }, WATER: { color: '#5fc4d0' }, NET: { color: '#8fbf5a' }, TOWN: { color: '#e08a3c' },
-  OPS: { color: '#e6dd9a' }, GRID: { color: '#b59cf0' }, STATION: { color: '#f08a8a' }, BOOST: { color: '#ff9fb0' },
+  OPS: { color: '#e6dd9a' }, GRID: { color: '#b59cf0' }, STATION: { color: '#f08a8a' }, BOOST: { color: '#ff9fb0' }, INDUSTRY: { color: '#d9a066' },
 };
 const TECH = {
   // power
@@ -165,7 +201,121 @@ const TECH = {
   selftune: { br: 'BOOST', name: 'SELF-TUNING', cost: 80, req: ['crews'], desc: 'Machines slowly mend themselves.', fx: { autoRepair: 0.03 } },
   precision: { br: 'BOOST', name: 'PRECISION PARTS', cost: 70, req: ['maint', 'industry'], desc: 'Repairs cost 15% less and machines wear 8% slower.', fx: { repair: 0.85, wear: 0.92 } },
   mastery: { br: 'BOOST', name: 'GRID MASTERY', cost: 150, req: ['control', 'study', 'trade'], desc: 'Power, water and network output +5%, and income +5%.', fx: { genOut: 1.05, waterOut: 1.05, netOut: 1.05, income: 1.05 } },
+  // ----- v6 fuel research -----
+  kilns: { br: 'OPS', name: 'CHARCOAL KILNS', cost: 15, req: [], desc: 'Charcoal kilns: 0.35 fuel/s from scrap wood. No power or lines needed - the first fuel you can make.' },
+  biomass: { br: 'POWER', name: 'BIOMASS BURNERS', cost: 25, req: ['kilns'], desc: 'Biomass burners: +5 power with no fuel, for 1 scrap/s upkeep.' },
+  biogas: { br: 'OPS', name: 'BIOGAS', cost: 35, req: ['kilns', 'towers'], desc: 'Biogas digesters: 0.8 fuel/s from 1 power and 2 water.' },
+  tankage: { br: 'OPS', name: 'TANK FARMS', cost: 35, req: ['refining'], desc: 'Tank farms: +400 fuel storage each.' },
+  drilling: { br: 'OPS', name: 'OIL DRILLING', cost: 50, req: ['refining'], desc: 'Oil wells: 1.3 fuel/s for 3 power.' },
+  catalysts: { br: 'OPS', name: 'CATALYSTS', cost: 50, req: ['refining'], desc: 'Every fuel maker produces 25% more fuel.', fx: { fuelOut: 1.25 } },
+  bulk: { br: 'OPS', name: 'BULK STORAGE', cost: 45, req: ['tankage'], desc: 'Fuel depots and tank farms hold 50% more.', fx: { fuelStore: 1.5 } },
+  synplant: { br: 'OPS', name: 'SYNFUEL PLANTS', cost: 95, req: ['drilling', 'industry'], desc: 'Synfuel plants: 3.6 fuel/s from 6 power, 3 water and 1 net. They use a few parts.' },
+  cracking: { br: 'OPS', name: 'CATALYTIC CRACKING', cost: 90, req: ['catalysts', 'synplant'], desc: 'Every fuel maker produces another 20% more fuel.', fx: { fuelOut: 1.2 } },
+  fuelcells: { br: 'POWER', name: 'FUEL CELLS', cost: 75, req: ['turbines', 'mains'], desc: 'Fuel cell stacks: +12 power for only 0.12 fuel/s and 1 water.' },
+  geothermal: { br: 'POWER', name: 'GEOTHERMAL', cost: 80, req: ['hydro', 'drilling'], desc: 'Geothermal wells: +16 power with no fuel, for 2 water. Build them anywhere.' },
+  // ----- v6 water -----
+  wells: { br: 'WATER', name: 'DUG WELLS', cost: 15, req: [], desc: 'Water wells: +3 water for 1 power, and they do not need a shore.' },
+  aquifers: { br: 'WATER', name: 'AQUIFER SURVEY', cost: 45, req: ['wells', 'pumps2'], desc: 'Wells make 40% more water.', fx: { well: 1.4 } },
+  // ----- v6 industry -----
+  mining: { br: 'INDUSTRY', name: 'MINING', cost: 30, req: ['workshop'], desc: 'Ore mines: 0.5 parts/s and 2 scrap/s for 3 power and 1 water.' },
+  warehousing: { br: 'INDUSTRY', name: 'WAREHOUSING', cost: 40, req: ['workshop'], desc: 'Warehouses: the scrap warehouse cap rises by 250 each.' },
+  foundry: { br: 'INDUSTRY', name: 'FOUNDRIES', cost: 55, req: ['mining', 'refining'], desc: 'Foundries: 1.2 parts/s for 4 power, 2 water and 0.2 fuel/s.' },
+  smelting: { br: 'INDUSTRY', name: 'SMELTING', cost: 65, req: ['foundry'], desc: 'Every parts maker produces 20% more parts.', fx: { partsOut: 1.2 } },
+  assembly: { br: 'INDUSTRY', name: 'ASSEMBLY LINES', cost: 70, req: ['foundry', 'market'], desc: 'Assembly plants turn 0.4 parts/s into 15 scrap/s.' },
+  conveyors: { br: 'INDUSTRY', name: 'CONVEYORS', cost: 80, req: ['assembly'], desc: 'Machines wear 8% slower and scrap income +5%.', fx: { wear: 0.92, income: 1.05 } },
+  automation: { br: 'INDUSTRY', name: 'AUTOMATION', cost: 100, req: ['conveyors', 'scada'], desc: 'Upkeep costs 12% less.', fx: { upkeep: 0.88 } },
+  archives: { br: 'TOWN', name: 'DATA ARCHIVES', cost: 80, req: ['school'], desc: 'Data archives: 3 research points/s for 3 power and 4 net.' },
+
+  // ===== v8: research speed, repair drones and less hassle =====
+  labs1: { age: 1, br: 'BOOST', name: 'RESEARCH SPEED I', cost: 30, req: ['workshop'], desc: 'Queued research fills 25% faster.', fx: { labSpeed: 1.25 } },
+  labs2: { age: 2, br: 'BOOST', name: 'RESEARCH SPEED II', cost: 80, req: ['labs1', 'school'], desc: 'Queued research fills another 25% faster.', fx: { labSpeed: 1.25 } },
+  labs3: { age: 3, br: 'BOOST', name: 'RESEARCH SPEED III', cost: 160, req: ['labs2', 'trades'], desc: 'Queued research fills another 30% faster.', fx: { labSpeed: 1.3 } },
+  labs4: { age: 4, br: 'BOOST', name: 'RESEARCH SPEED IV', cost: 300, req: ['labs3', 'institutes'], desc: 'Queued research fills another 35% faster.', fx: { labSpeed: 1.35 } },
+  labs5: { age: 5, br: 'BOOST', name: 'RESEARCH SPEED V', cost: 600, req: ['labs4', 'singularity'], desc: 'Queued research fills another 50% faster.', fx: { labSpeed: 1.5 } },
+  reclosers: { age: 2, br: 'GRID', name: 'AUTO-RECLOSERS', cost: 50, req: ['scada'], desc: 'Tripped switches close again by themselves after 3 seconds instead of 10.' },
+  fuelreserve: { age: 1, br: 'OPS', name: 'EMERGENCY FUEL', cost: 30, req: ['refining'], desc: 'When the fuel tank is almost empty, 30 scrap is turned into 25 fuel automatically.' },
+  repairdrones: { age: 2, br: 'OPS', name: 'REPAIR DRONES', cost: 60, req: ['maint'], desc: 'Drone bays: 3 drones that fly out and repair machines and lines within 30 tiles for free. A county with a drone bay fixes its own outages while you are away, and suffers half as many.' },
+  predictive: { age: 2, br: 'OPS', name: 'PREDICTIVE MAINTENANCE', cost: 70, req: ['repairdrones'], desc: 'Machines wear 12% slower.', fx: { wear: 0.88 } },
+  drones2: { age: 3, br: 'OPS', name: 'DRONE SWARMS', cost: 130, req: ['repairdrones', 'circuits'], desc: 'Every drone bay launches 2 more drones and reaches 10 tiles further.', fx: { droneN: 2, droneRange: 10 } },
+  drones3: { age: 4, br: 'OPS', name: 'AUTONOMOUS DRONES', cost: 260, req: ['drones2', 'gridai'], desc: 'Drones repair 50% faster and fix outages on the map twice as fast.', fx: { droneSpeed: 1.5, droneOut: 2 } },
+  drones4: { age: 5, br: 'OPS', name: 'NANO-DRONE CLOUD', cost: 550, req: ['drones3', 'selfheal'], desc: 'Every drone bay launches 3 more drones that reach 20 tiles further and work 50% faster.', fx: { droneN: 3, droneRange: 20, droneSpeed: 1.5 } },
+  // ===== AGE III - ELECTRIC =====
+  alloys: { age: 3, br: 'INDUSTRY', name: 'ALLOY SMELTING', cost: 120, req: ['foundry', 'hv'], desc: 'Alloy smelters: 0.12 ALLOYS/s into the shared stockpile, from power, water, fuel and parts.' },
+  circuits: { age: 3, br: 'INDUSTRY', name: 'CIRCUIT FABRICATION', cost: 130, req: ['fiber', 'mining'], desc: 'Circuit fabs: 0.1 CIRCUITS/s into the shared stockpile, from power, water, net and parts.' },
+  exchange: { age: 3, br: 'GRID', name: 'SUPPLY EXCHANGES', cost: 110, req: ['intertie'], desc: 'Supply exchanges trade PARTS and FUEL with the shared stockpile: they export your surplus and import when you run short.' },
+  solarfarm: { age: 3, br: 'POWER', name: 'SOLAR FARMS', cost: 110, req: ['pv2'], desc: 'Solar farms: +14 power with no fuel. Built with alloys.' },
+  windfarm: { age: 3, br: 'POWER', name: 'WIND FARMS', cost: 100, req: ['blades'], desc: 'Wind farms: +11 power with no fuel. Built with alloys.' },
+  alloy2: { age: 3, br: 'INDUSTRY', name: 'ALLOY RECIPES', cost: 140, req: ['alloys'], desc: 'Smelters make 25% more alloys.', fx: { alloyOut: 1.25 } },
+  circ2: { age: 3, br: 'INDUSTRY', name: 'PHOTOLITHOGRAPHY', cost: 150, req: ['circuits'], desc: 'Circuit fabs make 25% more circuits.', fx: { circOut: 1.25 } },
+  freight: { age: 3, br: 'GRID', name: 'FREIGHT RAIL', cost: 130, req: ['exchange'], desc: 'Counties you are not playing deliver 15% more of their output to the shared stockpile.', fx: { poolEff: 0.15 } },
+  depots2: { age: 3, br: 'GRID', name: 'REGIONAL DEPOTS', cost: 120, req: ['exchange'], desc: 'Supply exchanges move 50% more each second.', fx: { exportRate: 1.5 } },
+  gridsync: { age: 3, br: 'POWER', name: 'GRID SYNC', cost: 140, req: ['dispatch'], desc: 'Power, water and network output +5%.', fx: { genOut: 1.05, waterOut: 1.05, netOut: 1.05 } },
+  hvdc: { age: 3, br: 'GRID', name: 'HVDC LINKS', cost: 130, req: ['lowloss'], desc: 'Imports from neighbouring counties are 15% stronger.', fx: { imp: 0.15 } },
+  metering: { age: 3, br: 'BOOST', name: 'SMART METERS', cost: 110, req: ['scada', 'market'], desc: 'Scrap income +6%.', fx: { income: 1.06 } },
+  cleanroom: { age: 3, br: 'INDUSTRY', name: 'CLEAN ROOMS', cost: 120, req: ['circuits'], desc: 'Machines wear 8% slower.', fx: { wear: 0.92 } },
+  trades: { age: 3, br: 'TOWN', name: 'TRADE SCHOOLS', cost: 120, req: ['school'], desc: 'Research points +10%.', fx: { rp: 1.1 } },
+  civil: { age: 3, br: 'OPS', name: 'CIVIL ENGINEERING', cost: 130, req: ['automation'], desc: 'Upkeep costs 8% less.', fx: { upkeep: 0.92 } },
+  drains: { age: 3, br: 'BOOST', name: 'STORM DRAINS', cost: 110, req: ['bunkers'], desc: 'Storms damage 15% fewer lines.', fx: { stormN: 0.85 } },
+  militia: { age: 3, br: 'BOOST', name: 'CIVIL DEFENCE', cost: 120, req: ['patrols'], desc: 'Raiders come 20% less often.', fx: { raid: 1.2 } },
+  pipeline: { age: 3, br: 'OPS', name: 'PIPELINES', cost: 130, req: ['cracking'], desc: 'Every fuel maker produces 15% more fuel.', fx: { fuelOut: 1.15 } },
+  waterworks: { age: 3, br: 'WATER', name: 'WATERWORKS', cost: 120, req: ['aquifers'], desc: 'Water output +10%, pumps and wells +10% more.', fx: { waterOut: 1.1, pump: 1.1, well: 1.1 } },
+  netcore: { age: 3, br: 'NET', name: 'NETWORK CORES', cost: 120, req: ['mesh'], desc: 'Network output +12%.', fx: { netOut: 1.12 } },
+  thermal: { age: 3, br: 'POWER', name: 'THERMAL STORAGE', cost: 120, req: ['supercap'], desc: 'Batteries and towers work 25% faster.', fx: { store: 1.25 } },
+  salvage2: { age: 3, br: 'BOOST', name: 'DEEP SALVAGE', cost: 110, req: ['prospect'], desc: 'Rubble pays 30% more and supply caches hold 15% more.', fx: { rubble: 1.3, lootVal: 1.15 } },
+  bonds: { age: 3, br: 'BOOST', name: 'INFRASTRUCTURE BONDS', cost: 120, req: ['trade'], desc: 'Every county starts with 20% more scrap.', fx: { startScrap: 1.2 } },
+  kits: { age: 3, br: 'BOOST', name: 'PREFAB KITS', cost: 110, req: ['stockpile'], desc: 'Every county starts with 6 more parts.', fx: { startParts: 6 } },
+  standard: { age: 3, br: 'INDUSTRY', name: 'STANDARD PARTS', cost: 130, req: ['smelting'], desc: 'Every parts maker produces 15% more parts.', fx: { partsOut: 1.15 } },
+  // ===== AGE IV - ATOMIC =====
+  components: { age: 4, br: 'INDUSTRY', name: 'COMPONENT WORKS', cost: 260, req: ['alloys', 'circuits'], desc: 'Component works turn shared alloys and circuits into 0.08 COMPONENTS/s - the heart of every advanced machine.' },
+  fission: { age: 4, br: 'POWER', name: 'FISSION POWER', cost: 300, req: ['components', 'industry'], desc: 'Fission reactors: +60 power on the HV trunk. They use a trickle of components.' },
+  robotics: { age: 4, br: 'OPS', name: 'ROBOTICS', cost: 260, req: ['components', 'crews'], desc: 'Robot depots repair up to 10 buildings within 26 tiles, fast.' },
+  arcology: { age: 4, br: 'TOWN', name: 'ARCOLOGIES', cost: 300, req: ['components', 'housing'], desc: 'Arcologies: one huge tower earning 45 scrap/s and 2 research/s.' },
+  vfarm: { age: 4, br: 'TOWN', name: 'VERTICAL FARMS', cost: 240, req: ['agri', 'components'], desc: 'Vertical farms: 20 scrap/s from lots of water.' },
+  quantum: { age: 4, br: 'NET', name: 'QUANTUM COMPUTING', cost: 300, req: ['circ2', 'archives'], desc: 'Quantum labs: 9 research/s. They use a few shared circuits.' },
+  comp2: { age: 4, br: 'INDUSTRY', name: 'PRECISION ASSEMBLY', cost: 280, req: ['components'], desc: 'Component makers produce 25% more components.', fx: { compOut: 1.25 } },
+  reactor2: { age: 4, br: 'POWER', name: 'REACTOR TUNING', cost: 260, req: ['fission'], desc: 'Fission reactors make 20% more power.', fx: { fission: 1.2 } },
+  lightsout: { age: 4, br: 'INDUSTRY', name: 'LIGHTS-OUT FACTORIES', cost: 300, req: ['robotics', 'alloy2'], desc: 'Alloys, circuits and components +15%.', fx: { alloyOut: 1.15, circOut: 1.15, compOut: 1.15 } },
+  containers: { age: 4, br: 'GRID', name: 'CONTAINERISATION', cost: 260, req: ['freight'], desc: 'Counties you are not playing deliver another 15% to the shared stockpile.', fx: { poolEff: 0.15 } },
+  airlift: { age: 4, br: 'GRID', name: 'AIRLIFT', cost: 240, req: ['depots2'], desc: 'Supply exchanges move 50% more.', fx: { exportRate: 1.5 } },
+  smartmat: { age: 4, br: 'INDUSTRY', name: 'SMART MATERIALS', cost: 260, req: ['cleanroom'], desc: 'Machines wear 10% slower.', fx: { wear: 0.9 } },
+  gridai: { age: 4, br: 'NET', name: 'GRID AI', cost: 320, req: ['quantum'], desc: 'Power output +6%, storage 20% faster, faults 15% rarer.', fx: { genOut: 1.06, store: 1.2, ev: 1.15 } },
+  medtech: { age: 4, br: 'TOWN', name: 'MEDTECH', cost: 240, req: ['medicine', 'trades'], desc: 'Scrap income +5% and research +5%.', fx: { income: 1.05, rp: 1.05 } },
+  supercond: { age: 4, br: 'GRID', name: 'SUPERCONDUCTORS', cost: 300, req: ['hvdc', 'alloy2'], desc: 'Imports +15% and power output +5%.', fx: { imp: 0.15, genOut: 1.05 } },
+  domes: { age: 4, br: 'BOOST', name: 'STORM DOMES', cost: 260, req: ['drains'], desc: 'Storms damage 30% fewer lines.', fx: { stormN: 0.7 } },
+  drones: { age: 4, br: 'BOOST', name: 'SECURITY DRONES', cost: 260, req: ['militia'], desc: 'Raiders come 30% less often.', fx: { raid: 1.3 } },
+  nano: { age: 4, br: 'OPS', name: 'NANO-REPAIR', cost: 280, req: ['robotics'], desc: 'Every machine mends itself (+0.05 condition per second).', fx: { autoRepair: 0.05 } },
+  tidal: { age: 4, br: 'POWER', name: 'TIDAL TURBINES', cost: 240, req: ['runner'], desc: 'Hydro turbines make 30% more power.', fx: { hydro: 1.3 } },
+  perovskite: { age: 4, br: 'POWER', name: 'PEROVSKITE CELLS', cost: 240, req: ['solarfarm'], desc: 'Solar arrays and farms make 30% more power.', fx: { solar: 1.3 } },
+  offshore: { age: 4, br: 'POWER', name: 'OFFSHORE WIND', cost: 240, req: ['windfarm'], desc: 'Wind turbines and farms make 30% more power.', fx: { wind: 1.3 } },
+  institutes: { age: 4, br: 'TOWN', name: 'RESEARCH INSTITUTES', cost: 280, req: ['trades'], desc: 'Research points +15%.', fx: { rp: 1.15 } },
+  megadepots: { age: 4, br: 'OPS', name: 'MEGA DEPOTS', cost: 220, req: ['bulk'], desc: 'Fuel depots and tank farms hold another 50% more.', fx: { fuelStore: 1.5 } },
+  commonmkt: { age: 4, br: 'BOOST', name: 'COMMON MARKET', cost: 280, req: ['metering'], desc: 'Scrap income +8%.', fx: { income: 1.08 } },
+  cleanburn: { age: 4, br: 'POWER', name: 'CLEAN COMBUSTION', cost: 240, req: ['pipeline'], desc: 'Generators, turbines and plants burn 15% less fuel.', fx: { fuel: 0.85 } },
+  // ===== AGE V - FUSION (end game) =====
+  fusion: { age: 5, br: 'POWER', name: 'FUSION IGNITION', cost: 600, req: ['fission', 'supercond', 'gridai'], desc: 'Fusion reactors: +160 power on the HV trunk. They use shared components.' },
+  atmo: { age: 5, br: 'WATER', name: 'ATMOSPHERIC WATER', cost: 450, req: ['waterworks', 'gridai'], desc: 'Atmo water plants: +30 water pulled from the air, anywhere.' },
+  megafab: { age: 5, br: 'INDUSTRY', name: 'MEGAFACTORIES', cost: 550, req: ['lightsout', 'comp2'], desc: 'Megafactories: 0.3 COMPONENTS/s from shared alloys, circuits and a lot of parts.' },
+  orbital: { age: 5, br: 'NET', name: 'ORBITAL UPLINKS', cost: 500, req: ['netcore', 'quantum'], desc: 'Orbital uplinks: +45 network from the sky.' },
+  fusion2: { age: 5, br: 'POWER', name: 'MAGNETIC CONFINEMENT', cost: 650, req: ['fusion'], desc: 'Fusion reactors make 25% more power.', fx: { fusion: 1.25 } },
+  megafab2: { age: 5, br: 'INDUSTRY', name: 'SELF-REPLICATING LINES', cost: 650, req: ['megafab'], desc: 'Component makers produce 25% more components.', fx: { compOut: 1.25 } },
+  worldnet: { age: 5, br: 'NET', name: 'WORLD NETWORK', cost: 550, req: ['orbital'], desc: 'Network output +15%.', fx: { netOut: 1.15 } },
+  abundance: { age: 5, br: 'BOOST', name: 'POST-SCARCITY', cost: 700, req: ['commonmkt', 'megafab'], desc: 'Scrap income +15% and upkeep 15% less.', fx: { income: 1.15, upkeep: 0.85 } },
+  terraform: { age: 5, br: 'WATER', name: 'TERRAFORMING', cost: 550, req: ['atmo'], desc: 'Water output +15%.', fx: { waterOut: 1.15 } },
+  weather: { age: 5, br: 'BOOST', name: 'WEATHER CONTROL', cost: 600, req: ['domes', 'gridai'], desc: 'Faults 40% rarer and storms damage half as many lines.', fx: { ev: 1.4, stormN: 0.5 } },
+  peace: { age: 5, br: 'BOOST', name: 'LASTING PEACE', cost: 600, req: ['drones', 'diplomacy'], desc: 'Raiders come 60% less often and factions trust you 30% faster.', fx: { raid: 1.6, trust: 1.3 } },
+  hyperloop: { age: 5, br: 'GRID', name: 'HYPERLOOP', cost: 650, req: ['containers', 'airlift'], desc: 'Counties you are not playing deliver 20% more, and exchanges move twice as much.', fx: { poolEff: 0.2, exportRate: 2 } },
+  gardens: { age: 5, br: 'TOWN', name: 'GARDEN CITIES', cost: 550, req: ['arcology'], desc: 'Scrap income +10%.', fx: { income: 1.1 } },
+  selfheal: { age: 5, br: 'OPS', name: 'SELF-HEALING GRID', cost: 600, req: ['nano'], desc: 'Machines mend themselves faster (+0.08/s) and wear 15% slower.', fx: { autoRepair: 0.08, wear: 0.85 } },
+  antimatter: { age: 5, br: 'POWER', name: 'ANTIMATTER TRAPS', cost: 700, req: ['fusion2'], desc: 'Storage 50% faster and power output +8%.', fx: { store: 1.5, genOut: 1.08 } },
+  reclaim: { age: 5, br: 'BOOST', name: 'MATTER RECLAMATION', cost: 600, req: ['megafab'], desc: 'Rubble +50%, caches +30%, parts +20%.', fx: { rubble: 1.5, lootVal: 1.3, partsOut: 1.2 } },
+  singularity: { age: 5, br: 'BOOST', name: 'GRID SINGULARITY', cost: 900, req: ['fusion2', 'worldnet'], desc: 'Power, water and network +10%, research +20%.', fx: { genOut: 1.1, waterOut: 1.1, netOut: 1.1, rp: 1.2 } },
+  worldgrid: { age: 5, br: 'STATION', name: 'WORLD GRID THEORY', cost: 1200, req: ['singularity', 'hyperloop'], desc: 'The last idea: one grid for the whole world. Needed to IGNITE THE WORLD GRID on the AGES screen (G).' },
 };
+(function assignAges() {
+  const memo = {};
+  const ageOf = id => memo[id] || (memo[id] = Math.max(TECH[id].age || (TECH[id].cost <= 45 ? 1 : 2), ...TECH[id].req.map(ageOf)));
+  for (const id in TECH) TECH[id].age = ageOf(id);
+})();
 // station modules: slot these into the GRID CONTROL STATION
 const MODULES = {
   guard: { name: 'SURGE GUARD', tech: 'mGuard', cost: 50, parts: 2, desc: 'Surges never trip switches. Breakdowns are rarer.' },
@@ -186,16 +336,17 @@ const MODULES = {
 const IMPORT_CAP = [25, 20, 15];            // per intertie: power, water, net
 const META_KEY = 'wastelandGrid.meta4';
 const Meta = {
-  rp: 0, done: {}, dirty: false,
+  rp: 0, done: {}, q: [], pr: {}, dirty: false,              // q = research queue, pr = research progress (both optional: older saves simply start empty)
   has(id) { return !!this.done[id]; },
-  load() { try { const m = JSON.parse(localStorage.getItem(META_KEY)); if (m) { this.rp = m.rp || 0; this.done = m.done || {}; } } catch (e) { /* none */ } },
-  save() { try { localStorage.setItem(META_KEY, JSON.stringify({ rp: Math.floor(this.rp * 10) / 10, done: this.done })); } catch (e) { /* blocked */ } this.dirty = false; },
-  reset() { this.rp = 0; this.done = {}; this.save(); },
+  load() { try { const m = JSON.parse(localStorage.getItem(META_KEY)); if (m) { this.rp = m.rp || 0; this.done = m.done || {}; this.q = Array.isArray(m.q) ? m.q.filter(id => TECH[id] && !this.done[id]) : []; this.pr = m.pr && typeof m.pr === 'object' ? m.pr : {}; } } catch (e) { /* none */ } },
+  save() { try { localStorage.setItem(META_KEY, JSON.stringify({ rp: Math.floor(this.rp * 10) / 10, done: this.done, q: this.q, pr: this.pr })); } catch (e) { /* blocked */ } this.dirty = false; },
+  reset() { this.rp = 0; this.done = {}; this.q = []; this.pr = {}; this.save(); },
   buy(id) {
-    const t = TECH[id]; if (!t || this.done[id] || this.rp < t.cost || !t.req.every(r => this.done[r])) return false;
+    const t = TECH[id]; if (!t || this.done[id] || this.rp < t.cost || !t.req.every(r => this.done[r]) || t.age > curAge()) return false;
     this.rp -= t.cost; this.done[id] = 1; this.save(); return true;
   },
 };
+const curAge = () => (typeof save !== 'undefined' && save && save.age) || 1;                 // the campaign's current age (ages.js)
 const BASE_UNLOCK = new Set(['generator', 'pump', 'router', 'house', 'lab']);
 const unlocked = type => BASE_UNLOCK.has(type) || !BUILD[type].tech || Meta.has(BUILD[type].tech);
 const lineUnlocked = L => !LAYERS[L].tech || Meta.has(LAYERS[L].tech);
@@ -216,16 +367,34 @@ const TOOLS = [
   { cat: 'POWER', name: 'WIND TURBINE', key: '6', kind: 'build', type: 'wind', desc: '+2 power, no fuel.' },
   { cat: 'POWER', name: 'HYDRO TURBINE', key: 'h', kind: 'build', type: 'hydro', desc: '+14 power on the HV trunk, no fuel. Must touch water.' },
   { cat: 'POWER', name: 'BATTERY BANK', key: '7', kind: 'build', type: 'battery', desc: 'Stores 60 power. Charges from surplus, covers brownouts (6/s).' },
+  { cat: 'POWER', name: 'BIOMASS BURNER', key: '', kind: 'build', type: 'biomass', desc: '+5 power with no fuel. 1 scrap/s upkeep.' },
+  { cat: 'POWER', name: 'FUEL CELL STACK', key: '', kind: 'build', type: 'fuelcell', desc: '+12 power for just 0.12 fuel/s. Needs 1 water.' },
+  { cat: 'POWER', name: 'GEOTHERMAL WELL', key: '', kind: 'build', type: 'geothermal', desc: '+16 power, no fuel. Needs 2 water. Build it anywhere.' },
+  { cat: 'POWER', name: 'SOLAR FARM', key: '', kind: 'build', type: 'solarfarm', desc: '+14 power, no fuel. Costs 2 shared alloys to build.' },
+  { cat: 'POWER', name: 'WIND FARM', key: '', kind: 'build', type: 'windfarm', desc: '+11 power, no fuel. Costs 2 shared alloys to build.' },
+  { cat: 'POWER', name: 'FISSION REACTOR', key: '', kind: 'build', type: 'fission', desc: '+60 power on the HV trunk. Needs 4 water + 1 net and uses 0.01 shared components/s.' },
+  { cat: 'POWER', name: 'FUSION REACTOR', key: '', kind: 'build', type: 'fusion', desc: '+160 power on the HV trunk. Needs 6 water + 3 net and uses 0.02 shared components/s.' },
+  { cat: 'FUEL', name: 'CHARCOAL KILN', key: '', kind: 'build', type: 'kiln', desc: 'Makes 0.35 fuel/s. Needs no power and no lines: place it anywhere.' },
+  { cat: 'FUEL', name: 'BIOGAS DIGESTER', key: '', kind: 'build', type: 'digester', desc: 'Needs 1 power + 2 water. Makes 0.8 fuel/s.' },
+  { cat: 'FUEL', name: 'REFINERY', key: 'i', kind: 'build', type: 'refinery', desc: 'Needs 3 power + 2 water. Makes 1.5 fuel/s.' },
+  { cat: 'FUEL', name: 'OIL WELL', key: '', kind: 'build', type: 'oilwell', desc: 'Needs 3 power. Pumps 1.3 fuel/s.' },
+  { cat: 'FUEL', name: 'SYNFUEL PLANT', key: '', kind: 'build', type: 'synfuel', desc: 'Needs 6 power, 3 water, 1 net and a trickle of parts. Makes 3.6 fuel/s.' },
+  { cat: 'FUEL', name: 'FUEL DEPOT', key: 'u', kind: 'build', type: 'fueldepot', desc: '+150 fuel storage.' },
+  { cat: 'FUEL', name: 'TANK FARM', key: '', kind: 'build', type: 'tankfarm', desc: '+400 fuel storage.' },
   { cat: 'WATER', name: 'WATER PUMP', key: '8', kind: 'build', type: 'pump', desc: '+6 water. Needs 2 power, must touch water.' },
+  { cat: 'WATER', name: 'WATER WELL', key: '', kind: 'build', type: 'well', desc: '+3 water for 1 power. A small well that works away from water too.' },
+  { cat: 'WATER', name: 'ATMO WATER PLANT', key: '', kind: 'build', type: 'atmo', desc: '+30 water from the air, anywhere. Needs 8 power + 1 net.' },
   { cat: 'WATER', name: 'DESALINATION', key: '', kind: 'build', type: 'desal', desc: '+12 water. Needs 4 power and must touch water.' },
   { cat: 'WATER', name: 'WATER TOWER', key: '9', kind: 'build', type: 'tower', desc: 'Stores 60 water. Covers shortages (6/s).' },
   { cat: 'NET', name: 'NET ROUTER', key: '0', kind: 'build', type: 'router', desc: '+6 network. Needs 1 power.' },
   { cat: 'NET', name: 'RELAY TOWER', key: '', kind: 'build', type: 'relay', desc: '+12 network. Needs 2 power.' },
+  { cat: 'NET', name: 'ORBITAL UPLINK', key: '', kind: 'build', type: 'orbital', desc: '+45 network from orbit. Needs 12 power.' },
   { cat: 'CONTROL', name: 'SUBSTATION', key: 'q', kind: 'build', type: 'substation', desc: 'Transformer: joins the HV trunk to local power lines. Also a switch (press T). Needs a net signal to stay closed.' },
   { cat: 'CONTROL', name: 'PRESSURE STN', key: 'e', kind: 'build', type: 'valve', desc: 'Joins a water main to local pipes. Also a valve (press T). Needs 1 power.' },
   { cat: 'CONTROL', name: 'INTERTIE', key: '', kind: 'build', type: 'intertie', desc: 'Imports surplus power, water and net from neighbouring counties with online control stations. Connect it to your trunks.' },
   { cat: 'CONTROL', name: 'SECURITY POST', key: '', kind: 'build', type: 'security', desc: 'Drives off raiders within 14 tiles. Needs 1 power and 1 net.' },
   { cat: 'CONTROL', name: 'NET EXCHANGE', key: 'r', kind: 'build', type: 'node', desc: 'Joins the fiber trunk to local cable. Also a switch (press T). Needs 1 power.' },
+  { cat: 'CONTROL', name: 'SUPPLY EXCHANGE', key: '', kind: 'build', type: 'exchange', desc: 'Trades PARTS and FUEL with the shared stockpile: exports your surplus, imports when you run short. Needs 1 power + 2 net.' },
   { cat: 'TOWN', name: 'HOUSE', key: 'f', kind: 'build', type: 'house', desc: 'Needs 1 power, water, net. Earns 2 scrap/s.' },
   { cat: 'TOWN', name: 'APARTMENTS', key: '', kind: 'build', type: 'apartments', desc: 'Needs 2 of each. Earns 7 scrap/s.' },
   { cat: 'TOWN', name: 'MARKET', key: '', kind: 'build', type: 'market', desc: 'Needs 2 power, 1 water, 2 net. Earns 8 scrap/s, 1 upkeep.' },
@@ -233,10 +402,23 @@ const TOOLS = [
   { cat: 'TOWN', name: 'GREENHOUSE', key: '', kind: 'build', type: 'greenhouse', desc: 'Needs 3 water. Earns 6 scrap/s.' },
   { cat: 'TOWN', name: 'WORKSHOP', key: 'g', kind: 'build', type: 'workshop', desc: 'Needs 2 power + 1 net. Earns 4 scrap/s and makes PARTS.' },
   { cat: 'TOWN', name: 'CLINIC', key: 'o', kind: 'build', type: 'clinic', desc: 'Needs power, water, net. Earns 3 scrap/s and +1 for houses within 8 tiles.' },
+  { cat: 'TOWN', name: 'VERTICAL FARM', key: '', kind: 'build', type: 'vfarm', desc: 'Needs 3 power, 6 water, 1 net. Earns 20 scrap/s.' },
+  { cat: 'TOWN', name: 'ARCOLOGY', key: '', kind: 'build', type: 'arcology', desc: 'Needs 8 power, 8 water, 6 net. Earns 45 scrap/s and 2 research/s.' },
+  { cat: 'INDUSTRY', name: 'SALVAGE YARD', key: '', kind: 'build', type: 'scrapyard', desc: 'Needs 1 power. Earns 3 scrap/s and sorts out 0.12 parts/s.' },
+  { cat: 'INDUSTRY', name: 'ORE MINE', key: '', kind: 'build', type: 'mine', desc: 'Needs 3 power + 1 water. Digs 0.5 parts/s and earns 2 scrap/s.' },
+  { cat: 'INDUSTRY', name: 'FOUNDRY', key: '', kind: 'build', type: 'foundry', desc: 'Needs 4 power + 2 water, burns 0.2 fuel/s. Casts 1.2 parts/s.' },
+  { cat: 'INDUSTRY', name: 'ASSEMBLY PLANT', key: '', kind: 'build', type: 'assembly', desc: 'Needs 3 power + 2 net. Turns 0.4 parts/s into 15 scrap/s.' },
+  { cat: 'INDUSTRY', name: 'WAREHOUSE', key: '', kind: 'build', type: 'warehouse', desc: 'Raises the scrap warehouse cap by 250.' },
+  { cat: 'INDUSTRY', name: 'ALLOY SMELTER', key: '', kind: 'build', type: 'smelter', desc: 'Needs 6 power + 2 water, burns 0.3 fuel and 0.3 parts/s. Makes 0.12 ALLOYS/s for the shared stockpile.' },
+  { cat: 'INDUSTRY', name: 'CIRCUIT FAB', key: '', kind: 'build', type: 'circuitfab', desc: 'Needs 4 power, 1 water, 4 net and 0.25 parts/s. Makes 0.1 CIRCUITS/s for the shared stockpile.' },
+  { cat: 'INDUSTRY', name: 'COMPONENT WORKS', key: '', kind: 'build', type: 'compworks', desc: 'Turns shared alloys + circuits into 0.08 COMPONENTS/s. Needs 8 power, 2 water, 4 net.' },
+  { cat: 'INDUSTRY', name: 'MEGAFACTORY', key: '', kind: 'build', type: 'megafab', desc: '0.3 COMPONENTS/s from shared alloys, circuits and 1 part/s. Needs 20 power, 6 water, 8 net.' },
   { cat: 'OPS', name: 'RESEARCH LAB', key: 'b', kind: 'build', type: 'lab', desc: 'Needs 2 power + 2 net. Makes 2 research points/s (press Y to spend them).' },
+  { cat: 'OPS', name: 'DRONE BAY', key: '', kind: 'build', type: 'dronebay', desc: 'Launches 3 repair drones that fly out and fix failed machines, worn machines and damaged lines within 30 tiles - for free. While you are away, it repairs this county\'s outages by itself.' },
   { cat: 'OPS', name: 'MAINT DEPOT', key: 'n', kind: 'build', type: 'depot', desc: 'Needs 2 power. Auto-repairs buildings within 16 tiles.' },
-  { cat: 'OPS', name: 'FUEL DEPOT', key: 'u', kind: 'build', type: 'fueldepot', desc: '+150 fuel storage.' },
-  { cat: 'OPS', name: 'REFINERY', key: 'i', kind: 'build', type: 'refinery', desc: 'Needs 3 power + 2 water. Makes 1.5 fuel/s.' },
+  { cat: 'OPS', name: 'DATA ARCHIVE', key: '', kind: 'build', type: 'archive', desc: 'Needs 3 power + 4 net. Makes 3 research points/s.' },
+  { cat: 'OPS', name: 'QUANTUM LAB', key: '', kind: 'build', type: 'quantum', desc: 'Needs 6 power + 8 net and a few shared circuits. Makes 9 research/s.' },
+  { cat: 'OPS', name: 'ROBOT DEPOT', key: '', kind: 'build', type: 'robotdepot', desc: 'Needs 4 power + 2 net. Robots repair up to 10 machines within 26 tiles.' },
   { cat: 'TOOLS', name: 'REPAIR', key: 'v', kind: 'repair', color: '#5fc4d0', desc: 'Click a building to repair it (scrap + parts). Drag over damaged line to fix it.' },
   { cat: 'TOOLS', name: 'SALVAGE', key: 'x', kind: 'salvage', color: '#d8e6e0', desc: 'Remove rubble (+3 scrap), lines or buildings (half refund).' },
   { cat: 'TOOLS', name: 'INSPECT', key: 'c', kind: 'inspect', color: '#d8e6e0', desc: 'Click a building for status. Click a transformer to toggle it. Restore dormant plants and the station here.' },
@@ -247,10 +429,14 @@ const TOOLS = [
 //  (The logic that uses these lives in world.js.)
 // ============================================================
 const DIFFS = [
-  { id: 'settler', name: 'SETTLER', blurb: 'Gentle. Rich starts, rare storms, slow Dimmers, forgiving neighbours.', scrap: 1.4, ev: 1.5, wear: 0.7, raid: 1.6, dark: 1.7, darkCap: 0.06, trust: 1.4, linkDecay: 0.6 },
-  { id: 'survivor', name: 'SURVIVOR', blurb: 'The intended game. Storms, raids and Dimmers at a steady pace.', scrap: 1, ev: 1, wear: 1, raid: 1, dark: 1, darkCap: 0.1, trust: 1, linkDecay: 1 },
-  { id: 'winter', name: 'IRON WINTER', blurb: 'Lean starts, frequent faults, aggressive Dimmers, wary factions.', scrap: 0.75, ev: 0.7, wear: 1.3, raid: 0.7, dark: 0.7, darkCap: 0.16, trust: 0.8, linkDecay: 1.3 },
-  { id: 'blackout', name: 'BLACKOUT', blurb: 'Brutal. Little scrap, constant failures, Dimmers everywhere, links fray fast.', scrap: 0.55, ev: 0.5, wear: 1.6, raid: 0.5, dark: 0.5, darkCap: 0.24, trust: 0.6, linkDecay: 1.6 },
+  { id: 'settler', name: 'SETTLER', blurb: 'Gentle. Rich starts, rare storms, slow Dimmers, forgiving neighbours.', scrap: 1.4, ev: 1.5, wear: 0.7, raid: 1.6, dark: 1.7, darkCap: 0.06, trust: 1.4, linkDecay: 0.6,
+    assist: { n: 'FULL', autoFix: 1, fixAll: 1, efuel: 1, drone: 1.25, prevent: 0.6, d: 'All assists: auto-repair, REPAIR ALL, emergency fuel; drones fix map outages fast and prevent most.' } },
+  { id: 'survivor', name: 'SURVIVOR', blurb: 'The intended game. Storms, raids and Dimmers at a steady pace.', scrap: 1, ev: 1, wear: 1, raid: 1, dark: 1, darkCap: 0.1, trust: 1, linkDecay: 1,
+    assist: { n: 'STANDARD', autoFix: 1, fixAll: 1, efuel: 1, drone: 1, prevent: 0.5, d: 'All assists: auto-repair, REPAIR ALL, emergency fuel; drones fix map outages and prevent half of them.' } },
+  { id: 'winter', name: 'IRON WINTER', blurb: 'Lean starts, frequent faults, aggressive Dimmers, wary factions.', scrap: 0.75, ev: 0.7, wear: 1.3, raid: 0.7, dark: 0.7, darkCap: 0.16, trust: 0.8, linkDecay: 1.3,
+    assist: { n: 'LIMITED', autoFix: 0, fixAll: 1.25, efuel: 2, drone: 0.5, prevent: 0.3, d: 'No auto-repair. REPAIR ALL costs 25% more, emergency fuel costs double, drones fix map outages at half speed.' } },
+  { id: 'blackout', name: 'BLACKOUT', blurb: 'Brutal. Little scrap, constant failures, Dimmers everywhere, links fray fast.', scrap: 0.55, ev: 0.5, wear: 1.6, raid: 0.5, dark: 0.5, darkCap: 0.24, trust: 0.6, linkDecay: 1.6,
+    assist: { n: 'NONE', autoFix: 0, fixAll: 0, efuel: 0, drone: 0.33, prevent: 0, d: 'No auto-repair, no REPAIR ALL, no emergency fuel. Drones still repair inside a county, but fix map outages slowly and prevent none.' } },
 ];
 
 // regional factions (the Dimmers are handled separately in world.js)
@@ -286,9 +472,9 @@ const BORDER_FX = {
   closed: { n: 'CLOSED', imp: 0, cross: 0, toll: 0, d: 'No sharing and no spreading light. Dimmers cannot cross.' },
 };
 const Settings = {
-  autopause: true, confirmLeave: true, wide: false, fx: true,
+  autopause: true, confirmLeave: true, wide: false, fx: true, autoFix: true,
   ui: 'auto', pix: 'auto', scan: true, parts: 1, fps: 60, motion: true, showFps: false, lite: false, autoq: true, hints: true,       // graphics (see display.js)
-  KEYS: ['autopause', 'confirmLeave', 'wide', 'fx', 'ui', 'pix', 'scan', 'parts', 'fps', 'motion', 'showFps', 'lite', 'autoq', 'hints'],
+  KEYS: ['autopause', 'confirmLeave', 'wide', 'fx', 'autoFix', 'ui', 'pix', 'scan', 'parts', 'fps', 'motion', 'showFps', 'lite', 'autoq', 'hints'],
   load() {
     try {
       const o = JSON.parse(localStorage.getItem('wastelandGrid.settings')) || {};

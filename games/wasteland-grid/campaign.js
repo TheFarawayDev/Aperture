@@ -226,7 +226,7 @@ function updateStats() {
     + `<div class="prow"><span>STATIONS</span><span></span><span style="color:var(--bone)">${Object.keys(save.stationOn).length} linked</span></div>`
     + `<div class="prow"><span>OUTAGES</span><span></span><span class="${Object.keys(save.outage).length ? 'neg' : ''}">${Object.keys(save.outage).length}</span></div>`;
   Contracts.render(); Objectives.check(); Objectives.render();
-  const un = unity(); $('mapstats').textContent = D().name + '   UNITY ' + Math.round(un.pct) + '% ' + TIERS[un.tier].n + '   ' + Math.floor(Meta.rp) + ' RP   ' + (save.sp || 0) + ' SP   ' + Credits.have() + ' CR';
+  const un = unity(); $('mapstats').innerHTML = `<span>AGE <b>${['', 'I', 'II', 'III', 'IV', 'V'][curAge()]}</b></span><span>${D().name}</span><span>UNITY <b>${Math.round(un.pct)}%</b> ${TIERS[un.tier].n}</span><span><b>${Math.floor(Meta.rp)}</b> RP</span><span><b>${save.sp || 0}</b> SP</span><span><b>${Credits.have()}</b> CR</span>`;
   const sb = $('btn-skills'); if (sb) sb.classList.toggle('glow', (save.sp || 0) > 0); const hb = $('btn-hq'); if (hb) hb.style.display = save.hq ? '' : 'none';
 }
 
@@ -303,7 +303,7 @@ function maybeOutage(onShow) {
   const now = Date.now();
   if (!save.nextOutage) { save.nextOutage = now + 150000; writeSave(); return; }
   if (now < save.nextOutage) return;
-  const pool = US.counties.filter(c => isRestored(c) && !save.outage[c.id] && Builder.hasSave(c.id));
+  const pool = US.counties.filter(c => isRestored(c) && !save.outage[c.id] && Builder.hasSave(c.id) && !((save.ind || {})[c.id] && save.ind[c.id].dr && Math.random() < (D().assist || {}).prevent));      // drone bays prevent outages (how many depends on the difficulty)
   save.nextOutage = now + (240 + Math.random() * 240) * 1000 * D().ev * (Mods.world().outage || 1);
   if (Object.keys(save.restored).length < 6 || !pool.length || outageCount() >= outageCap()) { writeSave(); return; }
   const c = pool[Math.random() * pool.length | 0];

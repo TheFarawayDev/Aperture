@@ -91,7 +91,7 @@ $('btn-qm').onclick = openQM;
 const Flows = {
   prev: null, ema: { fuel: 0, parts: 0, rp: 0 }, expBuf: 0, expTot: 0, expShown: 0, ticks: 0,
   reset() { this.prev = null; this.ema = { fuel: 0, parts: 0, rp: 0 }; this.expBuf = 0; this.expShown = 0; this.ticks = 0; },
-  scrapCap() { return 600 + 200 * qmLvl('vault') + 40 * ents.filter(e => (e.type === 'depot' || e.type === 'fueldepot') && e.cond > 0).length; },
+  scrapCap() { return 600 + 200 * qmLvl('vault') + ents.reduce((n, e) => n + (e.cond > 0 ? ((e.type === 'depot' || e.type === 'fueldepot') ? 40 : (BUILD[e.type].scrapCap || 0)) : 0), 0); },
   tick() {                                                          // once per game second, after the economy has run
     this.ticks++;
     const cap = this.scrapCap();
