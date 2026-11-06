@@ -19,7 +19,7 @@ const Display = {
   z: 1, dpr: 1, vw: 1280, vh: 760, next: {},
   auto(cw, ch) {
     // narrow screens (stacked layout): fit the width. Wide screens: fit a 1280x760 design to the window.
-    const z = cw < 1000 ? Math.min(1.25, cw / 620) : Math.min(cw / 1280, ch / 760);
+    const z = cw < 1000 ? Math.max(0.75, Math.min(1.25, cw / 470)) : Math.min(cw / 1280, ch / 760);      // phones: ~0.8x (readable), stacked layout
     return Math.round(Math.max(0.5, Math.min(3, z)) * 20) / 20;
   },
   apply() {
@@ -225,5 +225,7 @@ function syncSide() {
 (function chromeWatch() {                                           // if the header or the news bar change height, refit the picture so nothing scrolls
   if (!window.ResizeObserver) return; let t = 0;
   const go = () => { clearTimeout(t); t = setTimeout(() => { if (typeof Scenes !== 'undefined' && Scenes.cur === 'game') fit(); }, 80); };
-  ['topbar', 'under'].forEach(id => { const e = $(id); if (e) new ResizeObserver(go).observe(e); });
+  ['topbar'].forEach(id => { const e = $(id); if (e) new ResizeObserver(go).observe(e); });
 })();
+
+(function catWatch() { const c = $('catalog'); if (c && window.ResizeObserver) new ResizeObserver(() => { if (typeof fitCatalogue === 'function') fitCatalogue(); }).observe(c); })();

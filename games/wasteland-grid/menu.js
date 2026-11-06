@@ -21,10 +21,10 @@ function fit(again) {
   if (again !== true) fit.cap = Infinity;
   Display.apply();
   const cw = Display.vw, ch = Display.vh, cur = Scenes.cur;                      // size of the window in interface pixels (after UI zoom)
-  const panel = cur === 'game' ? 352 + 14 : cur === 'map' ? (Settings.wide ? 0 : 340 + 14) : 0, stacked = cw <= 1000;
-  const availW = cw - (stacked ? 0 : panel) - (cw < 700 ? 20 : 40); const tb = $('topbar'), ub = $('under'), chrome = cur === 'game' && tb && ub && tb.offsetHeight ? tb.offsetHeight + ub.offsetHeight + 62 : 178;
+  const panel = cur === 'game' ? 332 + 14 : cur === 'map' ? (Settings.wide ? 0 : 340 + 14) : 0, stacked = cw <= 1000;
+  const availW = cw - (stacked ? 0 : panel) - (cw < 700 ? 20 : 40); const tb = $('topbar'), ub = $('under'), chrome = cur === 'game' && tb && tb.offsetHeight ? Math.min(tb.offsetHeight, 130) + 192 + 52 : 178;      // fixed news strip height: nothing here may depend on the picture's width, or the layout can feed back on itself
   let availH = ch - (cur === 'game' ? chrome : cur === 'map' ? (Settings.wide ? 118 : 150) : 60) - (stacked ? 110 : 0);
-  availH = Math.min(availH, fit.cap);
+  availH = Math.max(220, Math.min(availH, fit.cap));
   document.querySelectorAll('canvas.px').forEach(c => {
     const s = Display.canvasScale(c, availW, Math.max(120, availH));
     c.style.width = Math.round(c.width * s * 1000) / 1000 + 'px'; c.style.height = Math.round(c.height * s * 1000) / 1000 + 'px';

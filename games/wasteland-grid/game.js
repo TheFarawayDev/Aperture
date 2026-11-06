@@ -879,7 +879,7 @@ function iconFor(t) {
 }
 const CATS = [...new Set(TOOLS.map(t => t.cat))];
 const TABS = ['build', 'status', 'sites', 'goals'];
-function showTab(n) { curTab = n; if (n === 'status') setTimeout(() => { lastAlertKey = ''; updateAlerts(); }, 0); document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === n)); TABS.forEach(t => { const el = $('tab-' + t); if (el) el.classList.toggle('on', t === n); }); }
+function showTab(n) { curTab = n; if (n === 'build') setTimeout(fitCatalogue, 0); if (n === 'status') setTimeout(() => { lastAlertKey = ''; updateAlerts(); }, 0); document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === n)); TABS.forEach(t => { const el = $('tab-' + t); if (el) el.classList.toggle('on', t === n); }); }
 function cycleTab() { showTab(TABS[(TABS.indexOf(curTab) + 1) % TABS.length]); }
 document.querySelectorAll('#tabs button').forEach(b => { b.onclick = () => showTab(b.dataset.tab); });
 let toolQuery = '';
@@ -895,11 +895,18 @@ function renderTools() {
   if (!list.length) box.innerHTML = '<div class="none">Nothing matches that.</div>';
   list.forEach(t => {
     const b = document.createElement('button');
+    if (t.name.length > 10) b.classList.add('long');
     b.innerHTML = `${iconFor(t)}<span class="nm">${t.name}</span><span class="sub"></span><span class="ky">${t.key ? t.key.toUpperCase() : ''}</span><em class="ct"></em>`;
     b.title = t.desc + (t.kind === 'build' && !unlocked(t.type) && TECH[BUILD[t.type].tech] ? ' [Research: ' + TECH[BUILD[t.type].tech].name + ']' : ''); b.dataset.name = t.name; b.onclick = () => selectTool(t); b._t = t; b.style.setProperty('--c', CATCOL[t.cat] || '#343e46'); box.appendChild(b);
   });
   document.querySelectorAll('#cats button').forEach(b => b.classList.toggle('on', !toolQuery.trim() && b.dataset.cat === activeCat));
-  refreshToolbar();
+  refreshToolbar(); fitCatalogue();
+}
+function fitCatalogue() {                                           // tiles shrink in steps until every item is visible: the catalogue never scrolls or cuts
+  const t = $('tools'), box = $('tab-build'), g = t && t.querySelector('.grid'); if (!g || !t.offsetHeight) return;
+  box.classList.remove('compact', 'tiny');
+  const cut = () => g.getBoundingClientRect().bottom > t.getBoundingClientRect().bottom + 1;
+  if (cut()) { box.classList.add('compact'); if (cut()) { box.classList.remove('compact'); box.classList.add('tiny'); } }
 }
 const RES3 = ['PWR', 'H2O', 'NET'];
 function statChips(d) {

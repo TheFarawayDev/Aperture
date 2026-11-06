@@ -479,8 +479,39 @@
   #tab-status #gridinfo { max-height:32px; overflow:hidden; } #tab-status #econ { display:none; } #meters .meter { margin-bottom:2px; } #inspectbox { max-height:30%; min-height:84px; }
   #mapprog .prow { font-size:15px; margin-bottom:1px; line-height:1; gap:6px; } #mappanel .ph { margin-bottom:4px; } #mappanel .panel { padding:2px 10px 6px; } #cmeta { font-size:16px; line-height:1.1; }
   html:not(.w1000) #mappanel .panel:first-child { flex:none; }
-  html:not(.w1000) #mappanel:not(.wide) { height:calc(100 * var(--evh) - 104px) !important; }
   #cname { font-size:22px !important; } #cmeta { font-size:15px; } #mappanel #enter, #mappanel #hq-open { padding:7px 10px; font-size:19px; } #mappanel .ph { padding:6px 8px 5px; } #cstatus { font-size:15px; }
+  /* fixed-height news strip: its size never depends on the picture, so refits cannot snowball */
+  #under { height:236px; flex:none; } #under #bar { height:100%; overflow:hidden; display:flex; flex-direction:column; }
+  #under #newsfeed { height:116px; min-height:116px; max-height:116px; flex:none; } #under #msgrow { height:44px; min-height:44px; overflow:hidden; flex:none; } #under #info { flex:none; }
+  #under #minibox { height:100%; overflow:hidden; } #stage { min-width:300px; }
+  /* panel meets the map's length; messages live under the map and are never cut */
+  #mapmsg { font-size:17px; line-height:1.2; min-height:0; max-height:3.7em; overflow:hidden; margin-top:4px; max-width:100%; }
+  #mapframe { max-width:100%; }
+  #mappanel .panel:first-child { padding-bottom:6px; } #cstars:empty, #cextra:empty { display:none; } #cname { margin:2px 0; } #cmeta { margin:2px 0; } #mappanel #enter { margin-top:4px; }
+  /* catalogue: tiles shrink to fit, never scroll or cut */
+  #tab-build.compact #tools button { min-height:62px; padding:12px 3px 3px; } #tab-build.compact #tools .sub { display:none; } #tab-build.compact #tools button img { width:28px; height:28px; } #tab-build.compact #tools .nm { font-size:13px; }
+  #tab-build.tiny #tools .grid { grid-template-columns:repeat(4, minmax(0,1fr)); gap:4px; } #tab-build.tiny #tools button { min-height:48px; padding:10px 2px 2px; } #tab-build.tiny #tools .sub { display:none; } #tab-build.tiny #tools button img { width:24px; height:24px; } #tab-build.tiny #tools .nm { font-size:12px; max-height:1.1em; }
+  #tab-build.tiny #toolsearch { margin-bottom:4px; padding:4px 8px; }
+  #mapprog .prow { font-size:14px; margin-bottom:0; line-height:.95; } #mappanel .panel { padding:2px 10px 4px; } #mp-prog.on, #mp-con.on, #mp-obj.on, #mp-leg.on { overflow:hidden; }
+
+  /* ===== QA PASS: everything scrolls when it must (bars hidden), the chrome is slimmer so the picture is bigger ===== */
+  * { scrollbar-width:none !important; -ms-overflow-style:none; } *::-webkit-scrollbar { display:none !important; width:0 !important; height:0 !important; }
+  .overlay > :first-child { margin-top:auto; } .overlay > :last-child { margin-bottom:auto; } .overlay { justify-content:flex-start !important; overflow-y:auto; overflow-x:hidden; }
+  #sidemain > .tab.on { overflow-y:auto; } #tools { overflow-y:auto; } #tab-status #alertbox, #alerts { overflow-y:auto; } #under #newsfeed { overflow-y:auto; } #mapbody > .mt.on, #mp-prog.on, #mp-con.on, #mp-obj.on, #mp-leg.on { overflow-y:auto; }
+  #orders { max-height:76px; overflow-y:auto; } #goals, #districts, #contracts, #objs { overflow-y:auto; max-height:100%; }
+  #side { width:332px; } #under { height:192px; } #under #newsfeed { height:84px; min-height:84px; max-height:84px; } #under #msgrow { height:36px; min-height:36px; } #msg { font-size:17px; } #msgtag { font-size:7px; padding:4px 5px; }
+  #under #minibox #minimap { width:150px; } #under #minibox.big #minimap { width:210px; }
+  #topbar { padding:5px 8px; gap:5px; } #hdr-info, #hdr-btns { gap:5px 8px; } #hdr-btns { padding-top:5px; }
+  #topbar button { font-size:16px; padding:5px 9px; } #topbar .seg button { padding:5px 8px; font-size:16px; }
+  #topbar .chip { min-height:34px; padding:2px 8px 2px 5px; } #topbar .chip b { font-size:20px; } #topbar .chip small { font-size:12px; } #topbar .chip img { width:20px; height:20px; }
+  #loc { padding:2px 10px; } #where { font-size:20px; } #sub { font-size:13px; }
+  #tabs button { padding:7px 2px; } #side .ph, #bar .ph { padding:5px 8px 4px; }
+  .nw { font-size:16px; padding:1px 6px 1px 5px; }
+  html.touch #topbar button { min-height:40px; }
+  html:not(.w1000) #mappanel:not(.wide) { overflow-y:auto; } #under #bar { overflow-y:auto; } #under #newsfeed { height:76px; min-height:76px; max-height:76px; } #under #msgrow { height:34px; min-height:34px; }
+  #tools button.long .nm { font-size:11px; letter-spacing:0; } #tools .nm { overflow-wrap:anywhere; }
+  #mappanel .panel:first-child { flex:none; } #mapbody { min-height:80px; }
+  #under #minibox.hid { height:auto; } #techview { height:calc(60 * var(--evh)); } #techinfo { max-height:calc(14 * var(--evh)); overflow-y:auto; }
 </style>
 </head>
 <body>
@@ -521,6 +552,7 @@
       <div id="mapzoom"><button id="mz-in">+</button><button id="mz-out">-</button><button id="mz-home">o</button></div>
       <div id="maphover">&nbsp;</div>
       <div id="maphint">WASD PAN - +/- ZOOM - TAB NEXT - N TROUBLE - ENTER OPEN - U UNION - V VIEW - F WIDE - DOUBLE-CLICK TO OPEN</div>
+      <div id="mapmsg"></div>
       <div id="maptoast"></div>
       <div id="widecard"><b id="wc-name"></b><button id="wc-go" class="primary">OPEN</button></div>
     </div>
@@ -540,7 +572,6 @@
         <div class="legend" id="legend"><i style="background:#8a6a4e"></i><span>adjacent: ready to restore</span><i style="background:#1f1a24"></i><span>offline</span><i style="background:#4f7a4a"></i><span>restored (brighter = more support)</span><i style="background:#2c6a7a"></i><span>partly restored: finish it later</span><i style="background:#b5502b"></i><span>outage: go back and repair it</span><i style="background:#2f4a3a"></i><span>locked until the USA is lit</span><i style="background:#1a0f12;border-color:#b5502b"></i><span>held by the Dimmers: liberate it</span><i style="background:#d8e6e0"></i><span>stable station link (amber = unstable, rust = dropped)</span></div>
       </div>
       </div>
-      <div id="mapmsg"></div>
     </aside>
   </div>
   </div>
