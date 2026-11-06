@@ -306,6 +306,7 @@ const Orders = {
     const box = $('orders'), pan = $('orderbox'); if (!box || !pan) return;
     const un = save.hq ? ORDERS.filter(o => this.unlocked(o)) : [];
     if (!un.length) { pan.style.display = 'none'; box.innerHTML = ''; if (typeof fitCatalogue === 'function') setTimeout(fitCatalogue, 0); return; }      // no orders yet: the HQ screen explains how to get them
+    if (pan.style.display === 'none' && typeof fitCatalogue === 'function') setTimeout(fitCatalogue, 0);
     pan.style.display = '';
     box.innerHTML = un.length ? un.map(o => `<button class="ord" data-ord="${o.id}" title="${o.d(hqLevel(o.mod))}"><b>${o.n}</b><span class="ordcd" data-o="${o.id}"></span></button>`).join('')
       : '<span class="dim">No orders yet. Build HQ modules on the map (Q): Fabricator, Power Core, Data Core, Survey Office, Aegis Grid and Maintenance Bay each unlock one.</span>';

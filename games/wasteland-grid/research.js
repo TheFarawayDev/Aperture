@@ -89,7 +89,8 @@ const Research = {
   hud() {
     const sub = $('rp-sub'); if (!sub) return;
     const id = Meta.q[0];
-    sub.textContent = id ? (TECH[id].name.length > 11 ? TECH[id].name.slice(0, 10) + '.' : TECH[id].name) + ' ' + Math.round(this.progress(id) * 100) + '%' : 'RESEARCH';
+    const nm = TECH[id] ? TECH[id].name : '', short = nm.length > 11 ? nm.slice(0, 10).trim() + '.' : nm;
+    sub.textContent = id ? short + ' ' + Math.round(this.progress(id) * 100) + '%' : 'RESEARCH';
     sub.classList.toggle('warn', !!(id && this.stall));
   },
 };

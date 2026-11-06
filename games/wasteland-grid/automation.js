@@ -125,4 +125,4 @@ const Fix = {
   },
 };
 $('btn-fixall').onclick = () => { if (!Builder.active || !AS().fixAll) return; const r = Fix.run(false, 0); if (!r.n) toast('NOTHING YOU CAN AFFORD TO REPAIR RIGHT NOW'); Fix.hud(); };
-setInterval(() => { if (Builder.active) Fix.hud(); }, 1000);
+setInterval(() => { if (Builder.active) { Fix.hud(); if (curTab === 'build') fitCatalogue(); } }, 1000);      // the catalogue re-fits if anything around it changed size

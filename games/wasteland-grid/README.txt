@@ -1,4 +1,4 @@
-WASTELAND GRID - static HTML5 game (v6) - FIX
+WASTELAND GRID - static HTML5 game (v9)
 =======================================
 No build step, no server code, no dependencies.
 
@@ -162,3 +162,28 @@ Version 8.1 - assists by difficulty and a sizing pass:
    empty margins, and a roomy sidebar shows the catalogue in three columns, so long lists like late-game POWER fit without
    scrolling. Tablets use a ~1x interface instead of the phone layout blown up to 125%, and the county header no
    longer leaves the districts readout stranded. Every edge still lines up at 1280x720 to 2560x1440.
+
+Version 9 - signal and sat relays, the shared inventory, new icons:
+ * SIGNAL: you can only build where your connection reaches - around your home hub (Settler 13 tiles, Survivor 11,
+   Iron Winter 10, Blackout 9) and around every restored district hub. Dim ground is out of reach; a cyan edge marks the
+   limit. Lines, buildings, AUTO ROUTE and supply caches all follow it.
+ * SAT RELAYS (LINES tab, key '): place one inside your signal and it lights 2 tiles around itself plus a corridor back
+   along its beam to its neighbour. Chain them into a main highway out to districts and dormant plants. Every relay in a
+   county costs 12% more than the last, so plan the route. The first time your signal reaches a district or plant you
+   get a bonus. SAT TOWERS (Electric Age) light a much wider circle; SKYNET COVERAGE (Fusion Age) covers whole counties.
+ * SHARED INVENTORY (click the stockpile chip in a county's header, or press I on the map): one stockpile for every county.
+   With a CARGO DEPOT (research Inter-County Freight) or a SUPPLY EXCHANGE you can SEND and TAKE scrap, parts and fuel
+   (a 15% handling fee on what you send; Freight Insurance halves it, Bonded Warehouses remove it). Set the low/high marks
+   supply exchanges keep parts and fuel between, and let a full warehouse ship surplus scrap there instead of selling it.
+ * 14 new research projects (190 in total): Long-Range Dishes, Folding Dishes, Signal Boosters, Wide Beams, Phased Arrays,
+   Signal Survey, Inter-County Freight, Freight Insurance, Bonded Warehouses, Sat Towers, Mesh Satellites, Relay Assembly
+   Lines, Broadcast Beams and Skynet Coverage. New buildings: Sat Relay, Sat Tower, Cargo Depot.
+ * The district hub is now a utility box: a meter window with the power / water / network lights, double doors, and the
+   three feeds underneath that light up as you connect them.
+ * Icons: a new pixel icon set for scrap, fuel, parts, credits, research and the shared goods, and every icon is drawn at
+   exactly 1x, 2x, 3x or 4x so pixels stay square. Catalogue line tools show proper line swatches.
+ * UI: HQ orders are a slim strip, the catalogue re-fits whenever the sidebar changes, the Status tab always shows FLOWS,
+   the inventory automation rules have clear LOW/HIGH steppers. Checked on every screen at 1280x720, 1440x900, 1920x1080,
+   a tablet and a phone.
+ * Backwards compatible: older county saves keep every tile they had already built on usable, and the new inventory
+   settings start on defaults.

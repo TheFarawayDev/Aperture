@@ -48,7 +48,7 @@ const Pool = {
   pay(cost) { for (const k in cost) this.take(k, cost[k]); },
   refund(cost) { for (const k in cost) this.add(k, cost[k]); },
   costText(cost, short) { return Object.keys(cost).map(k => cost[k] + (short ? GOODS[k].s : ' ' + GOODS[k].n.toLowerCase())).join(short ? ' ' : ', '); },
-  fmt(v) { return v >= 1000 ? (v / 1000).toFixed(1) + 'K' : v >= 100 ? Math.floor(v) : v >= 10 ? v.toFixed(1).replace(/\.0$/, '') : v.toFixed(1); },
+  fmt(v) { if (!(v >= 0.05)) return '0'; return v >= 1000 ? (v / 1000).toFixed(1) + 'K' : v >= 100 ? Math.floor(v) : v >= 10 ? v.toFixed(1).replace(/\.0$/, '') : v.toFixed(1); },
   // the supply exchange: keep this county's parts and fuel between two marks, trading with the pool
   exchange(list) {
     const n = Math.min(3, list.filter(e => e.run && BUILD[e.type].exchange).length); if (!n) return;
