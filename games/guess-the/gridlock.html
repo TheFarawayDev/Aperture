@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#060b08">
+<title>Gridlock — Crossword</title>
+<meta name="description" content="A new crossword every time. Pick a topic and size.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2032%2032%27%3E%3Crect%20width%3D%2732%27%20height%3D%2732%27%20rx%3D%279%27%20fill%3D%27%230a1a12%27/%3E%3Cg%20fill%3D%27%23ff8f7a%27%3E%3Crect%20x%3D%225%22%20y%3D%225%22%20width%3D%226%22%20height%3D%226%22%20rx%3D%221.5%22/%3E%3Crect%20x%3D%2213%22%20y%3D%225%22%20width%3D%226%22%20height%3D%226%22%20rx%3D%221.5%22%20opacity%3D%22.45%22/%3E%3Crect%20x%3D%2221%22%20y%3D%225%22%20width%3D%226%22%20height%3D%226%22%20rx%3D%221.5%22/%3E%3Crect%20x%3D%225%22%20y%3D%2213%22%20width%3D%226%22%20height%3D%226%22%20rx%3D%221.5%22%20opacity%3D%22.45%22/%3E%3Crect%20x%3D%2213%22%20y%3D%2213%22%20width%3D%226%22%20height%3D%226%22%20rx%3D%221.5%22/%3E%3Crect%20x%3D%2221%22%20y%3D%2213%22%20width%3D%226%22%20height%3D%226%22%20rx%3D%221.5%22%20opacity%3D%22.45%22/%3E%3Crect%20x%3D%225%22%20y%3D%2221%22%20width%3D%226%22%20height%3D%226%22%20rx%3D%221.5%22/%3E%3Crect%20x%3D%2213%22%20y%3D%2221%22%20width%3D%226%22%20height%3D%226%22%20rx%3D%221.5%22%20opacity%3D%22.45%22/%3E%3Crect%20x%3D%2221%22%20y%3D%2221%22%20width%3D%226%22%20height%3D%226%22%20rx%3D%221.5%22/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#060b08;--panel:#0c140f;--panel2:#111c15;--line:rgba(255,255,255,.08);--line2:rgba(255,255,255,.16);--text:#e9f2ec;--t2:#a9b9af;--t3:#6f8176;--g:#ff8f7a;--g2:#ffb5a6;--amber:#f0b94a;--red:#f0657a;--ease:cubic-bezier(.22,1,.36,1)}
+*{box-sizing:border-box}
+html{background:var(--bg);color-scheme:dark}
+body{margin:0;min-height:100vh;font-family:Inter,system-ui,-apple-system,'Segoe UI',sans-serif;color:var(--text);line-height:1.45;-webkit-font-smoothing:antialiased;background:radial-gradient(900px 420px at 50% -8%,color-mix(in srgb,var(--g) 11%,transparent),transparent 65%),var(--bg)}
+button,input,select{font:inherit;color:inherit}[hidden]{display:none!important}
+:focus-visible{outline:2px solid var(--g);outline-offset:2px}svg{display:block}
+.top{display:flex;align-items:center;gap:10px;max-width:680px;margin:0 auto;padding:14px 14px 6px}
+.logo{display:flex;align-items:center;gap:10px;flex:1;min-width:0;text-decoration:none;color:var(--text)}
+.logo b{font-size:21px;font-weight:800;letter-spacing:-.03em}.logo b i{font-style:normal;color:var(--g)}
+.ib{width:38px;height:38px;border-radius:11px;border:1px solid var(--line);background:var(--panel);display:grid;place-items:center;color:var(--t2);cursor:pointer;transition:background .2s,color .2s}.ib:hover{background:var(--panel2);color:#fff}
+main{max-width:680px;margin:0 auto;padding:6px 14px 40px;display:flex;flex-direction:column;gap:12px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px}
+.lbl{font-size:11.5px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px;display:block}
+.inp{width:100%;height:44px;padding:0 13px;border-radius:12px;border:1px solid var(--line2);background:#070d09;outline:none;cursor:pointer;color-scheme:dark}
+.inp:focus{border-color:color-mix(in srgb,var(--g) 60%,transparent);box-shadow:0 0 0 3px color-mix(in srgb,var(--g) 14%,transparent)}select option{background:#0c140f}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 18px;border-radius:12px;border:1px solid var(--line2);background:transparent;color:var(--text);font-weight:600;font-size:14px;cursor:pointer;white-space:nowrap;transition:transform .2s var(--ease),background .2s}
+.btn:hover{background:var(--panel2)}.btn:active:not(:disabled){transform:scale(.96)}.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.pri{background:var(--g);border-color:transparent;color:#04140b}.btn.pri:hover{background:var(--g2)}.btn.sm{height:36px;padding:0 13px;font-size:13px;border-radius:10px}
+.note{font-size:12.5px;color:var(--t3)}
+dialog{border:1px solid var(--line2);border-radius:20px;background:var(--panel);color:var(--text);padding:22px;max-width:min(480px,92vw);width:100%}
+dialog::backdrop{background:rgba(0,0,0,.65)}dialog h3{margin:0 0 10px;font-size:18px}dialog ol,dialog ul{padding-left:20px;margin:8px 0;color:var(--t2);font-size:14px}dialog li{margin:5px 0}
+.acts{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}.acts .grow{flex:1}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:6px 0 4px}
+.st{text-align:center;padding:10px 4px;border-radius:12px;background:#09100c;border:1px solid var(--line)}.st b{display:block;font-size:20px}.st span{font-size:10.5px;color:var(--t3);text-transform:uppercase;letter-spacing:.07em}
+#toast{position:fixed;left:50%;top:70px;transform:translate(-50%,-10px);opacity:0;pointer-events:none;background:#e9f2ec;color:#07100a;font-weight:700;padding:10px 16px;border-radius:12px;font-size:13.5px;transition:.2s;z-index:90;max-width:92vw}#toast.show{opacity:1;transform:translate(-50%,0)}
+.sw{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}.sw small{display:block;color:var(--t3);font-size:12.5px}
+.sw input{appearance:none;-webkit-appearance:none;flex:none;width:44px;height:26px;border-radius:99px;background:#1c2a21;border:1px solid var(--line2);position:relative;cursor:pointer;transition:background .2s}
+.sw input::after{content:'';position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:#cfdcd3;transition:transform .2s var(--ease)}
+.sw input:checked{background:var(--g)}.sw input:checked::after{transform:translateX(18px);background:#04140b}.sw input:disabled{opacity:.4;cursor:not-allowed}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+.set{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end}
+@media(max-width:520px){.set{grid-template-columns:1fr 1fr}.set .btn{grid-column:1/-1}}
+.meta{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--t2);margin-bottom:10px;font-variant-numeric:tabular-nums}.meta b{color:var(--text)}
+.active{padding:10px 14px;border-radius:12px;background:color-mix(in srgb,var(--g) 11%,transparent);border:1px solid color-mix(in srgb,var(--g) 28%,transparent);font-size:14.5px;margin-bottom:12px;min-height:46px}
+.active b{color:var(--g2);margin-right:6px}
+.gwrap{overflow-x:auto;padding:2px 0}
+.grid{display:grid;gap:2px;position:relative;width:max-content;margin:0 auto}
+.c{position:relative;width:var(--cs);height:var(--cs);border-radius:5px;background:#e9f2ec;color:#07100a;display:grid;place-items:center;font-weight:800;font-size:calc(var(--cs)*.5);text-transform:uppercase;cursor:pointer;user-select:none;transition:background .12s}
+.c.blk{background:transparent;cursor:default;pointer-events:none}
+.c .n{position:absolute;top:1px;left:3px;font-size:calc(var(--cs)*.27);font-weight:700;line-height:1;color:#3c4d41}
+.c.wd{background:color-mix(in srgb,var(--g) 38%,#e9f2ec)}
+.c.sel{background:var(--g);box-shadow:0 0 0 2px #fff inset}
+.c.bad{color:#d1334d;background:#ffd5dc}
+.c.sel.bad{background:#ff8fa3}
+.c.rev{color:#1a6bb0}
+.c.done{background:var(--g2)}
+.tools{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;justify-content:center}
+.lists{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:560px){.lists{grid-template-columns:1fr}}
+.lists h3{margin:0 0 8px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--t3)}
+.lists ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:3px}
+.lists li{display:flex;gap:9px;padding:7px 9px;border-radius:9px;font-size:13.5px;cursor:pointer;color:var(--t2);border:1px solid transparent}
+.lists li b{flex:none;min-width:20px;color:var(--text)}.lists li:hover{background:var(--panel2)}
+.lists li.cur{background:color-mix(in srgb,var(--g) 12%,transparent);border-color:color-mix(in srgb,var(--g) 30%,transparent);color:var(--text)}
+.lists li.ok{color:var(--t3);text-decoration:line-through}
+.win{text-align:center}.win h2{margin:0 0 4px;font-size:22px}.win p{margin:0;color:var(--t2);font-size:14px}
+#kb{position:fixed;left:-200px;top:0;width:10px;height:10px;opacity:0}
+</style>
+</head>
+<body>
+<header class="top">
+  <a class="logo" href="#" aria-label="Gridlock"><svg width="34" height="34" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#0a1a12"/><g fill="#ff8f7a"><rect x="5" y="5" width="6" height="6" rx="1.5"/><rect x="13" y="5" width="6" height="6" rx="1.5" opacity=".45"/><rect x="21" y="5" width="6" height="6" rx="1.5"/><rect x="5" y="13" width="6" height="6" rx="1.5" opacity=".45"/><rect x="13" y="13" width="6" height="6" rx="1.5"/><rect x="21" y="13" width="6" height="6" rx="1.5" opacity=".45"/><rect x="5" y="21" width="6" height="6" rx="1.5"/><rect x="13" y="21" width="6" height="6" rx="1.5" opacity=".45"/><rect x="21" y="21" width="6" height="6" rx="1.5"/></g></svg><b>grid<i>lock</i></b></a>
+  <button class="ib" id="bStats" type="button" aria-label="Stats"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 20V10M12 20V4M19 20v-7"/></svg></button>
+  <button class="ib" id="bHelp" type="button" aria-label="How to play"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7M12 17h.01"/></svg></button>
+</header>
+<main>
+  <section class="panel">
+    <div class="set">
+      <div><label class="lbl" for="sTopic">Topic</label><select class="inp" id="sTopic"></select></div>
+      <div><label class="lbl" for="sSize">Size</label><select class="inp" id="sSize"><option value="8">Small</option><option value="12" selected>Medium</option><option value="16">Large</option></select></div>
+      <button class="btn pri" id="bNew" type="button">New puzzle</button>
+    </div>
+  </section>
+  <section class="panel" id="play">
+    <div class="meta"><span id="mL"></span><span id="mR"></span></div>
+    <div class="active" id="active"></div>
+    <div class="gwrap" id="gwrap"><div class="grid" id="grid" role="grid" aria-label="Crossword grid"></div></div>
+    <input id="kb" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" aria-label="Type letters">
+    <div class="tools">
+      <button class="btn sm" id="bCheck" type="button">Check</button>
+      <button class="btn sm" id="bRL" type="button">Reveal letter</button>
+      <button class="btn sm" id="bRW" type="button">Reveal word</button>
+      <button class="btn sm" id="bGive" type="button">Give up</button>
+    </div>
+  </section>
+  <section class="panel win" id="win" hidden></section>
+  <section class="panel lists">
+    <div><h3>Across</h3><ol id="lA"></ol></div>
+    <div><h3>Down</h3><ol id="lD"></ol></div>
+  </section>
+</main>
+<div id="toast" role="status"></div>
+<dialog id="dHelp"><h3>How to play</h3>
+  <ol><li>Tap a square, then type. Tap it again to switch between across and down.</li><li>Tap any clue to jump to its word.</li><li>Arrow keys move around. Backspace deletes. Space switches direction.</li></ol>
+  <ul><li>Check marks wrong letters in red.</li><li>Reveal letter and Reveal word are there if you get stuck, but they count as help.</li><li>Every puzzle is built fresh, so no two are the same.</li></ul>
+  <div class="acts"><button class="btn pri" type="button" data-close>Got it</button></div></dialog>
+<dialog id="dStats"><h3>Your stats</h3><div id="statBody"></div><div class="acts"><button class="btn pri" type="button" data-close>Close</button></div></dialog>
+<script>
+(function () {
+'use strict';
+var $ = function (id) { return document.getElementById(id); };
+var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+var BANK = {"English": [["SIMILE", "Comparison using 'like' or 'as'"], ["METAPHOR", "Comparison saying one thing is another"], ["IRONY", "Contrast between expectation and reality"], ["THEME", "Central message of a story"], ["PLOT", "Sequence of events in a story"], ["SETTING", "Time and place of a story"], ["NARRATOR", "The voice that tells a story"], ["SONNET", "14-line poem, often about love"], ["STANZA", "A group of lines in a poem"], ["RHYME", "Words that share an ending sound"], ["TRAGEDY", "Play that ends in the hero's downfall"], ["FABLE", "Short story with an animal and a moral"], ["ESSAY", "Short piece of nonfiction writing"], ["THESIS", "Main claim of an essay"], ["SYMBOL", "Object that stands for an idea"], ["TONE", "Author's attitude toward a subject"], ["MOOD", "Feeling a text creates in the reader"], ["IMAGERY", "Language that appeals to the senses"], ["HYPERBOLE", "Extreme exaggeration"], ["PROSE", "Ordinary writing, not poetry"], ["CLIMAX", "Turning point of highest tension"], ["ALLUSION", "Indirect reference to a famous work or person"], ["IDIOM", "Phrase whose meaning is not literal"], ["SATIRE", "Mocking society to expose its flaws"], ["PARADOX", "Statement that seems contradictory but may be true"], ["FORESHADOW", "Hint at events to come"], ["IAMBIC", "Meter of unstressed then stressed syllables"], ["EPIC", "Long poem about a hero's deeds"], ["VERSE", "A line of poetry"], ["ANTAGONIST", "Character who opposes the hero"], ["DIALOGUE", "Conversation between characters"], ["GENRE", "Category of literature"], ["SCENE", "Part of an act in a play"], ["ADJECTIVE", "Word that describes a noun"], ["VERB", "Word that shows action"], ["NOUN", "Person, place or thing"], ["ADVERB", "Word that modifies a verb"], ["PRONOUN", "Word that replaces a noun"], ["SYNONYM", "Word with the same meaning"], ["ANTONYM", "Word with the opposite meaning"], ["SOLILOQUY", "Speech a character gives alone on stage"], ["MEMOIR", "Author's account of their own life"], ["ANECDOTE", "Short personal story"], ["EPILOGUE", "Closing section after the main story"], ["PROLOGUE", "Introduction before the main story"], ["OXYMORON", "Contradictory pair like 'deafening silence'"]], "Science": [["ATOM", "Smallest unit of an element"], ["CELL", "Basic unit of life"], ["ENERGY", "Ability to do work"], ["GRAVITY", "Force pulling objects toward Earth"], ["PLANET", "Body that orbits a star"], ["OXYGEN", "Gas we breathe to live"], ["CARBON", "Element with the symbol C"], ["PROTON", "Positive particle in the nucleus"], ["NEUTRON", "Neutral particle in the nucleus"], ["ELECTRON", "Negative particle orbiting the nucleus"], ["MOLECULE", "Two or more atoms bonded together"], ["ENZYME", "Protein that speeds up reactions"], ["GENE", "Unit of heredity"], ["FOSSIL", "Preserved remains of ancient life"], ["VOLCANO", "Mountain that erupts lava"], ["GALAXY", "Huge system of stars, like the Milky Way"], ["ORBIT", "Path around a star or planet"], ["PHOTON", "Particle of light"], ["MAGNET", "Attracts iron"], ["FRICTION", "Force that resists sliding"], ["VELOCITY", "Speed in a given direction"], ["HABITAT", "Natural home of an organism"], ["ECOSYSTEM", "Community of living things and their surroundings"], ["NUCLEUS", "Center of an atom or cell"], ["OSMOSIS", "Water moving across a membrane"], ["ISOTOPE", "Atoms of one element with different numbers of neutrons"], ["ACID", "Substance with a pH below 7"], ["MASS", "Amount of matter in an object"], ["FORCE", "A push or a pull"], ["WAVE", "Disturbance that carries energy"], ["PRISM", "Glass shape that splits light"], ["CLIMATE", "Long-term weather pattern"], ["EROSION", "Wearing away of rock and soil"], ["EVOLUTION", "Change in species over generations"], ["DNA", "Molecule carrying the genetic code"], ["FUNGI", "Kingdom that includes mushrooms"], ["MAGMA", "Molten rock underground"], ["TSUNAMI", "Giant ocean wave caused by an earthquake"], ["COMET", "Icy body with a glowing tail"]], "History and geography": [["EMPIRE", "Large territory ruled by one authority"], ["DEMOCRACY", "Government by the people"], ["REPUBLIC", "State with elected leaders and no monarch"], ["PHARAOH", "Ancient Egyptian ruler"], ["PYRAMID", "Egyptian royal tomb"], ["CASTLE", "Fortified home of a noble"], ["KNIGHT", "Medieval mounted warrior"], ["FEUDAL", "Medieval system of lords and vassals"], ["REVOLUTION", "Overthrow of a government"], ["TREATY", "Formal agreement between nations"], ["SENATE", "Upper house of the U.S. Congress"], ["COLONY", "Territory controlled by a distant nation"], ["CONTINENT", "One of Earth's seven large landmasses"], ["EQUATOR", "Line at zero degrees latitude"], ["DESERT", "Dry region with little rainfall"], ["ISLAND", "Land surrounded by water"], ["PENINSULA", "Land almost surrounded by water"], ["GLACIER", "Slow-moving river of ice"], ["CANYON", "Deep gorge cut by a river"], ["DELTA", "Land formed where a river meets the sea"], ["TUNDRA", "Cold, treeless biome"], ["SAVANNA", "Tropical grassland"], ["ATLAS", "Book of maps"], ["LATITUDE", "Distance north or south of the equator"], ["HEMISPHERE", "Half of the globe"], ["MONARCH", "King or queen"], ["AMENDMENT", "Change to the Constitution"], ["ABOLITION", "Ending of slavery"], ["SUFFRAGE", "The right to vote"], ["CRUSADE", "Medieval holy war"], ["VIKING", "Norse seafarer"], ["ARMADA", "Spanish fleet defeated in 1588"], ["DYNASTY", "Family line of rulers"], ["ARTIFACT", "Object made by people in the past"], ["SAHARA", "World's largest hot desert"], ["AMAZON", "South American river and rainforest"], ["NILE", "River flowing through Egypt"], ["ALPS", "Mountain range of Europe"]], "Math": [["ANGLE", "Formed by two rays"], ["RADIUS", "Distance from a circle's center to its edge"], ["DIAMETER", "Line across a circle through its center"], ["FRACTION", "Part of a whole, like three fourths"], ["DECIMAL", "Number with a point, like 0.5"], ["PRIME", "Number with exactly two factors"], ["INTEGER", "Whole number, positive or negative"], ["VARIABLE", "Letter that stands for a number"], ["EQUATION", "Statement that two things are equal"], ["GRAPH", "Picture of data on axes"], ["SLOPE", "Steepness of a line"], ["MEDIAN", "Middle value of an ordered set"], ["MEAN", "The average"], ["MODE", "Most common value"], ["RATIO", "Comparison of two quantities"], ["PERCENT", "Out of one hundred"], ["PRODUCT", "Result of multiplication"], ["QUOTIENT", "Result of division"], ["SUM", "Result of addition"], ["PARALLEL", "Lines that never meet"], ["TRIANGLE", "Three-sided polygon"], ["POLYGON", "Closed shape with straight sides"], ["PERIMETER", "Distance around a shape"], ["AREA", "Space inside a flat shape"], ["VOLUME", "Space inside a solid"], ["EXPONENT", "Small raised number showing a power"], ["FACTOR", "Number that divides evenly into another"], ["SQUARE", "Rectangle with four equal sides"], ["CIRCLE", "Round shape with every point equally far from the center"], ["SEQUENCE", "Ordered list of numbers"], ["HYPOTENUSE", "Longest side of a right triangle"], ["ALGEBRA", "Math that uses letters for unknowns"], ["GEOMETRY", "Study of shapes and space"], ["DIVISOR", "Number you divide by"]]}, LS = 'gridlock-v1', N = 25;
+var store = (function () { var o = {}; try { o = JSON.parse(localStorage.getItem(LS) || '{}'); } catch (e) {} o.s = o.s || { solved: 0, assisted: 0, gave: 0, best: {} }; o.topic = o.topic || 'All topics'; o.size = o.size || '12'; return o; })();
+function save() { try { localStorage.setItem(LS, JSON.stringify(store)); } catch (e) {} }
+function toast(m) { var t = $('toast'); t.textContent = m; t.classList.add('show'); clearTimeout(toast._t); toast._t = setTimeout(function () { t.classList.remove('show'); }, 1800); }
+function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+
+/* ---------- generator ---------- */
+function canPlace(G, M, w, r, c, dir) {
+  var dr = dir === 'a' ? 0 : 1, dc = dir === 'a' ? 1 : 0, L = w.length, er = r + dr * (L - 1), ec = c + dc * (L - 1);
+  if (r < 0 || c < 0 || er >= N || ec >= N) return -1;
+  var br = r - dr, bc = c - dc, ar = er + dr, ac = ec + dc;
+  if (br >= 0 && bc >= 0 && G[br][bc]) return -1;
+  if (ar < N && ac < N && G[ar][ac]) return -1;
+  var cross = 0, bit = dir === 'a' ? 1 : 2;
+  for (var k = 0; k < L; k++) {
+    var rr = r + dr * k, cc = c + dc * k, ch = G[rr][cc];
+    if (ch) { if (ch !== w[k]) return -1; if (M[rr][cc] & bit) return -1; cross++; }
+    else {
+      var p1r = rr + dc, p1c = cc + dr, p2r = rr - dc, p2c = cc - dr;
+      if (p1r < N && p1c < N && G[p1r][p1c]) return -1;
+      if (p2r >= 0 && p2c >= 0 && G[p2r][p2c]) return -1;
+    }
+  }
+  return cross;
+}
+function put(G, M, w, r, c, dir) { var dr = dir === 'a' ? 0 : 1, dc = dir === 'a' ? 1 : 0, bit = dir === 'a' ? 1 : 2; for (var k = 0; k < w.length; k++) { G[r + dr * k][c + dc * k] = w[k]; M[r + dr * k][c + dc * k] |= bit; } }
+function attempt(pool, target) {
+  var G = [], M = [], i, j; for (i = 0; i < N; i++) { G.push(new Array(N).fill('')); M.push(new Array(N).fill(0)); }
+  var placed = [], first = pool[0], r0 = Math.floor(N / 2), c0 = Math.floor((N - first.a.length) / 2);
+  put(G, M, first.a, r0, c0, 'a'); placed.push({ a: first.a, c: first.c, r: r0, col: c0, d: 'a' });
+  for (var p = 1; p < pool.length && placed.length < target; p++) {
+    var w = pool[p].a, best = [], bs = 0;
+    for (var r = 0; r < N; r++) for (var c = 0; c < N; c++) for (var di = 0; di < 2; di++) {
+      var d = di ? 'd' : 'a', x = canPlace(G, M, w, r, c, d); if (x < 1) continue;
+      if (x > bs) { bs = x; best = [[r, c, d]]; } else if (x === bs) best.push([r, c, d]);
+    }
+    if (best.length) { var pk = best[Math.floor(Math.random() * best.length)]; put(G, M, w, pk[0], pk[1], pk[2]); placed.push({ a: w, c: pool[p].c, r: pk[0], col: pk[1], d: pk[2] }); }
+  }
+  return placed;
+}
+function bbox(pl) { var r0 = 99, c0 = 99, r1 = 0, c1 = 0; pl.forEach(function (w) { var er = w.r + (w.d === 'd' ? w.a.length - 1 : 0), ec = w.col + (w.d === 'a' ? w.a.length - 1 : 0); r0 = Math.min(r0, w.r); c0 = Math.min(c0, w.col); r1 = Math.max(r1, er); c1 = Math.max(c1, ec); }); return { r0: r0, c0: c0, rows: r1 - r0 + 1, cols: c1 - c0 + 1 }; }
+function generate(topic, target) {
+  var all = []; Object.keys(BANK).forEach(function (k) { if (topic === 'All topics' || k === topic) BANK[k].forEach(function (e) { all.push({ a: e[0], c: e[1] }); }); });
+  target = Math.min(target, all.length);
+  var best = null, bestKey = -1;
+  for (var t = 0; t < 40; t++) {
+    var pool = shuffle(all);
+    // start with a longer word so there are more crossing chances
+    pool.sort(function (x, y) { return (y.a.length > 6 ? 1 : 0) - (x.a.length > 6 ? 1 : 0) || Math.random() - .5; });
+    var first = pool.splice(Math.floor(Math.random() * Math.min(5, pool.length)), 1)[0]; pool.unshift(first);
+    var pl = attempt(pool, target), bb = bbox(pl), key = pl.length * 1000 - Math.max(bb.rows, bb.cols) * 10 - bb.rows * bb.cols / 10;
+    if (key > bestKey) { bestKey = key; best = { pl: pl, bb: bb }; }
+    if (pl.length >= target && Math.max(bb.rows, bb.cols) <= 15) break;
+  }
+  return best;
+}
+function layout(res) {
+  var bb = res.bb, rows = bb.rows, cols = bb.cols, cells = [], i, j;
+  for (i = 0; i < rows; i++) { cells.push([]); for (j = 0; j < cols; j++) cells[i].push(null); }
+  res.pl.forEach(function (w) { var dr = w.d === 'a' ? 0 : 1, dc = w.d === 'a' ? 1 : 0; for (var k = 0; k < w.a.length; k++) { var r = w.r - bb.r0 + dr * k, c = w.col - bb.c0 + dc * k; if (!cells[r][c]) cells[r][c] = { ch: w.a[k], num: 0 }; } });
+  var n = 0, words = [];
+  for (i = 0; i < rows; i++) for (j = 0; j < cols; j++) {
+    if (!cells[i][j]) continue;
+    var sa = (j === 0 || !cells[i][j - 1]) && j + 1 < cols && cells[i][j + 1], sd = (i === 0 || !cells[i - 1][j]) && i + 1 < rows && cells[i + 1][j];
+    if (sa || sd) { n++; cells[i][j].num = n; }
+    [['a', sa], ['d', sd]].forEach(function (x) {
+      if (!x[1]) return; var d = x[0], dr = d === 'a' ? 0 : 1, dc = d === 'a' ? 1 : 0, list = [], r = i, c = j;
+      while (r < rows && c < cols && cells[r][c]) { list.push([r, c]); r += dr; c += dc; }
+      var src = res.pl.filter(function (w) { return w.d === d && w.r - bb.r0 === i && w.col - bb.c0 === j; })[0];
+      words.push({ n: n, d: d, cells: list, clue: src ? src.c : '', ans: src ? src.a : '' });
+    });
+  }
+  return { rows: rows, cols: cols, cells: cells, words: words };
+}
+
+/* ---------- game ---------- */
+var P = null, sel = null, dir = 'a', started = 0, timer = 0, el = {}, assisted = false;
+function newPuzzle() {
+  clearInterval(timer); $('win').hidden = true;
+  var res = generate(store.topic, +store.size), L = layout(res);
+  P = { L: L, fill: L.cells.map(function (row) { return row.map(function () { return ''; }); }), bad: {}, rev: {}, done: false, gave: false, size: store.size };
+  started = 0; assisted = false; el = {}; build();
+  var first = L.words.filter(function (w) { return w.d === 'a'; })[0] || L.words[0]; sel = first.cells[0]; dir = first.d; paint(); tickT();
+}
+function build() {
+  var L = P.L, g = $('grid'), w = Math.min(document.documentElement.clientWidth - 64, 640), cs = Math.max(24, Math.min(44, Math.floor((w - 2 * (L.cols - 1)) / L.cols)));
+  g.style.setProperty('--cs', cs + 'px'); g.style.gridTemplateColumns = 'repeat(' + L.cols + ',' + cs + 'px)'; g.innerHTML = '';
+  for (var i = 0; i < L.rows; i++) for (var j = 0; j < L.cols; j++) {
+    var c = document.createElement('div'), cell = L.cells[i][j];
+    c.className = 'c' + (cell ? '' : ' blk'); if (cell) { c.dataset.r = i; c.dataset.c = j; c.setAttribute('role', 'gridcell'); c.innerHTML = (cell.num ? '<span class="n">' + cell.num + '</span>' : '') + '<span class="ch"></span>'; }
+    g.appendChild(c); el[i + ',' + j] = c;
+  }
+  var A = '', D = '';
+  L.words.forEach(function (w, k) { var li = '<li data-k="' + k + '"><b>' + w.n + '</b><span>' + esc(w.clue) + ' <small style="color:var(--t3)">(' + w.cells.length + ')</small></span></li>'; if (w.d === 'a') A += li; else D += li; });
+  $('lA').innerHTML = A; $('lD').innerHTML = D;
+}
+function wordAt(r, c, d) { return P.L.words.filter(function (w) { return w.d === d && w.cells.some(function (x) { return x[0] === r && x[1] === c; }); })[0]; }
+function curWord() { return sel ? (wordAt(sel[0], sel[1], dir) || wordAt(sel[0], sel[1], dir === 'a' ? 'd' : 'a')) : null; }
+function paint() {
+  var L = P.L, w = curWord(); if (w) dir = w.d;
+  for (var i = 0; i < L.rows; i++) for (var j = 0; j < L.cols; j++) {
+    var c = el[i + ',' + j]; if (!L.cells[i][j]) continue;
+    c.querySelector('.ch').textContent = P.fill[i][j];
+    var inw = w && w.cells.some(function (x) { return x[0] === i && x[1] === j; });
+    c.className = 'c' + (inw ? ' wd' : '') + (sel && sel[0] === i && sel[1] === j ? ' sel' : '') + (P.bad[i + ',' + j] ? ' bad' : '') + (P.rev[i + ',' + j] ? ' rev' : '') + (P.done ? ' done' : '');
+  }
+  var AC = $('active'); AC.innerHTML = w ? '<b>' + w.n + (w.d === 'a' ? ' Across' : ' Down') + '</b>' + esc(w.clue) + ' <span class="note">(' + w.cells.length + ' letters)</span>' : '';
+  document.querySelectorAll('.lists li').forEach(function (li) { var wd = L.words[+li.dataset.k]; li.classList.toggle('cur', wd === w); li.classList.toggle('ok', wd.cells.every(function (x) { return P.fill[x[0]][x[1]] === L.cells[x[0]][x[1]].ch; })); });
+  var tot = 0, filled = 0; L.cells.forEach(function (row, i) { row.forEach(function (cell, j) { if (cell) { tot++; if (P.fill[i][j]) filled++; } }); });
+  $('mL').innerHTML = '<b>' + L.words.length + '</b> words · ' + filled + '/' + tot + ' letters';
+}
+function tickT() { clearInterval(timer); timer = setInterval(function () { if (!started || P.done) return; var s = Math.floor((Date.now() - started) / 1000); $('mR').textContent = Math.floor(s / 60) + ':' + ('0' + s % 60).slice(-2); }, 500); $('mR').textContent = '0:00'; }
+function select(r, c) {
+  if (!P.L.cells[r][c] || P.done) return;
+  if (sel && sel[0] === r && sel[1] === c) { var o = dir === 'a' ? 'd' : 'a'; if (wordAt(r, c, o)) dir = o; } else { sel = [r, c]; if (!wordAt(r, c, dir)) dir = dir === 'a' ? 'd' : 'a'; }
+  paint(); $('kb').focus({ preventScroll: true });
+}
+function move(dr, dc) { var r = sel[0] + dr, c = sel[1] + dc, L = P.L; while (r >= 0 && c >= 0 && r < L.rows && c < L.cols) { if (L.cells[r][c]) { sel = [r, c]; if (dr) dir = 'd'; else dir = 'a'; if (!wordAt(r, c, dir)) dir = dir === 'a' ? 'd' : 'a'; paint(); return; } r += dr; c += dc; } }
+function step(back) {
+  var w = curWord(); if (!w) return; var k = -1; w.cells.forEach(function (x, i) { if (x[0] === sel[0] && x[1] === sel[1]) k = i; });
+  var nk = k + (back ? -1 : 1); if (nk >= 0 && nk < w.cells.length) sel = w.cells[nk];
+}
+function nextWord(back) { var ws = P.L.words, w = curWord(), i = ws.indexOf(w), ni = (i + (back ? -1 : 1) + ws.length) % ws.length; sel = ws[ni].cells[0]; dir = ws[ni].d; paint(); }
+function setCh(ch) {
+  if (P.done) return; if (!started) { started = Date.now(); }
+  var r = sel[0], c = sel[1]; if (P.rev[r + ',' + c]) { step(); paint(); return; }
+  P.fill[r][c] = ch; delete P.bad[r + ',' + c];
+  if (ch) { // jump past already-correct filled letters
+    step();
+  }
+  paint(); checkWin();
+}
+function checkWin() {
+  var L = P.L, ok = true; L.cells.forEach(function (row, i) { row.forEach(function (cell, j) { if (cell && P.fill[i][j] !== cell.ch) ok = false; }); });
+  if (!ok) return; P.done = true; clearInterval(timer); paint();
+  var s = Math.floor((Date.now() - started) / 1000), t = Math.floor(s / 60) + ':' + ('0' + s % 60).slice(-2);
+  if (assisted) store.s.assisted++; else { store.s.solved++; var b = store.s.best[P.size]; if (!b || s < b) store.s.best[P.size] = s; }
+  save();
+  var w = $('win'); w.hidden = false; w.innerHTML = '<h2>Puzzle solved</h2><p>' + t + (assisted ? ' with help' : ' with no help') + '. Press New puzzle for another.</p><div class="acts" style="justify-content:center"><button class="btn pri" id="bAgain" type="button">New puzzle</button></div>';
+  $('bAgain').onclick = newPuzzle; setTimeout(function () { w.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 200);
+}
+$('grid').addEventListener('click', function (e) { var c = e.target.closest('.c'); if (c && c.dataset.r != null) select(+c.dataset.r, +c.dataset.c); });
+document.querySelector('.lists').addEventListener('click', function (e) { var li = e.target.closest('li'); if (!li || P.done) return; var w = P.L.words[+li.dataset.k]; var emp = w.cells.filter(function (x) { return !P.fill[x[0]][x[1]]; })[0]; sel = emp || w.cells[0]; dir = w.d; paint(); $('kb').focus({ preventScroll: true }); });
+function onKey(e) {
+  if (!P || P.done || e.ctrlKey || e.metaKey || e.altKey || document.querySelector('dialog[open]')) return;
+  if (e.target.closest && e.target.closest('select')) return;
+  var k = e.key;
+  if (/^[a-zA-Z]$/.test(k)) { e.preventDefault(); setCh(k.toUpperCase()); }
+  else if (k === 'Backspace') { e.preventDefault(); var r = sel[0], c = sel[1]; if (P.fill[r][c] && !P.rev[r + ',' + c]) { P.fill[r][c] = ''; delete P.bad[r + ',' + c]; paint(); } else { step(true); if (!P.rev[sel[0] + ',' + sel[1]]) { P.fill[sel[0]][sel[1]] = ''; delete P.bad[sel[0] + ',' + sel[1]]; } paint(); } }
+  else if (k === 'ArrowRight') { e.preventDefault(); move(0, 1); } else if (k === 'ArrowLeft') { e.preventDefault(); move(0, -1); }
+  else if (k === 'ArrowDown') { e.preventDefault(); move(1, 0); } else if (k === 'ArrowUp') { e.preventDefault(); move(-1, 0); }
+  else if (k === ' ') { e.preventDefault(); select(sel[0], sel[1]); }
+  else if (k === 'Tab') { e.preventDefault(); nextWord(e.shiftKey); }
+}
+document.addEventListener('keydown', onKey);
+$('kb').addEventListener('input', function () { var v = this.value; this.value = ''; if (/[a-zA-Z]/.test(v)) setCh(v.replace(/[^a-zA-Z]/g, '').slice(-1).toUpperCase()); });
+$('bCheck').onclick = function () { if (P.done) return; var n = 0; P.L.cells.forEach(function (row, i) { row.forEach(function (cell, j) { if (cell && P.fill[i][j] && P.fill[i][j] !== cell.ch) { P.bad[i + ',' + j] = 1; n++; } }); }); assisted = true; paint(); toast(n ? n + ' wrong letter' + (n === 1 ? '' : 's') : 'Everything filled in so far is correct'); };
+function reveal(cells) { cells.forEach(function (x) { var cell = P.L.cells[x[0]][x[1]]; P.fill[x[0]][x[1]] = cell.ch; P.rev[x[0] + ',' + x[1]] = 1; delete P.bad[x[0] + ',' + x[1]]; }); assisted = true; if (!started) started = Date.now(); paint(); checkWin(); }
+$('bRL').onclick = function () { if (!P.done) reveal([sel]); };
+$('bRW').onclick = function () { var w = curWord(); if (w && !P.done) reveal(w.cells); };
+$('bGive').onclick = function () {
+  if (P.done) return; P.L.cells.forEach(function (row, i) { row.forEach(function (cell, j) { if (cell && P.fill[i][j] !== cell.ch) { P.fill[i][j] = cell.ch; P.rev[i + ',' + j] = 1; } }); });
+  P.done = true; clearInterval(timer); store.s.gave++; save(); paint();
+  var w = $('win'); w.hidden = false; w.innerHTML = '<h2>Solution shown</h2><p>Blue letters were filled in for you.</p><div class="acts" style="justify-content:center"><button class="btn pri" id="bAgain" type="button">New puzzle</button></div>'; $('bAgain').onclick = newPuzzle;
+};
+(function () {
+  var s = $('sTopic'); s.innerHTML = ['All topics'].concat(Object.keys(BANK)).map(function (k) { return '<option>' + esc(k) + '</option>'; }).join(''); s.value = store.topic; $('sSize').value = store.size;
+  s.onchange = function () { store.topic = s.value; save(); newPuzzle(); }; $('sSize').onchange = function () { store.size = this.value; save(); newPuzzle(); };
+  $('bNew').onclick = newPuzzle;
+})();
+function openDlg(d) { if (d.showModal) d.showModal(); else d.setAttribute('open', ''); }
+$('bHelp').onclick = function () { openDlg($('dHelp')); };
+$('bStats').onclick = function () {
+  var s = store.s, f = function (x) { return x ? Math.floor(x / 60) + ':' + ('0' + x % 60).slice(-2) : '-'; };
+  $('statBody').innerHTML = '<div class="stats">' + [['Solved', s.solved], ['With help', s.assisted], ['Gave up', s.gave], ['', '']].slice(0, 3).map(function (x) { return '<div class="st"><b>' + x[1] + '</b><span>' + x[0] + '</span></div>'; }).join('') + '</div><span class="lbl" style="margin-top:14px">Best times (no help)</span><div class="stats">' + [['Small', s.best['8']], ['Medium', s.best['12']], ['Large', s.best['16']]].map(function (x) { return '<div class="st"><b>' + f(x[1]) + '</b><span>' + x[0] + '</span></div>'; }).join('') + '</div>';
+  openDlg($('dStats'));
+};
+document.querySelectorAll('[data-close]').forEach(function (b) { b.onclick = function () { b.closest('dialog').close(); }; });
+document.querySelectorAll('dialog').forEach(function (d) { d.addEventListener('click', function (e) { if (e.target === d) d.close(); }); });
+window.addEventListener('resize', function () { if (P) { build(); paint(); } });
+try { if (!store.seen) { store.seen = 1; save(); setTimeout(function () { openDlg($('dHelp')); }, 400); } } catch (e) {}
+window.__gl = { P: function () { return P; } };
+newPuzzle();
+})();
+</script>
+</body>
+</html>
