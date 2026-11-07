@@ -42,32 +42,39 @@ dialog::backdrop{background:rgba(0,0,0,.65)}dialog h3{margin:0 0 10px;font-size:
 .sw input:checked{background:var(--g)}.sw input:checked::after{transform:translateX(18px);background:#04140b}.sw input:disabled{opacity:.4;cursor:not-allowed}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 
-.set{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end}
-@media(max-width:520px){.set{grid-template-columns:1fr 1fr}.set .btn{grid-column:1/-1}}
+.top,main{max-width:1040px}
+.setup{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;padding:12px 14px}
+.setup .f{flex:1;min-width:130px}.setup .btn{flex:none}
+@media(max-width:520px){.setup .btn{width:100%}}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:12px;align-items:start}
+@media(max-width:880px){.layout{grid-template-columns:minmax(0,1fr)}}
 .meta{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--t2);margin-bottom:10px;font-variant-numeric:tabular-nums}.meta b{color:var(--text)}
-.active{padding:10px 14px;border-radius:12px;background:color-mix(in srgb,var(--g) 11%,transparent);border:1px solid color-mix(in srgb,var(--g) 28%,transparent);font-size:14.5px;margin-bottom:12px;min-height:46px}
-.active b{color:var(--g2);margin-right:6px}
+.active{position:sticky;top:8px;z-index:6;display:flex;align-items:center;gap:10px;padding:8px 8px 8px 14px;border-radius:14px;background:#10241a;border:1px solid color-mix(in srgb,var(--g) 40%,transparent);box-shadow:0 8px 24px -10px rgba(0,0,0,.7);font-size:14.5px;margin-bottom:12px;min-height:54px}
+.active .tx{flex:1;min-width:0}.active b{display:block;font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--g2);margin-bottom:1px}
+.active .nav{display:flex;gap:6px;flex:none}
+.nb{width:38px;height:38px;border-radius:10px;border:1px solid var(--line2);background:transparent;color:var(--text);cursor:pointer;display:grid;place-items:center}.nb:hover{background:var(--panel2)}.nb:active{transform:scale(.92)}
 .gwrap{overflow-x:auto;padding:2px 0}
-.grid{display:grid;gap:2px;position:relative;width:max-content;margin:0 auto}
-.c{position:relative;width:var(--cs);height:var(--cs);border-radius:5px;background:#e9f2ec;color:#07100a;display:grid;place-items:center;font-weight:800;font-size:calc(var(--cs)*.5);text-transform:uppercase;cursor:pointer;user-select:none;transition:background .12s}
+@media(max-width:560px){#play{padding:10px}.grid{padding:4px}}
+.grid{display:grid;gap:2px;width:max-content;margin:0 auto;padding:8px;border-radius:14px;background:#0a1410;border:1px solid var(--line)}
+.c{position:relative;width:var(--cs);height:var(--cs);border-radius:5px;background:#e9f2ec;color:#07100a;display:grid;place-items:center;font-weight:800;font-size:calc(var(--cs)*.52);text-transform:uppercase;cursor:pointer;user-select:none;transition:background .12s}
 .c.blk{background:transparent;cursor:default;pointer-events:none}
-.c .n{position:absolute;top:1px;left:3px;font-size:calc(var(--cs)*.27);font-weight:700;line-height:1;color:#3c4d41}
-.c.wd{background:color-mix(in srgb,var(--g) 38%,#e9f2ec)}
+.c .n{position:absolute;top:1px;left:3px;font-size:max(8px,calc(var(--cs)*.26));font-weight:700;line-height:1;color:#3c4d41}
+.c.wd{background:color-mix(in srgb,var(--g) 34%,#e9f2ec)}
 .c.sel{background:var(--g);box-shadow:0 0 0 2px #fff inset}
-.c.bad{color:#d1334d;background:#ffd5dc}
-.c.sel.bad{background:#ff8fa3}
-.c.rev{color:#1a6bb0}
-.c.done{background:var(--g2)}
+.c.bad{color:#d1334d;background:#ffd5dc}.c.sel.bad{background:#ff8fa3}
+.c.rev{color:#1a6bb0}.c.done{background:var(--g2)}
 .tools{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;justify-content:center}
-.lists{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-@media(max-width:560px){.lists{grid-template-columns:1fr}}
-.lists h3{margin:0 0 8px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--t3)}
-.lists ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:3px}
-.lists li{display:flex;gap:9px;padding:7px 9px;border-radius:9px;font-size:13.5px;cursor:pointer;color:var(--t2);border:1px solid transparent}
-.lists li b{flex:none;min-width:20px;color:var(--text)}.lists li:hover{background:var(--panel2)}
-.lists li.cur{background:color-mix(in srgb,var(--g) 12%,transparent);border-color:color-mix(in srgb,var(--g) 30%,transparent);color:var(--text)}
-.lists li.ok{color:var(--t3);text-decoration:line-through}
-.win{text-align:center}.win h2{margin:0 0 4px;font-size:22px}.win p{margin:0;color:var(--t2);font-size:14px}
+.clues{display:flex;flex-direction:column;gap:14px;position:sticky;top:12px}
+@media(max-width:880px){.clues{position:static;display:grid;grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.clues{grid-template-columns:1fr}}
+.clues h3{margin:0 0 8px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--t3);display:flex;justify-content:space-between}
+.clues ol{list-style:none;margin:0;padding:0 2px 0 0;display:flex;flex-direction:column;gap:3px;max-height:calc((100vh - 150px)/2);overflow-y:auto;scrollbar-width:thin}
+@media(max-width:880px){.clues ol{max-height:260px}}
+.clues li{display:flex;gap:9px;padding:7px 9px;border-radius:9px;font-size:13.5px;cursor:pointer;color:var(--t2);border:1px solid transparent}
+.clues li b{flex:none;min-width:20px;color:var(--text)}.clues li:hover{background:var(--panel2)}
+.clues li.cur{background:color-mix(in srgb,var(--g) 14%,transparent);border-color:color-mix(in srgb,var(--g) 34%,transparent);color:var(--text)}
+.clues li.ok{color:var(--t3)}.clues li.ok span{text-decoration:line-through}
+.win{margin-top:14px;text-align:center;padding:16px;border-radius:14px;background:color-mix(in srgb,var(--g) 10%,transparent);border:1px solid color-mix(in srgb,var(--g) 30%,transparent)}.win h2{margin:0 0 4px;font-size:22px}.win p{margin:0;color:var(--t2);font-size:14px}
 #kb{position:fixed;left:-200px;top:0;width:10px;height:10px;opacity:0}
 </style>
 </head>
@@ -78,34 +85,34 @@ dialog::backdrop{background:rgba(0,0,0,.65)}dialog h3{margin:0 0 10px;font-size:
   <button class="ib" id="bHelp" type="button" aria-label="How to play"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7M12 17h.01"/></svg></button>
 </header>
 <main>
-  <section class="panel">
-    <div class="set">
-      <div><label class="lbl" for="sTopic">Topic</label><select class="inp" id="sTopic"></select></div>
-      <div><label class="lbl" for="sSize">Size</label><select class="inp" id="sSize"><option value="8">Small</option><option value="12" selected>Medium</option><option value="16">Large</option></select></div>
-      <button class="btn pri" id="bNew" type="button">New puzzle</button>
-    </div>
+  <section class="panel setup">
+    <div class="f"><label class="lbl" for="sTopic">Topic</label><select class="inp" id="sTopic"></select></div>
+    <div class="f"><label class="lbl" for="sSize">Size</label><select class="inp" id="sSize"><option value="8">Small</option><option value="12" selected>Medium</option><option value="16">Large</option></select></div>
+    <button class="btn pri" id="bNew" type="button">New puzzle</button>
   </section>
-  <section class="panel" id="play">
-    <div class="meta"><span id="mL"></span><span id="mR"></span></div>
-    <div class="active" id="active"></div>
-    <div class="gwrap" id="gwrap"><div class="grid" id="grid" role="grid" aria-label="Crossword grid"></div></div>
-    <input id="kb" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" aria-label="Type letters">
-    <div class="tools">
-      <button class="btn sm" id="bCheck" type="button">Check</button>
-      <button class="btn sm" id="bRL" type="button">Reveal letter</button>
-      <button class="btn sm" id="bRW" type="button">Reveal word</button>
-      <button class="btn sm" id="bGive" type="button">Give up</button>
-    </div>
-  </section>
-  <section class="panel win" id="win" hidden></section>
-  <section class="panel lists">
-    <div><h3>Across</h3><ol id="lA"></ol></div>
-    <div><h3>Down</h3><ol id="lD"></ol></div>
-  </section>
+  <div class="layout">
+    <section class="panel" id="play">
+      <div class="meta"><span id="mL"></span><span id="mR"></span></div>
+      <div class="active"><div class="tx" id="active"></div><div class="nav"><button class="nb" id="bPrev" type="button" aria-label="Previous clue"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m15 5-7 7 7 7"/></svg></button><button class="nb" id="bNext" type="button" aria-label="Next clue"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg></button></div></div>
+      <div class="gwrap" id="gwrap"><div class="grid" id="grid" role="grid" aria-label="Crossword grid"></div></div>
+      <input id="kb" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" aria-label="Type letters">
+      <div class="tools">
+        <button class="btn sm" id="bCheck" type="button">Check</button>
+        <button class="btn sm" id="bRL" type="button">Reveal letter</button>
+        <button class="btn sm" id="bRW" type="button">Reveal word</button>
+        <button class="btn sm" id="bGive" type="button">Give up</button>
+      </div>
+      <div class="win" id="win" hidden></div>
+    </section>
+    <aside class="panel clues">
+      <div><h3><span>Across</span></h3><ol id="lA"></ol></div>
+      <div><h3><span>Down</span></h3><ol id="lD"></ol></div>
+    </aside>
+  </div>
 </main>
 <div id="toast" role="status"></div>
 <dialog id="dHelp"><h3>How to play</h3>
-  <ol><li>Tap a square, then type. Tap it again to switch between across and down.</li><li>Tap any clue to jump to its word.</li><li>Arrow keys move around. Backspace deletes. Space switches direction.</li></ol>
+  <ol><li>Tap a square, then type. Tap it again to switch between across and down.</li><li>Tap any clue, or use the arrows beside the clue, to jump between words.</li><li>Arrow keys move around. Backspace deletes. Space switches direction. Tab goes to the next clue.</li></ol>
   <ul><li>Check marks wrong letters in red.</li><li>Reveal letter and Reveal word are there if you get stuck, but they count as help.</li><li>Every puzzle is built fresh, so no two are the same.</li></ul>
   <div class="acts"><button class="btn pri" type="button" data-close>Got it</button></div></dialog>
 <dialog id="dStats"><h3>Your stats</h3><div id="statBody"></div><div class="acts"><button class="btn pri" type="button" data-close>Close</button></div></dialog>
@@ -120,7 +127,7 @@ function save() { try { localStorage.setItem(LS, JSON.stringify(store)); } catch
 function toast(m) { var t = $('toast'); t.textContent = m; t.classList.add('show'); clearTimeout(toast._t); toast._t = setTimeout(function () { t.classList.remove('show'); }, 1800); }
 function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
 
-/* ---------- generator ---------- */
+/* ---------- generator (compact grids) ---------- */
 function canPlace(G, M, w, r, c, dir) {
   var dr = dir === 'a' ? 0 : 1, dc = dir === 'a' ? 1 : 0, L = w.length, er = r + dr * (L - 1), ec = c + dc * (L - 1);
   if (r < 0 || c < 0 || er >= N || ec >= N) return -1;
@@ -141,16 +148,20 @@ function canPlace(G, M, w, r, c, dir) {
 }
 function put(G, M, w, r, c, dir) { var dr = dir === 'a' ? 0 : 1, dc = dir === 'a' ? 1 : 0, bit = dir === 'a' ? 1 : 2; for (var k = 0; k < w.length; k++) { G[r + dr * k][c + dc * k] = w[k]; M[r + dr * k][c + dc * k] |= bit; } }
 function attempt(pool, target) {
-  var G = [], M = [], i, j; for (i = 0; i < N; i++) { G.push(new Array(N).fill('')); M.push(new Array(N).fill(0)); }
+  var G = [], M = [], i; for (i = 0; i < N; i++) { G.push(new Array(N).fill('')); M.push(new Array(N).fill(0)); }
   var placed = [], first = pool[0], r0 = Math.floor(N / 2), c0 = Math.floor((N - first.a.length) / 2);
   put(G, M, first.a, r0, c0, 'a'); placed.push({ a: first.a, c: first.c, r: r0, col: c0, d: 'a' });
+  var minR = r0, maxR = r0, minC = c0, maxC = c0 + first.a.length - 1;
   for (var p = 1; p < pool.length && placed.length < target; p++) {
-    var w = pool[p].a, best = [], bs = 0;
-    for (var r = 0; r < N; r++) for (var c = 0; c < N; c++) for (var di = 0; di < 2; di++) {
+    var w = pool[p].a, L = w.length, best = [], bs = -1e9, lo = Math.max(0, minR - L), hi = Math.min(N - 1, maxR + L), lc = Math.max(0, minC - L), hc = Math.min(N - 1, maxC + L);
+    for (var r = lo; r <= hi; r++) for (var c = lc; c <= hc; c++) for (var di = 0; di < 2; di++) {
       var d = di ? 'd' : 'a', x = canPlace(G, M, w, r, c, d); if (x < 1) continue;
-      if (x > bs) { bs = x; best = [[r, c, d]]; } else if (x === bs) best.push([r, c, d]);
+      var er = r + (d === 'd' ? L - 1 : 0), ec = c + (d === 'a' ? L - 1 : 0);
+      var nr = Math.max(maxR, er) - Math.min(minR, r) + 1, nc = Math.max(maxC, ec) - Math.min(minC, c) + 1;
+      var sc = x * 40 - nr * nc - Math.abs(nr - nc) * 2;
+      if (sc > bs) { bs = sc; best = [[r, c, d, er, ec]]; } else if (sc === bs) best.push([r, c, d, er, ec]);
     }
-    if (best.length) { var pk = best[Math.floor(Math.random() * best.length)]; put(G, M, w, pk[0], pk[1], pk[2]); placed.push({ a: w, c: pool[p].c, r: pk[0], col: pk[1], d: pk[2] }); }
+    if (best.length) { var pk = best[Math.floor(Math.random() * best.length)]; put(G, M, w, pk[0], pk[1], pk[2]); placed.push({ a: w, c: pool[p].c, r: pk[0], col: pk[1], d: pk[2] }); minR = Math.min(minR, pk[0]); minC = Math.min(minC, pk[1]); maxR = Math.max(maxR, pk[3]); maxC = Math.max(maxC, pk[4]); }
   }
   return placed;
 }
@@ -158,15 +169,14 @@ function bbox(pl) { var r0 = 99, c0 = 99, r1 = 0, c1 = 0; pl.forEach(function (w
 function generate(topic, target) {
   var all = []; Object.keys(BANK).forEach(function (k) { if (topic === 'All topics' || k === topic) BANK[k].forEach(function (e) { all.push({ a: e[0], c: e[1] }); }); });
   target = Math.min(target, all.length);
-  var best = null, bestKey = -1;
-  for (var t = 0; t < 40; t++) {
-    var pool = shuffle(all);
-    // start with a longer word so there are more crossing chances
+  var limit = target <= 8 ? 11 : target <= 12 ? 13 : 15, best = null, bestKey = -1e9;
+  for (var t = 0; t < 120; t++) {
+    var pool = shuffle(all.filter(function (e) { return e.a.length <= (target <= 12 ? 9 : 10); })).slice(0, 44);
     pool.sort(function (x, y) { return (y.a.length > 6 ? 1 : 0) - (x.a.length > 6 ? 1 : 0) || Math.random() - .5; });
-    var first = pool.splice(Math.floor(Math.random() * Math.min(5, pool.length)), 1)[0]; pool.unshift(first);
-    var pl = attempt(pool, target), bb = bbox(pl), key = pl.length * 1000 - Math.max(bb.rows, bb.cols) * 10 - bb.rows * bb.cols / 10;
+    var first = pool.splice(Math.floor(Math.random() * Math.min(4, pool.length)), 1)[0]; pool.unshift(first);
+    var pl = attempt(pool, target), bb = bbox(pl), key = pl.length * 1000 - Math.max(bb.rows, bb.cols) * 30 - bb.rows * bb.cols / 4 - Math.abs(bb.rows - bb.cols) * 4;
     if (key > bestKey) { bestKey = key; best = { pl: pl, bb: bb }; }
-    if (pl.length >= target && Math.max(bb.rows, bb.cols) <= 15) break;
+    if (pl.length >= target && Math.max(bb.rows, bb.cols) <= limit && t >= 8) break;
   }
   return best;
 }
@@ -199,7 +209,8 @@ function newPuzzle() {
   var first = L.words.filter(function (w) { return w.d === 'a'; })[0] || L.words[0]; sel = first.cells[0]; dir = first.d; paint(); tickT();
 }
 function build() {
-  var L = P.L, g = $('grid'), w = Math.min(document.documentElement.clientWidth - 64, 640), cs = Math.max(24, Math.min(44, Math.floor((w - 2 * (L.cols - 1)) / L.cols)));
+  var L = P.L, g = $('grid'), W = $('gwrap').clientWidth || (document.documentElement.clientWidth - 60), avail = W - (document.documentElement.clientWidth > 560 ? 16 : 8) - 2 * (L.cols - 1);
+  var cs = Math.floor(avail / L.cols); if (document.documentElement.clientWidth > 880) cs = Math.min(cs, Math.floor((window.innerHeight - 330) / L.rows)); cs = Math.max(18, Math.min(44, cs));
   g.style.setProperty('--cs', cs + 'px'); g.style.gridTemplateColumns = 'repeat(' + L.cols + ',' + cs + 'px)'; g.innerHTML = '';
   for (var i = 0; i < L.rows; i++) for (var j = 0; j < L.cols; j++) {
     var c = document.createElement('div'), cell = L.cells[i][j];
@@ -212,6 +223,7 @@ function build() {
 }
 function wordAt(r, c, d) { return P.L.words.filter(function (w) { return w.d === d && w.cells.some(function (x) { return x[0] === r && x[1] === c; }); })[0]; }
 function curWord() { return sel ? (wordAt(sel[0], sel[1], dir) || wordAt(sel[0], sel[1], dir === 'a' ? 'd' : 'a')) : null; }
+function keepVisible(li) { var ol = li.parentNode; if (li.offsetTop < ol.scrollTop) ol.scrollTop = li.offsetTop - 4; else if (li.offsetTop + li.offsetHeight > ol.scrollTop + ol.clientHeight) ol.scrollTop = li.offsetTop + li.offsetHeight - ol.clientHeight + 4; }
 function paint() {
   var L = P.L, w = curWord(); if (w) dir = w.d;
   for (var i = 0; i < L.rows; i++) for (var j = 0; j < L.cols; j++) {
@@ -220,8 +232,8 @@ function paint() {
     var inw = w && w.cells.some(function (x) { return x[0] === i && x[1] === j; });
     c.className = 'c' + (inw ? ' wd' : '') + (sel && sel[0] === i && sel[1] === j ? ' sel' : '') + (P.bad[i + ',' + j] ? ' bad' : '') + (P.rev[i + ',' + j] ? ' rev' : '') + (P.done ? ' done' : '');
   }
-  var AC = $('active'); AC.innerHTML = w ? '<b>' + w.n + (w.d === 'a' ? ' Across' : ' Down') + '</b>' + esc(w.clue) + ' <span class="note">(' + w.cells.length + ' letters)</span>' : '';
-  document.querySelectorAll('.lists li').forEach(function (li) { var wd = L.words[+li.dataset.k]; li.classList.toggle('cur', wd === w); li.classList.toggle('ok', wd.cells.every(function (x) { return P.fill[x[0]][x[1]] === L.cells[x[0]][x[1]].ch; })); });
+  $('active').innerHTML = w ? '<b>' + w.n + (w.d === 'a' ? ' Across' : ' Down') + ' · ' + w.cells.length + ' letters</b>' + esc(w.clue) : '';
+  document.querySelectorAll('.clues li').forEach(function (li) { var wd = L.words[+li.dataset.k], cur = wd === w; li.classList.toggle('cur', cur); li.classList.toggle('ok', wd.cells.every(function (x) { return P.fill[x[0]][x[1]] === L.cells[x[0]][x[1]].ch; })); if (cur) keepVisible(li); });
   var tot = 0, filled = 0; L.cells.forEach(function (row, i) { row.forEach(function (cell, j) { if (cell) { tot++; if (P.fill[i][j]) filled++; } }); });
   $('mL').innerHTML = '<b>' + L.words.length + '</b> words · ' + filled + '/' + tot + ' letters';
 }
@@ -236,14 +248,15 @@ function step(back) {
   var w = curWord(); if (!w) return; var k = -1; w.cells.forEach(function (x, i) { if (x[0] === sel[0] && x[1] === sel[1]) k = i; });
   var nk = k + (back ? -1 : 1); if (nk >= 0 && nk < w.cells.length) sel = w.cells[nk];
 }
-function nextWord(back) { var ws = P.L.words, w = curWord(), i = ws.indexOf(w), ni = (i + (back ? -1 : 1) + ws.length) % ws.length; sel = ws[ni].cells[0]; dir = ws[ni].d; paint(); }
+function nextWord(back) {
+  var ws = P.L.words.slice().sort(function (a, b) { return (a.d === b.d ? 0 : a.d === 'a' ? -1 : 1) || a.n - b.n; }), w = curWord(), i = ws.indexOf(w), ni = (i + (back ? -1 : 1) + ws.length) % ws.length;
+  var emp = ws[ni].cells.filter(function (x) { return !P.fill[x[0]][x[1]]; })[0]; sel = emp || ws[ni].cells[0]; dir = ws[ni].d; paint();
+}
 function setCh(ch) {
-  if (P.done) return; if (!started) { started = Date.now(); }
+  if (P.done) return; if (!started) started = Date.now();
   var r = sel[0], c = sel[1]; if (P.rev[r + ',' + c]) { step(); paint(); return; }
   P.fill[r][c] = ch; delete P.bad[r + ',' + c];
-  if (ch) { // jump past already-correct filled letters
-    step();
-  }
+  if (ch) step();
   paint(); checkWin();
 }
 function checkWin() {
@@ -252,11 +265,13 @@ function checkWin() {
   var s = Math.floor((Date.now() - started) / 1000), t = Math.floor(s / 60) + ':' + ('0' + s % 60).slice(-2);
   if (assisted) store.s.assisted++; else { store.s.solved++; var b = store.s.best[P.size]; if (!b || s < b) store.s.best[P.size] = s; }
   save();
-  var w = $('win'); w.hidden = false; w.innerHTML = '<h2>Puzzle solved</h2><p>' + t + (assisted ? ' with help' : ' with no help') + '. Press New puzzle for another.</p><div class="acts" style="justify-content:center"><button class="btn pri" id="bAgain" type="button">New puzzle</button></div>';
+  var w = $('win'); w.hidden = false; w.innerHTML = '<h2>Puzzle solved</h2><p>' + t + (assisted ? ' with help' : ' with no help') + '.</p><div class="acts" style="justify-content:center"><button class="btn pri" id="bAgain" type="button">New puzzle</button></div>';
   $('bAgain').onclick = newPuzzle; setTimeout(function () { w.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 200);
 }
 $('grid').addEventListener('click', function (e) { var c = e.target.closest('.c'); if (c && c.dataset.r != null) select(+c.dataset.r, +c.dataset.c); });
-document.querySelector('.lists').addEventListener('click', function (e) { var li = e.target.closest('li'); if (!li || P.done) return; var w = P.L.words[+li.dataset.k]; var emp = w.cells.filter(function (x) { return !P.fill[x[0]][x[1]]; })[0]; sel = emp || w.cells[0]; dir = w.d; paint(); $('kb').focus({ preventScroll: true }); });
+document.querySelector('.clues').addEventListener('click', function (e) { var li = e.target.closest('li'); if (!li || P.done) return; var w = P.L.words[+li.dataset.k]; var emp = w.cells.filter(function (x) { return !P.fill[x[0]][x[1]]; })[0]; sel = emp || w.cells[0]; dir = w.d; paint(); $('kb').focus({ preventScroll: true }); });
+$('bPrev').onclick = function () { if (!P.done) { nextWord(true); $('kb').focus({ preventScroll: true }); } };
+$('bNext').onclick = function () { if (!P.done) { nextWord(false); $('kb').focus({ preventScroll: true }); } };
 function onKey(e) {
   if (!P || P.done || e.ctrlKey || e.metaKey || e.altKey || document.querySelector('dialog[open]')) return;
   if (e.target.closest && e.target.closest('select')) return;
@@ -288,14 +303,14 @@ function openDlg(d) { if (d.showModal) d.showModal(); else d.setAttribute('open'
 $('bHelp').onclick = function () { openDlg($('dHelp')); };
 $('bStats').onclick = function () {
   var s = store.s, f = function (x) { return x ? Math.floor(x / 60) + ':' + ('0' + x % 60).slice(-2) : '-'; };
-  $('statBody').innerHTML = '<div class="stats">' + [['Solved', s.solved], ['With help', s.assisted], ['Gave up', s.gave], ['', '']].slice(0, 3).map(function (x) { return '<div class="st"><b>' + x[1] + '</b><span>' + x[0] + '</span></div>'; }).join('') + '</div><span class="lbl" style="margin-top:14px">Best times (no help)</span><div class="stats">' + [['Small', s.best['8']], ['Medium', s.best['12']], ['Large', s.best['16']]].map(function (x) { return '<div class="st"><b>' + f(x[1]) + '</b><span>' + x[0] + '</span></div>'; }).join('') + '</div>';
+  $('statBody').innerHTML = '<div class="stats">' + [['Solved', s.solved], ['With help', s.assisted], ['Gave up', s.gave]].map(function (x) { return '<div class="st"><b>' + x[1] + '</b><span>' + x[0] + '</span></div>'; }).join('') + '</div><span class="lbl" style="margin-top:14px">Best times (no help)</span><div class="stats">' + [['Small', s.best['8']], ['Medium', s.best['12']], ['Large', s.best['16']]].map(function (x) { return '<div class="st"><b>' + f(x[1]) + '</b><span>' + x[0] + '</span></div>'; }).join('') + '</div>';
   openDlg($('dStats'));
 };
 document.querySelectorAll('[data-close]').forEach(function (b) { b.onclick = function () { b.closest('dialog').close(); }; });
 document.querySelectorAll('dialog').forEach(function (d) { d.addEventListener('click', function (e) { if (e.target === d) d.close(); }); });
-window.addEventListener('resize', function () { if (P) { build(); paint(); } });
+var rz = 0; window.addEventListener('resize', function () { clearTimeout(rz); rz = setTimeout(function () { if (P) { build(); paint(); } }, 120); });
 try { if (!store.seen) { store.seen = 1; save(); setTimeout(function () { openDlg($('dHelp')); }, 400); } } catch (e) {}
-window.__gl = { P: function () { return P; } };
+window.__gl = { P: function () { return P; }, gen: generate };
 newPuzzle();
 })();
 </script>
