@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#060b08">
+<title>Atlas — Guess the country</title>
+<meta name="description" content="Guess the country from five clues.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2032%2032%27%3E%3Crect%20width%3D%2732%27%20height%3D%2732%27%20rx%3D%279%27%20fill%3D%27%230a1a12%27/%3E%3Cg%20fill%3D%27%23ff7eb6%27%3E%3Ccircle%20cx%3D%2216%22%20cy%3D%2216%22%20r%3D%2210.5%22%20fill%3D%22none%22%20stroke%3D%22%23ff7eb6%22%20stroke-width%3D%222.2%22/%3E%3Cpath%20d%3D%22M5.5%2016h21M16%205.5c-4%203.500-4%2017.500%200%2021M16%205.500c4%203.500%204%2017.500%200%2021%22%20fill%3D%22none%22%20stroke%3D%22%23ff7eb6%22%20stroke-width%3D%221.8%22/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#060b08;--panel:#0c140f;--panel2:#111c15;--line:rgba(255,255,255,.08);--line2:rgba(255,255,255,.16);--text:#e9f2ec;--t2:#a9b9af;--t3:#6f8176;--g:#ff7eb6;--g2:#ffadd0;--amber:#f0b94a;--red:#f0657a;--ease:cubic-bezier(.22,1,.36,1)}
+*{box-sizing:border-box}
+html{background:var(--bg);color-scheme:dark}
+body{margin:0;min-height:100vh;font-family:Inter,system-ui,-apple-system,'Segoe UI',sans-serif;color:var(--text);line-height:1.45;-webkit-font-smoothing:antialiased;background:radial-gradient(900px 420px at 50% -8%,color-mix(in srgb,var(--g) 11%,transparent),transparent 65%),var(--bg)}
+button,input,select{font:inherit;color:inherit}[hidden]{display:none!important}
+:focus-visible{outline:2px solid var(--g);outline-offset:2px}svg{display:block}
+.top{display:flex;align-items:center;gap:10px;max-width:640px;margin:0 auto;padding:14px 14px 6px}
+.logo{display:flex;align-items:center;gap:10px;flex:1;min-width:0;text-decoration:none;color:var(--text)}
+.logo b{font-size:21px;font-weight:800;letter-spacing:-.03em}.logo b i{font-style:normal;color:var(--g)}
+.tabs{display:inline-flex;padding:3px;border-radius:12px;background:var(--panel);border:1px solid var(--line)}
+.tabs button{border:0;background:transparent;height:32px;padding:0 14px;border-radius:9px;color:var(--t2);font-weight:600;font-size:13.5px;cursor:pointer}.tabs button.on{background:var(--g);color:#04140b}
+.ib{width:38px;height:38px;border-radius:11px;border:1px solid var(--line);background:var(--panel);display:grid;place-items:center;color:var(--t2);cursor:pointer;transition:background .2s,color .2s}.ib:hover{background:var(--panel2);color:#fff}
+main{max-width:640px;margin:0 auto;padding:6px 14px 40px;display:flex;flex-direction:column;gap:12px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px}
+.lbl{font-size:11.5px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px;display:block}
+.inp{width:100%;height:44px;padding:0 13px;border-radius:12px;border:1px solid var(--line2);background:#070d09;outline:none;transition:border-color .15s,box-shadow .15s}
+.inp:focus{border-color:color-mix(in srgb,var(--g) 60%,transparent);box-shadow:0 0 0 3px color-mix(in srgb,var(--g) 14%,transparent)}.inp::placeholder{color:#506057}
+select.inp{cursor:pointer;color-scheme:dark}select option{background:#0c140f}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 18px;border-radius:12px;border:1px solid var(--line2);background:transparent;color:var(--text);font-weight:600;font-size:14px;cursor:pointer;white-space:nowrap;text-decoration:none;transition:transform .2s var(--ease),background .2s}
+.btn:hover{background:var(--panel2)}.btn:active:not(:disabled){transform:scale(.96)}.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.pri{background:var(--g);border-color:transparent;color:#04140b}.btn.pri:hover{background:var(--g2)}.btn.sm{height:36px;padding:0 13px;font-size:13px;border-radius:10px}
+.grid{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end}
+.note{font-size:12.5px;color:var(--t3)}
+.meta{display:flex;justify-content:space-between;font-size:13px;color:var(--t2);margin-bottom:12px}.meta b{color:var(--text)}
+.clues{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.clue{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border-radius:13px;border:1px solid var(--line);background:#09100c;font-size:15px;animation:in .4s var(--ease) both}
+.clue .n{flex:none;width:24px;height:24px;border-radius:8px;display:grid;place-items:center;font-size:12px;font-weight:800;background:color-mix(in srgb,var(--g) 18%,transparent);color:var(--g2)}
+.clue.lock{opacity:.5;animation:none;align-items:center}.clue.lock .n{background:rgba(255,255,255,.06);color:var(--t3)}
+.clue.lock span.t{color:var(--t3);letter-spacing:.2em}
+.clue.new{border-color:color-mix(in srgb,var(--g) 40%,transparent)}
+@keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.rows{list-style:none;margin:0 0 12px;padding:0;display:flex;flex-direction:column;gap:6px}
+.rows li{display:flex;align-items:center;gap:10px;min-height:42px;padding:7px 12px;border-radius:11px;border:1px solid var(--line);background:#09100c;font-size:14px;animation:in .35s var(--ease) both}
+.rows li .n{flex:none;width:20px;color:var(--t3);font-size:12px;font-weight:700}
+.rows li .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rows li .t small{color:var(--t3)}
+.rows li.empty{opacity:.45;animation:none}.rows li.cur{opacity:1;border-color:color-mix(in srgb,var(--g) 35%,transparent);animation:none}
+.tag{flex:none;font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:99px}
+.tag.bad{background:rgba(240,101,122,.14);color:var(--red)}.tag.skip{background:rgba(255,255,255,.07);color:var(--t2)}.tag.ok{background:color-mix(in srgb,var(--g) 20%,transparent);color:var(--g2)}.tag.art{background:rgba(240,185,74,.16);color:var(--amber)}
+.sw{position:relative}
+.res{margin-top:6px;border:1px solid var(--line2);border-radius:13px;background:#0a110d;max-height:290px;overflow:auto}
+.res button{display:flex;align-items:center;gap:10px;width:100%;border:0;background:transparent;text-align:left;padding:10px 12px;cursor:pointer;border-bottom:1px solid var(--line)}
+.res button:last-child{border:0}.res button.on,.res button:hover{background:color-mix(in srgb,var(--g) 13%,transparent)}
+.res span{min-width:0;flex:1}.res b{display:block;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.res small{display:block;color:var(--t3);font-size:12.5px}
+.res mark{background:none;color:var(--g2)}.res .msg{padding:12px;color:var(--t3);font-size:13px}
+.acts{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}.acts .grow{flex:1}
+.hints{margin-top:10px;display:flex;flex-direction:column;gap:6px}
+.hint{display:flex;gap:10px;align-items:baseline;padding:8px 12px;border-radius:11px;background:rgba(240,185,74,.08);border:1px solid rgba(240,185,74,.2);font-size:13.5px}.hint em{font-style:normal;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--amber);flex:none}
+.hint code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.12em}
+.found{margin-bottom:10px;padding:9px 12px;border-radius:11px;background:color-mix(in srgb,var(--g) 11%,transparent);border:1px solid color-mix(in srgb,var(--g) 30%,transparent);font-size:13.5px;color:var(--g2)}
+.verdict{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;margin-bottom:8px}.verdict.w{color:var(--g)}.verdict.l{color:var(--red)}
+.ans h2{margin:0;font-size:22px;letter-spacing:-.02em}.ans p{margin:2px 0 0;color:var(--t2);font-size:14px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:6px 0 4px}
+.st{text-align:center;padding:10px 4px;border-radius:12px;background:#09100c;border:1px solid var(--line)}.st b{display:block;font-size:20px}.st span{font-size:10.5px;color:var(--t3);text-transform:uppercase;letter-spacing:.07em}
+dialog{border:1px solid var(--line2);border-radius:20px;background:var(--panel);color:var(--text);padding:22px;max-width:min(480px,92vw);width:100%}
+dialog::backdrop{background:rgba(0,0,0,.65)}dialog h3{margin:0 0 10px;font-size:18px}dialog ol,dialog ul{padding-left:20px;margin:8px 0;color:var(--t2);font-size:14px}dialog li{margin:5px 0}
+.cred{text-align:center;font-size:11.5px;color:var(--t3);margin-top:4px}
+#toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,16px);opacity:0;pointer-events:none;background:#16251c;border:1px solid var(--line2);padding:10px 16px;border-radius:12px;font-size:13.5px;transition:.2s;z-index:90;max-width:92vw}#toast.show{opacity:1;transform:translate(-50%,0)}
+@media(max-width:480px){.tabs button{padding:0 11px}.logo b{font-size:19px}.grid{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<header class="top">
+  <a class="logo" href="#" aria-label="Atlas"><svg width="34" height="34" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#0a1a12"/><g fill="#ff7eb6"><circle cx="16" cy="16" r="10.5" fill="none" stroke="#ff7eb6" stroke-width="2.2"/><path d="M5.5 16h21M16 5.5c-4 3.500-4 17.500 0 21M16 5.500c4 3.500 4 17.500 0 21" fill="none" stroke="#ff7eb6" stroke-width="1.8"/></g></svg><b>atl<i>as</i></b></a>
+  <div class="tabs" id="tabs"><button type="button" class="on" data-m="daily">Daily</button><button type="button" data-m="free">Free play</button></div>
+  <button class="ib" id="bStats" type="button" aria-label="Stats"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 20V10M12 20V4M19 20v-7"/></svg></button>
+  <button class="ib" id="bHelp" type="button" aria-label="How to play"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7M12 17h.01"/></svg></button>
+</header>
+<main>
+  <section class="panel" id="settings" hidden>
+    <div class="grid">
+      <div><label class="lbl" for="sF">Continent</label><select class="inp" id="sF"></select></div>
+      <button class="btn pri" id="bNew" type="button">New country</button>
+    </div>
+  </section>
+  <section class="panel">
+    <div class="meta"><span id="mL"></span><span id="mR"></span></div>
+    <ul class="clues" id="clues"></ul>
+  </section>
+  <section class="panel" id="gp">
+    <div id="found" class="found" hidden></div>
+    <ul class="rows" id="rows"></ul>
+    <div class="sw">
+      <input class="inp" id="q" placeholder="Search for the country" autocomplete="off" spellcheck="false" enterkeyhint="search" role="combobox" aria-expanded="false" aria-controls="res">
+      <div class="res" id="res" hidden role="listbox"></div>
+    </div>
+    <div class="acts">
+      <button class="btn" id="bSkip" type="button">Skip: next clue</button>
+      <button class="btn" id="bHint" type="button">Hint</button>
+      <button class="btn pri grow" id="bSubmit" type="button">Guess</button>
+    </div>
+    <div class="hints" id="hints"></div>
+  </section>
+  <section class="panel" id="result" hidden></section>
+  <div class="cred">Clues are summaries written for this game.</div>
+</main>
+<dialog id="dHelp"><h3>How to play</h3>
+  <ol><li>You get one clue about a mystery country, starting vague.</li><li>Search the list, pick your guess and press Guess.</li><li>A wrong guess or a skip reveals the next clue. You have 5 chances.</li><li>The fewer clues you need, the more points you earn.</li></ol>
+  <ul><li>If you pick the right continent but the wrong answer, it tells you.</li><li>Hints are optional and cost a few points each.</li><li>Daily gives everyone the same answer, chosen from the date. Free play lets you filter by continent.</li></ul>
+  <div class="acts"><button class="btn pri" type="button" data-close>Got it</button></div></dialog>
+<dialog id="dStats"><h3>Your stats</h3><div id="statBody"></div><div class="acts"><button class="btn pri" type="button" data-close>Close</button></div></dialog>
+<div id="toast" role="status"></div>
+<script>
+(function () {
+'use strict';
+var $ = function (id) { return document.getElementById(id); };
+var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+var CFG = {"key": "atlas", "name": "Atlas", "noun": "country", "closeNoun": "Continent", "filters": ["Africa", "Asia", "Europe", "North America", "South America", "Oceania"]}, DATA = [{"n": "Egypt", "a": [], "g": "Africa", "f": "Africa", "c": ["Home to one of the world's longest rivers.", "Its ancient rulers were called pharaohs.", "The Suez Canal links the Mediterranean to the Red Sea here.", "Giza's pyramids and the Sphinx are here.", "Capital: Cairo."]}, {"n": "Nigeria", "a": [], "g": "Africa", "f": "Africa", "c": ["The most populous country in Africa.", "Its largest city, Lagos, is a major cultural hub.", "A major oil producer on the Gulf of Guinea.", "Gained independence from Britain in 1960.", "Capital: Abuja."]}, {"n": "Kenya", "a": [], "g": "Africa", "f": "Africa", "c": ["A famous safari destination on the equator.", "The Great Rift Valley runs through it.", "Its runners dominate distance racing.", "Mount Kenya is its highest peak.", "Capital: Nairobi."]}, {"n": "South Africa", "a": [], "g": "Africa", "f": "Africa", "c": ["The southernmost country on its continent.", "Has three capital cities.", "Ended apartheid in the 1990s.", "Table Mountain overlooks Cape Town.", "Nelson Mandela was its first Black president."]}, {"n": "Morocco", "a": [], "g": "Africa", "f": "Africa", "c": ["A kingdom in northwest Africa with coasts on two bodies of water.", "The Atlas Mountains run through it.", "Its old walled cities, called medinas, have colorful markets.", "Lies across a narrow strait from Spain.", "Cities include Marrakesh and Casablanca; capital Rabat."]}, {"n": "Ethiopia", "a": [], "g": "Africa", "f": "Africa", "c": ["A landlocked country in the Horn of Africa region.", "Never colonized, apart from a brief occupation.", "Believed to be the birthplace of coffee.", "Uses its own calendar and alphabet.", "Capital: Addis Ababa."]}, {"n": "Madagascar", "a": [], "g": "Africa", "f": "Africa", "c": ["The world's fourth-largest island.", "Lies off Africa's southeast coast.", "Home to lemurs found nowhere else.", "Famous for baobab trees.", "Capital: Antananarivo."]}, {"n": "Ghana", "a": [], "g": "Africa", "f": "Africa", "c": ["The first sub-Saharan African country to gain independence from Britain.", "Independence came in 1957.", "Known for cocoa and gold.", "Lake Volta is one of the largest man-made lakes.", "Capital: Accra."]}, {"n": "Japan", "a": [], "g": "Asia", "f": "Asia", "c": ["An island nation in East Asia.", "Has four main islands and frequent earthquakes.", "Famous for bullet trains.", "Mount Fuji is its tallest mountain.", "Capital: Tokyo."]}, {"n": "India", "a": [], "g": "Asia", "f": "Asia", "c": ["The world's most populous country.", "The Ganges flows through it.", "Cricket is hugely popular here.", "Home of the Taj Mahal.", "Capital: New Delhi."]}, {"n": "China", "a": [], "g": "Asia", "f": "Asia", "c": ["One of the world's oldest continuous civilizations.", "Invented paper and printing.", "The Great Wall stretches across its north.", "Home to giant pandas.", "Capital: Beijing."]}, {"n": "South Korea", "a": [], "g": "Asia", "f": "Asia", "c": ["Occupies the southern half of a peninsula.", "Shares a heavily guarded border with its northern neighbor.", "Known worldwide for K-pop and dramas.", "Samsung and Hyundai are based here.", "Capital: Seoul."]}, {"n": "Thailand", "a": [], "g": "Asia", "f": "Asia", "c": ["Known as the Land of Smiles.", "Never colonized by a European power.", "Famous for temples, beaches and spicy food.", "Formerly named Siam.", "Capital: Bangkok."]}, {"n": "Indonesia", "a": [], "g": "Asia", "f": "Asia", "c": ["The world's largest archipelago nation.", "Has more than 17,000 islands.", "Includes Java, Sumatra and Bali.", "Has many active volcanoes in the Ring of Fire.", "Capital: Jakarta."]}, {"n": "Saudi Arabia", "a": [], "g": "Asia", "f": "Asia", "c": ["Occupies most of its peninsula.", "The cities of Mecca and Medina are here.", "Much of its land is desert.", "One of the world's top oil exporters.", "Capital: Riyadh."]}, {"n": "Vietnam", "a": [], "g": "Asia", "f": "Asia", "c": ["An S-shaped country on the South China Sea.", "Its Mekong Delta is a major rice region.", "Known for pho and banh mi.", "Ha Long Bay's limestone islands are a World Heritage site.", "Capital: Hanoi."]}, {"n": "Nepal", "a": [], "g": "Asia", "f": "Asia", "c": ["A landlocked country between two giants.", "Has eight of the world's ten tallest mountains.", "Its flag is not rectangular.", "Lumbini, the birthplace of the Buddha, is here.", "Capital: Kathmandu; Mount Everest rises on its border."]}, {"n": "Philippines", "a": [], "g": "Asia", "f": "Asia", "c": ["An island nation with more than 7,000 islands.", "Named after a Spanish king.", "Colonized by Spain for over 300 years.", "Frequently hit by typhoons.", "Capital: Manila."]}, {"n": "France", "a": [], "g": "Europe", "f": "Europe", "c": ["Home to a famous iron tower.", "Its revolution began in 1789.", "Known for cuisine, wine and cheese.", "The Louvre holds the Mona Lisa.", "Capital: Paris."]}, {"n": "Italy", "a": [], "g": "Europe", "f": "Europe", "c": ["A boot-shaped peninsula.", "Once the center of the Roman Empire.", "Contains two independent microstates: San Marino and Vatican City.", "Birthplace of pizza and pasta.", "Capital: Rome."]}, {"n": "Germany", "a": [], "g": "Europe", "f": "Europe", "c": ["The largest economy in Europe.", "Was divided into East and West until 1990.", "The Berlin Wall fell here in 1989.", "Famous for car makers, bratwurst and Oktoberfest.", "Capital: Berlin."]}, {"n": "Spain", "a": [], "g": "Europe", "f": "Europe", "c": ["Occupies most of the Iberian Peninsula.", "Home to flamenco and bullfighting traditions.", "Famous for tapas and paella.", "Barcelona's Sagrada Familia is a landmark.", "Capital: Madrid."]}, {"n": "Greece", "a": [], "g": "Europe", "f": "Europe", "c": ["Birthplace of democracy and the Olympics.", "Has thousands of islands.", "Its capital features the Parthenon.", "Home to Mount Olympus.", "Capital: Athens."]}, {"n": "United Kingdom", "a": ["UK", "Britain", "Great Britain"], "g": "Europe", "f": "Europe", "c": ["Made up of four nations.", "Famous for a royal family and Big Ben.", "The Industrial Revolution began here.", "Includes England, Scotland, Wales and Northern Ireland.", "Capital: London."]}, {"n": "Norway", "a": [], "g": "Europe", "f": "Europe", "c": ["A Scandinavian country with deep coastal inlets.", "Known for fjords.", "The midnight sun and northern lights draw visitors.", "The Nobel Peace Prize is awarded in its capital.", "Capital: Oslo."]}, {"n": "Poland", "a": [], "g": "Europe", "f": "Europe", "c": ["A large country in Central Europe.", "Borders Germany to the west.", "Its capital was rebuilt after World War II.", "Birthplace of Marie Curie and Copernicus.", "Capital: Warsaw."]}, {"n": "Portugal", "a": [], "g": "Europe", "f": "Europe", "c": ["The westernmost country on mainland Europe.", "Shares the Iberian Peninsula.", "Explorers like Vasco da Gama set sail from here.", "Famous for port wine and custard tarts.", "Capital: Lisbon."]}, {"n": "Switzerland", "a": [], "g": "Europe", "f": "Europe", "c": ["A landlocked country in the Alps.", "Famous for neutrality.", "Known for chocolate, watches and banking.", "Has four official languages.", "Capital: Bern."]}, {"n": "United States", "a": ["USA", "US", "America", "United States of America"], "g": "North America", "f": "North America", "c": ["Composed of 50 states.", "Declared independence in 1776.", "Has the largest economy in the world.", "Home to the Statue of Liberty.", "Capital: Washington, D.C."]}, {"n": "Canada", "a": [], "g": "North America", "f": "North America", "c": ["The second-largest country by area.", "Shares the world's longest land border with its southern neighbor.", "Known for maple syrup and ice hockey.", "Has two official languages.", "Capital: Ottawa."]}, {"n": "Mexico", "a": [], "g": "North America", "f": "North America", "c": ["Southern neighbor of the United States.", "Home to ancient Aztec and Maya civilizations.", "Its largest city was built on a former lake.", "Chichen Itza is a famous ruin.", "Capital: Mexico City."]}, {"n": "Cuba", "a": [], "g": "North America", "f": "North America", "c": ["The largest island in the Caribbean.", "A Communist state since 1959.", "Famous for cigars and classic cars.", "Its capital is Havana.", "Lies about 90 miles south of Florida."]}, {"n": "Panama", "a": [], "g": "North America", "f": "North America", "c": ["A narrow land bridge between two continents.", "A famous waterway cuts through it.", "Uses the US dollar alongside its own balboa.", "The canal links the Atlantic and Pacific.", "Capital: Panama City."]}, {"n": "Brazil", "a": [], "g": "South America", "f": "South America", "c": ["The largest country in South America.", "Portuguese is its official language.", "Home to most of the Amazon rainforest.", "Hosts Carnival in Rio.", "Capital: Brasilia."]}, {"n": "Argentina", "a": [], "g": "South America", "f": "South America", "c": ["Borders the Andes in the west.", "Famous for tango and beef.", "Home to Patagonia and Iguazu Falls.", "Lionel Messi's home country.", "Capital: Buenos Aires."]}, {"n": "Peru", "a": [], "g": "South America", "f": "South America", "c": ["Was the heart of the Inca Empire.", "Home to Machu Picchu.", "Lake Titicaca lies on its border.", "Potatoes were first domesticated nearby.", "Capital: Lima."]}, {"n": "Chile", "a": [], "g": "South America", "f": "South America", "c": ["A very long, narrow country.", "Stretches along the Pacific side of the Andes.", "Contains the Atacama, one of the driest deserts.", "Easter Island belongs to it.", "Capital: Santiago."]}, {"n": "Colombia", "a": [], "g": "South America", "f": "South America", "c": ["Has coastlines on both the Caribbean and the Pacific.", "Famous for coffee.", "Named after an explorer.", "Cartagena's old walled city is a World Heritage site.", "Capital: Bogota."]}, {"n": "Australia", "a": [], "g": "Oceania", "f": "Oceania", "c": ["Both a country and a continent.", "Home to kangaroos and koalas.", "The Great Barrier Reef lies off its coast.", "Uluru is a sacred rock in its center.", "Capital: Canberra."]}, {"n": "New Zealand", "a": [], "g": "Oceania", "f": "Oceania", "c": ["An island nation in the southwest Pacific.", "Has two main islands.", "The Maori are its indigenous people.", "Many fantasy films were shot here.", "Capital: Wellington."]}], LS = CFG.key + '-v1', PTS = [100, 70, 45, 25, 10], HINT_COST = 8, HINT_NAMES = [CFG.closeNoun, 'Letters', 'Starts with'];
+function norm(s) { var x = String(s || '').toLowerCase(); if (x.normalize) x = x.normalize('NFD').replace(/[̀-ͯ]/g, ''); x = x.replace(/&/g, ' and ').replace(/^(the|a|an)\s+/, ''); return x.replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim(); }
+DATA.forEach(function (d, i) { d.i = i; d.keys = [d.n].concat(d.a || []).map(norm); });
+var store = (function () { var o = {}; try { o = JSON.parse(localStorage.getItem(LS) || '{}'); } catch (e) {} o.d = o.d || { played: 0, won: 0, streak: 0, best: 0, last: '' }; o.f = o.f || { played: 0, won: 0, pts: 0 }; o.filter = o.filter || 'All'; return o; })();
+function save() { try { localStorage.setItem(LS, JSON.stringify(store)); } catch (e) {} }
+function toast(m) { var t = $('toast'); t.textContent = m; t.classList.add('show'); clearTimeout(toast._t); toast._t = setTimeout(function () { t.classList.remove('show'); }, 2600); }
+function dayKey(d) { return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York' }).format(d || new Date()); }
+function hash(s) { var h = 2166136261; for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+function rng32(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; var t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
+var tab = 'daily', games = {};
+function cur() { return games[tab]; }
+function newGame(mode, item) { return { mode: mode, item: item, stage: 0, hist: [], hints: 0, done: false, won: false, closeFound: false, score: 0 }; }
+function dailyItem() { var r = rng32(hash(CFG.key + '-' + dayKey())); return DATA[Math.floor(r() * DATA.length)]; }
+function freeItem(prev) { var pool = DATA.filter(function (d) { return store.filter === 'All' || d.f === store.filter; }); if (pool.length > 1 && prev != null) pool = pool.filter(function (d) { return d.i !== prev; }); return pool[Math.floor(Math.random() * pool.length)]; }
+function startFree() { var prev = games.free && games.free.item.i; games.free = newGame('free', freeItem(prev)); }
+function initDaily() {
+  var it = dailyItem(), d = store.daily, g = games.daily = newGame('daily', it);
+  if (d && d.date === dayKey() && d.i === it.i) { (d.hist || []).forEach(function (x) { apply(g, x, true); }); g.hints = d.hints || 0; if (g.done) g.score = g.won ? score(g, g.hist.length - 1) : 0; }
+}
+function saveDaily(g) { store.daily = { date: dayKey(), i: g.item.i, hist: g.hist, hints: g.hints }; save(); }
+function score(g, idx) { return Math.max(5, PTS[idx] - g.hints * HINT_COST); }
+
+function apply(g, gu, replay) {
+  if (g.done) return;
+  var n = g.hist.length;
+  if (gu.k === 's') { g.hist.push({ k: 's' }); g.stage++; }
+  else {
+    var d = DATA[gu.i], ok = d.i === g.item.i, close = !ok && d.g === g.item.g;
+    g.hist.push({ k: 'g', i: gu.i, ok: ok, close: close }); if (close) g.closeFound = true;
+    if (ok) { g.closeFound = true; return finish(g, true, n, replay); } g.stage++;
+  }
+  if (g.stage >= 5) return finish(g, false, n, replay);
+  if (!replay) { if (g.mode === 'daily') saveDaily(g); if (g === cur()) { render(); if (g.hist[n].close) toast('Right ' + CFG.closeNoun.toLowerCase() + ', wrong answer.'); } }
+}
+function finish(g, won, idx, replay) {
+  g.done = true; g.won = won; g.score = won ? score(g, idx) : 0;
+  if (!replay) {
+    if (g.mode === 'daily') { var s = store.d, today = dayKey(), y = dayKey(new Date(Date.now() - 864e5)); s.played++; if (won) { s.won++; s.streak = (s.last === y || s.last === today) ? s.streak + 1 : 1; if (s.streak > s.best) s.best = s.streak; } else s.streak = 0; s.last = today; saveDaily(g); }
+    else { store.f.played++; if (won) { store.f.won++; store.f.pts += g.score; } }
+    save();
+  }
+  if (g === cur()) { render(); if (!replay) setTimeout(function () { $('result').scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 80); }
+}
+function shareText(g) { var sq = g.hist.map(function (h) { return h.k === 's' ? '-' : h.ok ? 'O' : h.close ? 'A' : 'X'; }); while (sq.length < 5) sq.push('.'); var n = g.hist.length; return CFG.name + ' ' + dayKey() + '\n[' + sq.slice(0, 5).join(' ') + ']\n' + (g.won ? n + '/5, ' + g.score + ' pts' : 'X/5'); }
+function hintBody(g, k) {
+  var n = g.item.n;
+  if (k === 0) return esc(g.item.g);
+  if (k === 1) return '<code>' + n.split(' ').map(function (w) { return new Array(w.replace(/[^A-Za-z0-9]/g, '').length + 1).join('_'); }).join('&nbsp;&nbsp;') + '</code>';
+  return esc(n.charAt(0).toUpperCase());
+}
+
+/* search */
+var sT = 0, sList = [], sSel = -1, sQ = '';
+function rank(q, d) { var s = 0; d.keys.forEach(function (k, j) { var v = 0; if (k === q) v = 100; else if (k.indexOf(q) === 0) v = 80; else if (k.split(' ').some(function (w) { return w.indexOf(q) === 0; })) v = 60; else if (k.indexOf(q) >= 0) v = 40; if (j === 0) v += 2; if (v > s) s = v; }); return s; }
+function search(q) {
+  var nq = norm(q); if (nq.length < 1) return [];
+  return DATA.map(function (d) { return { d: d, s: rank(nq, d) }; }).filter(function (x) { return x.s > 0; }).sort(function (a, b) { return b.s - a.s || a.d.n.localeCompare(b.d.n); }).slice(0, 8).map(function (x) { return x.d; });
+}
+function hl(text, q) { var t = String(text), i = t.toLowerCase().indexOf(String(q).trim().toLowerCase()); if (!q.trim() || i < 0) return esc(t); return esc(t.slice(0, i)) + '<mark>' + esc(t.slice(i, i + q.trim().length)) + '</mark>' + esc(t.slice(i + q.trim().length)); }
+function hideRes() { $('res').hidden = true; $('q').setAttribute('aria-expanded', 'false'); sSel = -1; }
+function showRes() {
+  var b = $('res'); if (!sList.length) { b.innerHTML = '<div class="msg">No match. Check the spelling or try fewer letters.</div>'; }
+  else b.innerHTML = sList.map(function (d, i) { return '<button type="button" role="option" data-i="' + i + '" class="' + (i === sSel ? 'on' : '') + '"><span><b>' + hl(d.n, sQ) + '</b><small>' + esc(d.g) + '</small></span></button>'; }).join('');
+  b.hidden = false; $('q').setAttribute('aria-expanded', 'true');
+}
+$('q').addEventListener('input', function () { sQ = this.value; sSel = -1; if (!sQ.trim()) { hideRes(); return; } clearTimeout(sT); sT = setTimeout(function () { sList = search(sQ); showRes(); }, 60); });
+$('q').addEventListener('keydown', function (e) {
+  if (e.key === 'Enter') { e.preventDefault(); submit(); return; }
+  if ($('res').hidden || !sList.length) return;
+  if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); sSel = (sSel + (e.key === 'ArrowDown' ? 1 : -1) + sList.length) % sList.length; showRes(); var on = $('res').querySelector('.on'); if (on) on.scrollIntoView({ block: 'nearest' }); }
+  else if (e.key === 'Escape') hideRes();
+});
+$('res').addEventListener('mousedown', function (e) { e.preventDefault(); });
+$('res').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; sSel = +b.dataset.i; submit(); });
+document.addEventListener('click', function (e) { if (!e.target.closest('.sw')) hideRes(); });
+function submit() {
+  var g = cur(); if (!g || g.done) return;
+  var text = $('q').value.trim(), sel = sSel >= 0 ? sList[sSel] : null;
+  if (!sel && !text) { toast('Search for an answer and pick it first.'); return; }
+  if (!sel) { var nt = norm(text); sel = DATA.filter(function (d) { return d.keys.indexOf(nt) >= 0; })[0] || null; }
+  if (!sel) { var l = search(text); if (l.length === 1) sel = l[0]; }
+  if (!sel) { // naming the group (era, author...) is free
+    var ng = norm(text); if (ng.length > 2 && norm(g.item.g).indexOf(ng) >= 0) { g.closeFound = true; $('q').value = ''; hideRes(); render(); toast('Yes, that is the right ' + CFG.closeNoun.toLowerCase() + '.'); return; }
+    toast('Pick one of the suggestions to guess.'); return;
+  }
+  if (g.hist.some(function (h) { return h.k === 'g' && h.i === sel.i; })) { toast('You already guessed that.'); return; }
+  $('q').value = ''; sList = []; hideRes(); apply(g, { k: 'g', i: sel.i });
+}
+$('bSubmit').onclick = submit;
+$('bSkip').onclick = function () { var g = cur(); if (g && !g.done) apply(g, { k: 's' }); };
+$('bHint').onclick = function () { var g = cur(); if (!g || g.done || g.hints >= 3) return; g.hints++; if (g.mode === 'daily') saveDaily(g); render(); };
+
+function render() {
+  var g = cur(), live = !!(g && !g.done);
+  document.querySelectorAll('#tabs button').forEach(function (b) { b.classList.toggle('on', b.dataset.m === tab); });
+  $('settings').hidden = tab !== 'free';
+  var shown = g ? (g.done ? 5 : Math.min(g.stage, 4) + 1) : 1, h = '';
+  for (var i = 0; i < 5; i++) h += i < shown ? '<li class="clue' + (i === shown - 1 && live && i > 0 ? ' new' : '') + '"><span class="n">' + (i + 1) + '</span><span>' + esc(g.item.c[i]) + '</span></li>' : '<li class="clue lock"><span class="n">' + (i + 1) + '</span><span class="t">LOCKED</span></li>';
+  $('clues').innerHTML = h;
+  $('mL').innerHTML = g && g.done ? (g.won ? 'Solved' : 'Round over') : 'Clue <b>' + shown + '</b> of 5';
+  $('mR').innerHTML = g && g.mode === 'daily' ? esc(dayKey()) : '';
+  var r = '';
+  for (var j = 0; j < 5; j++) {
+    var x = g && g.hist[j];
+    if (x) { var tag = x.k === 's' ? '<span class="tag skip">Skipped</span>' : x.ok ? '<span class="tag ok">Correct</span>' : x.close ? '<span class="tag art">Right ' + esc(CFG.closeNoun.toLowerCase()) + '</span>' : '<span class="tag bad">Wrong</span>'; r += '<li><span class="n">' + (j + 1) + '</span><span class="t">' + (x.k === 's' ? 'Skipped' : esc(DATA[x.i].n)) + '</span>' + tag + '</li>'; }
+    else r += '<li class="' + (live && j === g.hist.length ? 'cur' : 'empty') + '"><span class="n">' + (j + 1) + '</span><span class="t"><small>' + (live && j === g.hist.length ? 'Your guess' : '') + '</small></span></li>';
+  }
+  $('rows').innerHTML = r;
+  var f = $('found'); f.hidden = !(g && g.closeFound && !g.done); if (!f.hidden) f.innerHTML = 'Right ' + esc(CFG.closeNoun.toLowerCase()) + ': <b>' + esc(g.item.g) + '</b>. Now find the exact answer.';
+  var hh = ''; if (g) for (var k = 0; k < g.hints; k++) hh += '<div class="hint"><em>' + esc(HINT_NAMES[k]) + '</em><span>' + hintBody(g, k) + '</span></div>'; $('hints').innerHTML = hh;
+  $('bHint').innerHTML = g && g.hints >= 3 ? 'No more hints' : 'Hint <small style="opacity:.6">(-' + HINT_COST + ')</small>';
+  $('bHint').disabled = !live || g.hints >= 3; $('bSkip').disabled = !live; $('bSubmit').disabled = !live; $('q').disabled = !live;
+  $('q').placeholder = live ? 'Search for the ' + CFG.noun : 'Round over';
+  var res = $('result');
+  if (g && g.done) {
+    res.hidden = false;
+    res.innerHTML = '<div class="verdict ' + (g.won ? 'w' : 'l') + '">' + (g.won ? 'Solved in ' + g.hist.length + (g.hist.length === 1 ? ' try, ' : ' tries, ') + g.score + ' points' : 'Out of chances') + '</div><div class="ans"><h2>' + esc(g.item.n) + '</h2><p>' + esc(g.item.g) + (g.item.f && g.item.f !== g.item.g ? ' · ' + esc(g.item.f) : '') + '</p></div><div class="acts">' + (g.mode === 'daily' ? '<button class="btn sm pri" data-act="share" type="button">Share result</button>' : '<button class="btn sm pri" data-act="next" type="button">Next ' + CFG.noun + '</button>') + '</div>' + (g.mode === 'daily' ? '<div class="note" style="margin-top:12px">A new daily ' + CFG.noun + ' arrives at midnight Eastern. Try Free play for more rounds.</div>' : '');
+  } else res.hidden = true;
+}
+$('result').addEventListener('click', function (e) {
+  var b = e.target.closest('[data-act]'); if (!b) return; var g = cur();
+  if (b.dataset.act === 'next') { startFree(); render(); }
+  else { var t = shareText(g); if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(function () { toast('Result copied.'); }, function () { toast(t); }); else toast(t); }
+});
+$('tabs').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b || b.dataset.m === tab) return; hideRes(); $('q').value = ''; tab = b.dataset.m; if (tab === 'free' && !games.free) startFree(); render(); });
+(function () {
+  var s = $('sF'); s.innerHTML = '<option>All</option>' + CFG.filters.map(function (f) { return '<option>' + esc(f) + '</option>'; }).join(''); s.value = store.filter;
+  s.onchange = function () { store.filter = s.value; save(); startFree(); render(); };
+  $('bNew').onclick = function () { startFree(); render(); };
+})();
+function openDlg(d) { if (d.showModal) d.showModal(); else d.setAttribute('open', ''); }
+$('bHelp').onclick = function () { openDlg($('dHelp')); };
+$('bStats').onclick = function () {
+  var d = store.d, f = store.f;
+  var box = function (a) { return '<div class="stats">' + a.map(function (x) { return '<div class="st"><b>' + x[1] + '</b><span>' + x[0] + '</span></div>'; }).join('') + '</div>'; };
+  $('statBody').innerHTML = '<span class="lbl">Daily</span>' + box([['Played', d.played], ['Win %', d.played ? Math.round(d.won / d.played * 100) : 0], ['Streak', d.streak], ['Best', d.best]]) + '<span class="lbl" style="margin-top:14px">Free play</span>' + box([['Played', f.played], ['Solved', f.won], ['Points', f.pts], ['Win %', f.played ? Math.round(f.won / f.played * 100) : 0]]);
+  openDlg($('dStats'));
+};
+document.querySelectorAll('[data-close]').forEach(function (b) { b.onclick = function () { b.closest('dialog').close(); }; });
+document.querySelectorAll('dialog').forEach(function (d) { d.addEventListener('click', function (e) { if (e.target === d) d.close(); }); });
+try { if (!store.seen) { store.seen = 1; save(); setTimeout(function () { openDlg($('dHelp')); }, 400); } } catch (e) {}
+initDaily(); render();
+})();
+</script>
+</body>
+</html>
