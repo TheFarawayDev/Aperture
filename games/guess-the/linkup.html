@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#060b08">
+<title>Linkup — Group the Words</title>
+<meta name="description" content="Sort sixteen words into four hidden groups. Unlimited puzzles.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2032%2032%27%3E%3Crect%20width%3D%2732%27%20height%3D%2732%27%20rx%3D%279%27%20fill%3D%27%230a1a12%27/%3E%3Cg%20fill%3D%27%235ad1e6%27%3E%3Crect%20x%3D%225%22%20y%3D%225%22%20width%3D%2210%22%20height%3D%2210%22%20rx%3D%222.5%22%20fill%3D%22%23e8c547%22/%3E%3Crect%20x%3D%2217%22%20y%3D%225%22%20width%3D%2210%22%20height%3D%2210%22%20rx%3D%222.5%22%20fill%3D%22%2345e08f%22/%3E%3Crect%20x%3D%225%22%20y%3D%2217%22%20width%3D%2210%22%20height%3D%2210%22%20rx%3D%222.5%22%20fill%3D%22%237fb2ff%22/%3E%3Crect%20x%3D%2217%22%20y%3D%2217%22%20width%3D%2210%22%20height%3D%2210%22%20rx%3D%222.5%22%20fill%3D%22%23c79bff%22/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#060b08;--panel:#0c140f;--panel2:#111c15;--line:rgba(255,255,255,.08);--line2:rgba(255,255,255,.16);--text:#e9f2ec;--t2:#a9b9af;--t3:#6f8176;--g:#5ad1e6;--g2:#9ae6f2;--amber:#f0b94a;--red:#f0657a;--ease:cubic-bezier(.22,1,.36,1)}
+*{box-sizing:border-box}
+html{background:var(--bg);color-scheme:dark}
+body{margin:0;min-height:100vh;font-family:Inter,system-ui,-apple-system,'Segoe UI',sans-serif;color:var(--text);line-height:1.45;-webkit-font-smoothing:antialiased;background:radial-gradient(900px 420px at 50% -8%,color-mix(in srgb,var(--g) 11%,transparent),transparent 65%),var(--bg)}
+button,input,select{font:inherit;color:inherit}[hidden]{display:none!important}
+:focus-visible{outline:2px solid var(--g);outline-offset:2px}svg{display:block}
+.top{display:flex;align-items:center;gap:10px;max-width:680px;margin:0 auto;padding:14px 14px 6px}
+.logo{display:flex;align-items:center;gap:10px;flex:1;min-width:0;text-decoration:none;color:var(--text)}
+.logo b{font-size:21px;font-weight:800;letter-spacing:-.03em}.logo b i{font-style:normal;color:var(--g)}
+.ib{width:38px;height:38px;border-radius:11px;border:1px solid var(--line);background:var(--panel);display:grid;place-items:center;color:var(--t2);cursor:pointer;transition:background .2s,color .2s}.ib:hover{background:var(--panel2);color:#fff}
+main{max-width:680px;margin:0 auto;padding:6px 14px 40px;display:flex;flex-direction:column;gap:12px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px}
+.lbl{font-size:11.5px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px;display:block}
+.inp{width:100%;height:44px;padding:0 13px;border-radius:12px;border:1px solid var(--line2);background:#070d09;outline:none;cursor:pointer;color-scheme:dark}
+.inp:focus{border-color:color-mix(in srgb,var(--g) 60%,transparent);box-shadow:0 0 0 3px color-mix(in srgb,var(--g) 14%,transparent)}select option{background:#0c140f}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 18px;border-radius:12px;border:1px solid var(--line2);background:transparent;color:var(--text);font-weight:600;font-size:14px;cursor:pointer;white-space:nowrap;transition:transform .2s var(--ease),background .2s}
+.btn:hover{background:var(--panel2)}.btn:active:not(:disabled){transform:scale(.96)}.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.pri{background:var(--g);border-color:transparent;color:#04140b}.btn.pri:hover{background:var(--g2)}.btn.sm{height:36px;padding:0 13px;font-size:13px;border-radius:10px}
+.note{font-size:12.5px;color:var(--t3)}
+dialog{border:1px solid var(--line2);border-radius:20px;background:var(--panel);color:var(--text);padding:22px;max-width:min(480px,92vw);width:100%}
+dialog::backdrop{background:rgba(0,0,0,.65)}dialog h3{margin:0 0 10px;font-size:18px}dialog ol,dialog ul{padding-left:20px;margin:8px 0;color:var(--t2);font-size:14px}dialog li{margin:5px 0}
+.acts{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}.acts .grow{flex:1}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:6px 0 4px}
+.st{text-align:center;padding:10px 4px;border-radius:12px;background:#09100c;border:1px solid var(--line)}.st b{display:block;font-size:20px}.st span{font-size:10.5px;color:var(--t3);text-transform:uppercase;letter-spacing:.07em}
+#toast{position:fixed;left:50%;top:70px;transform:translate(-50%,-10px);opacity:0;pointer-events:none;background:#e9f2ec;color:#07100a;font-weight:700;padding:10px 16px;border-radius:12px;font-size:13.5px;transition:.2s;z-index:90;max-width:92vw}#toast.show{opacity:1;transform:translate(-50%,0)}
+.sw{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}.sw small{display:block;color:var(--t3);font-size:12.5px}
+.sw input{appearance:none;-webkit-appearance:none;flex:none;width:44px;height:26px;border-radius:99px;background:#1c2a21;border:1px solid var(--line2);position:relative;cursor:pointer;transition:background .2s}
+.sw input::after{content:'';position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:#cfdcd3;transition:transform .2s var(--ease)}
+.sw input:checked{background:var(--g)}.sw input:checked::after{transform:translateX(18px);background:#04140b}.sw input:disabled{opacity:.4;cursor:not-allowed}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+body{--t1:#e8c547;--t2c:#45e08f;--t3c:#7fb2ff;--t4:#c79bff}
+main{max-width:600px}
+.hint{text-align:center;color:var(--t2);font-size:14px;margin:2px 0 0}
+.done{display:flex;flex-direction:column;gap:8px}
+.grp{padding:12px 10px;border-radius:12px;text-align:center;color:#07100a;animation:in .45s var(--ease) both}
+.grp b{display:block;font-size:13px;text-transform:uppercase;letter-spacing:.07em}.grp span{font-size:14px;font-weight:500}
+.grp.k1{background:var(--t1)}.grp.k2{background:var(--t2c)}.grp.k3{background:var(--t3c)}.grp.k4{background:var(--t4)}
+@keyframes in{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:none}}
+.board{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.w{min-height:68px;padding:6px;border:0;border-radius:12px;background:#152219;color:var(--text);font-weight:700;font-size:clamp(11.5px,3.2vw,15px);text-transform:uppercase;letter-spacing:.02em;cursor:pointer;display:grid;place-items:center;text-align:center;word-break:break-word;transition:transform .15s var(--ease),background .15s}
+.w:hover{background:#1c2e22}.w:active{transform:scale(.96)}
+.w.on{background:#e9f2ec;color:#07100a;transform:scale(1.03)}
+.w.shake{animation:shake .45s}
+@keyframes shake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+.w.gone{animation:out .3s var(--ease) both}@keyframes out{to{opacity:0;transform:scale(.8)}}
+.mist{display:flex;align-items:center;justify-content:center;gap:8px;font-size:13px;color:var(--t2)}
+.mist i{width:12px;height:12px;border-radius:50%;background:var(--g);display:block;transition:background .3s,transform .3s}.mist i.off{background:#1f2c24;transform:scale(.7)}
+.bar{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.end h2{margin:0 0 4px;font-size:22px}.end p{margin:0 0 10px;color:var(--t2);font-size:14px}
+.verdict{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;margin-bottom:6px}.verdict.w1{color:var(--g)}.verdict.l{color:var(--red)}
+</style>
+</head>
+<body>
+<header class="top">
+  <a class="logo" href="#" aria-label="Linkup"><svg width="34" height="34" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#0a1a12"/><g fill="#5ad1e6"><rect x="5" y="5" width="10" height="10" rx="2.5" fill="#e8c547"/><rect x="17" y="5" width="10" height="10" rx="2.5" fill="#45e08f"/><rect x="5" y="17" width="10" height="10" rx="2.5" fill="#7fb2ff"/><rect x="17" y="17" width="10" height="10" rx="2.5" fill="#c79bff"/></g></svg><b>link<i>up</i></b></a>
+  <button class="ib" id="bStats" type="button" aria-label="Stats"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 20V10M12 20V4M19 20v-7"/></svg></button>
+  <button class="ib" id="bHelp" type="button" aria-label="How to play"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7M12 17h.01"/></svg></button>
+</header>
+<main>
+  <p class="hint">Find four groups of four related words.</p>
+  <div class="done" id="done"></div>
+  <div class="board" id="board" role="group" aria-label="Words"></div>
+  <div class="mist"><span>Mistakes left</span><span id="dots" style="display:flex;gap:6px"></span></div>
+  <div class="bar" id="bar">
+    <button class="btn" id="bShuf" type="button">Shuffle</button>
+    <button class="btn" id="bClear" type="button">Deselect</button>
+    <button class="btn pri" id="bGo" type="button" disabled>Submit</button>
+  </div>
+  <section class="panel end" id="end" hidden></section>
+</main>
+<div id="toast" role="status"></div>
+<dialog id="dHelp"><h3>How to play</h3>
+  <ol><li>Pick four words you think belong together, then press Submit.</li><li>Right: the group is revealed with its name. Wrong: you lose one of four mistakes.</li><li>If three of your four are right, it says you are one away.</li></ol>
+  <ul><li><b style="color:var(--t1)">Gold</b> groups are the easiest, then <b style="color:var(--t2c)">green</b>, <b style="color:var(--t3c)">blue</b> and <b style="color:var(--t4)">violet</b>.</li><li>Violet groups are word play, like words that can follow the same word.</li><li>There is no daily limit. A new puzzle is built each time.</li></ul>
+  <div class="acts"><button class="btn pri" type="button" data-close>Got it</button></div></dialog>
+<dialog id="dStats"><h3>Your stats</h3><div id="statBody"></div><div class="acts"><button class="btn pri" type="button" data-close>Close</button></div></dialog>
+<script>
+(function () {
+'use strict';
+var $ = function (id) { return document.getElementById(id); };
+var esc = function (s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+var CATS = [{"n": "Planets", "t": 1, "w": ["Mars", "Venus", "Saturn", "Jupiter", "Neptune", "Uranus"]}, {"n": "Fruits", "t": 1, "w": ["Mango", "Papaya", "Guava", "Kiwi", "Plum", "Lychee"]}, {"n": "Musical instruments", "t": 1, "w": ["Violin", "Trumpet", "Piano", "Flute", "Cello", "Oboe"]}, {"n": "Pasta shapes", "t": 1, "w": ["Penne", "Fusilli", "Linguine", "Rigatoni", "Spaghetti", "Farfalle"]}, {"n": "Shades of blue", "t": 1, "w": ["Navy", "Teal", "Cyan", "Azure", "Cobalt", "Indigo"]}, {"n": "Continents", "t": 1, "w": ["Africa", "Asia", "Europe", "Antarctica", "Oceania", "Australia"]}, {"n": "Days of the week", "t": 1, "w": ["Monday", "Tuesday", "Friday", "Sunday", "Wednesday", "Thursday"]}, {"n": "Months", "t": 1, "w": ["January", "March", "June", "August", "October", "December"]}, {"n": "Currencies", "t": 1, "w": ["Dollar", "Euro", "Yen", "Peso", "Rupee", "Pound"]}, {"n": "Languages", "t": 1, "w": ["Spanish", "French", "German", "Italian", "Mandarin", "Arabic"]}, {"n": "Car body types", "t": 1, "w": ["Sedan", "Truck", "Van", "Coupe", "Wagon", "Jeep"]}, {"n": "Weather", "t": 1, "w": ["Hail", "Sleet", "Drizzle", "Blizzard", "Fog", "Gale"]}, {"n": "Shapes", "t": 1, "w": ["Square", "Circle", "Oval", "Hexagon", "Pentagon", "Octagon"]}, {"n": "Poetic forms", "t": 2, "w": ["Sonnet", "Haiku", "Limerick", "Ode", "Elegy", "Ballad"]}, {"n": "Punctuation", "t": 2, "w": ["Comma", "Colon", "Hyphen", "Dash", "Period", "Apostrophe"]}, {"n": "Parts of speech", "t": 2, "w": ["Noun", "Verb", "Adverb", "Pronoun", "Adjective", "Preposition"]}, {"n": "Figures of speech", "t": 2, "w": ["Simile", "Metaphor", "Hyperbole", "Irony", "Idiom", "Pun"]}, {"n": "Math operations and results", "t": 2, "w": ["Sum", "Product", "Quotient", "Difference", "Remainder", "Exponent"]}, {"n": "Greek letters", "t": 2, "w": ["Alpha", "Beta", "Gamma", "Delta", "Sigma", "Omega"]}, {"n": "Layers of the atmosphere", "t": 2, "w": ["Troposphere", "Stratosphere", "Mesosphere", "Thermosphere", "Exosphere", "Ionosphere"]}, {"n": "Cloud types", "t": 2, "w": ["Cumulus", "Stratus", "Cirrus", "Nimbus", "Cumulonimbus", "Altostratus"]}, {"n": "Parts of a cell", "t": 2, "w": ["Nucleus", "Ribosome", "Mitochondria", "Vacuole", "Membrane", "Cytoplasm"]}, {"n": "Body systems", "t": 2, "w": ["Digestive", "Nervous", "Circulatory", "Respiratory", "Skeletal", "Muscular"]}, {"n": "Bones", "t": 2, "w": ["Femur", "Tibia", "Humerus", "Radius", "Skull", "Sternum"]}, {"n": "Rivers", "t": 2, "w": ["Nile", "Amazon", "Danube", "Thames", "Ganges", "Mississippi"]}, {"n": "Mountain ranges", "t": 2, "w": ["Alps", "Andes", "Himalayas", "Rockies", "Appalachians", "Urals"]}, {"n": "Capital cities", "t": 2, "w": ["Paris", "London", "Tokyo", "Cairo", "Lima", "Oslo"]}, {"n": "U.S. states", "t": 2, "w": ["Texas", "Ohio", "Utah", "Idaho", "Maine", "Iowa"]}, {"n": "Programming languages", "t": 2, "w": ["Python", "Java", "Ruby", "Swift", "Rust", "Kotlin"]}, {"n": "Computer parts", "t": 2, "w": ["Browser", "Cursor", "Keyboard", "Monitor", "Router", "Server"]}, {"n": "Spices", "t": 2, "w": ["Cumin", "Paprika", "Turmeric", "Nutmeg", "Cinnamon", "Saffron"]}, {"n": "Cheeses", "t": 2, "w": ["Cheddar", "Brie", "Gouda", "Feta", "Mozzarella", "Parmesan"]}, {"n": "Shakespeare plays", "t": 3, "w": ["Hamlet", "Macbeth", "Othello", "Tempest", "Cymbeline", "Pericles"]}, {"n": "Famous authors", "t": 3, "w": ["Austen", "Dickens", "Twain", "Orwell", "Hemingway", "Steinbeck"]}, {"n": "Famous scientists", "t": 3, "w": ["Newton", "Darwin", "Curie", "Einstein", "Galileo", "Tesla"]}, {"n": "Greek gods", "t": 3, "w": ["Zeus", "Hera", "Apollo", "Athena", "Ares", "Hermes"]}, {"n": "Norse gods", "t": 3, "w": ["Odin", "Thor", "Loki", "Freya", "Baldur", "Tyr"]}, {"n": "Rocks and minerals", "t": 3, "w": ["Granite", "Basalt", "Marble", "Quartz", "Obsidian", "Limestone"]}, {"n": "Ancient peoples", "t": 3, "w": ["Roman", "Greek", "Mayan", "Aztec", "Inca", "Sumerian"]}, {"n": "Chess terms", "t": 3, "w": ["Rook", "Bishop", "Pawn", "Knight", "Checkmate", "Gambit"]}, {"n": "Baseball words", "t": 3, "w": ["Inning", "Bunt", "Pitcher", "Catcher", "Dugout", "Bullpen"]}, {"n": "Tennis words", "t": 3, "w": ["Deuce", "Smash", "Serve", "Ace", "Love", "Rally"]}, {"n": "Music terms", "t": 3, "w": ["Forte", "Allegro", "Tempo", "Crescendo", "Staccato", "Legato"]}, {"n": "Types of angles", "t": 3, "w": ["Acute", "Obtuse", "Reflex", "Supplementary", "Complementary", "Vertical"]}, {"n": "Elements", "t": 3, "w": ["Iron", "Carbon", "Helium", "Sodium", "Neon", "Copper"]}, {"n": "Board games", "t": 3, "w": ["Monopoly", "Scrabble", "Risk", "Sorry", "Trouble", "Battleship"]}, {"n": "Oceans and seas", "t": 3, "w": ["Pacific", "Atlantic", "Arctic", "Indian", "Baltic", "Caribbean"]}, {"n": "U.S. presidents", "t": 3, "w": ["Lincoln", "Jefferson", "Madison", "Monroe", "Truman", "Kennedy"]}, {"n": "___ball", "t": 4, "w": ["Basket", "Foot", "Base", "Soft", "Volley", "Snow"]}, {"n": "___fish", "t": 4, "w": ["Cat", "Sword", "Star", "Jelly", "Cuttle", "Angel"]}, {"n": "___house", "t": 4, "w": ["Green", "Light", "Ware", "Tree", "Doll", "Farm"]}, {"n": "Sun___", "t": 4, "w": ["Flower", "Glasses", "Rise", "Burn", "Screen", "Dial"]}, {"n": "Rain___", "t": 4, "w": ["Bow", "Coat", "Drop", "Fall", "Forest", "Storm"]}, {"n": "Fire___", "t": 4, "w": ["Fly", "Place", "Work", "Fighter", "Alarm", "Wood"]}, {"n": "Book___", "t": 4, "w": ["Mark", "Shelf", "Worm", "Case", "Store", "Keeper"]}, {"n": "Back___", "t": 4, "w": ["Pack", "Bone", "Yard", "Ground", "Stage", "Pedal"]}], LS = 'linkup-v1';
+var store = (function () { var o = {}; try { o = JSON.parse(localStorage.getItem(LS) || '{}'); } catch (e) {} o.s = o.s || { played: 0, won: 0, streak: 0, best: 0, perfect: 0 }; return o; })();
+function save() { try { localStorage.setItem(LS, JSON.stringify(store)); } catch (e) {} }
+function toast(m) { var t = $('toast'); t.textContent = m; t.classList.add('show'); clearTimeout(toast._t); toast._t = setTimeout(function () { t.classList.remove('show'); }, 1700); }
+function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+var G = null;
+function newGame() {
+  var groups = [], used = {};
+  [1, 2, 3, 4].forEach(function (tier) { var pool = CATS.filter(function (c) { return c.t === tier; }); groups.push(shuffle(pool)[0]); });
+  // sometimes swap one tier for a neighbour for variety
+  if (Math.random() < .4) { var i = Math.floor(Math.random() * 3) + 1, alt = shuffle(CATS.filter(function (c) { return c.t === groups[i].t && c !== groups[i]; }))[0]; if (alt) groups[i] = alt; }
+  var items = [];
+  groups.forEach(function (c, gi) { shuffle(c.w).slice(0, 4).forEach(function (w) { items.push({ w: w, g: gi }); }); });
+  var sh = shuffle(items);
+  G = { groups: groups, items: sh, all: sh.slice(), sel: [], solved: [], mist: 4, tried: {}, done: false, won: false };
+  $('end').hidden = true; render();
+}
+function render() {
+  var d;
+  d = G.solved.map(function (gi) { var c = G.groups[gi], ws = G.all.filter(function (x) { return x.g === gi; }).map(function (x) { return x.w; }); return '<div class="grp k' + c.t + '"><b>' + esc(c.n) + '</b><span>' + ws.map(esc).join(', ') + '</span></div>'; }).join('');
+  $('done').innerHTML = d;
+  var b = ''; G.items.forEach(function (it, i) { if (G.solved.indexOf(it.g) >= 0) return; b += '<button class="w' + (G.sel.indexOf(i) >= 0 ? ' on' : '') + '" type="button" data-i="' + i + '"' + (G.done ? ' disabled' : '') + '>' + esc(it.w) + '</button>'; });
+  $('board').innerHTML = b;
+  var dots = ''; for (var k = 0; k < 4; k++) dots += '<i class="' + (k < G.mist ? '' : 'off') + '"></i>'; $('dots').innerHTML = dots;
+  $('bGo').disabled = G.sel.length !== 4 || G.done; $('bShuf').disabled = G.done; $('bClear').disabled = !G.sel.length || G.done;
+}
+function start() { newGame(); }
+$('board').addEventListener('click', function (e) { var b = e.target.closest('.w'); if (!b || G.done) return; var i = +b.dataset.i, p = G.sel.indexOf(i); if (p >= 0) G.sel.splice(p, 1); else if (G.sel.length < 4) G.sel.push(i); render(); });
+$('bClear').onclick = function () { G.sel = []; render(); };
+$('bShuf').onclick = function () { var keep = G.sel.map(function (i) { return G.items[i]; }); G.items = shuffle(G.items); G.sel = keep.map(function (it) { return G.items.indexOf(it); }); render(); };
+$('bGo').onclick = function () {
+  if (G.sel.length !== 4 || G.done) return;
+  var picks = G.sel.map(function (i) { return G.items[i]; }), key = picks.map(function (x) { return x.w; }).sort().join('|');
+  if (G.tried[key]) { toast('You already tried that group'); return; } G.tried[key] = 1;
+  var counts = {}; picks.forEach(function (p) { counts[p.g] = (counts[p.g] || 0) + 1; });
+  var gi = Object.keys(counts).filter(function (k) { return counts[k] === 4; })[0];
+  if (gi != null) { G.solved.push(+gi); G.sel = []; render(); if (G.solved.length === 4) end(true); return; }
+  var max = Math.max.apply(null, Object.keys(counts).map(function (k) { return counts[k]; }));
+  G.mist--; var btns = $('board').querySelectorAll('.w.on'); btns.forEach(function (b) { b.classList.add('shake'); });
+  toast(max === 3 ? 'One away' : 'Not a group');
+  setTimeout(function () { if (G.mist <= 0) { end(false); } else render(); }, 450);
+};
+function end(won) {
+  G.done = true; G.won = won; G.sel = [];
+  var order = [0, 1, 2, 3].sort(function (a, b) { return G.groups[a].t - G.groups[b].t; });
+  if (!won) order.forEach(function (gi) { if (G.solved.indexOf(gi) < 0) G.solved.push(gi); });
+  var s = store.s; s.played++; if (won) { s.won++; s.streak++; if (s.streak > s.best) s.best = s.streak; if (G.mist === 4) s.perfect++; } else s.streak = 0; save();
+  render();
+  var e = $('end'); e.hidden = false;
+  e.innerHTML = '<div class="verdict ' + (won ? 'w1' : 'l') + '">' + (won ? (G.mist === 4 ? 'Perfect' : 'Solved') : 'Out of mistakes') + '</div><h2>' + (won ? 'You found all four groups' : 'Here are the groups') + '</h2><p>' + (won ? (4 - G.mist) + ' mistake' + (4 - G.mist === 1 ? '' : 's') + '.' : 'The rest are shown above.') + '</p><div class="acts"><button class="btn pri" id="bAgain" type="button">New puzzle</button><button class="btn" id="bShare" type="button">Copy result</button></div>';
+  $('bAgain').onclick = start; $('bShare').onclick = function () { var t = 'Linkup ' + (won ? (4 - G.mist) + ' mistakes' : 'X') + '\n' + G.all.length / 4 + ' groups'; var sq = ''; order.forEach(function (gi) { sq += ['', 'Y', 'G', 'B', 'V'][G.groups[gi].t] + ' '; }); t = 'Linkup ' + (won ? (4 - G.mist) + ' mistake(s)' : 'X') + '\n' + sq.trim(); if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(function () { toast('Result copied'); }, function () { toast(t); }); else toast(t); };
+  setTimeout(function () { e.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 200);
+}
+function openDlg(d) { if (d.showModal) d.showModal(); else d.setAttribute('open', ''); }
+$('bHelp').onclick = function () { openDlg($('dHelp')); };
+$('bStats').onclick = function () { var s = store.s; $('statBody').innerHTML = '<div class="stats">' + [['Played', s.played], ['Win %', s.played ? Math.round(s.won / s.played * 100) : 0], ['Streak', s.streak], ['Best', s.best]].map(function (x) { return '<div class="st"><b>' + x[1] + '</b><span>' + x[0] + '</span></div>'; }).join('') + '</div><div class="note" style="margin-top:8px">Perfect games: ' + s.perfect + '</div>'; openDlg($('dStats')); };
+document.querySelectorAll('[data-close]').forEach(function (b) { b.onclick = function () { b.closest('dialog').close(); }; });
+document.querySelectorAll('dialog').forEach(function (d) { d.addEventListener('click', function (e) { if (e.target === d) d.close(); }); });
+try { if (!store.seen) { store.seen = 1; save(); setTimeout(function () { openDlg($('dHelp')); }, 400); } } catch (e) {}
+window.__lu = { g: function () { return G; } };
+start();
+})();
+</script>
+</body>
+</html>
